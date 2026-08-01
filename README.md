@@ -1,65 +1,61 @@
-# Aqua Vitaeum 🥃
-> Personal Scotch Whisky Collection & Interactive Tasting Ledger
+# Aqua Vitaeum
 
-Aqua Vitaeum is an offline-first, state-of-the-art Scotch Whisky personal ledger featuring a dark vintage pub aesthetic and rich sensory analytics. Built with Next.js App Router, strict TypeScript domain types, local mock datasets, unit test coverage with Vitest, and automated GitHub Actions CI.
+> **Fine Spirits Journal & Interactive Tasting Notes Web Application**
 
----
+**Aqua Vitaeum** is an offline-first web journal designed for fine spirits connoisseurs (Scotch Whisky, Bourbon, Irish Whiskey, Japanese Whisky, Rum, Gin, Tequila, Mezcal, Cognac, and more). It combines a dark vintage iron pub aesthetic with interactive sensory analytics, dual-layer radar profiling, and collection management.
 
-## 🚀 Key Features
-
-- **Feature-Driven Architecture**: Modular, scalable folder structure grouping domain types, data models, utilities, and components by feature.
-- **100% Local Mock Data**: Zero external or paid API dependencies; fully typed local dataset with realistic Scotch Whiskies (Laphroaig 10, Lagavulin 16, Glenfiddich 12).
-- **Strict Domain Modeling**: Comprehensive TypeScript interfaces for ABV, ratings, 11-dimension sensory radar profiles (Nose & Taste), color designations, and sensory flavor tags.
-- **Unit Testing**: Vitest testing suite covering utility functions and validating dataset integrity.
-- **Automated CI/CD**: GitHub Actions workflow automatically validating type safety, unit tests, and production builds on every push and pull request.
+Built with Next.js 16 (App Router), React 19, TypeScript 5 (Strict Mode), Tailwind CSS v4, Recharts, Vitest 4, and GitHub Actions CI.
 
 ---
 
-## 🛠️ Tech Stack
+## Key Features & Capabilities
+
+### Interactive Tasting Ledger
+- Record comprehensive spirit metadata: Distillery, Name, Region, Age, Cask/Batch No., ABV %, Date Tasted, and Finish (wood/cask finish description).
+- Quick-toggle tasting checkboxes: **Cask Strength**, **Added water**, and **On the rocks**.
+- Dynamic score rating (1–100) with automatic 1–5 gold star calculation and visual quality category rating.
+- Destructive note deletion with an interactive confirmation modal dialog.
+
+### Dual-Layer Sensory Radar Profile
+- Interactive 11-dimension radar chart comparing **Nose** and **Taste** intensity profiles (*Fruity*, *Floral*, *Spicy*, *Cereal*, *Peaty*, *Sulphury*, *Feinty*, *Nutty*, *Woody*, *Winey*, *Chocolate*).
+- Compact 0–10 intensity range sliders for real-time sensory profile updates.
+
+### Spirit Color & Mouthfeel Selectors
+- Visual spirit color scale featuring defined color swatches (Clear, White Wine, Straw, Honey, Gold, Amber, Copper, Mahogany, Dark Oak).
+- Texture and mouthfeel selectors (Watery, Oily, Creamy, Smooth).
+
+### Categorized Flavor Tag Selector
+- Interactive flavor wheel tags categorized by profile (Peat & Smoke, Cask & Wood, Fruity & Floral, etc.) with an active flavor summary chip view.
+
+### Bottle & Label Photo Carousel
+- Upload, preview, navigate, and delete bottle label, spirit color, or tasting setup photos via browser DataURL storage.
+
+### Spirit Collection Management
+- Sidebar collection grid displaying spirit cards with ABV, color swatch, star rating, and region badge.
+- Real-time search filter by distillery, name, region, or spirit type.
+- Spirit type filter dropdown supporting all fine spirit categories.
+- One-click creation of new tasting notes with auto-selection handling.
+
+### Decoupled Domain Architecture & Testing
+- Clean separation of concerns utilizing custom React hooks (`useSpiritCollection`, `useTastingCardForm`, `usePhotoUpload`) and primitive UI components (`RatingStars`, `ConfirmDialog`).
+- Strict domain schema validation (`spirit.schema.ts`).
+- Colocated Vitest testing suite with `@testing-library/react` running in a `jsdom` environment.
+
+---
+
+## Tech Stack
 
 - **Framework**: [Next.js 16](https://nextjs.org/) (App Router, React 19)
 - **Language**: [TypeScript 5](https://www.typescriptlang.org/) (Strict Mode)
 - **Styling**: Tailwind CSS v4 & Vanilla CSS
-- **Testing**: [Vitest](https://vitest.dev/)
-- **CI/CD**: GitHub Actions (Node.js 22)
 - **Data Visualization**: Recharts
+- **Testing**: [Vitest 4](https://vitest.dev/) & [@testing-library/react](https://testing-library.com/) (`jsdom`)
+- **CI/CD**: GitHub Actions (Node.js 22)
 - **Icons**: Lucide React
 
 ---
 
-## 📁 Repository Structure
-
-```text
-aquavitaeum-whisky-app/
-├── .github/
-│   └── workflows/
-│       └── ci.yml                 # GitHub Actions CI pipeline
-├── src/
-│   ├── app/                       # Next.js App Router pages and layout
-│   ├── types/
-│   │   └── whisky.types.ts        # Core Whisky domain interfaces & types
-│   ├── data/
-│   │   └── mock-whiskies.ts       # Strongly-typed sample Scotch Whisky dataset
-│   ├── lib/
-│   │   ├── whisky-utils.ts        # ABV, rating, & tag helper utilities
-│   │   ├── schemas/               # Validation schemas placeholder
-│   │   └── __tests__/             # Unit tests (colocated Vitest suite)
-│   │       └── whisky-utils.test.ts
-│   └── components/
-│       ├── ui/                    # Reusable primitive UI components
-│       └── features/              # Feature-driven UI components
-│           ├── tasting-card/
-│           ├── tasting-wheel/
-│           ├── radar-chart/
-│           └── collection/
-├── vitest.config.ts               # Vitest configuration & alias path mapping (@/*)
-├── package.json                   # Project dependencies and npm scripts
-└── tsconfig.json                  # TypeScript compiler settings
-```
-
----
-
-## 📋 Available Scripts
+## Available Scripts
 
 In the project directory, you can run:
 
@@ -71,12 +67,12 @@ In the project directory, you can run:
 | `npm run type-check` | Runs TypeScript compiler checks (`tsc --noEmit`) |
 | `npm run test` | Executes unit tests once via Vitest |
 | `npm run test:watch` | Runs Vitest in interactive watch mode |
-| `npm run test:coverage` | Generates a 100% code coverage report in terminal and `./coverage/index.html` |
+| `npm run test:coverage` | Generates code coverage report in terminal and `./coverage/index.html` |
 | `npm run lint` | Runs ESLint analysis |
 
 ---
 
-## 🧪 Running Unit Tests & Coverage Locally
+## Running Unit Tests
 
 Run all unit tests once:
 ```bash
@@ -89,38 +85,17 @@ npm run test:coverage
 ```
 > Open `./coverage/index.html` in your browser for an interactive line-by-line coverage view.
 
-Run unit tests with detailed verbose output:
-```bash
-npx vitest run --reporter=verbose
-```
-
 Run unit tests in interactive watch mode:
 ```bash
 npm run test:watch
 ```
 
-Launch the interactive Vitest browser dashboard:
-```bash
-npx vitest --ui
-```
-
 ---
 
-## ⚙️ Continuous Integration (CI)
+## Continuous Integration (CI)
 
-The project includes a lightweight GitHub Actions workflow (`.github/workflows/ci.yml`) triggered on `push` and `pull_request` to `main` or `master` branches:
+The project includes an automated GitHub Actions workflow (`.github/workflows/ci.yml`) triggered on `push` and `pull_request` to `main` or `master` branches, configured with a multi-job parallel pipeline:
 
-1. **Checkout Code**: Retrieves latest commit code.
-2. **Setup Node.js**: Installs Node.js v22 with npm caching.
-3. **Install Dependencies**: Runs `npm ci`.
-4. **Type Check**: Runs `npm run type-check`.
-5. **Unit Tests**: Runs `npm run test`.
-6. **Production Build**: Executes `npm run build`.
-
----
-
-## 🗺️ Project Roadmap
-
-- [x] **Phase 1: Repo Cleanup & Setup**
-- [x] **Phase 2: Feature-Driven Folder Structure, Local Mock Architecture & Vitest CI Pipeline**
-- [ ] **Phase 3: Vintage Pub UI Theme, Tasting Cards, Radar Charts & Interactive Wheel Components**
+1. **`lint-and-typecheck`**: Runs `npm run lint` and `npm run type-check` concurrently.
+2. **`unit-tests`**: Runs `npm run test:coverage` in parallel to generate test coverage.
+3. **`production-build`**: Executes `npm run build` only after linting, typechecking, and unit tests pass.

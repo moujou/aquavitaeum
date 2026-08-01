@@ -1,4 +1,4 @@
-name: CI Workflow
+name: Aqua Vitaeum – CI
 
 on:
   push:
@@ -7,7 +7,8 @@ on:
     branches: [ main, master ]
 
 jobs:
-  build-and-test:
+  lint-and-typecheck:
+    name: Lint & Type Check
     runs-on: ubuntu-latest
 
     steps:
@@ -23,11 +24,49 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run Type-Check
+      - name: ESLint check
+        run: npm run lint
+
+      - name: TypeScript type-check
         run: npm run type-check
 
-      - name: Run Unit Tests
-        run: npm run test
+  unit-tests:
+    name: Unit Tests & Coverage
+    runs-on: ubuntu-latest
 
-      - name: Verify Next.js Production Build
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js v22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Unit tests & coverage
+        run: npm run test:coverage
+
+  production-build:
+    name: Production Build
+    needs: [lint-and-typecheck, unit-tests]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js v22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Production build
         run: npm run build
