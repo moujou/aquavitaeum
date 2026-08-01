@@ -3,10 +3,10 @@ import {
   isValidAbv,
   calculateRatingCategory,
   deduplicateTags,
-} from '../whisky-utils';
-import { MOCK_WHISKIES } from '@/data/mock-whiskies';
+} from '../spirit-utils';
+import { MOCK_SPIRITS } from '@/data/mock-spirits';
 
-describe('Whisky Utilities', () => {
+describe('Spirit Utilities', () => {
   describe('isValidAbv', () => {
     it('returns true for valid ABV values between 0 and 100', () => {
       expect(isValidAbv(40.0)).toBe(true);
@@ -51,25 +51,33 @@ describe('Whisky Utilities', () => {
     });
   });
 
-  describe('Integration with MOCK_WHISKIES Dataset', () => {
-    it('validates that all mock whiskies have valid ABVs', () => {
-      MOCK_WHISKIES.forEach((whisky) => {
-        expect(isValidAbv(whisky.abv)).toBe(true);
+  describe('Integration with MOCK_SPIRITS dataset', () => {
+    it('validates that all mock spirits have valid ABVs', () => {
+      MOCK_SPIRITS.forEach((spirit) => {
+        expect(isValidAbv(spirit.abv)).toBe(true);
       });
     });
 
-    it('validates that all mock whiskies have non-empty, deduplicated flavor tags', () => {
-      MOCK_WHISKIES.forEach((whisky) => {
-        const cleaned = deduplicateTags(whisky.whicFlavours);
+    it('validates that all mock spirits have non-empty, deduplicated flavor tags', () => {
+      MOCK_SPIRITS.forEach((spirit) => {
+        const cleaned = deduplicateTags(spirit.flavorTags);
         expect(cleaned.length).toBeGreaterThan(0);
-        expect(cleaned).toEqual(whisky.whicFlavours);
+        expect(cleaned).toEqual(spirit.flavorTags);
       });
     });
 
-    it('validates that all mock whiskies produce valid rating categories', () => {
-      MOCK_WHISKIES.forEach((whisky) => {
-        const category = calculateRatingCategory(whisky.rating100);
+    it('validates that all mock spirits produce valid rating categories', () => {
+      MOCK_SPIRITS.forEach((spirit) => {
+        const category = calculateRatingCategory(spirit.rating100);
         expect(['Exceptional', 'Great', 'Good', 'Average', 'Below Average']).toContain(category);
+      });
+    });
+
+    it('validates that all mock spirits have finish duration and finish notes properties', () => {
+      MOCK_SPIRITS.forEach((spirit) => {
+        expect(['Short', 'Medium', 'Long']).toContain(spirit.finish);
+        expect(typeof spirit.finishNotes).toBe('string');
+        expect(spirit.finishNotes.length).toBeGreaterThan(0);
       });
     });
   });
