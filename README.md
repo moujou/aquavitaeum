@@ -50,7 +50,7 @@ Built with Next.js 16 (App Router), React 19, TypeScript 5 (Strict Mode), Tailwi
 - **Styling**: Tailwind CSS v4 & Vanilla CSS
 - **Data Visualization**: Recharts
 - **Testing**: [Vitest 4](https://vitest.dev/) & [@testing-library/react](https://testing-library.com/) (`jsdom`)
-- **CI/CD**: GitHub Actions (Node.js 22)
+- **CI/CD**: GitHub Actions (Node.js 24)
 - **Icons**: Lucide React
 
 ---
@@ -94,7 +94,7 @@ npm run test:watch
 
 ## Continuous Integration (CI)
 
-The project includes an automated GitHub Actions workflow (`.github/workflows/ci.yml`) triggered on `push` and `pull_request` to `main` or `master` branches, configured with a multi-job parallel pipeline:
+The project includes an automated GitHub Actions workflow (`.github/workflows/ci.yml`) triggered on `push` and `pull_request` to `main` or `master` branches running on **Node.js 24**:
 
 1. **`lint-and-typecheck`**: Runs `npm run lint` and `npm run type-check` concurrently.
 2. **`unit-tests`**: Runs `npm run test:coverage` in parallel to generate test coverage.
