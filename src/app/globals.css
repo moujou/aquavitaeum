@@ -44,13 +44,20 @@ body {
     radial-gradient(ellipse at 80% 20%, rgba(23, 43, 28, 0.8) 0%, transparent 50%);
   color: var(--foreground);
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 /* ─── Scrollbar ──────────────────────────────────────────────────────────────── */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--pub-bg); }
-::-webkit-scrollbar-thumb { background: var(--brass-muted); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--brass-accent); }
+::-webkit-scrollbar { width: 5px; height: 0px; }
+::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); }
+::-webkit-scrollbar-thumb { background: rgba(197, 155, 39, 0.3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(197, 155, 39, 0.6); }
+
+/* Hide horizontal scrollbar everywhere */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(197, 155, 39, 0.3) transparent;
+}
 
 /* ─── Typography helpers ──────────────────────────────────────────────────────── */
 .font-display { font-family: 'Playfair Display', Georgia, serif; }

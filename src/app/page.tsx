@@ -3,6 +3,7 @@
 import { useSpiritCollection } from '@/hooks/useSpiritCollection';
 import { TastingCard } from '@/components/features/tasting-card/TastingCard';
 import { SpiritCollectionGrid } from '@/components/features/collection/SpiritCollectionGrid';
+import { Wine, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function Home() {
@@ -10,6 +11,7 @@ export default function Home() {
     spirits,
     selectedId,
     activeSpirit,
+    isLoading,
     selectSpirit,
     handleNewNote,
     handleSave,
@@ -24,63 +26,84 @@ export default function Home() {
       <main
         id="app-main"
         className={cn(
-          'min-h-screen flex flex-col',
-          'bg-[var(--pub-bg)]',
+          'h-screen flex flex-col overflow-hidden',
+          'bg-[var(--pub-bg)] text-[#e8d5b7]',
         )}
       >
         {/* ── App Header ─────────────────────────────────────────────────── */}
         <header
           id="app-header"
-          className="flex items-center justify-between px-6 py-3 border-b border-white/10 bg-[var(--wood-accent)]/60 backdrop-blur-sm sticky top-0 z-10"
+          className="flex-shrink-0 h-14 flex items-center justify-between px-6 border-b border-white/10 bg-[var(--wood-accent)]/60 backdrop-blur-sm z-10"
         >
           <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-full border border-[#C59B27] flex items-center justify-center bg-[#C59B27]/10">
-              <span className="text-[#C59B27] text-xs font-display font-bold">AV</span>
+            <div className="w-8 h-8 rounded-full border border-[#C59B27] flex items-center justify-center bg-[#C59B27]/10 shadow-[0_0_10px_rgba(197,155,39,0.2)]">
+              <Wine size={16} className="text-[#C59B27]" />
             </div>
             <div>
               <h1 className="font-display text-sm font-bold text-[#C59B27] tracking-wide leading-none">
                 Aqua Vitaeum
               </h1>
-              <p className="font-body text-[9px] text-white/40 uppercase tracking-widest leading-none mt-0.5">
+              <p className="font-body text-[9px] text-white/40 uppercase tracking-widest leading-none mt-1">
                 Fine Spirits Journal
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-body text-white/30">
-              {spirits.length} spirit{spirits.length !== 1 ? 's' : ''} in collection
+            <span className="text-[10px] font-body text-white/40 bg-black/30 px-2 py-1 rounded border border-white/5">
+              {isLoading ? (
+                <span className="flex items-center gap-1.5 text-[#C59B27]">
+                  <Loader2 size={10} className="animate-spin" /> Uncasking…
+                </span>
+              ) : (
+                `${spirits.length} spirit${spirits.length !== 1 ? 's' : ''} in journal`
+              )}
             </span>
           </div>
         </header>
 
-        {/* ── Main layout ────────────────────────────────────────────────── */}
-        <div className="flex flex-1 overflow-hidden">
-          {/* Sidebar: Collection */}
+        {/* ── Main layout: Independent Sidebar & Tasting Card Sections ──── */}
+        <div className="flex flex-1 overflow-hidden relative">
+          {/* Sidebar: Collection (Independent Scroll, Balanced 3:7 Ratio ~380px) */}
           <aside
             id="collection-sidebar"
-            className="w-72 flex-shrink-0 border-r border-white/10 bg-white/[0.02] p-4 overflow-y-auto"
+            className="w-80 md:w-[360px] lg:w-[380px] xl:w-[390px] flex-shrink-0 h-full flex flex-col overflow-hidden p-4 border-r border-white/10 bg-white/[0.02]"
           >
             <SpiritCollectionGrid
               spirits={spirits}
               selectedId={selectedId}
+              isLoading={isLoading}
               onSelect={(spirit) => selectSpirit(spirit.id)}
               onNewNote={handleNewNote}
             />
           </aside>
 
-          {/* Main: Tasting Card */}
+          {/* Main: Tasting Card (Independent Scroll) */}
           <section
             id="tasting-card-section"
-            className="flex-1 overflow-y-auto p-6 flex justify-center"
+            className="flex-1 h-full overflow-y-auto overflow-x-hidden p-6 flex justify-center"
           >
-            <div className="w-full max-w-5xl">
-              <TastingCard
-                key={activeSpirit.id}
-                initialSpirit={activeSpirit}
-                onSave={handleSave}
-                onDelete={handleDelete}
-              />
-            </div>
+            {isLoading ? (
+              <div className="w-full max-w-5xl flex flex-col items-center justify-center min-h-[400px] rounded-xl border border-white/10 bg-black/30 backdrop-blur-md p-12 text-center">
+                <div className="w-16 h-16 rounded-full border border-[#C59B27]/40 flex items-center justify-center bg-[#C59B27]/10 mb-4 shadow-[0_0_25px_rgba(197,155,39,0.25)] animate-pulse">
+                  <Wine size={32} className="text-[#C59B27]" />
+                </div>
+                <h2 className="font-display text-lg font-bold text-[#C59B27] tracking-wide mb-1">
+                  Uncasking Spirits Journal
+                </h2>
+                <p className="font-body text-xs text-white/50 max-w-sm leading-relaxed">
+                  Retrieving sensory profiles, tasting notes, and cellar collection data…
+                </p>
+              </div>
+            ) : (
+              <div className="w-full max-w-5xl">
+                <TastingCard
+                  key={activeSpirit.id}
+                  initialSpirit={activeSpirit}
+                  onSave={handleSave}
+                  onDelete={handleDelete}
+                />
+              </div>
+            )}
           </section>
         </div>
       </main>

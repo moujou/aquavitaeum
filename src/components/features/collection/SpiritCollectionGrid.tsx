@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { Search, Plus, MapPin, Percent, Star, Wine } from 'lucide-react';
-import { Spirit, SpiritType } from '@/types/spirit.types';
+import { Spirit, SpiritType, SPIRIT_TYPES } from '@/types/spirit.types';
 import { cn } from '@/lib/utils';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 interface SpiritCollectionGridProps {
   spirits: Spirit[];
   selectedId: string | null;
+  isLoading?: boolean;
   onSelect: (spirit: Spirit) => void;
   onNewNote: () => void;
   className?: string;
@@ -18,22 +19,38 @@ interface SpiritCollectionGridProps {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const COLOUR_HEX: Record<string, string> = {
-  'Dark Oak':   '#3B1A05',
-  'Mahogany':   '#6B2D0F',
-  'Copper':     '#B87333',
-  'Amber':      '#FFBF00',
-  'Gold':       '#FFD700',
-  'Honey':      '#FFC04D',
-  'Straw':      '#E8D8A0',
+  'Dark Oak': '#3B1A05',
+  Mahogany: '#6B2D0F',
+  Copper: '#B87333',
+  Amber: '#FFBF00',
+  Gold: '#FFD700',
+  Honey: '#FFC04D',
+  Straw: '#E8D8A0',
   'White Wine': '#F5F0DC',
-  'Clear':      '#D0E8FF',
+  Clear: '#D0E8FF',
 };
 
-const TYPE_FILTERS: (SpiritType | 'All')[] = [
-  'All', 'Single Malt Scotch', 'Blended Scotch', 'Bourbon',
-  'Irish Whiskey', 'Japanese Whisky', 'Rye Whiskey', 'Rum', 'Gin',
-  'Tequila', 'Mezcal', 'Cognac', 'Armagnac', 'Other',
-];
+const TYPE_FILTERS: (SpiritType | 'All')[] = ['All', ...SPIRIT_TYPES];
+
+// ─── Skeleton Card Component ──────────────────────────────────────────────────
+
+function SpiritCardSkeleton() {
+  return (
+    <div className="w-full flex-shrink-0 rounded-xl border border-white/5 bg-white/[0.03] p-4 animate-pulse overflow-hidden">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-start gap-4 min-w-0 flex-1">
+          <div className="w-12 h-16 rounded-sm bg-white/10 flex-shrink-0" />
+          <div className="flex-1 space-y-2.5">
+            <div className="h-4 bg-white/10 rounded w-3/4" />
+            <div className="h-3 bg-white/5 rounded w-1/2" />
+            <div className="h-2.5 bg-white/5 rounded w-2/3" />
+          </div>
+        </div>
+        <div className="w-12 h-10 rounded bg-white/10 flex-shrink-0" />
+      </div>
+    </div>
+  );
+}
 
 // ─── Spirit Card ──────────────────────────────────────────────────────────────
 
@@ -55,73 +72,100 @@ function SpiritCard({
       type="button"
       onClick={onClick}
       className={cn(
-        'w-full text-left rounded-lg border transition-all duration-200 p-3 group',
-        'hover:shadow-lg hover:scale-[1.01]',
+        'w-full flex-shrink-0 text-left rounded-xl border transition-all duration-200 p-4 group overflow-hidden',
+        'hover:shadow-lg hover:scale-[1.005]',
         isSelected
-          ? 'border-[#C59B27] bg-[#C59B27]/10 shadow-[0_0_0_1px_#C59B27]'
+          ? 'border-[#C59B27] bg-[#C59B27]/10 shadow-[0_0_15px_rgba(197,155,39,0.2)]'
           : 'border-white/10 bg-white/5 hover:border-[#C59B27]/50 hover:bg-white/8',
       )}
       aria-pressed={isSelected}
     >
-      <div className="flex items-start gap-3">
-        {/* Colour swatch */}
-        <div className="flex-shrink-0 mt-0.5">
-          <div
-            className="w-8 h-10 rounded-sm border border-white/20 shadow-inner"
-            style={{ backgroundColor: colourHex }}
-          />
+      <div className="flex items-center justify-between gap-4 min-w-0">
+        {/* Left: Swatch + Details */}
+        <div className="flex items-start gap-4 min-w-0 flex-1">
+          {/* Swatch or Custom Photo Thumbnail + Vertical Color Accent Bar */}
+          {spirit.thumbnailImage ? (
+            <div className="flex items-center gap-1 flex-shrink-0 mt-0.5">
+              {/* Photo Thumbnail */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={spirit.thumbnailImage}
+                alt={spirit.name}
+                className="w-12 h-16 rounded-sm border border-white/20 object-cover shadow-md"
+              />
+              {/* Vertical Spirit Color Accent Bar */}
+              <div
+                className="w-2 h-16 rounded-xs border border-white/10 shadow-inner"
+                title={`Colour: ${spirit.colour}`}
+                style={{ backgroundColor: colourHex }}
+              />
+            </div>
+          ) : (
+            <div className="flex-shrink-0 mt-0.5">
+              <div
+                className="w-12 h-16 rounded-sm border border-white/20 shadow-inner"
+                style={{ backgroundColor: colourHex }}
+              />
+            </div>
+          )}
+
+          {/* Info */}
+          <div className="flex-1 min-w-0">
+            <p className="font-display text-base font-bold text-[#C59B27] truncate leading-snug">
+              {spirit.distillery}
+            </p>
+            <p className="text-sm font-body text-[#e8d5b7] leading-tight truncate mt-0.5">
+              {spirit.name}
+            </p>
+
+            <div className="flex items-center gap-3 mt-1.5 flex-wrap text-white/60 font-body text-xs">
+              <span className="flex items-center gap-1.5">
+                <MapPin size={13} className="text-white/40" />
+                <span className="truncate max-w-[110px]">{spirit.region}</span>
+              </span>
+              {spirit.age && <span>{spirit.age}yr</span>}
+              <span className="flex items-center gap-1.5">
+                <Percent size={13} className="text-white/40" />
+                {spirit.abv}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-1 mt-1.5">
+              {[1, 2, 3, 4, 5].map((s) => (
+                <Star
+                  key={s}
+                  size={15}
+                  className={cn(
+                    stars >= s
+                      ? 'fill-[#C59B27] text-[#C59B27]'
+                      : stars >= s - 0.5
+                      ? 'fill-[#C59B27]/50 text-[#C59B27]'
+                      : 'fill-none text-white/20',
+                  )}
+                />
+              ))}
+            </div>
+
+            <p className="text-xs text-[#a07d1a] font-body mt-1 font-semibold truncate">
+              {spirit.spiritType}
+            </p>
+          </div>
         </div>
 
-        {/* Info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-1 mb-0.5">
-            <div className="min-w-0">
-              <p className="font-display text-xs font-semibold text-[#C59B27] truncate">
-                {spirit.distillery}
-              </p>
-              <p className="text-[11px] font-body text-[#e8d5b7] leading-tight truncate">
-                {spirit.name}
-              </p>
-            </div>
-            <span className={cn(
-              'flex-shrink-0 text-[9px] px-1.5 py-0.5 rounded-full font-semibold font-body',
-              spirit.rating100 >= 90 ? 'bg-amber-500/20 text-amber-300' :
-              spirit.rating100 >= 80 ? 'bg-green-500/20 text-green-300' :
-              'bg-white/10 text-white/60',
-            )}>
-              {spirit.rating100}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2 mt-1 flex-wrap">
-            <span className="flex items-center gap-1 text-[9px] text-white/50 font-body">
-              <MapPin size={8} />
-              {spirit.region}
-            </span>
-            {spirit.age && (
-              <span className="text-[9px] text-white/50 font-body">{spirit.age}yr</span>
+        {/* Right-Center Aligned Sleek Borderless Score Display */}
+        <div className="flex-shrink-0 self-center text-right ml-2 pr-1">
+          <span
+            className={cn(
+              'font-display text-2xl font-black leading-none tracking-tight transition-all duration-200',
+              spirit.rating100 >= 90
+                ? 'text-amber-300 [text-shadow:0_0_12px_rgba(245,158,11,0.35)]'
+                : spirit.rating100 >= 80
+                ? 'text-emerald-300 [text-shadow:0_0_12px_rgba(52,211,153,0.35)]'
+                : 'text-white/70 [text-shadow:0_0_8px_rgba(255,255,255,0.1)]',
             )}
-            <span className="flex items-center gap-1 text-[9px] text-white/50 font-body">
-              <Percent size={8} />
-              {spirit.abv}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-1 mt-1">
-            {[1, 2, 3, 4, 5].map((s) => (
-              <Star
-                key={s}
-                size={10}
-                className={cn(
-                  stars >= s ? 'fill-[#C59B27] text-[#C59B27]' :
-                  stars >= s - 0.5 ? 'fill-[#C59B27]/50 text-[#C59B27]' :
-                  'fill-none text-white/20',
-                )}
-              />
-            ))}
-          </div>
-
-          <p className="text-[9px] text-[#a07d1a] font-body mt-0.5 font-medium">{spirit.spiritType}</p>
+          >
+            {spirit.rating100}
+          </span>
         </div>
       </div>
     </button>
@@ -133,6 +177,7 @@ function SpiritCard({
 export function SpiritCollectionGrid({
   spirits,
   selectedId,
+  isLoading = false,
   onSelect,
   onNewNote,
   className,
@@ -155,54 +200,60 @@ export function SpiritCollectionGrid({
   }, [spirits, search, typeFilter]);
 
   return (
-    <div className={cn('flex flex-col gap-3', className)}>
+    <div className={cn('h-full flex flex-col gap-3.5 overflow-hidden', className)}>
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex-shrink-0 flex items-center justify-between px-0.5">
         <div className="flex items-center gap-2">
-          <Wine size={14} className="text-[#C59B27]" />
-          <h2 className="font-display text-sm font-semibold text-[#C59B27]">
+          <Wine size={16} className="text-[#C59B27]" />
+          <h2 className="font-display text-base font-bold text-[#C59B27]">
             Collection
           </h2>
-          <span className="text-[10px] text-white/40 font-body">({spirits.length})</span>
+          <span className="text-xs text-white/40 font-body">({spirits.length})</span>
         </div>
         <button
           id="new-tasting-note-btn"
           type="button"
+          disabled={isLoading}
           onClick={onNewNote}
           className={cn(
-            'flex items-center gap-1 px-3 py-1 rounded-sm text-[11px] font-display uppercase tracking-wider font-semibold border',
+            'flex items-center gap-1.5 px-3.5 py-1.5 rounded text-xs font-display uppercase tracking-wider font-semibold border',
             'bg-[#1A120B] text-[#C59B27] border-[#C59B27] hover:bg-[#C59B27] hover:text-[#1A120B] transition-colors duration-150 cursor-pointer shadow-xs',
+            'disabled:opacity-50 disabled:cursor-not-allowed',
           )}
         >
-          <Plus size={11} />
+          <Plus size={13} />
           New Note
         </button>
       </div>
 
       {/* Search & Themed Type Filter Dropdown */}
-      <div className="flex gap-2 items-center">
-        <div className="relative flex-1">
-          <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/30" />
+      <div className="flex-shrink-0 flex gap-2.5 items-center">
+        <div className="relative flex-1 min-w-0">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
           <input
             id="collection-search"
             type="text"
             value={search}
+            disabled={isLoading}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search spirits…"
             className={cn(
-              'w-full pl-7 pr-2 py-1.5 rounded-md bg-white/5 border border-white/10',
-              'text-xs text-white/80 font-body placeholder:text-white/30',
-              'focus:outline-none focus:border-[#C59B27]/50 transition-colors',
+              'w-full pl-8 pr-3 py-2 rounded-md bg-white/5 border border-white/10',
+              'text-xs text-white/90 font-body placeholder:text-white/30',
+              'focus:outline-none focus:border-[#C59B27]/60 transition-colors',
+              'disabled:opacity-50',
             )}
           />
         </div>
         <select
           id="collection-type-filter"
           value={typeFilter}
+          disabled={isLoading}
           onChange={(e) => setTypeFilter(e.target.value as SpiritType | 'All')}
           className={cn(
-            'bg-[#1A120B] border border-white/15 text-[11px] text-[#C59B27] font-body rounded-md px-2 py-1.5',
-            'focus:outline-none focus:border-[#C59B27] cursor-pointer transition-colors max-w-[110px]',
+            'bg-[#1A120B] border border-white/15 text-xs text-[#C59B27] font-body rounded-md px-2.5 py-2',
+            'focus:outline-none focus:border-[#C59B27] cursor-pointer transition-colors max-w-[130px] flex-shrink-0',
+            'disabled:opacity-50',
           )}
           aria-label="Filter spirits by type"
         >
@@ -215,10 +266,17 @@ export function SpiritCollectionGrid({
         </select>
       </div>
 
-      {/* Cards */}
-      <div className="flex flex-col gap-2 overflow-y-auto max-h-[calc(100vh-220px)]">
-        {filtered.length === 0 ? (
-          <p className="text-center text-xs text-white/30 font-body py-8 italic">
+      {/* Dynamic Scrollable Spirit Cards */}
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden pr-1 flex flex-col gap-2.5">
+        {isLoading ? (
+          <>
+            <SpiritCardSkeleton />
+            <SpiritCardSkeleton />
+            <SpiritCardSkeleton />
+            <SpiritCardSkeleton />
+          </>
+        ) : filtered.length === 0 ? (
+          <p className="text-center text-xs text-white/30 font-body py-10 italic">
             No spirits match your filter.
           </p>
         ) : (
