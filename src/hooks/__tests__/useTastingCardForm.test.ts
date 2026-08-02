@@ -76,18 +76,36 @@ describe('useTastingCardForm Hook', () => {
     expect(result.current.spirit.finishNotes).toBe('Extremely long warming medicinal finish');
   });
 
-  it('toggles Cask Strength, Added water, and On the rocks checkboxes', () => {
+  it('toggles Cask Strength, Added Colour, Chill Filtered, Added water, On the rocks, and With Chocolate options', () => {
     const { result } = renderHook(() => useTastingCardForm(MOCK_SPIRITS[0]));
 
     act(() => {
       result.current.update('isCaskStrength', true);
+      result.current.update('addedColour', true);
+      result.current.update('chillFiltered', false);
       result.current.update('addedWater', true);
       result.current.update('onTheRocks', false);
+      result.current.update('withChocolate', true);
     });
 
     expect(result.current.spirit.isCaskStrength).toBe(true);
+    expect(result.current.spirit.addedColour).toBe(true);
+    expect(result.current.spirit.chillFiltered).toBe(false);
     expect(result.current.spirit.addedWater).toBe(true);
     expect(result.current.spirit.onTheRocks).toBe(false);
+    expect(result.current.spirit.withChocolate).toBe(true);
+  });
+
+  it('updates bottle price and currency selection', () => {
+    const { result } = renderHook(() => useTastingCardForm(MOCK_SPIRITS[0]));
+
+    act(() => {
+      result.current.update('price', 64.99);
+      result.current.update('currency', '$');
+    });
+
+    expect(result.current.spirit.price).toBe(64.99);
+    expect(result.current.spirit.currency).toBe('$');
   });
 
   it('executes delete action via confirmDelete', () => {

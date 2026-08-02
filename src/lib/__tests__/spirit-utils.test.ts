@@ -3,10 +3,26 @@ import {
   isValidAbv,
   calculateRatingCategory,
   deduplicateTags,
+  createBlankSpirit,
 } from '../spirit-utils';
 import { MOCK_SPIRITS } from '@/data/mock-spirits';
 
 describe('Spirit Utilities', () => {
+  describe('createBlankSpirit', () => {
+    it('initializes a new spirit object with default attributes', () => {
+      const blank = createBlankSpirit();
+      expect(blank.id).toMatch(/^new-/);
+      expect(blank.spiritType).toBe('Single Malt Scotch');
+      expect(blank.isCaskStrength).toBe(false);
+      expect(blank.addedColour).toBe(false);
+      expect(blank.chillFiltered).toBe(true);
+      expect(blank.addedWater).toBe(false);
+      expect(blank.onTheRocks).toBe(false);
+      expect(blank.withChocolate).toBe(false);
+      expect(blank.currency).toBe('€');
+    });
+  });
+
   describe('isValidAbv', () => {
     it('returns true for valid ABV values between 0 and 100', () => {
       expect(isValidAbv(40.0)).toBe(true);

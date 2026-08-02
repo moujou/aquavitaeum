@@ -76,7 +76,12 @@ export function createBlankSpirit(): Spirit {
     flavorTags: [],
     images: [],
     isCaskStrength: false,
+    addedColour: false,
+    chillFiltered: true,
     addedWater: false,
     onTheRocks: false,
+    withChocolate: false,
+    price: undefined,
+    currency: '€',
   };
 }

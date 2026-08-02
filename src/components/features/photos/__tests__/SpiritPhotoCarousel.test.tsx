@@ -2,10 +2,15 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { SpiritPhotoCarousel } from '../SpiritPhotoCarousel';
+import { LanguageProvider } from '@/context/LanguageContext';
 
 describe('SpiritPhotoCarousel Component', () => {
   it('renders empty placeholder state when no images are provided', () => {
-    render(<SpiritPhotoCarousel images={[]} />);
+    render(
+      <LanguageProvider>
+        <SpiritPhotoCarousel images={[]} />
+      </LanguageProvider>,
+    );
 
     expect(screen.getByText('No Photos Added')).toBeDefined();
     expect(
@@ -16,7 +21,11 @@ describe('SpiritPhotoCarousel Component', () => {
 
   it('renders populated carousel when images are present', () => {
     const images = ['data:image/png;base64,img1', 'data:image/png;base64,img2'];
-    render(<SpiritPhotoCarousel images={images} />);
+    render(
+      <LanguageProvider>
+        <SpiritPhotoCarousel images={images} />
+      </LanguageProvider>,
+    );
 
     expect(screen.getByAltText('Spirit photo 1')).toBeDefined();
     expect(screen.getByText('1 / 2')).toBeDefined();
@@ -27,11 +36,13 @@ describe('SpiritPhotoCarousel Component', () => {
     const images = ['data:image/png;base64,img1', 'data:image/png;base64,img2'];
 
     render(
-      <SpiritPhotoCarousel
-        images={images}
-        thumbnailImage={undefined}
-        onSetThumbnail={handleSetThumbnail}
-      />,
+      <LanguageProvider>
+        <SpiritPhotoCarousel
+          images={images}
+          thumbnailImage={undefined}
+          onSetThumbnail={handleSetThumbnail}
+        />
+      </LanguageProvider>,
     );
 
     const setCoverBtn = screen.getByRole('button', { name: /Use as Thumbnail/i });
@@ -45,11 +56,13 @@ describe('SpiritPhotoCarousel Component', () => {
     const images = ['data:image/png;base64,img1'];
 
     render(
-      <SpiritPhotoCarousel
-        images={images}
-        thumbnailImage="data:image/png;base64,img1"
-        onSetThumbnail={handleSetThumbnail}
-      />,
+      <LanguageProvider>
+        <SpiritPhotoCarousel
+          images={images}
+          thumbnailImage="data:image/png;base64,img1"
+          onSetThumbnail={handleSetThumbnail}
+        />
+      </LanguageProvider>,
     );
 
     const activeCoverBtn = screen.getByRole('button', { name: /Use as Thumbnail \(Active\)/i });

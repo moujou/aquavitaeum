@@ -40,6 +40,10 @@ export const SPIRIT_FINISH_DURATIONS = ['Short', 'Medium', 'Long'] as const;
 
 export type SpiritFinishDuration = typeof SPIRIT_FINISH_DURATIONS[number];
 
+export const SUPPORTED_CURRENCIES = ['€', '$', '£', 'CHF'] as const;
+
+export type Currency = typeof SUPPORTED_CURRENCIES[number];
+
 export const ALL_FLAVOR_TAGS = [
   // Peat & Smoke
   'Peat Smoke',
@@ -154,8 +158,15 @@ export interface Spirit {
   images?: string[];
   /** Optional custom cover/thumbnail image URL from uploaded images. */
   thumbnailImage?: string;
-  /** Tasting checkboxes */
+  /** Production attributes */
   isCaskStrength?: boolean;
+  addedColour?: boolean;
+  chillFiltered?: boolean;
+  /** Tasting Additions / Serving methods */
   addedWater?: boolean;
   onTheRocks?: boolean;
+  withChocolate?: boolean;
+  /** Bottle Price & Currency */
+  price?: number;
+  currency?: Currency;
 }

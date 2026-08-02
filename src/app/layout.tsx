@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { LanguageProvider } from '@/context/LanguageContext';
 
 export const metadata: Metadata = {
   title: 'Aqua Vitaeum · Fine Spirits Journal',
@@ -12,7 +13,9 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className="h-full antialiased">
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <LanguageProvider>{children}</LanguageProvider>
+      </body>
     </html>
   );
 }
