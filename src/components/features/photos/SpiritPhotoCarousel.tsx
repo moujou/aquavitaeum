@@ -1,18 +1,22 @@
 'use client';
 
-import { Camera, ChevronLeft, ChevronRight, Trash2, Plus } from 'lucide-react';
+import { Camera, ChevronLeft, ChevronRight, Trash2, Plus, Wine, Star } from 'lucide-react';
 import { usePhotoUpload } from '@/hooks/usePhotoUpload';
 import { cn } from '@/lib/utils';
 
 interface SpiritPhotoCarouselProps {
   images?: string[];
+  thumbnailImage?: string;
   onChange?: (images: string[]) => void;
+  onSetThumbnail?: (url: string | undefined) => void;
   className?: string;
 }
 
 export function SpiritPhotoCarousel({
   images = [],
+  thumbnailImage,
   onChange,
+  onSetThumbnail,
   className,
 }: SpiritPhotoCarouselProps) {
   const {
@@ -24,6 +28,9 @@ export function SpiritPhotoCarousel({
     nextImage,
     prevImage,
   } = usePhotoUpload(images, onChange);
+
+  const currentPhoto = images[activeIndex];
+  const isThumbnail = currentPhoto && currentPhoto === thumbnailImage;
 
   return (
     <div className={cn('flex flex-col gap-2', className)}>
@@ -41,24 +48,9 @@ export function SpiritPhotoCarousel({
       {images.length === 0 ? (
         /* ── Empty State Placeholder ────────────────────────────────────────── */
         <div className="w-full h-80 sm:h-96 rounded-md border-2 border-dashed border-[#C4A87A] bg-[#1A120B]/5 flex flex-col items-center justify-center gap-3 p-4 text-center">
-          {/* Vintage Spirit Bottle & Glass SVG */}
-          <div className="w-14 h-14 rounded-full bg-[#C59B27]/15 border border-[#C59B27]/40 flex items-center justify-center text-[#C59B27]">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="w-8 h-8"
-            >
-              {/* Bottle */}
-              <path d="M9 2h6v3l2 3v12a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V8l2-3V2z" />
-              <line x1="9" y1="2" x2="15" y2="2" />
-              <line x1="7" y1="12" x2="17" y2="12" />
-              {/* Glass */}
-              <path d="M19 14l1.5 5.5a1 1 0 0 1-1 1.5H16.5a1 1 0 0 1-1-1.5L17 14" />
-            </svg>
+          {/* Signature Wine Icon */}
+          <div className="w-14 h-14 rounded-full bg-[#C59B27]/15 border border-[#C59B27]/40 flex items-center justify-center text-[#C59B27] shadow-[0_0_15px_rgba(197,155,39,0.15)]">
+            <Wine size={30} className="text-[#C59B27]" />
           </div>
 
           <div className="flex flex-col gap-0.5">
@@ -123,11 +115,34 @@ export function SpiritPhotoCarousel({
               {activeIndex + 1} / {images.length}
             </div>
 
+            {/* Use as Cover / Thumbnail button */}
+            <button
+              id="set-as-thumbnail-btn"
+              type="button"
+              onClick={() => {
+                onSetThumbnail?.(isThumbnail ? undefined : currentPhoto);
+              }}
+              className={cn(
+                'absolute bottom-2 left-2 px-2.5 py-1 rounded-full text-[10px] font-display font-semibold transition-all border shadow-md flex items-center gap-1.5 cursor-pointer',
+                isThumbnail
+                  ? 'bg-[#C59B27] text-[#1A120B] border-[#C59B27]'
+                  : 'bg-[#1A120B]/80 text-[#F5EEDC] border-[#C4A87A]/50 hover:bg-[#1A120B] hover:border-[#C59B27]',
+              )}
+            >
+              <Star size={11} className={isThumbnail ? 'fill-[#1A120B]' : 'text-[#C59B27]'} />
+              {isThumbnail ? 'Use as Thumbnail (Active)' : 'Use as Thumbnail'}
+            </button>
+
             {/* Top right actions: Delete & Add */}
             <div className="absolute top-2 right-2 flex items-center gap-1.5">
               <button
                 type="button"
-                onClick={() => handleDelete(activeIndex)}
+                onClick={() => {
+                  if (isThumbnail) {
+                    onSetThumbnail?.(undefined);
+                  }
+                  handleDelete(activeIndex);
+                }}
                 className="w-7 h-7 rounded-full bg-red-900/80 text-white hover:bg-red-800 flex items-center justify-center border border-red-400/40 transition-colors"
                 title="Delete photo"
                 aria-label="Delete photo"
@@ -155,7 +170,7 @@ export function SpiritPhotoCarousel({
                   type="button"
                   onClick={() => setActiveIndex(idx)}
                   className={cn(
-                    'w-9 h-9 rounded border overflow-hidden transition-all flex-shrink-0 cursor-pointer',
+                    'w-9 h-9 rounded border overflow-hidden transition-all flex-shrink-0 cursor-pointer relative',
                     idx === activeIndex
                       ? 'border-[#C59B27] ring-1 ring-[#C59B27]'
                       : 'border-[#C4A87A]/60 opacity-60 hover:opacity-100',
@@ -163,6 +178,9 @@ export function SpiritPhotoCarousel({
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={img} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
+                  {img === thumbnailImage && (
+                    <div className="absolute top-0.5 right-0.5 w-2.5 h-2.5 rounded-full bg-[#C59B27] border border-[#1A120B]" />
+                  )}
                 </button>
               ))}
             </div>

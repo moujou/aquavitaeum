@@ -368,7 +368,9 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
               <FieldLabel>Spirit Photos</FieldLabel>
               <SpiritPhotoCarousel
                 images={spirit.images}
+                thumbnailImage={spirit.thumbnailImage}
                 onChange={(imgs) => update('images', imgs)}
+                onSetThumbnail={(url) => update('thumbnailImage', url as string | undefined)}
               />
             </div>
 

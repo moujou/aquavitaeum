@@ -9,6 +9,10 @@
 /build
 .turbo
 
+# Local User Data Storage
+src/data/spirits.json
+src/data/spirits.json.tmp
+
 # Environment variables (allow .env.example)
 .env*
 !.env.example

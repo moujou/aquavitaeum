@@ -1,5 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 
+const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB limit
+
 export function usePhotoUpload(
   images: string[] = [],
   onChange?: (images: string[]) => void,
@@ -12,7 +14,31 @@ export function usePhotoUpload(
       const files = e.target.files;
       if (!files || files.length === 0) return;
 
-      const readFiles = Array.from(files).map((file) => {
+      const fileList = Array.from(files);
+      const validFiles: File[] = [];
+
+      for (const file of fileList) {
+        if (!file.type.startsWith('image/')) {
+          if (typeof window !== 'undefined') {
+            window.alert(`"${file.name}" is not a valid image file.`);
+          }
+          continue;
+        }
+        if (file.size > MAX_IMAGE_SIZE_BYTES) {
+          if (typeof window !== 'undefined') {
+            window.alert(`"${file.name}" exceeds the 5MB image size limit.`);
+          }
+          continue;
+        }
+        validFiles.push(file);
+      }
+
+      if (validFiles.length === 0) {
+        if (e.target) e.target.value = '';
+        return;
+      }
+
+      const readFiles = validFiles.map((file) => {
         return new Promise<string>((resolve) => {
           const reader = new FileReader();
           reader.onloadend = () => {

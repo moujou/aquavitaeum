@@ -1,4 +1,10 @@
-import { Spirit } from '@/types/spirit.types';
+import {
+  Spirit,
+  SPIRIT_TYPES,
+  SPIRIT_COLOURS,
+  SPIRIT_GLANCES,
+  SPIRIT_FINISH_DURATIONS,
+} from '@/types/spirit.types';
 import { isValidAbv } from '@/lib/spirit-utils';
 
 export interface ValidationResult {
@@ -12,8 +18,20 @@ export interface ValidationResult {
 export function validateSpirit(spirit: Partial<Spirit>): ValidationResult {
   const errors: Record<string, string> = {};
 
-  if (!spirit.spiritType) {
-    errors.spiritType = 'Spirit type is required.';
+  if (!spirit.spiritType || !(SPIRIT_TYPES as readonly string[]).includes(spirit.spiritType)) {
+    errors.spiritType = 'Valid spirit type is required.';
+  }
+
+  if (spirit.colour && !(SPIRIT_COLOURS as readonly string[]).includes(spirit.colour)) {
+    errors.colour = 'Invalid spirit colour choice.';
+  }
+
+  if (spirit.glance && !(SPIRIT_GLANCES as readonly string[]).includes(spirit.glance)) {
+    errors.glance = 'Invalid spirit mouthfeel choice.';
+  }
+
+  if (spirit.finish && !(SPIRIT_FINISH_DURATIONS as readonly string[]).includes(spirit.finish)) {
+    errors.finish = 'Invalid finish duration choice.';
   }
 
   if (spirit.abv !== undefined && !isValidAbv(spirit.abv)) {
@@ -26,6 +44,26 @@ export function validateSpirit(spirit: Partial<Spirit>): ValidationResult {
 
   if (spirit.age !== undefined && (spirit.age < 0 || spirit.age > 120)) {
     errors.age = 'Age must be between 0 and 120 years.';
+  }
+
+  if (spirit.distillery && spirit.distillery.length > 150) {
+    errors.distillery = 'Distillery name cannot exceed 150 characters.';
+  }
+
+  if (spirit.name && spirit.name.length > 150) {
+    errors.name = 'Spirit name cannot exceed 150 characters.';
+  }
+
+  if (spirit.region && spirit.region.length > 150) {
+    errors.region = 'Region cannot exceed 150 characters.';
+  }
+
+  if (spirit.caskNo && spirit.caskNo.length > 100) {
+    errors.caskNo = 'Cask number cannot exceed 100 characters.';
+  }
+
+  if (spirit.finishNotes && spirit.finishNotes.length > 2000) {
+    errors.finishNotes = 'Finish notes cannot exceed 2000 characters.';
   }
 
   return {

@@ -1,9 +1,31 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useSpiritCollection } from '../useSpiritCollection';
 import { MOCK_SPIRITS } from '@/data/mock-spirits';
 
 describe('useSpiritCollection Hook', () => {
+  beforeEach(() => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockImplementation((url: string) => {
+        if (url === '/api/spirits') {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({ spirits: MOCK_SPIRITS }),
+          });
+        }
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ success: true }),
+        });
+      }),
+    );
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('initializes with mock spirits dataset and sets activeSpirit to first spirit', () => {
     const { result } = renderHook(() => useSpiritCollection(MOCK_SPIRITS));
 
