@@ -4,6 +4,7 @@ import {
   SPIRIT_COLOURS,
   SPIRIT_GLANCES,
   SPIRIT_FINISH_DURATIONS,
+  SUPPORTED_CURRENCIES,
 } from '@/types/spirit.types';
 import { isValidAbv } from '@/lib/spirit-utils';
 
@@ -44,6 +45,14 @@ export function validateSpirit(spirit: Partial<Spirit>): ValidationResult {
 
   if (spirit.age !== undefined && (spirit.age < 0 || spirit.age > 120)) {
     errors.age = 'Age must be between 0 and 120 years.';
+  }
+
+  if (spirit.price !== undefined && (spirit.price < 0 || spirit.price > 100000)) {
+    errors.price = 'Price must be a positive amount up to 100,000.';
+  }
+
+  if (spirit.currency && !(SUPPORTED_CURRENCIES as readonly string[]).includes(spirit.currency)) {
+    errors.currency = 'Invalid currency choice.';
   }
 
   if (spirit.distillery && spirit.distillery.length > 150) {

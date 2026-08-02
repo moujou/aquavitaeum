@@ -12,6 +12,8 @@
 # Local User Data Storage
 src/data/spirits.json
 src/data/spirits.json.tmp
+src/data/settings.json
+src/data/settings.json.tmp
 
 # Environment variables (allow .env.example)
 .env*

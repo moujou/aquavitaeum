@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { SpiritCollectionGrid } from '../SpiritCollectionGrid';
 import { Spirit } from '@/types/spirit.types';
+import { LanguageProvider } from '@/context/LanguageContext';
 
 const MOCK_SPIRITS: Spirit[] = [
   {
@@ -96,12 +97,14 @@ const MOCK_SPIRITS: Spirit[] = [
 describe('SpiritCollectionGrid Component', () => {
   it('renders spirit collection cards with distillery names, spirit names, and scores', () => {
     render(
-      <SpiritCollectionGrid
-        spirits={MOCK_SPIRITS}
-        selectedId="spirit-1"
-        onSelect={vi.fn()}
-        onNewNote={vi.fn()}
-      />,
+      <LanguageProvider>
+        <SpiritCollectionGrid
+          spirits={MOCK_SPIRITS}
+          selectedId="spirit-1"
+          onSelect={vi.fn()}
+          onNewNote={vi.fn()}
+        />
+      </LanguageProvider>,
     );
 
     expect(screen.getByText('Laphroaig')).toBeDefined();
@@ -115,12 +118,14 @@ describe('SpiritCollectionGrid Component', () => {
 
   it('renders photo thumbnail image and vertical color bar when thumbnailImage is set', () => {
     render(
-      <SpiritCollectionGrid
-        spirits={MOCK_SPIRITS}
-        selectedId="spirit-2"
-        onSelect={vi.fn()}
-        onNewNote={vi.fn()}
-      />,
+      <LanguageProvider>
+        <SpiritCollectionGrid
+          spirits={MOCK_SPIRITS}
+          selectedId="spirit-2"
+          onSelect={vi.fn()}
+          onNewNote={vi.fn()}
+        />
+      </LanguageProvider>,
     );
 
     const thumbImg = screen.getByAltText('Double Oaked');
@@ -130,12 +135,14 @@ describe('SpiritCollectionGrid Component', () => {
 
   it('filters spirits by search query input', () => {
     render(
-      <SpiritCollectionGrid
-        spirits={MOCK_SPIRITS}
-        selectedId="spirit-1"
-        onSelect={vi.fn()}
-        onNewNote={vi.fn()}
-      />,
+      <LanguageProvider>
+        <SpiritCollectionGrid
+          spirits={MOCK_SPIRITS}
+          selectedId="spirit-1"
+          onSelect={vi.fn()}
+          onNewNote={vi.fn()}
+        />
+      </LanguageProvider>,
     );
 
     const searchInput = screen.getByPlaceholderText('Search spirits…');
@@ -148,12 +155,14 @@ describe('SpiritCollectionGrid Component', () => {
   it('calls onSelect when a spirit card is clicked', () => {
     const handleSelect = vi.fn();
     render(
-      <SpiritCollectionGrid
-        spirits={MOCK_SPIRITS}
-        selectedId="spirit-1"
-        onSelect={handleSelect}
-        onNewNote={vi.fn()}
-      />,
+      <LanguageProvider>
+        <SpiritCollectionGrid
+          spirits={MOCK_SPIRITS}
+          selectedId="spirit-1"
+          onSelect={handleSelect}
+          onNewNote={vi.fn()}
+        />
+      </LanguageProvider>,
     );
 
     const card = screen.getByRole('button', { name: /Woodford Reserve/i });
@@ -165,12 +174,14 @@ describe('SpiritCollectionGrid Component', () => {
   it('calls onNewNote when New Note button is clicked', () => {
     const handleNewNote = vi.fn();
     render(
-      <SpiritCollectionGrid
-        spirits={MOCK_SPIRITS}
-        selectedId="spirit-1"
-        onSelect={vi.fn()}
-        onNewNote={handleNewNote}
-      />,
+      <LanguageProvider>
+        <SpiritCollectionGrid
+          spirits={MOCK_SPIRITS}
+          selectedId="spirit-1"
+          onSelect={vi.fn()}
+          onNewNote={handleNewNote}
+        />
+      </LanguageProvider>,
     );
 
     const newNoteBtn = screen.getByRole('button', { name: /New Note/i });

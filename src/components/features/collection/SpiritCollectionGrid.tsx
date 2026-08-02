@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { Search, Plus, MapPin, Percent, Star, Wine } from 'lucide-react';
 import { Spirit, SpiritType, SPIRIT_TYPES } from '@/types/spirit.types';
+import { useLanguage } from '@/context/LanguageContext';
 import { cn } from '@/lib/utils';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -182,6 +183,7 @@ export function SpiritCollectionGrid({
   onNewNote,
   className,
 }: SpiritCollectionGridProps) {
+  const { t } = useLanguage();
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<SpiritType | 'All'>('All');
 
@@ -206,7 +208,7 @@ export function SpiritCollectionGrid({
         <div className="flex items-center gap-2">
           <Wine size={16} className="text-[#C59B27]" />
           <h2 className="font-display text-base font-bold text-[#C59B27]">
-            Collection
+            {t('collection')}
           </h2>
           <span className="text-xs text-white/40 font-body">({spirits.length})</span>
         </div>
@@ -222,7 +224,7 @@ export function SpiritCollectionGrid({
           )}
         >
           <Plus size={13} />
-          New Note
+          {t('newNote')}
         </button>
       </div>
 
@@ -236,7 +238,7 @@ export function SpiritCollectionGrid({
             value={search}
             disabled={isLoading}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search spirits…"
+            placeholder={t('searchPlaceholder')}
             className={cn(
               'w-full pl-8 pr-3 py-2 rounded-md bg-white/5 border border-white/10',
               'text-xs text-white/90 font-body placeholder:text-white/30',
@@ -257,7 +259,7 @@ export function SpiritCollectionGrid({
           )}
           aria-label="Filter spirits by type"
         >
-          <option value="All">All Types</option>
+          <option value="All">{t('allTypes')}</option>
           {TYPE_FILTERS.filter((t) => t !== 'All').map((type) => (
             <option key={type} value={type} className="bg-[#1A120B] text-white">
               {type}
@@ -277,7 +279,7 @@ export function SpiritCollectionGrid({
           </>
         ) : filtered.length === 0 ? (
           <p className="text-center text-xs text-white/30 font-body py-10 italic">
-            No spirits match your filter.
+            {t('noMatchingFilter')}
           </p>
         ) : (
           filtered.map((spirit) => (

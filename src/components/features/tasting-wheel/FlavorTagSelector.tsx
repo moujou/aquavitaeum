@@ -1,81 +1,65 @@
 'use client';
 
+import { useLanguage } from '@/context/LanguageContext';
+import { TranslationKey } from '@/lib/i18n/translations';
 import { cn } from '@/lib/utils';
 
 // ─── Category Data ────────────────────────────────────────────────────────────
 
 interface FlavorCategory {
   id: string;
-  label: string;
+  translationKey: TranslationKey;
   emoji: string;
-  color: string;
-  selectedColor: string;
   tags: string[];
 }
 
 const FLAVOR_CATEGORIES: FlavorCategory[] = [
   {
     id: 'peat-smoke',
-    label: 'Peat & Smoke',
+    translationKey: 'cat_peat_smoke',
     emoji: '🪵',
-    color: 'border-stone-400 text-stone-700 hover:bg-stone-200',
-    selectedColor: 'bg-stone-600 border-stone-600 text-white',
     tags: ['Peat Smoke', 'Wood Smoke', 'Campfire', 'Medicinal / Iodine', 'Tar', 'Ash', 'Charcoal'],
   },
   {
     id: 'cask-wood',
-    label: 'Cask & Wood',
+    translationKey: 'cat_cask_wood',
     emoji: '🍷',
-    color: 'border-rose-400 text-rose-800 hover:bg-rose-50',
-    selectedColor: 'bg-rose-700 border-rose-700 text-white',
     tags: ['Bourbon Barrel', 'Sherry Cask', 'Port Wine', 'Rum Cask', 'Toasted Oak', 'Charred Wood', 'Spicy Oak'],
   },
   {
     id: 'fruity-floral',
-    label: 'Fruity & Floral',
+    translationKey: 'cat_fruity_floral',
     emoji: '🍎',
-    color: 'border-pink-400 text-pink-800 hover:bg-pink-50',
-    selectedColor: 'bg-pink-600 border-pink-600 text-white',
     tags: ['Green Apple', 'Pear', 'Banana', 'Citrus Peel', 'Dried Fig', 'Raisin', 'Peach', 'Fresh Blossom', 'Lavender', 'Rose'],
   },
   {
     id: 'sweetness-bakery',
-    label: 'Sweetness & Bakery',
+    translationKey: 'cat_sweetness_bakery',
     emoji: '🍯',
-    color: 'border-amber-500 text-amber-800 hover:bg-amber-50',
-    selectedColor: 'bg-amber-600 border-amber-600 text-white',
     tags: ['Honey', 'Vanilla', 'Caramel', 'Toffee', 'Dark Chocolate', 'Butterscotch', 'Maple Syrup', 'Marzipan'],
   },
   {
     id: 'cereal-grain',
-    label: 'Cereal & Grain',
+    translationKey: 'cat_cereal_grain',
     emoji: '🌾',
-    color: 'border-yellow-600 text-yellow-900 hover:bg-yellow-50',
-    selectedColor: 'bg-yellow-700 border-yellow-700 text-white',
     tags: ['Malted Barley', 'Wort', 'Cereal', 'Toast', 'Biscuit', 'Coffee', 'Cocoa'],
   },
   {
     id: 'nutty-oily',
-    label: 'Nutty & Oily',
+    translationKey: 'cat_nutty_oily',
     emoji: '🌰',
-    color: 'border-orange-500 text-orange-900 hover:bg-orange-50',
-    selectedColor: 'bg-orange-700 border-orange-700 text-white',
     tags: ['Walnut', 'Almond', 'Hazelnut', 'Creamy Butter', 'Linseed Oil'],
   },
   {
     id: 'herbal-botanical',
-    label: 'Herbal & Botanical',
+    translationKey: 'cat_herbal_botanical',
     emoji: '🌿',
-    color: 'border-green-600 text-green-900 hover:bg-green-50',
-    selectedColor: 'bg-green-700 border-green-700 text-white',
     tags: ['Garden Herbs', 'Black Pepper', 'Cinnamon', 'Clove', 'Dried Tobacco', 'Leather', 'Juniper', 'Lemongrass'],
   },
   {
     id: 'maritime-mineral',
-    label: 'Maritime & Mineral',
+    translationKey: 'cat_maritime_mineral',
     emoji: '🌊',
-    color: 'border-cyan-600 text-cyan-900 hover:bg-cyan-50',
-    selectedColor: 'bg-cyan-700 border-cyan-700 text-white',
     tags: ['Sea Salt', 'Seaweed', 'Damp Earth', 'Metallic', 'Mineral', 'Brine'],
   },
 ];
@@ -95,6 +79,8 @@ export function FlavorTagSelector({
   onChange,
   className,
 }: FlavorTagSelectorProps) {
+  const { t } = useLanguage();
+
   const toggle = (tag: string) => {
     const next = selectedTags.includes(tag)
       ? selectedTags.filter((t) => t !== tag)
@@ -103,15 +89,16 @@ export function FlavorTagSelector({
   };
 
   return (
-    <div className={cn('flex flex-col gap-2.5', className)}>
+    <div className={cn('flex flex-col gap-3.5', className)}>
       {FLAVOR_CATEGORIES.map((category) => (
-        <div key={category.id}>
-          {/* Category header */}
-          <p className="font-display text-[10px] font-semibold uppercase tracking-widest text-[#5c3d22] mb-1">
-            {category.emoji} {category.label}
+        <div key={category.id} className="flex flex-col gap-1.5">
+          {/* Category Header with Enlarged Pub Typography */}
+          <p className="font-display text-xs sm:text-sm font-bold uppercase tracking-wider text-[#a07d1a]">
+            {category.emoji} {t(category.translationKey)}
           </p>
-          {/* Tag chips */}
-          <div className="flex flex-wrap gap-1">
+
+          {/* Unified Pub Theme Tag Chips (Warm Oak Mahogany active background for soft contrast) */}
+          <div className="flex flex-wrap gap-1.5">
             {category.tags.map((tag) => {
               const isSelected = selectedTags.includes(tag);
               return (
@@ -121,11 +108,10 @@ export function FlavorTagSelector({
                   type="button"
                   onClick={() => toggle(tag)}
                   className={cn(
-                    'px-2 py-0.5 rounded-sm border text-[10px] font-medium',
-                    'transition-all duration-150 cursor-pointer select-none',
+                    'px-2.5 py-1 rounded-sm border text-xs sm:text-[13px] font-medium font-body transition-colors duration-150 cursor-pointer select-none',
                     isSelected
-                      ? category.selectedColor
-                      : category.color,
+                      ? 'bg-[#3D2616] border-[#C59B27] text-[#F5EEDC] shadow-xs'
+                      : 'bg-[#1A120B]/5 border-[#C4A87A]/60 text-[#5c3d22] hover:bg-[#1A120B]/15 hover:border-[#C59B27]',
                   )}
                   aria-pressed={isSelected}
                 >
@@ -139,11 +125,11 @@ export function FlavorTagSelector({
 
       {/* Active tags summary */}
       {selectedTags.length > 0 && (
-        <div className="mt-1 pt-2.5 border-t border-[#C4A87A]">
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-[#5c3d22] mb-0.5">
-            Active Flavors ({selectedTags.length})
+        <div className="mt-1 pt-3 border-t border-[#C4A87A]">
+          <p className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-[#5c3d22] mb-1">
+            {t('activeFlavorsSummary')} ({selectedTags.length})
           </p>
-          <p className="text-xs text-[#1A120B] font-body italic leading-relaxed">
+          <p className="text-xs sm:text-sm text-[#1A120B] font-body italic leading-relaxed">
             {selectedTags.join(' · ')}
           </p>
         </div>

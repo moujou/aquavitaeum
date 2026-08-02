@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { validateSpirit } from '../spirit.schema';
-import { SpiritType, SpiritColour, SpiritGlance, SpiritFinishDuration } from '@/types/spirit.types';
+import { SpiritType, SpiritColour, SpiritGlance, SpiritFinishDuration, Currency } from '@/types/spirit.types';
 
 describe('Spirit Schema Validation', () => {
   it('validates a valid spirit object with no errors', () => {
@@ -12,6 +12,10 @@ describe('Spirit Schema Validation', () => {
       abv: 43.0,
       rating100: 92,
       age: 12,
+      price: 59.99,
+      currency: '€' as const,
+      addedColour: false,
+      chillFiltered: true,
     };
     const result = validateSpirit(validSpirit);
     expect(result.valid).toBe(true);
@@ -85,6 +89,20 @@ describe('Spirit Schema Validation', () => {
     const result = validateSpirit(invalidAge);
     expect(result.valid).toBe(false);
     expect(result.errors.age).toBeDefined();
+  });
+
+  it('detects invalid price or currency', () => {
+    const invalidPrice = {
+      spiritType: 'Single Malt Scotch' as const,
+      price: -10,
+    };
+    expect(validateSpirit(invalidPrice).valid).toBe(false);
+
+    const invalidCurrency = {
+      spiritType: 'Single Malt Scotch' as const,
+      currency: 'BTC' as unknown as Currency,
+    };
+    expect(validateSpirit(invalidCurrency).valid).toBe(false);
   });
 
   it('detects string length boundary violations', () => {

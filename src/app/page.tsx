@@ -3,10 +3,13 @@
 import { useSpiritCollection } from '@/hooks/useSpiritCollection';
 import { TastingCard } from '@/components/features/tasting-card/TastingCard';
 import { SpiritCollectionGrid } from '@/components/features/collection/SpiritCollectionGrid';
-import { Wine, Loader2 } from 'lucide-react';
+import { LanguageToggle } from '@/components/ui/LanguageToggle';
+import { useLanguage } from '@/context/LanguageContext';
+import { Wine } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function Home() {
+  const { t } = useLanguage();
   const {
     spirits,
     selectedId,
@@ -41,23 +44,17 @@ export default function Home() {
             </div>
             <div>
               <h1 className="font-display text-sm font-bold text-[#C59B27] tracking-wide leading-none">
-                Aqua Vitaeum
+                {t('appTitle')}
               </h1>
               <p className="font-body text-[9px] text-white/40 uppercase tracking-widest leading-none mt-1">
-                Fine Spirits Journal
+                {t('appSubtitle')}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-body text-white/40 bg-black/30 px-2 py-1 rounded border border-white/5">
-              {isLoading ? (
-                <span className="flex items-center gap-1.5 text-[#C59B27]">
-                  <Loader2 size={10} className="animate-spin" /> Uncasking…
-                </span>
-              ) : (
-                `${spirits.length} spirit${spirits.length !== 1 ? 's' : ''} in journal`
-              )}
-            </span>
+
+          {/* Right Header: Theme-Fitted DE | EN Language Toggle */}
+          <div className="flex items-center gap-3">
+            <LanguageToggle />
           </div>
         </header>
 
@@ -88,7 +85,7 @@ export default function Home() {
                   <Wine size={32} className="text-[#C59B27]" />
                 </div>
                 <h2 className="font-display text-lg font-bold text-[#C59B27] tracking-wide mb-1">
-                  Uncasking Spirits Journal
+                  {t('uncasking')}
                 </h2>
                 <p className="font-body text-xs text-white/50 max-w-sm leading-relaxed">
                   Retrieving sensory profiles, tasting notes, and cellar collection data…
