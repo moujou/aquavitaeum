@@ -21,6 +21,11 @@ describe('i18n Translation Dictionary', () => {
     expect(t('collection', 'DE')).toBe('Sammlung');
   });
 
+  it('translates activeFlavors section title to Flavor Profile / Aroma-Profil', () => {
+    expect(t('activeFlavors', 'EN')).toBe('Flavor Profile');
+    expect(t('activeFlavors', 'DE')).toBe('Aroma-Profil');
+  });
+
   it('translates tasting additions keys correctly', () => {
     expect(t('tastingAdditions', 'EN')).toBe('Tasting Additions');
     expect(t('tastingAdditions', 'DE')).toBe('Tasting-Zusätze');

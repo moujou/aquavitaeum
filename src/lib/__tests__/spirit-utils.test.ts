@@ -4,6 +4,8 @@ import {
   calculateRatingCategory,
   deduplicateTags,
   createBlankSpirit,
+  formatDateByLanguage,
+  parseDateInputToIso,
 } from '../spirit-utils';
 import { MOCK_SPIRITS } from '@/data/mock-spirits';
 
@@ -15,7 +17,7 @@ describe('Spirit Utilities', () => {
       expect(blank.spiritType).toBe('Single Malt Scotch');
       expect(blank.isCaskStrength).toBe(false);
       expect(blank.addedColour).toBe(false);
-      expect(blank.chillFiltered).toBe(true);
+      expect(blank.chillFiltered).toBe(false);
       expect(blank.addedWater).toBe(false);
       expect(blank.onTheRocks).toBe(false);
       expect(blank.withChocolate).toBe(false);
@@ -64,6 +66,44 @@ describe('Spirit Utilities', () => {
     it('returns an empty array when given non-array inputs', () => {
       expect(deduplicateTags(null as unknown as string[])).toEqual([]);
       expect(deduplicateTags(undefined as unknown as string[])).toEqual([]);
+    });
+  });
+
+  describe('formatDateByLanguage', () => {
+    it('formats ISO dates correctly according to language setting', () => {
+      expect(formatDateByLanguage('2026-08-04', 'DE')).toBe('04.08.2026');
+      expect(formatDateByLanguage('2026-08-04', 'EN')).toBe('08/04/2026');
+      expect(formatDateByLanguage('2026-01-01', 'DE')).toBe('01.01.2026');
+      expect(formatDateByLanguage('2026-12-31', 'EN')).toBe('12/31/2026');
+    });
+
+    it('handles empty or malformed date strings gracefully', () => {
+      expect(formatDateByLanguage('')).toBe('');
+      expect(formatDateByLanguage(undefined)).toBe('');
+      expect(formatDateByLanguage('invalid-date')).toBe('invalid-date');
+    });
+  });
+
+  describe('parseDateInputToIso', () => {
+    it('parses German DD.MM.YYYY input strings into ISO YYYY-MM-DD', () => {
+      expect(parseDateInputToIso('04.08.2026', 'DE')).toBe('2026-08-04');
+      expect(parseDateInputToIso('4.8.2026', 'DE')).toBe('2026-08-04');
+    });
+
+    it('parses English MM/DD/YYYY input strings into ISO YYYY-MM-DD', () => {
+      expect(parseDateInputToIso('08/04/2026', 'EN')).toBe('2026-08-04');
+      expect(parseDateInputToIso('8/4/2026', 'EN')).toBe('2026-08-04');
+    });
+
+    it('accepts existing YYYY-MM-DD ISO strings directly', () => {
+      expect(parseDateInputToIso('2026-08-04', 'DE')).toBe('2026-08-04');
+      expect(parseDateInputToIso('2026-08-04', 'EN')).toBe('2026-08-04');
+    });
+
+    it('returns null for invalid date inputs', () => {
+      expect(parseDateInputToIso('invalid', 'DE')).toBeNull();
+      expect(parseDateInputToIso('99.99.9999', 'DE')).toBeNull();
+      expect(parseDateInputToIso('', 'EN')).toBeNull();
     });
   });
 

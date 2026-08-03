@@ -82,14 +82,26 @@ describe('useSpiritCollection Hook', () => {
     expect(result.current.selectedId).toBe(nextExpectedId);
   });
 
-  it('filters spirits by search query', () => {
+  it('filters spirits by search query including German translated attributes (e.g. Ölig, Bernstein, Torf)', () => {
     const { result } = renderHook(() => useSpiritCollection(MOCK_SPIRITS));
 
+    // Search by distillery
     act(() => {
       result.current.setSearch('Lagavulin');
     });
-
     expect(result.current.filteredSpirits.length).toBe(1);
     expect(result.current.filteredSpirits[0].distillery).toBe('Lagavulin');
+
+    // Multilingual search by German translated glance term "Ölig" (Oily)
+    act(() => {
+      result.current.setSearch('Ölig');
+    });
+    expect(result.current.filteredSpirits.some((s) => s.id === 'laphroaig-10')).toBe(true);
+
+    // Multilingual search by German translated colour term "Bernstein" (Amber)
+    act(() => {
+      result.current.setSearch('Bernstein');
+    });
+    expect(result.current.filteredSpirits.some((s) => s.id === 'lagavulin-16')).toBe(true);
   });
 });

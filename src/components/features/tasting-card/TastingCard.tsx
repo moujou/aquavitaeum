@@ -2,11 +2,12 @@
 
 import { RotateCcw, CheckCircle, Pencil, Check, Trash2 } from 'lucide-react';
 import { Spirit, SpiritType, SpiritColour, SpiritGlance, SpiritFinishDuration, SUPPORTED_CURRENCIES, Currency } from '@/types/spirit.types';
-import { FlavorRadarChart, SingleProfileSliders } from '@/components/features/radar-chart/FlavorRadarChart';
+import { FlavorRadarChart, DynamicProfileSliders } from '@/components/features/radar-chart/FlavorRadarChart';
 import { FlavorTagSelector } from '@/components/features/tasting-wheel/FlavorTagSelector';
 import { SpiritPhotoCarousel } from '@/components/features/photos/SpiritPhotoCarousel';
 import { RatingStars } from '@/components/ui/RatingStars';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { LocalizedDatePicker } from '@/components/ui/LocalizedDatePicker';
 import { useTastingCardForm } from '@/hooks/useTastingCardForm';
 import { useLanguage } from '@/context/LanguageContext';
 import { translateColour, translateGlance, translateFinish } from '@/lib/i18n/translations';
@@ -93,7 +94,6 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
     displayName,
     subtitleLocation,
     update,
-    updateProfile,
     handleSave,
     handleReset,
     confirmDelete,
@@ -221,12 +221,11 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
               </div>
               <div className="flex flex-col gap-1">
                 <FieldLabel>{t('dateTasted')}</FieldLabel>
-                <input
+                <LocalizedDatePicker
                   id="date-tasted-input"
-                  type="date"
                   value={spirit.dateTasted}
-                  onChange={(e) => update('dateTasted', e.target.value)}
-                  className="w-full bg-transparent border-b border-[#C4A87A] pb-1 text-sm sm:text-base text-[#1A120B] font-body focus:outline-none focus:border-[#5c3d22]"
+                  onChange={(isoDate) => update('dateTasted', isoDate)}
+                  language={language}
                 />
               </div>
 
@@ -455,8 +454,17 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
             <div className="border-t border-[#D4C3A3] pt-4 flex flex-col gap-2 w-full">
               <FieldLabel>{t('activeFlavors')}</FieldLabel>
               <FlavorTagSelector
-                selectedTags={spirit.flavorTags}
-                onChange={(tags) => update('flavorTags', tags)}
+                spiritId={spirit.id}
+                noseFlavorTags={spirit.noseFlavorTags ?? []}
+                tasteFlavorTags={spirit.tasteFlavorTags ?? []}
+                onNoseTagsChange={(tags) => {
+                  update('noseFlavorTags', tags);
+                  update('flavorTags', Array.from(new Set([...tags, ...(spirit.tasteFlavorTags ?? [])])));
+                }}
+                onTasteTagsChange={(tags) => {
+                  update('tasteFlavorTags', tags);
+                  update('flavorTags', Array.from(new Set([...(spirit.noseFlavorTags ?? []), ...tags])));
+                }}
                 className="mt-1 w-full"
               />
             </div>
@@ -485,26 +493,38 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
               <FlavorRadarChart
                 noseProfile={spirit.noseProfile}
                 tasteProfile={spirit.tasteProfile}
+                noseFlavorTags={spirit.noseFlavorTags ?? []}
+                tasteFlavorTags={spirit.tasteFlavorTags ?? []}
+                noseTagIntensities={spirit.noseTagIntensities ?? {}}
+                tasteTagIntensities={spirit.tasteTagIntensities ?? {}}
               />
             </div>
 
-            {/* Nose Sliders Section (Right Column under Radar Graph) */}
+            {/* Dynamic Nose Tag Sliders Section */}
             <div className="border-t border-[#D4C3A3] pt-4">
-              <SingleProfileSliders
+              <DynamicProfileSliders
                 title={t('noseIntensity')}
-                profile={spirit.noseProfile}
                 type="nose"
-                onChange={(key, val) => updateProfile('noseProfile', key, val)}
+                activeTags={spirit.noseFlavorTags ?? []}
+                tagIntensities={spirit.noseTagIntensities ?? {}}
+                onIntensityChange={(tagName, val) => {
+                  const updated = { ...(spirit.noseTagIntensities ?? {}), [tagName]: val };
+                  update('noseTagIntensities', updated);
+                }}
               />
             </div>
 
-            {/* Taste Sliders Section (Right Column under Nose Sliders) */}
+            {/* Dynamic Taste Tag Sliders Section */}
             <div className="border-t border-[#D4C3A3] pt-4">
-              <SingleProfileSliders
+              <DynamicProfileSliders
                 title={t('tasteIntensity')}
-                profile={spirit.tasteProfile}
                 type="taste"
-                onChange={(key, val) => updateProfile('tasteProfile', key, val)}
+                activeTags={spirit.tasteFlavorTags ?? []}
+                tagIntensities={spirit.tasteTagIntensities ?? {}}
+                onIntensityChange={(tagName, val) => {
+                  const updated = { ...(spirit.tasteTagIntensities ?? {}), [tagName]: val };
+                  update('tasteTagIntensities', updated);
+                }}
               />
             </div>
 

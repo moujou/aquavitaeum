@@ -152,8 +152,16 @@ export interface Spirit {
   finishNotes: string;
   noseProfile: FlavorProfile;
   tasteProfile: FlavorProfile;
-  /** Free-form tasting flavor tags selected from the Flavor Tag Selector. */
+  /** Overall aggregated tasting flavor tags. */
   flavorTags: string[];
+  /** Independent flavor tags selected specifically under Nose. */
+  noseFlavorTags?: string[];
+  /** Independent flavor tags selected specifically under Taste / Palate. */
+  tasteFlavorTags?: string[];
+  /** Dynamic tag intensity scores for Nose tags (0-10). */
+  noseTagIntensities?: Record<string, number>;
+  /** Dynamic tag intensity scores for Taste tags (0-10). */
+  tasteTagIntensities?: Record<string, number>;
   /** Optional array of uploaded bottle/label image Data URLs or URLs. */
   images?: string[];
   /** Optional custom cover/thumbnail image URL from uploaded images. */
