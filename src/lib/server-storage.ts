@@ -27,11 +27,20 @@ export async function readSpiritsFromFile(): Promise<Spirit[]> {
 
 /**
  * Atomically writes the spirits array to src/data/spirits.json
- * by writing to a temporary file first and renaming it.
+ * with fallback copy for Windows file-locking scenarios.
  */
 export async function writeSpiritsToFile(spirits: Spirit[]): Promise<void> {
   await fs.mkdir(DATA_DIR, { recursive: true });
   const jsonContent = JSON.stringify(spirits, null, 2);
   await fs.writeFile(TEMP_FILE_PATH, jsonContent, 'utf-8');
-  await fs.rename(TEMP_FILE_PATH, DATA_FILE_PATH);
+  try {
+    await fs.rename(TEMP_FILE_PATH, DATA_FILE_PATH);
+  } catch {
+    await fs.copyFile(TEMP_FILE_PATH, DATA_FILE_PATH);
+    try {
+      await fs.unlink(TEMP_FILE_PATH);
+    } catch {
+      // Ignore temp file cleanup error
+    }
+  }
 }

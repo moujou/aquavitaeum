@@ -40,7 +40,7 @@ export const TRANSLATIONS = {
     // Visuals & Texture
     colour: 'Colour',
     glanceMouthfeel: 'Glance / Mouthfeel',
-    activeFlavors: 'Active Flavors & Flavor Profile',
+    activeFlavors: 'Flavor Profile',
     activeFlavorsSummary: 'Active Flavors',
     spiritPhotos: 'Spirit Photos',
     noPhotosAdded: 'No Photos Added',
@@ -159,7 +159,7 @@ export const TRANSLATIONS = {
     // Visuals & Texture
     colour: 'Farbe',
     glanceMouthfeel: 'Mundgefühl',
-    activeFlavors: 'Aktive Aromen & Geschmacksprofil',
+    activeFlavors: 'Aroma-Profil',
     activeFlavorsSummary: 'Aktive Aromen',
     spiritPhotos: 'Spirituosen-Fotos',
     noPhotosAdded: 'Keine Fotos vorhanden',

@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Spirit, SpiritType } from '@/types/spirit.types';
 import { MOCK_SPIRITS } from '@/data/mock-spirits';
 import { createBlankSpirit } from '@/lib/spirit-utils';
+import { translateColour, translateGlance } from '@/lib/i18n/translations';
 
 const LOCAL_STORAGE_KEY = 'aquavitaeum_spirits_journal';
 
@@ -94,13 +95,32 @@ export function useSpiritCollection(initialSpirits: Spirit[] = MOCK_SPIRITS) {
   const filteredSpirits = useMemo(() => {
     return spirits.filter((s) => {
       const matchesType = typeFilter === 'All' || s.spiritType === typeFilter;
-      const q = search.toLowerCase();
+      const q = search.trim().toLowerCase();
+      if (!q) return matchesType;
+
+      const glanceEN = s.glance.toLowerCase();
+      const glanceDE = translateGlance(s.glance, 'DE').toLowerCase();
+
+      const colourEN = s.colour.toLowerCase();
+      const colourDE = translateColour(s.colour, 'DE').toLowerCase();
+
+      const tags = (s.flavorTags || []).join(' ').toLowerCase();
+      const finishNotes = (s.finishNotes || '').toLowerCase();
+      const caskNo = (s.caskNo || '').toLowerCase();
+
       const matchesSearch =
-        !q ||
         s.distillery.toLowerCase().includes(q) ||
         s.name.toLowerCase().includes(q) ||
         s.region.toLowerCase().includes(q) ||
-        s.spiritType.toLowerCase().includes(q);
+        s.spiritType.toLowerCase().includes(q) ||
+        glanceEN.includes(q) ||
+        glanceDE.includes(q) ||
+        colourEN.includes(q) ||
+        colourDE.includes(q) ||
+        caskNo.includes(q) ||
+        finishNotes.includes(q) ||
+        tags.includes(q);
+
       return matchesType && matchesSearch;
     });
   }, [spirits, search, typeFilter]);
