@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import type { ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { AlertTriangle } from 'lucide-react';
 
@@ -8,7 +8,7 @@ interface ConfirmDialogProps {
   isOpen: boolean;
   title: string;
   subtitle?: string;
-  message: React.ReactNode;
+  message: ReactNode;
   confirmLabel?: string;
   cancelLabel?: string;
   onConfirm: () => void;
