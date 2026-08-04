@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import { Language, SUPPORTED_LANGUAGES, TranslationKey, t as translate } from '@/lib/i18n/translations';
 
 const LOCAL_STORAGE_LANG_KEY = 'aquavitaeum_language_setting';
@@ -13,7 +13,7 @@ interface LanguageContextValue {
 
 const LanguageContext = createContext<LanguageContextValue | undefined>(undefined);
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
+export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>('EN');
 
   // Hydrate language on startup from /api/settings or localStorage fallback

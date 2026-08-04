@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { Search, ChevronDown, ChevronUp } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { SPIRIT_FLAVOR_TAXONOMY, FlavorDescriptor, translateFlavorTag } from '@/data/spirit-flavor-taxonomy';
@@ -51,14 +51,14 @@ export function FlavorTagSelector({
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSensoryMode, setActiveSensoryMode] = useState<SensoryMode>('nose');
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({});
+  const [prevSpiritId, setPrevSpiritId] = useState(spiritId);
 
-  // Reset all accordions to closed whenever the active spirit changes
-  const prevSpiritIdRef = useRef<string | undefined>(undefined);
-  if (prevSpiritIdRef.current !== spiritId) {
-    prevSpiritIdRef.current = spiritId;
-    if (Object.keys(openCategories).length > 0) {
-      setOpenCategories({});
-    }
+  // Reset all accordions to closed whenever the active spirit changes.
+  // This uses React's recommended derived-state pattern: update state during render
+  // when a prop changes, which React handles in the same render pass.
+  if (prevSpiritId !== spiritId) {
+    setPrevSpiritId(spiritId);
+    setOpenCategories({});
   }
 
   const toggleCategory = (catId: string, currentIsOpen: boolean) => {
