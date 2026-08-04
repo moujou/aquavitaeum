@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <g fill="none" stroke="#d5a626" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Outer Circle -->
+    <circle cx="256" cy="256" r="204" stroke-width="16" />
+
+    <!-- Continuous Outer Outline of the Glass -->
+    <path 
+      d="M 218 174 
+         H 294 
+         C 310 220 316 238 316 260 
+         C 316 300 286 318 256 318 
+         C 226 318 196 300 196 260 
+         C 196 238 202 220 218 174 Z" 
+      stroke-width="16" 
+    />
+
+    <!-- Horizontal Fill Line -->
+    <path d="M 197 260 H 315" stroke-width="16" />
+
+    <!-- Stem -->
+    <path d="M 256 318 V 366" stroke-width="16" />
+
+    <!-- Base -->
+    <path d="M 212 366 H 300" stroke-width="16" />
+  </g>
+</svg>

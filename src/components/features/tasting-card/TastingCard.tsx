@@ -1,7 +1,7 @@
 'use client';
 
 import { RotateCcw, CheckCircle, Pencil, Check, Trash2 } from 'lucide-react';
-import { Spirit, SpiritType, SpiritColour, SpiritGlance, SpiritFinishDuration, SUPPORTED_CURRENCIES, Currency } from '@/types/spirit.types';
+import { Spirit, SpiritType, SpiritColour, SUPPORTED_CURRENCIES, Currency, SPIRIT_TYPES, SPIRIT_GLANCES, SPIRIT_FINISH_DURATIONS, SPIRIT_COLOURS, SPIRIT_COLOUR_HEX } from '@/types/spirit.types';
 import { FlavorRadarChart, DynamicProfileSliders } from '@/components/features/radar-chart/FlavorRadarChart';
 import { FlavorTagSelector } from '@/components/features/tasting-wheel/FlavorTagSelector';
 import { SpiritPhotoCarousel } from '@/components/features/photos/SpiritPhotoCarousel';
@@ -13,28 +13,12 @@ import { useLanguage } from '@/context/LanguageContext';
 import { translateColour, translateGlance, translateFinish } from '@/lib/i18n/translations';
 import { cn } from '@/lib/utils';
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// ─── UI presentation constants (derived from domain types) ───────────────────
 
-const SPIRIT_TYPES: SpiritType[] = [
-  'Single Malt Scotch', 'Blended Scotch', 'Bourbon', 'Irish Whiskey',
-  'Japanese Whisky', 'Rye Whiskey', 'Rum', 'Gin', 'Tequila', 'Mezcal',
-  'Cognac', 'Armagnac', 'Other',
-];
-
-const COLOURS: { value: SpiritColour; hex: string }[] = [
-  { value: 'Dark Oak',    hex: '#3B1A05' },
-  { value: 'Mahogany',   hex: '#6B2D0F' },
-  { value: 'Copper',     hex: '#B87333' },
-  { value: 'Amber',      hex: '#FFBF00' },
-  { value: 'Gold',       hex: '#FFD700' },
-  { value: 'Honey',      hex: '#FFC04D' },
-  { value: 'Straw',      hex: '#E8D8A0' },
-  { value: 'White Wine', hex: '#F5F0DC' },
-  { value: 'Clear',      hex: '#F0F4FF' },
-];
-
-const GLANCES: SpiritGlance[] = ['Watery', 'Oily', 'Creamy', 'Smooth'];
-const FINISHES: SpiritFinishDuration[] = ['Short', 'Medium', 'Long'];
+/** Colour picker options — value + hex derived from the canonical SPIRIT_COLOUR_HEX map. */
+const COLOURS: { value: SpiritColour; hex: string }[] = SPIRIT_COLOURS.map(
+  (value) => ({ value, hex: SPIRIT_COLOUR_HEX[value] }),
+);
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -374,7 +358,7 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
                 <div className="flex flex-col gap-1">
                   <FieldLabel>{t('glanceMouthfeel')}</FieldLabel>
                   <div className="mt-1 grid grid-cols-1 gap-1">
-                    {GLANCES.map((g) => (
+                    {SPIRIT_GLANCES.map((g) => (
                       <button
                         key={g}
                         id={`glance-${g.toLowerCase()}`}
@@ -537,7 +521,7 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
           <div className="flex items-center justify-between gap-3">
             <FieldLabel>{t('finishLength')}</FieldLabel>
             <div className="flex gap-2">
-              {FINISHES.map((f) => (
+              {SPIRIT_FINISH_DURATIONS.map((f) => (
                 <button
                   key={f}
                   id={`finish-${f.toLowerCase()}`}

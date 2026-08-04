@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
   isValidAbv,
-  calculateRatingCategory,
   deduplicateTags,
   createBlankSpirit,
   formatDateByLanguage,
@@ -37,18 +36,6 @@ describe('Spirit Utilities', () => {
       expect(isValidAbv(-5)).toBe(false);
       expect(isValidAbv(105)).toBe(false);
       expect(isValidAbv(NaN)).toBe(false);
-    });
-  });
-
-  describe('calculateRatingCategory', () => {
-    it('correctly categorizes 1-100 scores', () => {
-      expect(calculateRatingCategory(95)).toBe('Exceptional');
-      expect(calculateRatingCategory(90)).toBe('Exceptional');
-      expect(calculateRatingCategory(85)).toBe('Great');
-      expect(calculateRatingCategory(80)).toBe('Great');
-      expect(calculateRatingCategory(75)).toBe('Good');
-      expect(calculateRatingCategory(60)).toBe('Average');
-      expect(calculateRatingCategory(45)).toBe('Below Average');
     });
   });
 
@@ -119,13 +106,6 @@ describe('Spirit Utilities', () => {
         const cleaned = deduplicateTags(spirit.flavorTags);
         expect(cleaned.length).toBeGreaterThan(0);
         expect(cleaned).toEqual(spirit.flavorTags);
-      });
-    });
-
-    it('validates that all mock spirits produce valid rating categories', () => {
-      MOCK_SPIRITS.forEach((spirit) => {
-        const category = calculateRatingCategory(spirit.rating100);
-        expect(['Exceptional', 'Great', 'Good', 'Average', 'Below Average']).toContain(category);
       });
     });
 
