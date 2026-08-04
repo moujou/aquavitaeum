@@ -5,7 +5,7 @@ import { TastingCard } from '@/components/features/tasting-card/TastingCard';
 import { SpiritCollectionGrid } from '@/components/features/collection/SpiritCollectionGrid';
 import { LanguageToggle } from '@/components/ui/LanguageToggle';
 import { useLanguage } from '@/context/LanguageContext';
-import { Wine } from 'lucide-react';
+import { WhiskyLogo } from '@/components/ui/WhiskyLogo';
 import { cn } from '@/lib/utils';
 
 export default function Home() {
@@ -40,7 +40,7 @@ export default function Home() {
         >
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full border border-[#C59B27] flex items-center justify-center bg-[#C59B27]/10 shadow-[0_0_10px_rgba(197,155,39,0.2)]">
-              <Wine size={16} className="text-[#C59B27]" />
+              <WhiskyLogo size={16} className="text-[#C59B27]" />
             </div>
             <div>
               <h1 className="font-display text-sm font-bold text-[#C59B27] tracking-wide leading-none">
@@ -82,7 +82,7 @@ export default function Home() {
             {isLoading ? (
               <div className="w-full max-w-5xl flex flex-col items-center justify-center min-h-[400px] rounded-xl border border-white/10 bg-black/30 backdrop-blur-md p-12 text-center">
                 <div className="w-16 h-16 rounded-full border border-[#C59B27]/40 flex items-center justify-center bg-[#C59B27]/10 mb-4 shadow-[0_0_25px_rgba(197,155,39,0.25)] animate-pulse">
-                  <Wine size={32} className="text-[#C59B27]" />
+                  <WhiskyLogo size={32} className="text-[#C59B27]" />
                 </div>
                 <h2 className="font-display text-lg font-bold text-[#C59B27] tracking-wide mb-1">
                   {t('uncasking')}

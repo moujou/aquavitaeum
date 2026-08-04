@@ -1,6 +1,7 @@
 'use client';
 
-import { Camera, ChevronLeft, ChevronRight, Trash2, Plus, Wine, Star } from 'lucide-react';
+import { Camera, ChevronLeft, ChevronRight, Trash2, Plus, Star } from 'lucide-react';
+import { WhiskyLogo } from '@/components/ui/WhiskyLogo';
 import { usePhotoUpload } from '@/hooks/usePhotoUpload';
 import { useLanguage } from '@/context/LanguageContext';
 import { cn } from '@/lib/utils';
@@ -52,7 +53,7 @@ export function SpiritPhotoCarousel({
         <div className="w-full h-96 sm:h-[440px] rounded-md border-2 border-dashed border-[#C4A87A] bg-[#1A120B]/5 flex flex-col items-center justify-center gap-3.5 p-6 text-center">
           {/* Signature Wine Icon */}
           <div className="w-16 h-16 rounded-full bg-[#C59B27]/15 border border-[#C59B27]/40 flex items-center justify-center text-[#C59B27] shadow-[0_0_20px_rgba(197,155,39,0.15)]">
-            <Wine size={34} className="text-[#C59B27]" />
+            <WhiskyLogo size={34} className="text-[#C59B27]" />
           </div>
 
           <div className="flex flex-col gap-1 max-w-sm">

@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Search, Plus, MapPin, Percent, Star, Wine } from 'lucide-react';
-import { Spirit, SpiritType, SPIRIT_TYPES } from '@/types/spirit.types';
+import { Search, Plus, MapPin, Percent, Star } from 'lucide-react';
+import { WhiskyLogo } from '@/components/ui/WhiskyLogo';
+import { Spirit, SpiritType, SPIRIT_TYPES, SPIRIT_COLOUR_HEX, SpiritColour } from '@/types/spirit.types';
 import { useLanguage } from '@/context/LanguageContext';
 import { cn } from '@/lib/utils';
 
@@ -16,20 +17,6 @@ interface SpiritCollectionGridProps {
   onNewNote: () => void;
   className?: string;
 }
-
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const COLOUR_HEX: Record<string, string> = {
-  'Dark Oak': '#3B1A05',
-  Mahogany: '#6B2D0F',
-  Copper: '#B87333',
-  Amber: '#FFBF00',
-  Gold: '#FFD700',
-  Honey: '#FFC04D',
-  Straw: '#E8D8A0',
-  'White Wine': '#F5F0DC',
-  Clear: '#D0E8FF',
-};
 
 const TYPE_FILTERS: (SpiritType | 'All')[] = ['All', ...SPIRIT_TYPES];
 
@@ -65,7 +52,7 @@ function SpiritCard({
   onClick: () => void;
 }) {
   const stars = Math.round((spirit.rating100 / 100) * 5 * 2) / 2;
-  const colourHex = COLOUR_HEX[spirit.colour] ?? '#FFD700';
+  const colourHex = SPIRIT_COLOUR_HEX[spirit.colour as SpiritColour] ?? '#FFD700';
 
   return (
     <button
@@ -206,7 +193,7 @@ export function SpiritCollectionGrid({
       {/* Header */}
       <div className="flex-shrink-0 flex items-center justify-between px-0.5">
         <div className="flex items-center gap-2">
-          <Wine size={16} className="text-[#C59B27]" />
+          <WhiskyLogo size={16} className="text-[#C59B27]" />
           <h2 className="font-display text-base font-bold text-[#C59B27]">
             {t('collection')}
           </h2>

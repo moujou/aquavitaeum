@@ -32,6 +32,19 @@ export const SPIRIT_COLOURS = [
 
 export type SpiritColour = typeof SPIRIT_COLOURS[number];
 
+/** Canonical hex colour values for each SpiritColour, used for UI rendering. */
+export const SPIRIT_COLOUR_HEX: Record<SpiritColour, string> = {
+  'Clear':      '#F0F4FF',
+  'White Wine': '#F5F0DC',
+  'Straw':      '#E8D8A0',
+  'Honey':      '#FFC04D',
+  'Gold':       '#FFD700',
+  'Amber':      '#FFBF00',
+  'Copper':     '#B87333',
+  'Mahogany':   '#6B2D0F',
+  'Dark Oak':   '#3B1A05',
+};
+
 export const SPIRIT_GLANCES = ['Watery', 'Oily', 'Creamy', 'Smooth'] as const;
 
 export type SpiritGlance = typeof SPIRIT_GLANCES[number];
