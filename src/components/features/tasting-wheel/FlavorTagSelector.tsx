@@ -47,7 +47,7 @@ export function FlavorTagSelector({
   className,
   spiritId,
 }: FlavorTagSelectorProps & { spiritId?: string }) {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSensoryMode, setActiveSensoryMode] = useState<SensoryMode>('nose');
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({});
@@ -126,21 +126,13 @@ export function FlavorTagSelector({
 
   return (
     <div className={cn('flex flex-col gap-3.5', className)}>
-      {/* ── Header: Search Input Bar (Left) & Mode Switch (Right) ───────────────── */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-        {/* Search Input Bar (Left) */}
-        <div className="relative flex-1">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8c6440]" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={language === 'DE' ? 'Aromen durchsuchen…' : 'Search flavor descriptors…'}
-            className="w-full bg-[#1A120B]/5 border border-[#C4A87A] rounded-sm pl-9 pr-3 py-1.5 text-xs sm:text-sm text-[#1A120B] placeholder:text-[#8c6440]/70 font-body focus:outline-none focus:border-[#5c3d22] transition-colors"
-          />
-        </div>
+      {/* ── Section Title Header (Left) & Mode Switch (Right) ────────────────────── */}
+      <div className="flex items-center justify-between border-b border-[#C4A87A]/50 pb-1">
+        <span className="text-xs sm:text-[13px] font-bold uppercase tracking-widest text-[#8c6440] font-body">
+          {t('activeFlavors')}
+        </span>
 
-        {/* Sensory Layer Toggle Switch (Right) */}
+        {/* Sensory Layer Toggle Switch (Right end of header) */}
         {!isLegacyMode && (
           <div className="flex items-center p-0.5 rounded-sm bg-[#1A120B]/10 border border-[#C4A87A]/80 shrink-0">
             <button
@@ -150,7 +142,7 @@ export function FlavorTagSelector({
                 'px-3 py-1.5 text-xs font-body font-bold rounded-xs transition-all flex items-center gap-1.5 cursor-pointer',
                 activeSensoryMode === 'nose'
                   ? 'bg-[#C59B27] text-[#1A120B] shadow-xs'
-                  : 'text-[#8c6440] hover:text-[#1A120B]',
+                  : 'text-[#5c3d22] hover:text-[#1A120B]',
               )}
               aria-pressed={activeSensoryMode === 'nose'}
             >
@@ -174,8 +166,8 @@ export function FlavorTagSelector({
               className={cn(
                 'px-3 py-1.5 text-xs font-body font-bold rounded-xs transition-all flex items-center gap-1.5 cursor-pointer',
                 activeSensoryMode === 'taste'
-                  ? 'bg-[#2A5E3F] text-[#F5EEDC] shadow-xs'
-                  : 'text-[#8c6440] hover:text-[#1A120B]',
+                  ? 'bg-[#2A5E3F] text-white shadow-xs'
+                  : 'text-[#5c3d22] hover:text-[#1A120B]',
               )}
               aria-pressed={activeSensoryMode === 'taste'}
             >
@@ -185,8 +177,8 @@ export function FlavorTagSelector({
                   className={cn(
                     'px-1.5 py-0.2 text-[10px] font-extrabold rounded-full',
                     activeSensoryMode === 'taste'
-                      ? 'bg-[#F5EEDC]/20 text-[#F5EEDC]'
-                      : 'bg-[#2A5E3F] text-[#F5EEDC]',
+                      ? 'bg-white/20 text-white'
+                      : 'bg-[#2A5E3F] text-white',
                   )}
                 >
                   {tasteFlavorTags.length}
@@ -195,6 +187,18 @@ export function FlavorTagSelector({
             </button>
           </div>
         )}
+      </div>
+
+      {/* Full-width Search Bar */}
+      <div className="relative w-full">
+        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8c6440] pointer-events-none" />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder={language === 'DE' ? 'Aromen durchsuchen…' : 'Search flavor descriptors…'}
+          className="w-full bg-[#1A120B]/5 border border-[#C4A87A] rounded-sm pl-9 pr-3 py-1.5 text-xs sm:text-sm text-[#1A120B] placeholder:text-[#8c6440]/70 font-body focus:outline-none focus:border-[#5c3d22] transition-colors"
+        />
       </div>
 
       {/* Spirit Flavor Taxonomy Categories */}

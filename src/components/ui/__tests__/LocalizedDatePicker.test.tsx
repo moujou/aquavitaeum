@@ -16,7 +16,7 @@ describe('LocalizedDatePicker UI Component', () => {
 
     const input = screen.getByRole('textbox') as HTMLInputElement;
     expect(input.value).toBe('04.08.2026');
-    expect(screen.getByText('DD.MM.YYYY')).toBeDefined();
+    expect(input.placeholder).toBe('DD.MM.YYYY');
   });
 
   it('renders date formatted as MM/DD/YYYY and format hint MM/DD/YYYY when language is EN', () => {
@@ -32,7 +32,7 @@ describe('LocalizedDatePicker UI Component', () => {
 
     const input = screen.getByRole('textbox') as HTMLInputElement;
     expect(input.value).toBe('08/04/2026');
-    expect(screen.getByText('MM/DD/YYYY')).toBeDefined();
+    expect(input.placeholder).toBe('MM/DD/YYYY');
   });
 
   it('calls onChange with ISO string when text input is typed in German format', () => {

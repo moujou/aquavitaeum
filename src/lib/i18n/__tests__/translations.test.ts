@@ -4,7 +4,6 @@ import {
   t,
   translateColour,
   translateGlance,
-  translateFinish,
   translateRadarDimension,
 } from '../translations';
 
@@ -51,9 +50,10 @@ describe('i18n Translation Dictionary', () => {
     expect(translateGlance('Watery', 'DE')).toBe('Wässrig');
   });
 
-  it('translates finish durations accurately', () => {
-    expect(translateFinish('Short', 'DE')).toBe('Kurz');
-    expect(translateFinish('Long', 'DE')).toBe('Lang');
+  it('translates finish time intensity diagram keys accurately', () => {
+    expect(t('finishTimeIntensityDiagram', 'EN')).toBe('Finish Intensity');
+    expect(t('finishTimeIntensityDiagram', 'DE')).toBe('Abgangs-Intensität');
+    expect(t('attackPhase', 'DE')).toBe('Auftakt (0–3s)');
   });
 
   it('translates radar dimensions accurately', () => {

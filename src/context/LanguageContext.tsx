@@ -52,6 +52,13 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  // Sync HTML lang attribute for screen readers, CSS :lang(), and spellcheck
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = language.toLowerCase();
+    }
+  }, [language]);
+
   const setLanguage = useCallback((newLang: Language) => {
     setLanguageState(newLang);
 

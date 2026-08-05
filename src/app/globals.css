@@ -2,7 +2,8 @@
 @import "tailwindcss";
 
 /* ─── Design Tokens ─────────────────────────────────────────────────────────── */
-:root {
+:root,
+[data-theme="pub-dark"] {
   /* Pub atmosphere */
   --pub-bg: #0c1a0e;
   --pub-bg-alt: #172B1C;

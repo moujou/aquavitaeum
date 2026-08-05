@@ -11,6 +11,7 @@ export const TRANSLATIONS = {
 
     // Collection Sidebar
     collection: 'Collection',
+    notes: 'Notes',
     newNote: 'New Note',
     searchPlaceholder: 'Search spirits…',
     allTypes: 'All Types',
@@ -62,21 +63,37 @@ export const TRANSLATIONS = {
     cat_maritime_mineral: 'Maritime & Mineral',
 
     // Radar & Sliders
-    noseTasteRadar: 'Nose & Taste Radar',
+    noseTasteRadar: 'Taste & Note',
     noseIntensity: 'Nose Intensity',
     tasteIntensity: 'Taste Intensity',
 
     // Finish Section
-    finishLength: 'Finish Length',
+    finishTimeIntensityDiagram: 'Finish Intensity',
+    finishLength: 'Finish Length & Temporal Profile',
     finishNotes: 'Finish Notes',
     finishNotesPlaceholder: 'Describe the lingering finish, warmth, and persistence…',
+    simpleMode: 'Simple',
+    advancedMode: 'Advanced',
+    finish_Short: 'Short (0–5s)',
+    finish_Medium: 'Medium (5–12s)',
+    finish_Long: 'Long (10–20s+)',
+    attackPhase: 'Attack (0–3s)',
+    midPhase: 'Mid-Palate (3–10s)',
+    finishPhase: 'Finish (10–30s+)',
+    timeSeconds: 'Time (seconds)',
+    intensityScale: 'Intensity (0–10)',
+    startTime: 'Start (s)',
+    peakIntensity: 'Peak (0–10)',
+    finishDuration: 'Length (s)',
+    noActiveFlavorTagsFinish: 'Select flavor tags under Nose or Taste to view and edit flavor evolution curves in the finish diagram.',
+    interactiveControlsHint: 'Drag control points on the canvas or adjust sliders below.',
 
     // Rating & Score
     scoreRatingSection: 'Score & Rating Section',
     score: 'Score',
-    deleteTastingNote: 'Delete Tasting Note',
+    deleteTastingNote: 'Delete',
     reset: 'Reset',
-    saveTastingNote: 'Save Tasting Note',
+    saveTastingNote: 'Save',
     saved: 'Saved!',
 
     // Delete Modal
@@ -103,11 +120,6 @@ export const TRANSLATIONS = {
     glance_Creamy: 'Creamy',
     glance_Smooth: 'Smooth',
 
-    // Finish Durations
-    finish_Short: 'Short',
-    finish_Medium: 'Medium',
-    finish_Long: 'Long',
-
     // Radar Dimensions
     radar_fruity: 'Fruity',
     radar_floral: 'Floral',
@@ -130,6 +142,7 @@ export const TRANSLATIONS = {
 
     // Collection Sidebar
     collection: 'Sammlung',
+    notes: 'Notizen',
     newNote: 'Neue Notiz',
     searchPlaceholder: 'Spirituosen suchen…',
     allTypes: 'Alle Typen',
@@ -181,21 +194,37 @@ export const TRANSLATIONS = {
     cat_maritime_mineral: 'Maritim & Mineralisch',
 
     // Radar & Sliders
-    noseTasteRadar: 'Nase & Geschmack Radar',
+    noseTasteRadar: 'Geschmack & Nase',
     noseIntensity: 'Nasen-Intensität',
     tasteIntensity: 'Geschmacks-Intensität',
 
     // Finish Section
-    finishLength: 'Abgangslänge',
+    finishTimeIntensityDiagram: 'Abgangs-Intensität',
+    finishLength: 'Abgangslänge & Zeitverlauf',
     finishNotes: 'Abgangsnotizen',
     finishNotesPlaceholder: 'Beschreibe den anhaltenden Nachklang, die Wärme und Komplexität…',
+    simpleMode: 'Einfach',
+    advancedMode: 'Erweitert',
+    finish_Short: 'Kurz (0–5s)',
+    finish_Medium: 'Mittel (5–12s)',
+    finish_Long: 'Lang (10–20s+)',
+    attackPhase: 'Auftakt (0–3s)',
+    midPhase: 'Mitte (3–10s)',
+    finishPhase: 'Abgang / Nachhall (10–30s+)',
+    timeSeconds: 'Zeit (Sekunden)',
+    intensityScale: 'Intensität (0–10)',
+    startTime: 'Start (s)',
+    peakIntensity: 'Peak (0–10)',
+    finishDuration: 'Länge (s)',
+    noActiveFlavorTagsFinish: 'Wähle oben Aromen bei Nase oder Geschmack aus, um Entfaltungskurven im Abgangs-Diagramm anzuzeigen und zu bearbeiten.',
+    interactiveControlsHint: 'Ziehe Kontrollpunkte im Graphen oder bewege die Regler unten.',
 
     // Rating & Score
     scoreRatingSection: 'Bewertung & Punkte',
     score: 'Punkte',
-    deleteTastingNote: 'Verkostung löschen',
+    deleteTastingNote: 'Löschen',
     reset: 'Zurücksetzen',
-    saveTastingNote: 'Verkostung speichern',
+    saveTastingNote: 'Speichern',
     saved: 'Gespeichert!',
 
     // Delete Modal
@@ -221,11 +250,6 @@ export const TRANSLATIONS = {
     glance_Oily: 'Ölig',
     glance_Creamy: 'Cremig',
     glance_Smooth: 'Weich',
-
-    // Finish Durations
-    finish_Short: 'Kurz',
-    finish_Medium: 'Mittel',
-    finish_Long: 'Lang',
 
     // Radar Dimensions
     radar_fruity: 'Fruchtig',
@@ -256,11 +280,6 @@ export function translateColour(colour: string, lang: Language): string {
 export function translateGlance(glance: string, lang: Language): string {
   const normalizedKey = `glance_${glance}` as TranslationKey;
   return TRANSLATIONS[lang]?.[normalizedKey] ?? glance;
-}
-
-export function translateFinish(finish: string, lang: Language): string {
-  const normalizedKey = `finish_${finish}` as TranslationKey;
-  return TRANSLATIONS[lang]?.[normalizedKey] ?? finish;
 }
 
 export function translateRadarDimension(dim: string, lang: Language): string {

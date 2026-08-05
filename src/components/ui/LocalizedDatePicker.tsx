@@ -83,12 +83,8 @@ export function LocalizedDatePicker({
         onChange={handleTextChange}
         onBlur={handleBlur}
         placeholder={formatHint}
-        className="w-full bg-transparent border-b border-[#C4A87A] pb-1 pr-14 text-sm sm:text-base text-[#1A120B] font-body focus:outline-none focus:border-[#5c3d22] placeholder:text-[#c4a87a]/60"
+        className="w-full bg-transparent border-b border-[#C4A87A] pb-1 pr-7 text-sm sm:text-base text-[#1A120B] font-body focus:outline-none focus:border-[#5c3d22] placeholder:text-[#c4a87a]/60"
       />
-      {/* Format Badge Indicator */}
-      <span className="absolute right-7 bottom-1.5 text-[10px] font-bold text-[#8c6440]/70 uppercase select-none pointer-events-none font-body">
-        {formatHint}
-      </span>
       {/* Calendar Icon Button */}
       <button
         ref={calendarBtnRef}

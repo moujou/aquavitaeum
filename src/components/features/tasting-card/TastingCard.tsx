@@ -1,16 +1,20 @@
 'use client';
 
+import { useState } from 'react';
 import { RotateCcw, CheckCircle, Pencil, Check, Trash2 } from 'lucide-react';
-import { Spirit, SpiritType, SpiritColour, SUPPORTED_CURRENCIES, Currency, SPIRIT_TYPES, SPIRIT_GLANCES, SPIRIT_FINISH_DURATIONS, SPIRIT_COLOURS, SPIRIT_COLOUR_HEX } from '@/types/spirit.types';
+
+// ─── UI presentation constants (derived from domain types) ───────────────────
+import { Spirit, SpiritType, SpiritColour, SUPPORTED_CURRENCIES, Currency, SPIRIT_TYPES, SPIRIT_GLANCES, SPIRIT_COLOURS, SPIRIT_COLOUR_HEX } from '@/types/spirit.types';
 import { FlavorRadarChart, DynamicProfileSliders } from '@/components/features/radar-chart/FlavorRadarChart';
 import { FlavorTagSelector } from '@/components/features/tasting-wheel/FlavorTagSelector';
 import { SpiritPhotoCarousel } from '@/components/features/photos/SpiritPhotoCarousel';
+import { FinishTimeIntensityDiagram } from '@/components/features/finish-diagram/FinishTimeIntensityDiagram';
 import { RatingStars } from '@/components/ui/RatingStars';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { LocalizedDatePicker } from '@/components/ui/LocalizedDatePicker';
 import { useTastingCardForm } from '@/hooks/useTastingCardForm';
 import { useLanguage } from '@/context/LanguageContext';
-import { translateColour, translateGlance, translateFinish } from '@/lib/i18n/translations';
+import { translateColour, translateGlance } from '@/lib/i18n/translations';
 import { cn } from '@/lib/utils';
 
 // ─── UI presentation constants (derived from domain types) ───────────────────
@@ -83,6 +87,8 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
     confirmDelete,
   } = useTastingCardForm(initialSpirit, onSave, onDelete);
 
+  const [finishViewMode, setFinishViewMode] = useState<'simple' | 'advanced'>('simple');
+
   return (
     <div className={cn('parchment rounded-lg overflow-hidden animate-fade-in-up', className)}>
       
@@ -143,6 +149,17 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
       </div>
 
       <div className="p-6 flex flex-col gap-6">
+
+        {/* Mobile-Only Spirit Photos Section (First section on screens < lg) */}
+        <div className="flex lg:hidden flex-col gap-2 border-b border-[#D4C3A3] pb-5">
+          <FieldLabel>{t('spiritPhotos')}</FieldLabel>
+          <SpiritPhotoCarousel
+            images={spirit.images}
+            thumbnailImage={spirit.thumbnailImage}
+            onChange={(imgs) => update('images', imgs)}
+            onSetThumbnail={(url) => update('thumbnailImage', url as string | undefined)}
+          />
+        </div>
 
         {/* ── Top Section: 2 Balanced Columns ──────────────────────────────── */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -436,7 +453,6 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
 
             {/* Compact Active Flavors & Flavor Profile (Left Column) */}
             <div className="border-t border-[#D4C3A3] pt-4 flex flex-col gap-2 w-full">
-              <FieldLabel>{t('activeFlavors')}</FieldLabel>
               <FlavorTagSelector
                 spiritId={spirit.id}
                 noseFlavorTags={spirit.noseFlavorTags ?? []}
@@ -458,8 +474,8 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
           {/* Right Column: Photos, Radar Graph, Nose Sliders & Taste Sliders */}
           <div className="lg:col-span-6 flex flex-col gap-5">
 
-            {/* Spirit Photos Carousel (Top of Right Column) */}
-            <div className="flex flex-col gap-2">
+            {/* Desktop-Only Spirit Photos Carousel (Top of Right Column on lg screens) */}
+            <div className="hidden lg:flex flex-col gap-2">
               <FieldLabel>{t('spiritPhotos')}</FieldLabel>
               <SpiritPhotoCarousel
                 images={spirit.images}
@@ -516,31 +532,22 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
 
         </div>
 
-        {/* ── Full-Width Section 2 (100% Row): Finish Length & Finish Notes ───────────── */}
-        <section className="border-t border-[#D4C3A3] pt-5 flex flex-col gap-4 w-full" aria-label="Finish">
-          <div className="flex items-center justify-between gap-3">
-            <FieldLabel>{t('finishLength')}</FieldLabel>
-            <div className="flex gap-2">
-              {SPIRIT_FINISH_DURATIONS.map((f) => (
-                <button
-                  key={f}
-                  id={`finish-${f.toLowerCase()}`}
-                  type="button"
-                  onClick={() => update('finish', f)}
-                  className={cn(
-                    'px-4.5 py-2 rounded-sm border text-xs sm:text-sm font-display uppercase tracking-wider font-semibold transition-all cursor-pointer',
-                    spirit.finish === f
-                      ? 'bg-[#3D2616] border-[#C59B27] text-[#F5EEDC] shadow-xs'
-                      : 'border-[#C4A87A] text-[#5c3d22] hover:bg-[#1A120B]/10',
-                  )}
-                  aria-pressed={spirit.finish === f}
-                >
-                  {translateFinish(f, language)}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="flex flex-col gap-1.5">
+        {/* ── Full-Width Section 2 (100% Row): Interactive Finish Time-Intensity Diagram & Notes ───────────── */}
+        <section className="border-t border-[#D4C3A3] pt-5 flex flex-col gap-5 w-full" aria-label="Finish">
+          <FinishTimeIntensityDiagram
+            noseFlavorTags={spirit.noseFlavorTags ?? []}
+            tasteFlavorTags={spirit.tasteFlavorTags ?? []}
+            noseTagIntensities={spirit.noseTagIntensities ?? {}}
+            tasteTagIntensities={spirit.tasteTagIntensities ?? {}}
+            finishCurves={spirit.finishCurves ?? {}}
+            onChangeCurves={(updatedCurves) => update('finishCurves', updatedCurves)}
+            viewMode={finishViewMode}
+            onViewModeChange={setFinishViewMode}
+            selectedFinish={spirit.finish}
+            onSelectFinish={(val) => update('finish', val)}
+          />
+
+          <div className="flex flex-col gap-1.5 pt-2">
             <FieldLabel>{t('finishNotes')}</FieldLabel>
             <textarea
               id="finish-notes-textarea"
@@ -621,11 +628,11 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
               {t('reset')}
             </button>
             <button
-              id="tasting-card-[#1A120B]"
+              id="tasting-card-save"
               type="button"
               onClick={handleSave}
               className={cn(
-                'min-w-[180px] flex items-center justify-center gap-2 px-6 py-3 rounded-sm border',
+                'min-w-[140px] flex items-center justify-center gap-2 px-6 py-3 rounded-sm border',
                 'text-xs sm:text-sm font-display uppercase tracking-wider font-semibold transition-all duration-200 cursor-pointer',
                 saved
                   ? 'bg-green-800 text-white border-green-800'

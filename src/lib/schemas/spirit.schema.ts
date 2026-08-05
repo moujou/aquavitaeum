@@ -3,7 +3,6 @@ import {
   SPIRIT_TYPES,
   SPIRIT_COLOURS,
   SPIRIT_GLANCES,
-  SPIRIT_FINISH_DURATIONS,
   SUPPORTED_CURRENCIES,
 } from '@/types/spirit.types';
 import { isValidAbv } from '@/lib/spirit-utils';
@@ -31,8 +30,22 @@ export function validateSpirit(spirit: Partial<Spirit>): ValidationResult {
     errors.glance = 'Invalid spirit mouthfeel choice.';
   }
 
-  if (spirit.finish && !(SPIRIT_FINISH_DURATIONS as readonly string[]).includes(spirit.finish)) {
-    errors.finish = 'Invalid finish duration choice.';
+  if (spirit.finishCurves) {
+    for (const [tag, curve] of Object.entries(spirit.finishCurves)) {
+      if (
+        curve.startTime < 0 ||
+        curve.startTime > 30 ||
+        curve.peakTime < 0 ||
+        curve.peakTime > 30 ||
+        curve.endTime < 0 ||
+        curve.endTime > 60 ||
+        curve.peakIntensity < 0 ||
+        curve.peakIntensity > 10
+      ) {
+        errors.finishCurves = `Invalid curve parameters for ${tag}.`;
+        break;
+      }
+    }
   }
 
   if (spirit.abv !== undefined && !isValidAbv(spirit.abv)) {

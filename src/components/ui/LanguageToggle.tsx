@@ -14,7 +14,7 @@ export function LanguageToggle({ className }: LanguageToggleProps) {
     <div
       id="language-toggle"
       className={cn(
-        'flex items-center rounded border border-[#C59B27]/40 bg-[#1A120B] p-0.5 shadow-sm text-[11px] font-display font-semibold select-none',
+        'h-7 flex items-center rounded border border-[#C59B27]/40 bg-[#1A120B] p-0.5 shadow-sm text-[11px] font-display font-semibold select-none',
         className,
       )}
       aria-label="Language selector"

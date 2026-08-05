@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { validateSpirit } from '../spirit.schema';
-import { SpiritType, SpiritColour, SpiritGlance, SpiritFinishDuration, Currency } from '@/types/spirit.types';
+import { SpiritType, SpiritColour, SpiritGlance, Currency } from '@/types/spirit.types';
 
 describe('Spirit Schema Validation', () => {
   it('validates a valid spirit object with no errors', () => {
@@ -8,7 +8,6 @@ describe('Spirit Schema Validation', () => {
       spiritType: 'Single Malt Scotch' as const,
       colour: 'Gold' as const,
       glance: 'Oily' as const,
-      finish: 'Long' as const,
       abv: 43.0,
       rating100: 92,
       age: 12,
@@ -16,6 +15,9 @@ describe('Spirit Schema Validation', () => {
       currency: '€' as const,
       addedColour: false,
       chillFiltered: true,
+      finishCurves: {
+        'Peat Smoke': { startTime: 0, peakTime: 4, peakIntensity: 8, endTime: 20 },
+      },
     };
     const result = validateSpirit(validSpirit);
     expect(result.valid).toBe(true);
@@ -23,10 +25,10 @@ describe('Spirit Schema Validation', () => {
   });
 
   it('detects invalid spiritType values outside as const tuple', () => {
-    const invalidType = {
-      spiritType: 'Unknown Moonshine' as unknown as SpiritType,
+    const invalidSpiritType = {
+      spiritType: 'Moonshine' as unknown as SpiritType,
     };
-    const result = validateSpirit(invalidType);
+    const result = validateSpirit(invalidSpiritType);
     expect(result.valid).toBe(false);
     expect(result.errors.spiritType).toBeDefined();
   });
@@ -51,14 +53,16 @@ describe('Spirit Schema Validation', () => {
     expect(result.errors.glance).toBeDefined();
   });
 
-  it('detects invalid finish duration values outside as const tuple', () => {
+  it('detects invalid finishCurves parameter values', () => {
     const invalidFinish = {
       spiritType: 'Japanese Whisky' as const,
-      finish: 'Infinite' as unknown as SpiritFinishDuration,
+      finishCurves: {
+        'Peat Smoke': { startTime: -5, peakTime: 4, peakIntensity: 15, endTime: 20 },
+      },
     };
     const result = validateSpirit(invalidFinish);
     expect(result.valid).toBe(false);
-    expect(result.errors.finish).toBeDefined();
+    expect(result.errors.finishCurves).toBeDefined();
   });
 
   it('detects invalid ABV values', () => {

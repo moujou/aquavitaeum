@@ -128,7 +128,7 @@ export function FlavorRadarChart({
 
   return (
     <div className={cn('flex flex-col gap-2 w-full', className)}>
-      <div className="w-full flex justify-center">
+      <div className="w-full flex justify-center bg-[#1A120B]/8 border border-[#C4A87A]/60 rounded-md p-2 shadow-inner overflow-hidden select-none">
         <ResponsiveContainer width="100%" height={440}>
           <RadarChart data={chartData} margin={{ top: 16, right: 40, bottom: 16, left: 40 }}>
             <PolarGrid stroke="#c4a87a" strokeOpacity={0.5} />
