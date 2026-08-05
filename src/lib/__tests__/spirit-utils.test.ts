@@ -109,9 +109,8 @@ describe('Spirit Utilities', () => {
       });
     });
 
-    it('validates that all mock spirits have finish duration and finish notes properties', () => {
+    it('validates that all mock spirits have finish notes properties', () => {
       MOCK_SPIRITS.forEach((spirit) => {
-        expect(['Short', 'Medium', 'Long']).toContain(spirit.finish);
         expect(typeof spirit.finishNotes).toBe('string');
         expect(spirit.finishNotes.length).toBeGreaterThan(0);
       });

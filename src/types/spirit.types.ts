@@ -49,9 +49,29 @@ export const SPIRIT_GLANCES = ['Watery', 'Oily', 'Creamy', 'Smooth'] as const;
 
 export type SpiritGlance = typeof SPIRIT_GLANCES[number];
 
-export const SPIRIT_FINISH_DURATIONS = ['Short', 'Medium', 'Long'] as const;
+export type SpiritFinishDuration = string;
 
-export type SpiritFinishDuration = typeof SPIRIT_FINISH_DURATIONS[number];
+export interface FinishCurveParams {
+  startTime: number;
+  peakTime: number;
+  peakIntensity: number;
+  endTime: number;
+}
+
+/** Canonical color mapping for SWRI radar dimensions across UI charts & finish diagrams. */
+export const RADAR_DIMENSION_COLORS: Record<string, string> = {
+  peaty:     '#E65100', // Deep Flame Smoke
+  fruity:    '#D81B60', // Berry Crimson
+  floral:    '#8E24AA', // Lavender Violet
+  spicy:     '#F57C00', // Warm Spice Amber
+  cereal:    '#C59B27', // Golden Malt
+  woody:     '#6D4C41', // Toasted Oak Wood
+  winey:     '#880E4F', // Sherry Burgundy
+  chocolate: '#3E2723', // Dark Cocoa
+  feinty:    '#00796B', // Teal Waxy
+  sulphury:  '#558B2F', // Maritime Mineral Olive
+  nutty:     '#795548', // Walnut Brown
+};
 
 export const SUPPORTED_CURRENCIES = ['€', '$', '£', 'CHF'] as const;
 
@@ -161,8 +181,9 @@ export interface Spirit {
   starRating: number; // 1–5 scale
   colour: SpiritColour;
   glance: SpiritGlance;
-  finish: SpiritFinishDuration;
+  finish?: string;
   finishNotes: string;
+  finishCurves?: Record<string, FinishCurveParams>;
   noseProfile: FlavorProfile;
   tasteProfile: FlavorProfile;
   /** Overall aggregated tasting flavor tags. */
