@@ -21,7 +21,7 @@
   --parchment-shadow: rgba(42, 27, 18, 0.35);
   --sepia-text: #1A120B;
   --sepia-muted: #5c3d22;
-  --sepia-light: #8c6440;
+  --sepia-light: #755030;
 
   /* Semantic */
   --background: var(--pub-bg);
@@ -89,4 +89,19 @@ body {
 ::selection {
   background: rgba(197, 155, 39, 0.3);
   color: var(--sepia-text);
+}
+
+/* ─── Accessibility & Reduced Motion ────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid #C59B27;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

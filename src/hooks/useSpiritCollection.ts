@@ -19,8 +19,8 @@ export function useSpiritCollection(initialSpirits: Spirit[] = MOCK_SPIRITS) {
       if (typeof window !== 'undefined') {
         window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedList));
       }
-    } catch {
-      // Ignore quota errors
+    } catch (err) {
+      console.warn('Aqua Vitaeum: Failed to persist spirit collection to local storage cache.', err);
     }
 
     try {
@@ -29,8 +29,8 @@ export function useSpiritCollection(initialSpirits: Spirit[] = MOCK_SPIRITS) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ spirits: updatedList }),
       });
-    } catch {
-      // Ignore background network sync errors
+    } catch (err) {
+      console.warn('Aqua Vitaeum: Background server API sync failed, relying on local storage cache.', err);
     }
   }, []);
 
@@ -51,15 +51,15 @@ export function useSpiritCollection(initialSpirits: Spirit[] = MOCK_SPIRITS) {
               if (typeof window !== 'undefined') {
                 window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data.spirits));
               }
-            } catch {
-              // Ignore cache write error
+            } catch (err) {
+              console.warn('Aqua Vitaeum: Could not update local storage cache from API.', err);
             }
             if (isMounted) setIsLoading(false);
             return;
           }
         }
-      } catch {
-        // Network fetch failed, try offline localStorage cache
+      } catch (err) {
+        console.warn('Aqua Vitaeum: Server fetch failed, attempting local cache fallback.', err);
       }
 
       if (typeof window !== 'undefined') {
@@ -74,8 +74,8 @@ export function useSpiritCollection(initialSpirits: Spirit[] = MOCK_SPIRITS) {
               );
             }
           }
-        } catch {
-          // Fallback to initial spirits dataset
+        } catch (err) {
+          console.warn('Aqua Vitaeum: Failed to parse cached spirits from local storage.', err);
         }
       }
 

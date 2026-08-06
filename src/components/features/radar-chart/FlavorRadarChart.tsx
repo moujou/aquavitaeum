@@ -14,7 +14,8 @@ import { FlavorProfile } from '@/types/spirit.types';
 import { useLanguage } from '@/context/LanguageContext';
 import { translateRadarDimension } from '@/lib/i18n/translations';
 import { getDescriptorsByRadarDimension, translateFlavorTag } from '@/data/spirit-flavor-taxonomy';
-import { isTagSelected } from '@/components/features/tasting-wheel/FlavorTagSelector';
+import { isTagSelected } from '@/components/features/flavor-tags/FlavorTagSelector';
+import { SectionHeader } from '@/components/ui/SectionHeader';
 import { cn } from '@/lib/utils';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -226,11 +227,9 @@ export function DynamicProfileSliders({
     return (
       <div className={cn('flex flex-col gap-2 w-full', className)}>
         <div className="flex items-center justify-between border-b border-[#C4A87A]/50 pb-1">
-          <span className="text-xs sm:text-[13px] font-bold uppercase tracking-widest text-[#8c6440] font-body">
-            {title}
-          </span>
+          <SectionHeader>{title}</SectionHeader>
         </div>
-        <p className="text-xs text-[#8c6440] italic py-3 text-center border border-dashed border-[#C4A87A]/40 rounded-sm">
+        <p className="text-xs text-[#755030] italic py-3 text-center border border-dashed border-[#C4A87A]/40 rounded-sm">
           {language === 'DE'
             ? `Wähle oben Aromen für ${isNose ? 'Nase' : 'Geschmack'} aus, um Intensitäts-Regler hinzuzufügen.`
             : `Select flavor tags under ${isNose ? 'Nose' : 'Taste'} above to add intensity sliders.`}
@@ -242,10 +241,10 @@ export function DynamicProfileSliders({
   return (
     <div className={cn('flex flex-col gap-2 w-full', className)}>
       <div className="flex items-center justify-between border-b border-[#C4A87A]/50 pb-1">
-        <span className="text-xs sm:text-[13px] font-bold uppercase tracking-widest text-[#8c6440] font-body">
+        <SectionHeader>
           {title} ({activeTags.length})
-        </span>
-        <span className="text-xs text-[#8c6440] font-body italic">0–10 Scale</span>
+        </SectionHeader>
+        <span className="text-xs text-[#755030] font-body italic">0-10 Scale</span>
       </div>
 
       <div className="flex flex-col gap-2">
@@ -301,7 +300,7 @@ export function SingleProfileSliders({
         <span className="text-xs sm:text-[13px] font-bold uppercase tracking-widest text-[#8c6440] font-body">
           {title}
         </span>
-        <span className="text-xs text-[#8c6440] font-body italic">0–10 Scale</span>
+        <span className="text-xs text-[#8c6440] font-body italic">0-10 Scale</span>
       </div>
 
       <div className="flex flex-col gap-1.5">
@@ -324,7 +323,7 @@ export function SingleProfileSliders({
                 step={1}
                 value={val}
                 onChange={(e) => onChange(key, Number(e.target.value))}
-                className={cn('h-1.5 cursor-pointer accent-[#C59B27]', accentClass)}
+                className={cn('h-1.5 cursor-pointer', accentClass)}
                 aria-label={`${title} ${translatedLabel}`}
               />
               <span className={cn('text-right text-xs sm:text-sm font-bold', valueColorClass)}>

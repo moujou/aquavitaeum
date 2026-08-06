@@ -15,7 +15,7 @@ export function RatingStars({
   stars,
   maxStars = 5,
   size = 24,
-  showValue = true,
+  showValue = false,
   className,
 }: RatingStarsProps) {
   const starArray = Array.from({ length: maxStars }, (_, i) => i + 1);

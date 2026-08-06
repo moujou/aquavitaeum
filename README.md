@@ -1,112 +1,57 @@
+<div align="center">
+
+<img src="./public/whisky-logo-with-circle.svg" width="96" height="96" alt="Aqua Vitaeum Logo" />
+
 # Aqua Vitaeum
 
-> **Fine Spirits Journal & Interactive Tasting Notes Web Application**
+### *A Fine Spirits Tasting Journal & Interactive Sensory Suite*
 
-**Aqua Vitaeum** is an offline-first web journal designed for fine spirits connoisseurs (Scotch Whisky, Bourbon, Irish Whiskey, Japanese Whisky, Rum, Gin, Tequila, Mezcal, Cognac, and more). It combines a dark vintage iron pub aesthetic with interactive sensory analytics, dual-layer radar profiling, and spirit collection management.
+> **Aqua Vitae-um**: *A digital compendium forged from Medieval Latin "Aqua Vitae" (Water of Life) for fine spirits connoisseurs.*
 
-Built with Next.js 16 (App Router), React 19, TypeScript 5 (Strict Mode), Tailwind CSS v4, Recharts, Vitest 4, and GitHub Actions CI.
-
----
-
-## Key Features & Capabilities
-
-### Interactive Tasting Ledger
-- Record comprehensive spirit metadata: Distillery, Name, Region, Age, Cask/Batch No., ABV %, Date Tasted, and Finish (wood/cask finish description).
-- **Locale-aware Date Tasted field** with a fully custom calendar popup (no native browser picker) — month names and weekday grids switch automatically between English (Sunday-first) and German (Monday-first) to match the active language setting.
-- Quick-toggle tasting checkboxes: **Cask Strength**, **Added Colour**, **Chill Filtered**, **Added Water**, **On the Rocks**, and **With Chocolate**.
-- Dynamic score rating (1–100) with automatic 1–5 gold star calculation and visual quality category rating.
-- Destructive note deletion with an interactive confirmation modal dialog.
-
-### Dual-Layer Sensory Radar Profile
-- Interactive 11-dimension radar chart comparing **Nose** and **Taste** intensity profiles (*Fruity*, *Floral*, *Spicy*, *Cereal*, *Peaty*, *Sulphury*, *Feinty*, *Nutty*, *Woody*, *Winey*, *Chocolate*).
-- Compact 0–10 intensity range sliders for real-time sensory profile updates.
-
-### Spirit Color & Mouthfeel Selectors
-- Visual spirit color scale featuring defined color swatches (Clear, White Wine, Straw, Honey, Gold, Amber, Copper, Mahogany, Dark Oak).
-- Texture and mouthfeel selectors (Watery, Oily, Creamy, Smooth).
-
-### Categorized Flavor Tag Selector
-- Interactive flavor wheel tags categorized by profile (Peat & Smoke, Cask & Wood, Fruity & Floral, etc.) with an active flavor summary chip view.
-- Dual-mode selector for **Nose** and **Taste** flavor tags independently.
-
-### Bottle & Label Photo Carousel
-- Upload, preview, navigate, and delete bottle label, spirit color, or tasting setup photos via browser DataURL storage.
-
-### Spirit Collection Management
-- Sidebar collection grid displaying spirit cards with ABV, color swatch, star rating, and region badge.
-- Real-time search filter by distillery, name, region, or spirit type.
-- Spirit type filter dropdown supporting all fine spirit categories.
-- One-click creation of new tasting notes with auto-selection handling.
-
-### Language Switcher (EN / DE)
-- Full bilingual support: English and German UI throughout all labels, form fields, radar chart axes, and flavor tags.
-- Language preference is persisted via the `/api/settings` endpoint and localStorage fallback.
-- All locale-sensitive components (calendar popup, date formatting, weekday layout) react instantly to language changes without a page reload.
-
-### Decoupled Domain Architecture & Testing
-- Clean separation of concerns utilizing custom React hooks (`useSpiritCollection`, `useTastingCardForm`, `usePhotoUpload`) and primitive UI components (`RatingStars`, `ConfirmDialog`, `CalendarPopup`).
-- Strict domain schema validation (`spirit.schema.ts`).
-- Colocated Vitest testing suite with `@testing-library/react` running in a `jsdom` environment — **117 tests** across 16 test files.
+[![Next.js 16](https://img.shields.io/badge/Next.js-16.2-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![React 19](https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS-v4.0-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
+[![Vitest](https://img.shields.io/badge/Vitest-131_Tests_Passing-6E9F18?style=for-the-badge&logo=vitest)](https://vitest.dev/)
+[![License](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)](./LICENSE)
 
 ---
 
-## Tech Stack
+<p align="center">
+  <b>Dark Vintage Iron Pub Aesthetic</b> • <b>Dual-Layer Radar Profiling</b> • <b>60s Finish Timeline</b> • <b>Bilingual EN/DE</b>
+</p>
 
-| Layer | Technology |
-| :--- | :--- |
-| **Framework** | [Next.js 16](https://nextjs.org/) — App Router, React Server Components |
-| **Language** | [TypeScript 5](https://www.typescriptlang.org/) — Strict Mode |
-| **Styling** | Tailwind CSS v4 & Vanilla CSS |
-| **Data Visualization** | [Recharts](https://recharts.org/) |
-| **Icons** | [Lucide React](https://lucide.dev/) |
-| **Testing** | [Vitest 4](https://vitest.dev/) & [@testing-library/react](https://testing-library.com/) (`jsdom`) |
-| **CI/CD** | GitHub Actions (Node.js 24) |
-
-> **No external date-picker library** — the locale-aware calendar popup is built with plain React and Tailwind CSS.
+</div>
 
 ---
 
-## Available Scripts
+## Overview
 
-In the project directory, you can run:
+**Aqua Vitaeum** is a web application designed for Single Malt Scotch, Bourbon, Irish Whiskey, and fine spirits tasting. Designed around a warm **dark vintage iron pub aesthetic**, the application translates tasting notes into interactive sensory analytics and visual evaluation tools.
 
-| Command | Description |
-| :--- | :--- |
-| `npm run dev` | Starts the Next.js development server on `http://localhost:3000` |
-| `npm run build` | Compiles the production build |
-| `npm run start` | Starts the production server locally |
-| `npm run type-check` | Runs TypeScript compiler checks (`tsc --noEmit`) |
-| `npm run test` | Executes unit tests once via Vitest |
-| `npm run test:watch` | Runs Vitest in interactive watch mode |
-| `npm run test:coverage` | Generates code coverage report in terminal and `./coverage/index.html` |
-| `npm run lint` | Runs ESLint analysis |
+The name subtly fuses the historical Medieval Latin **"Aqua Vitae"** (*Water of Life*, the etymological root of Gaelic *Uisge Beatha* and modern *Whisky*) with the Latin compendium suffix **"-um"**, creating a digital sanctuary and tasting codex for spirit appreciation.
 
 ---
 
-## Running Unit Tests
+## Core Capabilities & Features
 
-Run all unit tests once:
-```bash
-npm run test
-```
-
-Generate full code coverage report:
-```bash
-npm run test:coverage
-```
-> Open `./coverage/index.html` in your browser for an interactive line-by-line coverage view.
-
-Run unit tests in interactive watch mode:
-```bash
-npm run test:watch
-```
+- **Interactive Tasting Ledger**: Record comprehensive production metadata, distillery details, region, age statements, cask configurations, and alcohol strength. Track production attributes such as cask strength or non-chill filtration, alongside serving methods and tasting dates via a custom locale-aware calendar.
+- **Dual-Layer Sensory Radar Analytics**: Evaluate and visualize spirit profiles through an interactive 11-dimension sensory radar chart. The dual-layer design enables direct side-by-side comparison between Nose aromas and Palate flavors in real time.
+- **60-Second Finish Time-Intensity Curve**: Map the temporal evolution of a spirit's finish using custom SVG cubic Bezier spline graphs. Track flavor onset, peak intensity, and extinction across a 60-second timeline, complete with dynamic flavor-matched accent colors.
+- **Human-Instinctive Color System**: Every flavor descriptor within the SWRI-aligned taxonomy is mapped to a natural, human-associated color palette carefully tuned for high visual contrast and intuitive sensory recognition.
+- **Digital Cellar Management & Bilingual Architecture**: Organize your collection with instant search filtering, bottle photo upload carousels, and local browser persistence. The entire application features full real-time bilingual support for English and German.
 
 ---
 
-## Continuous Integration (CI)
+## Technical Documentation & Developer Guide
 
-The project includes an automated GitHub Actions workflow (`.github/workflows/ci.yml`) triggered on `push` and `pull_request` to `main` or `master` branches running on **Node.js 24**:
+For complete developer setup instructions, CLI script references (`npm run dev`, `npm run build`), system architecture guidelines, unit testing suites, and color specifications:
 
-1. **`lint-and-typecheck`**: Runs `npm run lint` and `npm run type-check` concurrently.
-2. **`unit-tests`**: Runs `npm run test:coverage` in parallel to generate test coverage.
-3. **`production-build`**: Executes `npm run build` only after linting, typechecking, and unit tests pass.
+[`docs/DOCUMENTATION.md`](./docs/DOCUMENTATION.md)
+
+---
+
+## License
+
+Copyright © 2026 Aqua Vitaeum. All Rights Reserved.  
+Refer to [`LICENSE`](./LICENSE) for full proprietary copyright terms and conditions.

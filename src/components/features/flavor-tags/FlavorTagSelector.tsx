@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Search, ChevronDown, ChevronUp } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { SPIRIT_FLAVOR_TAXONOMY, FlavorDescriptor, translateFlavorTag } from '@/data/spirit-flavor-taxonomy';
+import { SectionHeader } from '@/components/ui/SectionHeader';
 import { cn } from '@/lib/utils';
 
 export type SensoryMode = 'nose' | 'taste';
@@ -18,8 +19,6 @@ interface FlavorTagSelectorProps {
   onChange?: (tags: string[]) => void;
   className?: string;
 }
-
-// No categories are open by default — user expands them manually.
 
 export function isTagSelected(desc: FlavorDescriptor, selectedTags: string[] = []): boolean {
   if (!selectedTags || selectedTags.length === 0) return false;
@@ -53,9 +52,6 @@ export function FlavorTagSelector({
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({});
   const [prevSpiritId, setPrevSpiritId] = useState(spiritId);
 
-  // Reset all accordions to closed whenever the active spirit changes.
-  // This uses React's recommended derived-state pattern: update state during render
-  // when a prop changes, which React handles in the same render pass.
   if (prevSpiritId !== spiritId) {
     setPrevSpiritId(spiritId);
     setOpenCategories({});
@@ -128,9 +124,7 @@ export function FlavorTagSelector({
     <div className={cn('flex flex-col gap-3.5', className)}>
       {/* ── Section Title Header (Left) & Mode Switch (Right) ────────────────────── */}
       <div className="flex items-center justify-between border-b border-[#C4A87A]/50 pb-1">
-        <span className="text-xs sm:text-[13px] font-bold uppercase tracking-widest text-[#8c6440] font-body">
-          {t('activeFlavors')}
-        </span>
+        <SectionHeader>{t('activeFlavors')}</SectionHeader>
 
         {/* Sensory Layer Toggle Switch (Right end of header) */}
         {!isLegacyMode && (
@@ -191,13 +185,13 @@ export function FlavorTagSelector({
 
       {/* Full-width Search Bar */}
       <div className="relative w-full">
-        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8c6440] pointer-events-none" />
+        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#755030] pointer-events-none" />
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder={language === 'DE' ? 'Aromen durchsuchen…' : 'Search flavor descriptors…'}
-          className="w-full bg-[#1A120B]/5 border border-[#C4A87A] rounded-sm pl-9 pr-3 py-1.5 text-xs sm:text-sm text-[#1A120B] placeholder:text-[#8c6440]/70 font-body focus:outline-none focus:border-[#5c3d22] transition-colors"
+          className="w-full bg-[#1A120B]/5 border border-[#C4A87A] rounded-sm pl-9 pr-3 py-1.5 text-xs sm:text-sm text-[#1A120B] placeholder:text-[#755030]/70 font-body focus:outline-none focus:border-[#5c3d22] transition-colors"
         />
       </div>
 
@@ -242,7 +236,6 @@ export function FlavorTagSelector({
           }
 
           const userSetState = openCategories[category.id];
-          // Default: all collapsed. Open only if user toggled it, there's an active search, or it has active tags.
           const isOpen = isSearching || (userSetState !== undefined ? userSetState : activeCountInCat > 0);
 
           const subcategoriesToDisplay = isSearching
@@ -271,7 +264,7 @@ export function FlavorTagSelector({
                     </span>
                   )}
                 </div>
-                <div className="text-[#8c6440]">
+                <div className="text-[#755030]">
                   {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </div>
               </button>
@@ -285,7 +278,7 @@ export function FlavorTagSelector({
 
                     return (
                       <div key={sub.id} className="flex flex-col gap-1.5">
-                        <p className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-[#8c6440] font-body">
+                        <p className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-[#755030] font-body">
                           {subName}
                         </p>
 
@@ -333,12 +326,12 @@ export function FlavorTagSelector({
         })}
       </div>
 
-      {/* ── Semantically Divided Active Flavors Summary ─────────────────────────── */}
+      {/* Active Flavors Summary */}
       {totalActiveCount > 0 && (
         <div className="mt-1 pt-3 border-t border-[#C4A87A] flex flex-col gap-2">
-          <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-[#5c3d22]">
+          <SectionHeader>
             {language === 'DE' ? 'Aktive Aromen' : 'Active Flavors'} ({totalActiveCount})
-          </p>
+          </SectionHeader>
 
           {isLegacyMode ? (
             <p className="text-xs sm:text-sm text-[#1A120B] font-body italic leading-relaxed">
@@ -348,7 +341,7 @@ export function FlavorTagSelector({
             <div className="flex flex-col gap-1.5 text-xs sm:text-sm font-body">
               {noseFlavorTags.length > 0 && (
                 <div className="flex flex-wrap items-baseline gap-1.5">
-                  <span className="font-bold text-[#8c6440] uppercase tracking-wider text-[11px]">
+                  <span className="font-bold text-[#755030] uppercase tracking-wider text-[11px]">
                     {language === 'DE' ? 'Nase:' : 'Nose Flavors:'}
                   </span>
                   <span className="text-[#1A120B] italic">

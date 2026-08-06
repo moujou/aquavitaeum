@@ -53,7 +53,7 @@ describe('i18n Translation Dictionary', () => {
   it('translates finish time intensity diagram keys accurately', () => {
     expect(t('finishTimeIntensityDiagram', 'EN')).toBe('Finish Intensity');
     expect(t('finishTimeIntensityDiagram', 'DE')).toBe('Abgangs-Intensität');
-    expect(t('attackPhase', 'DE')).toBe('Auftakt (0–3s)');
+    expect(t('attackPhase', 'DE')).toBe('Auftakt (0-3s)');
   });
 
   it('translates radar dimensions accurately', () => {

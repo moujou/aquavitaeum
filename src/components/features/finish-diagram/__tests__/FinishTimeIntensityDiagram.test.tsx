@@ -86,12 +86,9 @@ describe('FinishTimeIntensityDiagram Component', () => {
       </LanguageProvider>
     );
 
-    // Find intensity slider
-    const sliders = screen.getAllByRole('slider');
-    expect(sliders.length).toBeGreaterThan(0);
-
-    // Change peak intensity slider
-    fireEvent.change(sliders[1], { target: { value: '9' } });
+    // Find peak intensity slider by label
+    const peakSlider = screen.getByLabelText(/Peat Smoke Peak/i);
+    fireEvent.change(peakSlider, { target: { value: '9' } });
 
     expect(handleChangeCurves).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -104,8 +101,8 @@ describe('FinishTimeIntensityDiagram Component', () => {
 
   it('assigns taxonomy-derived colors correctly for different flavor categories', () => {
     const peatColor = getFlavorColor('Peat Smoke');
-    const berryColor = getFlavorColor('Green Apple');
-    expect(peatColor).toBe('#E65100'); // peaty
-    expect(berryColor).toBe('#D81B60'); // fruity
+    const appleColor = getFlavorColor('Green Apple');
+    expect(peatColor).toBe('#655A52'); // Peat Smoke human-instinctive smoky grey-brown
+    expect(appleColor).toBe('#3E8E41'); // Green Apple human-instinctive crisp green
   });
 });
