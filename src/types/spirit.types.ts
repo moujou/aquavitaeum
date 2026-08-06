@@ -49,7 +49,9 @@ export const SPIRIT_GLANCES = ['Watery', 'Oily', 'Creamy', 'Smooth'] as const;
 
 export type SpiritGlance = typeof SPIRIT_GLANCES[number];
 
-export type SpiritFinishDuration = string;
+export const SPIRIT_FINISH_DURATIONS = ['Short', 'Medium', 'Long'] as const;
+
+export type SpiritFinishDuration = typeof SPIRIT_FINISH_DURATIONS[number];
 
 export interface FinishCurveParams {
   startTime: number;
@@ -58,95 +60,13 @@ export interface FinishCurveParams {
   endTime: number;
 }
 
-/** Canonical color mapping for SWRI radar dimensions across UI charts & finish diagrams. */
-export const RADAR_DIMENSION_COLORS: Record<string, string> = {
-  peaty:     '#E65100', // Deep Flame Smoke
-  fruity:    '#D81B60', // Berry Crimson
-  floral:    '#8E24AA', // Lavender Violet
-  spicy:     '#F57C00', // Warm Spice Amber
-  cereal:    '#C59B27', // Golden Malt
-  woody:     '#6D4C41', // Toasted Oak Wood
-  winey:     '#880E4F', // Sherry Burgundy
-  chocolate: '#3E2723', // Dark Cocoa
-  feinty:    '#00796B', // Teal Waxy
-  sulphury:  '#558B2F', // Maritime Mineral Olive
-  nutty:     '#795548', // Walnut Brown
-};
+export { RADAR_DIMENSION_COLORS } from '@/data/spirit-flavor-taxonomy';
 
 export const SUPPORTED_CURRENCIES = ['€', '$', '£', 'CHF'] as const;
 
 export type Currency = typeof SUPPORTED_CURRENCIES[number];
 
-export const ALL_FLAVOR_TAGS = [
-  // Peat & Smoke
-  'Peat Smoke',
-  'Wood Smoke',
-  'Campfire',
-  'Medicinal / Iodine',
-  'Tar',
-  'Ash',
-  'Charcoal',
-  // Cask & Wood
-  'Bourbon Barrel',
-  'Sherry Cask',
-  'Port Wine',
-  'Rum Cask',
-  'Toasted Oak',
-  'Charred Wood',
-  'Spicy Oak',
-  // Fruity & Floral
-  'Green Apple',
-  'Pear',
-  'Banana',
-  'Citrus Peel',
-  'Dried Fig',
-  'Raisin',
-  'Peach',
-  'Fresh Blossom',
-  'Lavender',
-  'Rose',
-  // Sweetness & Bakery
-  'Honey',
-  'Vanilla',
-  'Caramel',
-  'Toffee',
-  'Dark Chocolate',
-  'Butterscotch',
-  'Maple Syrup',
-  'Marzipan',
-  // Cereal & Grain
-  'Malted Barley',
-  'Wort',
-  'Cereal',
-  'Toast',
-  'Biscuit',
-  'Coffee',
-  'Cocoa',
-  // Nutty & Oily
-  'Walnut',
-  'Almond',
-  'Hazelnut',
-  'Creamy Butter',
-  'Linseed Oil',
-  // Herbal & Botanical
-  'Garden Herbs',
-  'Black Pepper',
-  'Cinnamon',
-  'Clove',
-  'Dried Tobacco',
-  'Leather',
-  'Juniper',
-  'Lemongrass',
-  // Maritime & Mineral
-  'Sea Salt',
-  'Seaweed',
-  'Damp Earth',
-  'Metallic',
-  'Mineral',
-  'Brine',
-] as const;
-
-export type FlavorTag = typeof ALL_FLAVOR_TAGS[number];
+export type FlavorTag = string;
 
 // ─── Flavor Profile ────────────────────────────────────────────────────────────
 

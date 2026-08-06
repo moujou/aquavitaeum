@@ -3,6 +3,8 @@ import { readSpiritsFromFile, writeSpiritsToFile } from '@/lib/server-storage';
 import { validateSpirit } from '@/lib/schemas/spirit.schema';
 import { Spirit } from '@/types/spirit.types';
 
+export const dynamic = 'force-static';
+
 export async function GET() {
   try {
     const spirits = await readSpiritsFromFile();

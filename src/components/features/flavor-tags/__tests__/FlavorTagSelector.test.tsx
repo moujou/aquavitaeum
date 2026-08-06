@@ -169,7 +169,6 @@ describe('FlavorTagSelector Component & Generic Taxonomy Helpers', () => {
     
     fireEvent.change(searchInput, { target: { value: 'Ölig' } });
 
-    // After SWRI reorganization, nutty/oily descriptors moved under Cask & Oak ("Nutty & Oily" subcategory)
     expect(screen.getByText(/Nutty & Oily|Nussig & Ölig/i)).toBeDefined();
   });
 

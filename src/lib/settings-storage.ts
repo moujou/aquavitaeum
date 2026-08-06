@@ -40,5 +40,15 @@ export async function writeSettingsToFile(settings: AppSettings): Promise<void> 
 
   const payload = JSON.stringify(settings, null, 2);
   await fs.writeFile(TEMP_SETTINGS_PATH, payload, 'utf-8');
-  await fs.rename(TEMP_SETTINGS_PATH, SETTINGS_FILE_PATH);
+  try {
+    await fs.rename(TEMP_SETTINGS_PATH, SETTINGS_FILE_PATH);
+  } catch (renameErr) {
+    console.warn('Aqua Vitaeum: settings fs.rename failed, falling back to copyFile:', renameErr);
+    await fs.copyFile(TEMP_SETTINGS_PATH, SETTINGS_FILE_PATH);
+    try {
+      await fs.unlink(TEMP_SETTINGS_PATH);
+    } catch (cleanupErr) {
+      console.warn('Aqua Vitaeum: Failed to clean up temp settings file:', cleanupErr);
+    }
+  }
 }

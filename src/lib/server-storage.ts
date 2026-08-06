@@ -35,12 +35,13 @@ export async function writeSpiritsToFile(spirits: Spirit[]): Promise<void> {
   await fs.writeFile(TEMP_FILE_PATH, jsonContent, 'utf-8');
   try {
     await fs.rename(TEMP_FILE_PATH, DATA_FILE_PATH);
-  } catch {
+  } catch (renameErr) {
+    console.warn('Aqua Vitaeum: fs.rename failed, falling back to copyFile:', renameErr);
     await fs.copyFile(TEMP_FILE_PATH, DATA_FILE_PATH);
     try {
       await fs.unlink(TEMP_FILE_PATH);
-    } catch {
-      // Ignore temp file cleanup error
+    } catch (cleanupErr) {
+      console.warn('Aqua Vitaeum: Failed to clean up temp file:', cleanupErr);
     }
   }
 }

@@ -1,20 +1,24 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { FinishCurveParams, RADAR_DIMENSION_COLORS } from '@/types/spirit.types';
+import { FinishCurveParams, RADAR_DIMENSION_COLORS, SPIRIT_FINISH_DURATIONS } from '@/types/spirit.types';
 import { useLanguage } from '@/context/LanguageContext';
-import { t, TranslationKey } from '@/lib/i18n/translations';
+import { TranslationKey } from '@/lib/i18n/translations';
 import { findFlavorDescriptor, translateFlavorTag } from '@/data/spirit-flavor-taxonomy';
+import { SectionHeader } from '@/components/ui/SectionHeader';
+import { DualRangeSlider } from '@/components/ui/DualRangeSlider';
 import { cn } from '@/lib/utils';
 
 // ─── Color Synchronization Utility ──────────────────────────────────────────
 
 export function getFlavorColor(tagName: string): string {
   const desc = findFlavorDescriptor(tagName);
+  if (desc && desc.color) {
+    return desc.color;
+  }
   if (desc && desc.radarDimension && RADAR_DIMENSION_COLORS[desc.radarDimension]) {
     return RADAR_DIMENSION_COLORS[desc.radarDimension];
   }
-  // Deterministic fallback color based on string hash
   let hash = 0;
   for (let i = 0; i < tagName.length; i++) {
     hash = tagName.charCodeAt(i) + ((hash << 5) - hash);
@@ -48,22 +52,19 @@ const PADDING = { top: 20, right: 30, bottom: 40, left: 45 };
 const GRAPH_WIDTH = CANVAS_WIDTH - PADDING.left - PADDING.right;   // 565px
 const GRAPH_HEIGHT = CANVAS_HEIGHT - PADDING.top - PADDING.bottom; // 180px
 
-const MAX_TIME = 20; // Maximum time scale: 0 to 20 seconds
+const MAX_TIME = 60; // 60 seconds time scale
 const MAX_INTENSITY = 10; // 0 to 10 scale
 
-// Convert time (s) to SVG canvas X pixel
 function timeToX(t: number): number {
   const clamped = Math.max(0, Math.min(MAX_TIME, t));
   return PADDING.left + (clamped / MAX_TIME) * GRAPH_WIDTH;
 }
 
-// Convert intensity (0-10) to SVG canvas Y pixel
 function intensityToY(intensity: number): number {
   const clamped = Math.max(0, Math.min(MAX_INTENSITY, intensity));
   return PADDING.top + GRAPH_HEIGHT - (clamped / MAX_INTENSITY) * GRAPH_HEIGHT;
 }
 
-// Default curve generator for newly added tags
 function getDefaultCurve(
   tagName: string,
   noseTagIntensities: Record<string, number>,
@@ -76,9 +77,9 @@ function getDefaultCurve(
 
   return {
     startTime: 0,
-    peakTime: 3,
+    peakTime: 9,
     peakIntensity: baseIntensity,
-    endTime: 14,
+    endTime: 30,
   };
 }
 
@@ -97,17 +98,15 @@ export function FinishTimeIntensityDiagram({
   onSelectFinish,
   className,
 }: FinishTimeIntensityDiagramProps) {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const svgRef = useRef<SVGSVGElement | null>(null);
 
-  // Combine unique active flavor tags from Nose and Taste
   const activeTags = Array.from(
     new Set([...noseFlavorTags, ...tasteFlavorTags])
   );
 
   const [hoveredTag, setHoveredTag] = useState<string | null>(null);
 
-  // Synchronize curve state: ensure all active tags have curve parameters
   useEffect(() => {
     let updated = false;
     const nextCurves: Record<string, FinishCurveParams> = { ...finishCurves };
@@ -124,29 +123,31 @@ export function FinishTimeIntensityDiagram({
     }
   }, [activeTags, finishCurves, noseTagIntensities, tasteTagIntensities, onChangeCurves]);
 
-  // Compute Bezier Spline Path string
   const getCurvePath = (curve: FinishCurveParams): string => {
-    const xStart = timeToX(curve.startTime);
+    const start = Math.max(0, curve.startTime);
+    const end = Math.max(start + 1, curve.endTime);
+    const peak = Math.max(start, Math.min(end, curve.startTime + (end - start) * 0.3));
+
+    const xStart = timeToX(start);
     const yStart = intensityToY(0);
 
-    const xPeak = timeToX(curve.peakTime);
+    const xPeak = timeToX(peak);
     const yPeak = intensityToY(curve.peakIntensity);
 
-    const xEnd = timeToX(curve.endTime);
+    const xEnd = timeToX(end);
     const yEnd = intensityToY(0);
 
-    // Smooth Bezier control points
-    const cp1x = xStart + (xPeak - xStart) * 0.45;
-    const cp2x = xPeak + (xEnd - xPeak) * 0.35;
+    const cp1x = xStart + (xPeak - xStart) * 0.5;
+    const cp2x = xPeak + (xEnd - xPeak) * 0.4;
 
     return `M ${xStart} ${yStart} C ${cp1x} ${yPeak}, ${cp1x} ${yPeak}, ${xPeak} ${yPeak} C ${cp2x} ${yPeak}, ${cp2x} ${yEnd}, ${xEnd} ${yEnd}`;
   };
 
   const renderHeader = () => (
     <div className="flex items-center justify-between border-b border-[#C4A87A]/50 pb-1">
-      <span className="text-xs sm:text-[13px] font-bold uppercase tracking-widest text-[#8c6440] font-body">
-        {t('finishTimeIntensityDiagram', language)}
-      </span>
+      <SectionHeader>
+        {t('finishTimeIntensityDiagram')}
+      </SectionHeader>
       {onViewModeChange && (
         <div className="flex items-center p-0.5 rounded-sm bg-[#1A120B]/10 border border-[#C4A87A]/80 shrink-0">
           <button
@@ -161,7 +162,7 @@ export function FinishTimeIntensityDiagram({
             )}
             aria-pressed={viewMode === 'simple'}
           >
-            {t('simpleMode', language)}
+            {t('simpleMode')}
           </button>
           <button
             id="finish-mode-advanced"
@@ -175,7 +176,7 @@ export function FinishTimeIntensityDiagram({
             )}
             aria-pressed={viewMode === 'advanced'}
           >
-            {t('advancedMode', language)}
+            {t('advancedMode')}
           </button>
         </div>
       )}
@@ -184,27 +185,26 @@ export function FinishTimeIntensityDiagram({
 
   const renderSimpleMode = () => (
     <div className="grid grid-cols-3 gap-2.5 py-1">
-      {[
-        { key: 'Short', labelKey: 'finish_Short' as TranslationKey },
-        { key: 'Medium', labelKey: 'finish_Medium' as TranslationKey },
-        { key: 'Long', labelKey: 'finish_Long' as TranslationKey },
-      ].map(({ key, labelKey }) => (
-        <button
-          key={key}
-          id={`finish-btn-${key.toLowerCase()}`}
-          type="button"
-          onClick={() => onSelectFinish?.(key)}
-          className={cn(
-            'px-3 py-2.5 rounded-md border text-xs sm:text-sm font-body font-semibold transition-all text-center cursor-pointer',
-            selectedFinish === key
-              ? 'bg-[#3D2616] border-[#C59B27] text-[#F5EEDC] shadow-sm'
-              : 'border-[#C4A87A]/60 bg-[#1A120B]/5 text-[#5c3d22] hover:bg-[#1A120B]/12'
-          )}
-          aria-pressed={selectedFinish === key}
-        >
-          {t(labelKey, language)}
-        </button>
-      ))}
+      {SPIRIT_FINISH_DURATIONS.map((key) => {
+        const labelKey = `finish_${key}` as TranslationKey;
+        return (
+          <button
+            key={key}
+            id={`finish-btn-${key.toLowerCase()}`}
+            type="button"
+            onClick={() => onSelectFinish?.(key)}
+            className={cn(
+              'px-3 py-2.5 rounded-md border text-xs sm:text-sm font-body font-semibold transition-all text-center cursor-pointer',
+              selectedFinish === key
+                ? 'bg-[#3D2616] border-[#C59B27] text-[#F5EEDC] shadow-sm'
+                : 'border-[#C4A87A]/60 bg-[#1A120B]/5 text-[#5c3d22] hover:bg-[#1A120B]/12'
+            )}
+            aria-pressed={selectedFinish === key}
+          >
+            {t(labelKey)}
+          </button>
+        );
+      })}
     </div>
   );
 
@@ -223,7 +223,7 @@ export function FinishTimeIntensityDiagram({
         {renderHeader()}
         <div className="p-6 text-center border border-dashed border-[#C4A87A]/50 rounded-sm bg-[#1A120B]/5 flex flex-col items-center justify-center gap-2">
           <p className="text-xs sm:text-sm text-[#8c6440] font-body italic max-w-md">
-            {t('noActiveFlavorTagsFinish', language)}
+            {t('noActiveFlavorTagsFinish')}
           </p>
         </div>
       </div>
@@ -234,7 +234,7 @@ export function FinishTimeIntensityDiagram({
     <div className={cn('flex flex-col gap-3.5 w-full', className)}>
       {renderHeader()}
 
-      {/* SVG Canvas (Clean Graph Display) */}
+      {/* SVG Canvas (Clean 60s Graph Display) */}
       <div className="relative w-full bg-[#1A120B]/8 border border-[#C4A87A]/60 rounded-md p-2 shadow-inner overflow-hidden select-none">
         <svg
           ref={svgRef}
@@ -242,7 +242,6 @@ export function FinishTimeIntensityDiagram({
           className="w-full h-auto"
         >
           {/* Grid Lines */}
-          {/* Y Grid & Axis Labels (0 to 10) */}
           {[0, 2, 4, 6, 8, 10].map((intVal) => {
             const y = intensityToY(intVal);
             return (
@@ -253,17 +252,15 @@ export function FinishTimeIntensityDiagram({
                   x2={CANVAS_WIDTH - PADDING.right}
                   y2={y}
                   stroke="#C4A87A"
-                  strokeOpacity={0.2}
+                  strokeOpacity={intVal === 0 ? 0.4 : 0.15}
                   strokeDasharray={intVal === 0 ? undefined : '3,3'}
-                  strokeWidth={intVal === 0 ? 1.5 : 1}
                 />
                 <text
                   x={PADDING.left - 8}
                   y={y + 4}
-                  fill="#5c3d22"
+                  fill="#755030"
                   fontSize={11}
                   fontFamily="Inter"
-                  fontWeight={600}
                   textAnchor="end"
                 >
                   {intVal}
@@ -272,30 +269,29 @@ export function FinishTimeIntensityDiagram({
             );
           })}
 
-          {/* X Grid & Time Labels (0, 4, 8, 12, 16, 20s) */}
-          {[0, 4, 8, 12, 16, 20].map((tVal) => {
-            const x = timeToX(tVal);
+          {/* X Axis Time Grid Lines & Labels (0s to 60s) */}
+          {[0, 15, 30, 45, 60].map((tSec) => {
+            const x = timeToX(tSec);
             return (
-              <g key={`x-grid-${tVal}`}>
+              <g key={`x-grid-${tSec}`}>
                 <line
                   x1={x}
                   y1={PADDING.top}
                   x2={x}
                   y2={CANVAS_HEIGHT - PADDING.bottom}
                   stroke="#C4A87A"
-                  strokeOpacity={0.2}
+                  strokeOpacity={0.15}
                   strokeDasharray="3,3"
                 />
                 <text
                   x={x}
-                  y={CANVAS_HEIGHT - PADDING.bottom + 16}
-                  fill="#5c3d22"
+                  y={CANVAS_HEIGHT - PADDING.bottom + 18}
+                  fill="#755030"
                   fontSize={11}
                   fontFamily="Inter"
-                  fontWeight={600}
                   textAnchor="middle"
                 >
-                  {tVal}s
+                  {tSec}s
                 </text>
               </g>
             );
@@ -305,28 +301,28 @@ export function FinishTimeIntensityDiagram({
           <text
             x={CANVAS_WIDTH / 2}
             y={CANVAS_HEIGHT - 4}
-            fill="#5c3d22"
+            fill="#755030"
             fontSize={12}
             fontFamily="Inter"
             fontWeight={700}
             textAnchor="middle"
           >
-            {t('timeSeconds', language)}
+            {t('timeSeconds')}
           </text>
           <text
             x={14}
             y={CANVAS_HEIGHT / 2}
-            fill="#5c3d22"
+            fill="#755030"
             fontSize={12}
             fontFamily="Inter"
             fontWeight={700}
             textAnchor="middle"
             transform={`rotate(-90 14 ${CANVAS_HEIGHT / 2})`}
           >
-            {t('intensityScale', language)}
+            {t('intensityScale')}
           </text>
 
-          {/* Render Sleek 2px Spline Curves for each active tag */}
+          {/* Render Sleek 2.25px Spline Curves for each active tag */}
           {activeTags.map((tag) => {
             const curve = finishCurves[tag] ?? getDefaultCurve(tag, noseTagIntensities, tasteTagIntensities);
             const color = getFlavorColor(tag);
@@ -344,7 +340,6 @@ export function FinishTimeIntensityDiagram({
                 className="transition-opacity duration-150"
                 opacity={hoveredTag === null || isHovered ? 1 : 0.2}
               >
-                {/* Sleek Line Curve (2px stroke) */}
                 <path
                   d={pathD}
                   fill="none"
@@ -353,8 +348,6 @@ export function FinishTimeIntensityDiagram({
                   strokeOpacity={0.9}
                   strokeLinecap="round"
                 />
-
-                {/* Subtle Fill Gradient underneath curve */}
                 <path
                   d={`${pathD} L ${xEnd} ${intensityToY(0)} L ${xStart} ${intensityToY(0)} Z`}
                   fill={color}
@@ -366,11 +359,11 @@ export function FinishTimeIntensityDiagram({
         </svg>
       </div>
 
-      {/* Prominent Multi-Slider Control Panel */}
+      {/* Prominent Multi-Control Panel with Dual-Thumb Sliders */}
       <div className="flex flex-col gap-3 w-full bg-[#1A120B]/5 p-3.5 sm:p-4 rounded-md border border-[#C4A87A]/50">
-        <span className="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#8c6440] font-body">
-          {t('activeFlavors', language)} Slider Controls ({activeTags.length})
-        </span>
+        <SectionHeader className="mb-0">
+          {language === 'DE' ? 'Abgangs-Intensität Steuerung' : 'Finish Intensity Timeline Controls'}
+        </SectionHeader>
 
         <div
           className={cn(
@@ -397,46 +390,55 @@ export function FinishTimeIntensityDiagram({
                 )}
               >
                 {/* Header with Color Pill Indicator */}
-                <div className="flex items-center gap-2 border-b border-[#C4A87A]/30 pb-1.5">
-                  <span
-                    className="w-3.5 h-3.5 rounded-full flex-shrink-0 border border-white/30 shadow-xs"
-                    style={{ backgroundColor: color }}
-                  />
-                  <span className="font-body text-xs sm:text-sm font-bold text-[#1A120B] truncate">
-                    {displayTagName}
-                  </span>
+                <div className="flex items-center justify-between border-b border-[#C4A87A]/30 pb-1.5">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="w-3.5 h-3.5 rounded-full flex-shrink-0 border border-white/30 shadow-xs"
+                      style={{ backgroundColor: color }}
+                    />
+                    <span className="font-body text-xs sm:text-sm font-bold text-[#1A120B] truncate">
+                      {displayTagName}
+                    </span>
+                  </div>
                 </div>
 
-                {/* 3 Prominent Range Sliders per active flavor */}
-                <div className="flex flex-col gap-2.5 font-body">
-                  {/* Slider 1: Start Time */}
+                {/* 2 Clean Controls per active flavor */}
+                <div className="flex flex-col gap-3 font-body">
+                  {/* Control 1: Dual-Thumb Start O ====== O End Time Window */}
                   <div className="flex flex-col gap-1">
-                    <div className="flex justify-between items-center text-xs text-[#8c6440]">
-                      <span className="font-semibold">{t('startTime', language)}</span>
-                      <span className="font-bold text-[#1A120B] text-xs sm:text-sm">{curve.startTime}s</span>
+                    <div className="flex justify-between items-center text-xs text-[#755030]">
+                      <span className="font-semibold">Time Span</span>
+                      <span className="font-bold text-[#1A120B] text-xs">
+                        Start {curve.startTime}s | End {curve.endTime}s
+                      </span>
                     </div>
-                    <input
-                      type="range"
+                    <DualRangeSlider
                       min={0}
-                      max={Math.max(0, curve.peakTime - 0.5)}
-                      step={0.5}
-                      value={curve.startTime}
-                      onChange={(e) => {
-                        const val = Number(e.target.value);
+                      max={60}
+                      step={1}
+                      value={[curve.startTime, curve.endTime]}
+                      activeColor={color}
+                      onChange={([newStart, newEnd]) => {
+                        const newPeak = Math.max(newStart + 1, Math.round(newStart + (newEnd - newStart) * 0.3));
                         onChangeCurves({
                           ...finishCurves,
-                          [tag]: { ...curve, startTime: val },
+                          [tag]: {
+                            ...curve,
+                            startTime: newStart,
+                            peakTime: newPeak,
+                            endTime: newEnd,
+                          },
                         });
                       }}
-                      className="h-2.5 w-full cursor-pointer accent-[#C59B27] rounded-lg"
-                      aria-label={`${displayTagName} ${t('startTime', language)}`}
+                      ariaLabelStart={`${displayTagName} start time`}
+                      ariaLabelEnd={`${displayTagName} end time`}
                     />
                   </div>
 
-                  {/* Slider 2: Peak Intensity */}
+                  {/* Control 2: Peak Intensity Slider (1-10) */}
                   <div className="flex flex-col gap-1">
-                    <div className="flex justify-between items-center text-xs text-[#8c6440]">
-                      <span className="font-semibold">{t('peakIntensity', language)}</span>
+                    <div className="flex justify-between items-center text-xs text-[#755030]">
+                      <span className="font-semibold">{t('peakIntensity')}</span>
                       <span className="font-bold text-[#1A120B] text-xs sm:text-sm">{curve.peakIntensity} / 10</span>
                     </div>
                     <input
@@ -452,32 +454,9 @@ export function FinishTimeIntensityDiagram({
                           [tag]: { ...curve, peakIntensity: val },
                         });
                       }}
-                      className="h-2.5 w-full cursor-pointer accent-[#C59B27] rounded-lg"
-                      aria-label={`${displayTagName} ${t('peakIntensity', language)}`}
-                    />
-                  </div>
-
-                  {/* Slider 3: End Time / Duration */}
-                  <div className="flex flex-col gap-1">
-                    <div className="flex justify-between items-center text-xs text-[#8c6440]">
-                      <span className="font-semibold">{t('finishDuration', language)}</span>
-                      <span className="font-bold text-[#1A120B] text-xs sm:text-sm">{curve.endTime}s</span>
-                    </div>
-                    <input
-                      type="range"
-                      min={Math.max(3, curve.peakTime + 1)}
-                      max={20}
-                      step={1}
-                      value={curve.endTime}
-                      onChange={(e) => {
-                        const val = Number(e.target.value);
-                        onChangeCurves({
-                          ...finishCurves,
-                          [tag]: { ...curve, endTime: val },
-                        });
-                      }}
-                      className="h-2.5 w-full cursor-pointer accent-[#C59B27] rounded-lg"
-                      aria-label={`${displayTagName} ${t('finishDuration', language)}`}
+                      className="h-2.5 w-full cursor-pointer rounded-lg"
+                      style={{ accentColor: color }}
+                      aria-label={`${displayTagName} ${t('peakIntensity')}`}
                     />
                   </div>
                 </div>
@@ -489,4 +468,3 @@ export function FinishTimeIntensityDiagram({
     </div>
   );
 }
-

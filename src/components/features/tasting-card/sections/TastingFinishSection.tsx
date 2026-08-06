@@ -1,0 +1,57 @@
+'use client';
+
+import React from 'react';
+import { Spirit } from '@/types/spirit.types';
+import { SectionHeader } from '@/components/ui/SectionHeader';
+import { FinishTimeIntensityDiagram } from '@/components/features/finish-diagram/FinishTimeIntensityDiagram';
+import { TranslationKey } from '@/lib/i18n/translations';
+import { cn } from '@/lib/utils';
+
+interface TastingFinishSectionProps {
+  spirit: Spirit;
+  finishViewMode: 'simple' | 'advanced';
+  setFinishViewMode: (mode: 'simple' | 'advanced') => void;
+  update: <K extends keyof Spirit>(key: K, value: Spirit[K]) => void;
+  t: (key: TranslationKey) => string;
+}
+
+export function TastingFinishSection({
+  spirit,
+  finishViewMode,
+  setFinishViewMode,
+  update,
+  t,
+}: TastingFinishSectionProps) {
+  return (
+    <section className="border-t border-[#D4C3A3] pt-5 flex flex-col gap-5 w-full" aria-label="Finish">
+      <FinishTimeIntensityDiagram
+        noseFlavorTags={spirit.noseFlavorTags ?? []}
+        tasteFlavorTags={spirit.tasteFlavorTags ?? []}
+        noseTagIntensities={spirit.noseTagIntensities ?? {}}
+        tasteTagIntensities={spirit.tasteTagIntensities ?? {}}
+        finishCurves={spirit.finishCurves ?? {}}
+        onChangeCurves={(updatedCurves) => update('finishCurves', updatedCurves)}
+        viewMode={finishViewMode}
+        onViewModeChange={setFinishViewMode}
+        selectedFinish={spirit.finish}
+        onSelectFinish={(val) => update('finish', val)}
+      />
+
+      <div className="flex flex-col gap-1.5 pt-2">
+        <SectionHeader className="mb-1">{t('finishNotes')}</SectionHeader>
+        <textarea
+          id="finish-notes-textarea"
+          value={spirit.finishNotes}
+          onChange={(e) => update('finishNotes', e.target.value)}
+          rows={3}
+          placeholder={t('finishNotesPlaceholder')}
+          className={cn(
+            'w-full bg-transparent border border-[#C4A87A] rounded-sm p-4',
+            'text-sm sm:text-base text-[#1A120B] font-body placeholder:text-[#c4a87a] leading-relaxed',
+            'focus:outline-none focus:border-[#5c3d22] resize-none transition-colors duration-200',
+          )}
+        />
+      </div>
+    </section>
+  );
+}

@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Menu } from 'lucide-react';
 import { useSpiritCollection } from '@/hooks/useSpiritCollection';
 import { TastingCard } from '@/components/features/tasting-card/TastingCard';
 import { SpiritCollectionGrid } from '@/components/features/collection/SpiritCollectionGrid';
 import { LanguageToggle } from '@/components/ui/LanguageToggle';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { useLanguage } from '@/context/LanguageContext';
 import { WhiskyLogo } from '@/components/ui/WhiskyLogo';
 import { cn } from '@/lib/utils';
@@ -24,6 +25,17 @@ export default function Home() {
   } = useSpiritCollection();
 
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+
+  // Close mobile drawer on Escape key press (W3C standard dialog behavior)
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape' && isMobileDrawerOpen) {
+        setIsMobileDrawerOpen(false);
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isMobileDrawerOpen]);
 
   return (
     <>
@@ -51,6 +63,7 @@ export default function Home() {
               onClick={() => setIsMobileDrawerOpen(true)}
               className="lg:hidden h-7 w-7 flex items-center justify-center rounded border border-[#C59B27]/40 bg-[#1A120B] text-[#C59B27] hover:bg-[#C59B27]/10 transition-all duration-150 cursor-pointer select-none"
               aria-label="Open sidebar menu"
+              aria-expanded={isMobileDrawerOpen}
               title="Open menu"
             >
               <Menu size={18} />
@@ -97,13 +110,17 @@ export default function Home() {
           {/* Mobile Off-Canvas Collection Drawer Backdrop */}
           {isMobileDrawerOpen && (
             <div
-              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 lg:hidden transition-opacity"
+              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 lg:hidden transition-opacity cursor-pointer"
               onClick={() => setIsMobileDrawerOpen(false)}
+              aria-hidden="true"
             />
           )}
 
           {/* Mobile Off-Canvas Sidebar Drawer */}
           <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={t('collection')}
             className={cn(
               'fixed top-0 left-0 bottom-0 w-[310px] sm:w-[360px] bg-[#120C07] border-r border-[#C59B27]/40 shadow-2xl z-50 flex flex-col p-4 transition-transform duration-300 ease-in-out lg:hidden',
               isMobileDrawerOpen ? 'translate-x-0' : '-translate-x-full'
@@ -128,7 +145,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Main: Tasting Card (Independent Scroll) */}
+          {/* Main: Tasting Card (Independent Scroll with Error Boundary) */}
           <section
             id="tasting-card-section"
             className="flex-1 h-full overflow-y-auto overflow-x-hidden p-3 sm:p-6 flex justify-center"
@@ -147,12 +164,14 @@ export default function Home() {
               </div>
             ) : (
               <div className="w-full max-w-5xl">
-                <TastingCard
-                  key={activeSpirit.id}
-                  initialSpirit={activeSpirit}
-                  onSave={handleSave}
-                  onDelete={handleDelete}
-                />
+                <ErrorBoundary>
+                  <TastingCard
+                    key={activeSpirit.id}
+                    initialSpirit={activeSpirit}
+                    onSave={handleSave}
+                    onDelete={handleDelete}
+                  />
+                </ErrorBoundary>
               </div>
             )}
           </section>

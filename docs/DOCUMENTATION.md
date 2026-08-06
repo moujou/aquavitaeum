@@ -1,0 +1,94 @@
+# 📚 Aqua Vitaeum — Technical Documentation & Developer Guide
+
+This document contains the complete technical documentation, developer setup guide, CLI script references, static export deployment workflow, human-instinctive flavor color specifications, and system architecture for **Aqua Vitaeum**.
+
+---
+
+## 🛠️ Quick Start for Developers
+
+**Prerequisites**: Node.js v20.0.0 or higher (v24 recommended) and npm v10+.
+
+To run Aqua Vitaeum locally on your machine:
+
+```bash
+# 1. Install project dependencies
+npm install
+
+# 2. Start local development server (http://localhost:3000)
+npm run dev
+
+# 3. Run TypeScript type checking
+npm run type-check
+
+# 4. Run unit test suite via Vitest
+npm run test
+
+# 5. Build production static export bundle
+npm run build
+```
+
+---
+
+## 💻 Available CLI Scripts
+
+| Script Command | Description | Purpose |
+| :--- | :--- | :--- |
+| `npm run dev` | Starts Next.js development server | Local interactive development with hot reload |
+| `npm run build` | Compiles production static export (`./out`) | Generates standalone static HTML/CSS/JS export |
+| `npm run start` | Serves compiled Next.js application | Production server environment |
+| `npm run lint` | Executes ESLint flat config checks | Code style, React hooks rules, and syntax validation |
+| `npm run type-check` | Runs TypeScript compiler (`tsc --noEmit`) | Strict mode type verification across codebase |
+| `npm run test` | Executes Vitest test suite once | Runs all 131 unit tests across 20 test files |
+| `npm run test:watch` | Runs Vitest in interactive watch mode | Real-time test-driven development (TDD) |
+| `npm run test:coverage` | Generates Vitest coverage reports | Code coverage auditing |
+
+---
+
+## 🚀 Deployment & Static Export Architecture
+
+Aqua Vitaeum is configured for **Static HTML Export Mode** (`output: "export"` in `next.config.ts`), allowing zero-overhead hosting on **GitHub Pages**, Cloudflare Pages, or static CDNs:
+
+- **Static Bundle Generation**: `npm run build` outputs pure static HTML, CSS, and JS into the `./out` directory.
+- **Client Storage Resilience**: Data persistence uses browser `localStorage` as a primary client cache with automatic server API sync when running Node.js backend.
+- **Automated CI/CD Workflows**:
+  - `.github/workflows/ci.yml`: Runs ESLint, `tsc --noEmit`, Vitest test suite, and static build validation on every Pull Request.
+  - `.github/workflows/deploy.yml`: Deploys static build artifact to GitHub Pages on every push to `main`.
+
+---
+
+## 🔒 File Storage Safety & Windows Support
+
+For local Node.js development servers, file system operations in `src/lib/server-storage.ts` and `src/lib/settings-storage.ts` use atomic file writes (`settings.json.tmp` -> `settings.json`).
+
+To prevent Windows `EBUSY` file-locking crashes during concurrent access, atomic renames include automatic `fs.copyFile` and `fs.unlink` fallback mechanisms.
+
+---
+
+## 🎨 Human-Instinctive Flavor Palette Matrix
+
+Aqua Vitaeum features a human-instinctive color system where flavor descriptors within the 8 SWRI taxonomy categories map to natural hex colors:
+
+| Category | Descriptor | Hex Code | Color Description | Contrast Ratio |
+| :--- | :--- | :--- | :--- | :--- |
+| **Peaty** | Peat Smoke | `#655A52` | Smoky Grey-Brown | High Visibility |
+| **Peaty** | Ash / Soot | `#4F565C` | Ash Slate Grey | High Visibility |
+| **Peaty** | Sea Salt | `#2B788B` | Marine Coastal Teal | High Visibility |
+| **Peaty** | Iodine | `#1C6878` | Medical Kelp Cyan | High Visibility |
+| **Fruity** | Green Apple | `#3E8E41` | Crisp Apple Green | High Visibility |
+| **Fruity** | Citrus Peel | `#C88210` | Citrus Amber Gold | High Visibility |
+| **Fruity** | Dried Fig | `#6E2235` | Rich Burgundy Plum | High Visibility |
+| **Woody** | Dark Chocolate | `#4A2E1B` | 85% Cacao Espresso | High Visibility |
+| **Woody** | Vanilla & Honey | `#D49B22` | Warm Amber Honey | High Visibility |
+| **Woody** | Toasted Oak | `#8B4513` | Mahogany Barrel Oak | High Visibility |
+
+---
+
+## 🧪 Testing Guidelines
+
+Unit tests are written using Vitest 4 and `@testing-library/react`.
+
+Before submitting code or merging pull requests:
+1. `npm run type-check` (Must pass with 0 errors)
+2. `npm run lint` (Must pass with 0 errors/warnings)
+3. `npm run test` (Must pass all 131 unit tests)
+4. `npm run build` (Must complete static build successfully)
