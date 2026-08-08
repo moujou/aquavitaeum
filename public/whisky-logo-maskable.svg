@@ -1,12 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
-  <!-- Solid Irish Pub Wood Brown Background for Maskable Icon -->
-  <rect width="512" height="512" fill="#2A1B12" />
+  <!-- Outer Circle with brown fill and gold/brass outline -->
+  <circle cx="256" cy="256" r="204" stroke="#C59B27" stroke-width="16" fill="#2A1B12" />
 
   <!-- Gold/Brass Outline Logo -->
   <g fill="none" stroke="#C59B27" stroke-linecap="round" stroke-linejoin="round">
-    <!-- Outer Circle -->
-    <circle cx="256" cy="256" r="204" stroke-width="16" />
-
     <!-- Glass Bowl -->
     <path 
       d="M 218 140 

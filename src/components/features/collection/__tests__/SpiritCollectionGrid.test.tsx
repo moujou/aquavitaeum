@@ -209,4 +209,20 @@ describe('SpiritCollectionGrid Component', () => {
     fireEvent.click(closeBtn);
     expect(handleClose).toHaveBeenCalledTimes(1);
   });
+
+  it('renders themed spinner and uncasking loading text when isLoading is true', () => {
+    render(
+      <LanguageProvider>
+        <SpiritCollectionGrid
+          spirits={[]}
+          selectedId={null}
+          isLoading={true}
+          onSelect={vi.fn()}
+          onNewNote={vi.fn()}
+        />
+      </LanguageProvider>,
+    );
+
+    expect(screen.getByText('Uncasking…')).toBeDefined();
+  });
 });
