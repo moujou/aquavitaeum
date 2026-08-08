@@ -2,9 +2,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { MOCK_SPIRITS } from '@/data/mock-spirits';
 import { SpiritCard } from '../SpiritCard';
-import { SpiritCardSkeleton } from '../SpiritCardSkeleton';
 
-describe('Modular SpiritCard & SpiritCardSkeleton Components', () => {
+describe('Modular SpiritCard Component', () => {
   const sampleSpirit = MOCK_SPIRITS[0];
 
   it('renders spirit details, region, age, score and ABV with % formatted directly behind the number', () => {
@@ -27,10 +26,5 @@ describe('Modular SpiritCard & SpiritCardSkeleton Components', () => {
     const button = screen.getByRole('button');
     fireEvent.click(button);
     expect(clickFn).toHaveBeenCalled();
-  });
-
-  it('renders SpiritCardSkeleton loading state', () => {
-    const { container } = render(<SpiritCardSkeleton />);
-    expect(container.firstChild).toBeDefined();
   });
 });

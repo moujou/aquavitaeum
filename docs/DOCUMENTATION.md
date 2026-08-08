@@ -38,7 +38,7 @@ npm run build
 | `npm run start` | Serves compiled Next.js application | Production server environment |
 | `npm run lint` | Executes ESLint flat config checks | Code style, React hooks rules, and syntax validation |
 | `npm run type-check` | Runs TypeScript compiler (`tsc --noEmit`) | Strict mode type verification across codebase |
-| `npm run test` | Executes Vitest test suite once | Runs all 133 unit tests across 20 test files |
+| `npm run test` | Executes Vitest test suite once | Runs all 132 unit tests across 20 test files |
 | `npm run test:watch` | Runs Vitest in interactive watch mode | Real-time test-driven development (TDD) |
 | `npm run test:coverage` | Generates Vitest coverage reports | Code coverage auditing |
 
@@ -101,5 +101,5 @@ Unit tests are written using Vitest 4 and `@testing-library/react`.
 Before submitting code or merging pull requests:
 1. `npm run type-check` (Must pass with 0 errors)
 2. `npm run lint` (Must pass with 0 errors/warnings)
-3. `npm run test` (Must pass all 133 unit tests)
+3. `npm run test` (Must pass all 132 unit tests)
 4. `npm run build` (Must complete static build successfully)
