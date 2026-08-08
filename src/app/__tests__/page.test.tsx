@@ -1,9 +1,36 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Home from '../page';
 import { LanguageProvider } from '@/context/LanguageContext';
 
+vi.mock('@/lib/db', () => {
+  return {
+    db: {
+      spirits: {
+        toArray: vi.fn().mockResolvedValue([]),
+        clear: vi.fn().mockResolvedValue(null),
+        bulkPut: vi.fn().mockResolvedValue(null),
+        put: vi.fn(),
+        delete: vi.fn(),
+      },
+    },
+  };
+});
+
+
 describe('Home Page Component', () => {
+  beforeEach(() => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockImplementation(() => {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ spirits: [] }),
+        });
+      }),
+    );
+  });
+
   it('renders the app header title and language toggle', () => {
     render(
       <LanguageProvider>
@@ -31,5 +58,21 @@ describe('Home Page Component', () => {
 
     // Click close button
     fireEvent.click(closeBtns[0]);
+  });
+
+  it('renders the empty cellar state UI when the spirits database is empty', async () => {
+    render(
+      <LanguageProvider>
+        <Home />
+      </LanguageProvider>,
+    );
+
+    // Wait for the loader to clear and the empty state title to appear
+    const emptyStateTitle = await screen.findByText('Your Cellar is Empty');
+    expect(emptyStateTitle).toBeDefined();
+
+    // Verify "New Note" CTA buttons exist (renders in header and empty state)
+    const newNoteButtons = screen.getAllByRole('button', { name: /New Note/i });
+    expect(newNoteButtons.length).toBeGreaterThan(0);
   });
 });

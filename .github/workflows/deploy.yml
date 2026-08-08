@@ -1,4 +1,4 @@
-name: Aqua Vitaeum – Deploy to GitHub Pages
+name: Production Deployment
 
 on:
   push:

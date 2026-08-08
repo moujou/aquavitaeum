@@ -2,9 +2,31 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useSpiritCollection } from '../useSpiritCollection';
 import { MOCK_SPIRITS } from '@/data/mock-spirits';
+import { Spirit } from '@/types/spirit.types';
+
+let mockDatabaseStore: Spirit[] = [];
+
+vi.mock('@/lib/db', () => {
+  return {
+    db: {
+      spirits: {
+        toArray: vi.fn().mockImplementation(async () => mockDatabaseStore),
+        clear: vi.fn().mockImplementation(async () => {
+          mockDatabaseStore = [];
+        }),
+        bulkPut: vi.fn().mockImplementation(async (items) => {
+          mockDatabaseStore = [...items];
+        }),
+        put: vi.fn(),
+        delete: vi.fn(),
+      },
+    },
+  };
+});
 
 describe('useSpiritCollection Hook', () => {
   beforeEach(() => {
+    mockDatabaseStore = [...MOCK_SPIRITS];
     vi.stubGlobal(
       'fetch',
       vi.fn().mockImplementation((url: string) => {
@@ -80,6 +102,18 @@ describe('useSpiritCollection Hook', () => {
 
     expect(result.current.spirits.some((s) => s.id === idToDelete)).toBe(false);
     expect(result.current.selectedId).toBe(nextExpectedId);
+  });
+
+  it('deletes the last spirit note and sets selectedId to null', () => {
+    const singleSpirit = [MOCK_SPIRITS[0]];
+    const { result } = renderHook(() => useSpiritCollection(singleSpirit));
+
+    act(() => {
+      result.current.handleDelete(singleSpirit[0].id);
+    });
+
+    expect(result.current.spirits.length).toBe(0);
+    expect(result.current.selectedId).toBeNull();
   });
 
   it('filters spirits by search query including German translated attributes (e.g. Ölig, Bernstein, Torf)', () => {

@@ -1,4 +1,4 @@
-name: Aqua Vitaeum – CI
+name: Build & Code Quality
 
 on:
   push:
