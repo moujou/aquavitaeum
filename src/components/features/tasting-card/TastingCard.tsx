@@ -42,7 +42,7 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
   const [finishViewMode, setFinishViewMode] = useState<'simple' | 'advanced'>('simple');
 
   return (
-    <div className={cn('parchment rounded-lg overflow-hidden animate-fade-in-up', className)}>
+    <div className={cn('parchment rounded-lg overflow-hidden animate-fade-in', className)}>
       
       {/* Section 1: Dynamic Banner Header */}
       <TastingHeaderSection

@@ -151,16 +151,13 @@ export default function Home() {
             className="flex-1 h-full overflow-y-auto overflow-x-hidden p-3 sm:p-6 flex justify-center items-center"
           >
             {isLoading ? (
-              <div className="w-full max-w-5xl flex flex-col items-center justify-center min-h-[400px] rounded-xl border border-white/10 bg-black/30 backdrop-blur-md p-12 text-center">
-                <div className="w-16 h-16 rounded-full border border-[#C59B27]/40 flex items-center justify-center bg-[#C59B27]/10 mb-4 shadow-[0_0_25px_rgba(197,155,39,0.25)] animate-pulse">
+              <div className="flex flex-col items-center justify-center text-center p-6 select-none animate-pulse">
+                <div className="w-16 h-16 rounded-full border border-[#C59B27]/40 flex items-center justify-center bg-[#C59B27]/10 mb-4 shadow-[0_0_25px_rgba(197,155,39,0.25)]">
                   <WhiskyLogo size={32} className="text-[#C59B27]" />
                 </div>
-                <h2 className="font-display text-lg font-bold text-[#C59B27] tracking-wide mb-1">
+                <h2 className="font-display text-xs font-bold text-[#C59B27] tracking-widest uppercase">
                   {t('uncasking')}
                 </h2>
-                <p className="font-body text-xs text-white/50 max-w-sm leading-relaxed">
-                  Retrieving sensory profiles, tasting notes, and cellar collection data…
-                </p>
               </div>
             ) : spirits.length === 0 ? (
               <div className="w-full max-w-xl flex flex-col items-center justify-center min-h-[380px] rounded-xl border border-[#C59B27]/30 bg-black/45 backdrop-blur-md p-8 sm:p-12 text-center shadow-[0_15px_35px_rgba(0,0,0,0.6)] border-t-[#C59B27]/50 border-l-[#C59B27]/50 my-auto">

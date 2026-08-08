@@ -137,7 +137,7 @@ describe('Modular OO Tasting Card Sections', () => {
       const saveFn = vi.fn();
       const deleteFn = vi.fn();
 
-      render(
+      const { container } = render(
         <LanguageProvider>
           <TastingCard
             initialSpirit={sampleSpirit}
@@ -149,6 +149,12 @@ describe('Modular OO Tasting Card Sections', () => {
 
       expect(screen.getAllByText(/Laphroaig/i).length).toBeGreaterThan(0);
       expect(screen.getByText('92')).toBeDefined();
+
+      // Verify design animation class matches new snappy fade-in specification
+      const cardElement = container.querySelector('.parchment');
+      expect(cardElement).toBeDefined();
+      expect(cardElement?.className).toContain('animate-fade-in');
+      expect(cardElement?.className).not.toContain('animate-fade-in-up');
     });
   });
 });
