@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Menu } from 'lucide-react';
+import { Menu, Plus } from 'lucide-react';
 import { useSpiritCollection } from '@/hooks/useSpiritCollection';
 import { TastingCard } from '@/components/features/tasting-card/TastingCard';
 import { SpiritCollectionGrid } from '@/components/features/collection/SpiritCollectionGrid';
@@ -71,7 +71,7 @@ export default function Home() {
 
             {/* Brand Logo & Title */}
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full border border-[#C59B27] flex items-center justify-center bg-[#C59B27]/10 shadow-[0_0_10px_rgba(197,155,39,0.2)] flex-shrink-0">
+              <div className="w-8 h-8 rounded-full border border-[#C59B27] flex items-center justify-center bg-[#C59B27]/10 shadow-[0_0_10px_rgba(197,155,39,0.25)] flex-shrink-0">
                 <WhiskyLogo size={16} className="text-[#C59B27]" />
               </div>
               <div>
@@ -148,7 +148,7 @@ export default function Home() {
           {/* Main: Tasting Card (Independent Scroll with Error Boundary) */}
           <section
             id="tasting-card-section"
-            className="flex-1 h-full overflow-y-auto overflow-x-hidden p-3 sm:p-6 flex justify-center"
+            className="flex-1 h-full overflow-y-auto overflow-x-hidden p-3 sm:p-6 flex justify-center items-center"
           >
             {isLoading ? (
               <div className="w-full max-w-5xl flex flex-col items-center justify-center min-h-[400px] rounded-xl border border-white/10 bg-black/30 backdrop-blur-md p-12 text-center">
@@ -162,8 +162,28 @@ export default function Home() {
                   Retrieving sensory profiles, tasting notes, and cellar collection data…
                 </p>
               </div>
+            ) : spirits.length === 0 ? (
+              <div className="w-full max-w-xl flex flex-col items-center justify-center min-h-[380px] rounded-xl border border-[#C59B27]/30 bg-black/45 backdrop-blur-md p-8 sm:p-12 text-center shadow-[0_15px_35px_rgba(0,0,0,0.6)] border-t-[#C59B27]/50 border-l-[#C59B27]/50 my-auto">
+                <div className="w-20 h-20 rounded-full border-2 border-[#C59B27]/40 flex items-center justify-center bg-[#C59B27]/10 mb-6 shadow-[0_0_35px_rgba(197,155,39,0.25)] animate-fade-in-up">
+                  <WhiskyLogo size={38} className="text-[#C59B27]" />
+                </div>
+                <h2 className="font-display text-xl sm:text-2xl font-bold text-[#C59B27] tracking-wide mb-3">
+                  {t('cellarEmptyTitle')}
+                </h2>
+                <p className="font-body text-xs sm:text-sm text-white/50 max-w-md leading-relaxed mb-8">
+                  {t('cellarEmptySubtitle')}
+                </p>
+                <button
+                  type="button"
+                  onClick={handleNewNote}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded text-xs sm:text-sm font-display uppercase tracking-wider font-bold border shrink-0 bg-[#1A120B] text-[#C59B27] border-[#C59B27] hover:bg-[#C59B27] hover:text-[#1A120B] transition-all duration-250 cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.3)] hover:scale-[1.02]"
+                >
+                  <Plus size={14} />
+                  {t('newNote')}
+                </button>
+              </div>
             ) : (
-              <div className="w-full max-w-5xl">
+              <div className="w-full max-w-5xl self-start">
                 <ErrorBoundary>
                   <TastingCard
                     key={activeSpirit.id}

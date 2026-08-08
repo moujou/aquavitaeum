@@ -47,7 +47,7 @@ describe('Server Storage Module', () => {
     expect(result[0].id).toBe(MOCK_SPIRITS[0].id);
   });
 
-  it('automatically creates spirits.json with seed data when file does not exist', async () => {
+  it('automatically creates spirits.json with an empty array when file does not exist', async () => {
     try {
       await fs.unlink(DATA_FILE_PATH);
     } catch {
@@ -55,10 +55,10 @@ describe('Server Storage Module', () => {
     }
 
     const result = await readSpiritsFromFile();
-    expect(result).toEqual(MOCK_SPIRITS);
+    expect(result).toEqual([]);
 
     const createdContent = await fs.readFile(DATA_FILE_PATH, 'utf-8');
-    expect(JSON.parse(createdContent)).toEqual(MOCK_SPIRITS);
+    expect(JSON.parse(createdContent)).toEqual([]);
   });
 
   it('atomically writes updated spirits to file', async () => {

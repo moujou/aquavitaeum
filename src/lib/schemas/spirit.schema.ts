@@ -52,7 +52,7 @@ export function validateSpirit(spirit: Partial<Spirit>): ValidationResult {
     errors.abv = 'ABV must be a valid percentage between 0 and 100.';
   }
 
-  if (spirit.rating100 !== undefined && (spirit.rating100 < 1 || spirit.rating100 > 100)) {
+  if (spirit.rating100 !== undefined && spirit.rating100 !== 0 && (spirit.rating100 < 1 || spirit.rating100 > 100)) {
     errors.rating100 = 'Rating score must be between 1 and 100.';
   }
 

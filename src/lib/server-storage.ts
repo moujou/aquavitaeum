@@ -1,7 +1,6 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { Spirit } from '@/types/spirit.types';
-import { MOCK_SPIRITS } from '@/data/mock-spirits';
 
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
 const DATA_FILE_PATH = path.join(DATA_DIR, 'spirits.json');
@@ -9,7 +8,7 @@ const TEMP_FILE_PATH = path.join(DATA_DIR, 'spirits.json.tmp');
 
 /**
  * Reads spirits from src/data/spirits.json.
- * If the file does not exist, automatically seeds it with MOCK_SPIRITS.
+ * If the file does not exist, automatically seeds it with an empty array.
  */
 export async function readSpiritsFromFile(): Promise<Spirit[]> {
   try {
@@ -18,10 +17,10 @@ export async function readSpiritsFromFile(): Promise<Spirit[]> {
     if (Array.isArray(parsed)) {
       return parsed;
     }
-    return MOCK_SPIRITS;
+    return [];
   } catch {
-    await writeSpiritsToFile(MOCK_SPIRITS);
-    return MOCK_SPIRITS;
+    await writeSpiritsToFile([]);
+    return [];
   }
 }
 

@@ -12,13 +12,14 @@
 [![React 19](https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS-v4.0-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
-[![Vitest](https://img.shields.io/badge/Vitest-131_Tests_Passing-6E9F18?style=for-the-badge&logo=vitest)](https://vitest.dev/)
+[![PWA Ready](https://img.shields.io/badge/PWA-Ready-orange?style=for-the-badge&logo=progressive-web-apps)](https://web.dev/progressive-web-apps/)
+[![Vitest](https://img.shields.io/badge/Vitest-133_Tests_Passing-6E9F18?style=for-the-badge&logo=vitest)](https://vitest.dev/)
 [![License](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)](./LICENSE)
 
 ---
 
 <p align="center">
-  <b>Dark Vintage Iron Pub Aesthetic</b> • <b>Dual-Layer Radar Profiling</b> • <b>60s Finish Timeline</b> • <b>Bilingual EN/DE</b>
+  <b>Dark Vintage Iron Pub Aesthetic</b> • <b>Dual-Layer Radar Profiling</b> • <b>60s Finish Timeline</b> • <b>Bilingual EN/DE</b> • <b>PWA Standalone</b>
 </p>
 
 </div>
@@ -39,7 +40,8 @@ The name subtly fuses the historical Medieval Latin **"Aqua Vitae"** (*Water of 
 - **Dual-Layer Sensory Radar Analytics**: Evaluate and visualize spirit profiles through an interactive 11-dimension sensory radar chart. The dual-layer design enables direct side-by-side comparison between Nose aromas and Palate flavors in real time.
 - **60-Second Finish Time-Intensity Curve**: Map the temporal evolution of a spirit's finish using custom SVG cubic Bezier spline graphs. Track flavor onset, peak intensity, and extinction across a 60-second timeline, complete with dynamic flavor-matched accent colors.
 - **Human-Instinctive Color System**: Every flavor descriptor within the SWRI-aligned taxonomy is mapped to a natural, human-associated color palette carefully tuned for high visual contrast and intuitive sensory recognition.
-- **Digital Cellar Management & Bilingual Architecture**: Organize your collection with instant search filtering, bottle photo upload carousels, and local browser persistence. The entire application features full real-time bilingual support for English and German.
+- **Digital Cellar Management & Bilingual Architecture**: Organize your collection with instant search filtering, bottle photo upload carousels, and high-capacity local browser persistence via **IndexedDB (powered by Dexie.js)**. This eliminates traditional browser storage limitations, enabling unlimited tasting notes and label photo uploads with zero server accounts or database costs. The entire application features full real-time bilingual support for English and German.
+- **Installable Progressive Web App (PWA)**: Install Aqua Vitaeum as a standalone application on mobile or desktop devices. Configured with a network-first offline service worker, Web App manifest, and a custom maskable icon matching the Irish wood brown aesthetic for a premium, browser-less app experience.
 
 ---
 

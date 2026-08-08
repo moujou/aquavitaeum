@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { RotateCcw, CheckCircle, Trash2 } from 'lucide-react';
+import { CheckCircle, Trash2 } from 'lucide-react';
 import { Spirit } from '@/types/spirit.types';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { RatingStars } from '@/components/ui/RatingStars';
@@ -26,7 +26,6 @@ export function TastingRatingSection({
   saved,
   update,
   handleSave,
-  handleReset,
   onDelete,
   setShowDeleteModal,
   t,
@@ -63,48 +62,40 @@ export function TastingRatingSection({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-wrap gap-3.5 justify-end items-center">
-        {onDelete && (
+      <div className="flex justify-between items-center gap-3.5 w-full mt-2">
+        <div>
+          {onDelete && (
+            <button
+              id="tasting-card-delete"
+              type="button"
+              onClick={() => setShowDeleteModal(true)}
+              className={cn(
+                'flex items-center gap-1.5 px-3.5 py-2 rounded-sm border border-red-900/40 bg-red-950/5',
+                'text-[10px] sm:text-xs font-display uppercase tracking-wider font-semibold text-red-800/80 hover:bg-red-900 hover:text-white transition-colors duration-250 cursor-pointer',
+              )}
+            >
+              <Trash2 size={13} />
+              {t('deleteTastingNote')}
+            </button>
+          )}
+        </div>
+        <div>
           <button
-            id="tasting-card-delete"
+            id="tasting-card-save"
             type="button"
-            onClick={() => setShowDeleteModal(true)}
+            onClick={handleSave}
             className={cn(
-              'flex items-center gap-2 px-5 py-3 rounded-sm border border-red-900/60 bg-red-950/20',
-              'text-xs sm:text-sm font-display uppercase tracking-wider font-semibold text-red-900 hover:bg-red-900 hover:text-white transition-colors duration-200 cursor-pointer',
+              'min-w-[130px] sm:min-w-[155px] flex items-center justify-center gap-2 px-6 py-3 rounded-sm border',
+              'text-xs sm:text-sm font-display uppercase tracking-wider font-semibold transition-all duration-200 cursor-pointer',
+              saved
+                ? 'bg-green-800 text-white border-green-800'
+                : 'bg-[#1A120B] text-[#F5EEDC] border-[#C59B27] hover:bg-[#2A1B12] hover:border-[#e8c247]',
             )}
           >
-            <Trash2 size={15} />
-            {t('deleteTastingNote')}
+            <CheckCircle size={15} />
+            {saved ? t('saved') : t('saveTastingNote')}
           </button>
-        )}
-        <button
-          id="tasting-card-reset"
-          type="button"
-          onClick={handleReset}
-          className={cn(
-            'flex items-center gap-2 px-5 py-3 rounded-sm border border-[#C4A87A]',
-            'text-xs sm:text-sm font-display uppercase tracking-wider font-semibold text-[#5c3d22] hover:bg-[#1A120B] hover:text-[#F5EEDC] hover:border-[#1A120B] transition-colors duration-200 cursor-pointer',
-          )}
-        >
-          <RotateCcw size={15} />
-          {t('reset')}
-        </button>
-        <button
-          id="tasting-card-save"
-          type="button"
-          onClick={handleSave}
-          className={cn(
-            'min-w-[140px] flex items-center justify-center gap-2 px-6 py-3 rounded-sm border',
-            'text-xs sm:text-sm font-display uppercase tracking-wider font-semibold transition-all duration-200 cursor-pointer',
-            saved
-              ? 'bg-green-800 text-white border-green-800'
-              : 'bg-[#1A120B] text-[#F5EEDC] border-[#C59B27] hover:bg-[#2A1B12] hover:border-[#e8c247]',
-          )}
-        >
-          <CheckCircle size={15} />
-          {saved ? t('saved') : t('saveTastingNote')}
-        </button>
+        </div>
       </div>
     </section>
   );

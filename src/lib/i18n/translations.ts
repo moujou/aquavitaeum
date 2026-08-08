@@ -132,6 +132,8 @@ export const TRANSLATIONS = {
     radar_woody: 'Woody',
     radar_winey: 'Winey',
     radar_chocolate: 'Chocolate',
+    cellarEmptyTitle: 'Your Cellar is Empty',
+    cellarEmptySubtitle: 'Start recording your collection by clicking "New Note" in the sidebar.',
   },
   DE: {
     // Header & Brand
@@ -263,6 +265,8 @@ export const TRANSLATIONS = {
     radar_woody: 'Holzig',
     radar_winey: 'Weinig',
     radar_chocolate: 'Schokolade',
+    cellarEmptyTitle: 'Dein Keller ist leer',
+    cellarEmptySubtitle: 'Beginne mit deiner Sammlung, indem du im Seitenmenü auf "Neue Notiz" klickst.',
   },
 } as const;
 

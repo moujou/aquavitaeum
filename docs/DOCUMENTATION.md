@@ -38,7 +38,7 @@ npm run build
 | `npm run start` | Serves compiled Next.js application | Production server environment |
 | `npm run lint` | Executes ESLint flat config checks | Code style, React hooks rules, and syntax validation |
 | `npm run type-check` | Runs TypeScript compiler (`tsc --noEmit`) | Strict mode type verification across codebase |
-| `npm run test` | Executes Vitest test suite once | Runs all 131 unit tests across 20 test files |
+| `npm run test` | Executes Vitest test suite once | Runs all 133 unit tests across 20 test files |
 | `npm run test:watch` | Runs Vitest in interactive watch mode | Real-time test-driven development (TDD) |
 | `npm run test:coverage` | Generates Vitest coverage reports | Code coverage auditing |
 
@@ -49,10 +49,21 @@ npm run build
 Aqua Vitaeum is configured for **Static HTML Export Mode** (`output: "export"` in `next.config.ts`), allowing zero-overhead hosting on **GitHub Pages**, Cloudflare Pages, or static CDNs:
 
 - **Static Bundle Generation**: `npm run build` outputs pure static HTML, CSS, and JS into the `./out` directory.
-- **Client Storage Resilience**: Data persistence uses browser `localStorage` as a primary client cache with automatic server API sync when running Node.js backend.
+- **Client Storage Resilience**: Data persistence uses a high-capacity client-side **IndexedDB database (managed via Dexie.js)**, eliminating the 5MB localStorage limits and allowing unlimited photos and notes. It triggers an automatic background server API synchronization when running the Node.js development server backend.
 - **Automated CI/CD Workflows**:
-  - `.github/workflows/ci.yml`: Runs ESLint, `tsc --noEmit`, Vitest test suite, and static build validation on every Pull Request.
-  - `.github/workflows/deploy.yml`: Deploys static build artifact to GitHub Pages on every push to `main`.
+  - `.github/workflows/ci.yml`: `Build & Code Quality` — Runs ESLint, `tsc --noEmit`, Vitest test suite, and static build validation on every Pull Request.
+  - `.github/workflows/deploy.yml`: `Production Deployment` — Deploys static build artifact to GitHub Pages on every push to `main` or `master`.
+
+---
+
+## 📱 Progressive Web App (PWA) Architecture
+
+Aqua Vitaeum is configured as a fully installable PWA for mobile and desktop systems:
+
+- **Web App Manifest (`src/app/manifest.ts`)**: A dynamic manifest configures standalone orientation, theme/background colors (`#2A1B12` and `#0c1a0e`), app naming, and references scalable vector and maskable SVG icons.
+- **Offline Capabilities (`public/sw.js`)**: A custom network-first Service Worker script caches primary shell assets (`/`, `whisky-logo-with-circle.svg`, `whisky-logo-maskable.svg`) and caches fetched pages/bundles dynamically to enable full offline use.
+- **iOS/Safari High-Fidelity**: Apple mobile-web-app-capable and status-bar-style metadata tags are injected automatically via Next.js metadata layout headers to ensure a clean browser-less look on iOS devices.
+
 
 ---
 
@@ -90,5 +101,5 @@ Unit tests are written using Vitest 4 and `@testing-library/react`.
 Before submitting code or merging pull requests:
 1. `npm run type-check` (Must pass with 0 errors)
 2. `npm run lint` (Must pass with 0 errors/warnings)
-3. `npm run test` (Must pass all 131 unit tests)
+3. `npm run test` (Must pass all 133 unit tests)
 4. `npm run build` (Must complete static build successfully)

@@ -1,26 +1,25 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Spirit, SpiritType } from '@/types/spirit.types';
-import { MOCK_SPIRITS } from '@/data/mock-spirits';
 import { createBlankSpirit } from '@/lib/spirit-utils';
 import { translateColour, translateGlance } from '@/lib/i18n/translations';
+import { db } from '@/lib/db';
 
-const LOCAL_STORAGE_KEY = 'aquavitaeum_spirits_journal';
-
-export function useSpiritCollection(initialSpirits: Spirit[] = MOCK_SPIRITS) {
+export function useSpiritCollection(initialSpirits: Spirit[] = []) {
   const [spirits, setSpirits] = useState<Spirit[]>(initialSpirits);
   const [selectedId, setSelectedId] = useState<string | null>(initialSpirits[0]?.id ?? null);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<SpiritType | 'All'>('All');
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Helper to persist array to server API endpoint and browser localStorage fallback
+  // Helper to persist array to IndexedDB and server API endpoint fallback
   const persistSpirits = useCallback(async (updatedList: Spirit[]) => {
     try {
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedList));
+      await db.spirits.clear();
+      if (updatedList.length > 0) {
+        await db.spirits.bulkPut(updatedList);
       }
     } catch (err) {
-      console.warn('Aqua Vitaeum: Failed to persist spirit collection to local storage cache.', err);
+      console.warn('Aqua Vitaeum: Failed to persist spirit collection to local database.', err);
     }
 
     try {
@@ -30,52 +29,50 @@ export function useSpiritCollection(initialSpirits: Spirit[] = MOCK_SPIRITS) {
         body: JSON.stringify({ spirits: updatedList }),
       });
     } catch (err) {
-      console.warn('Aqua Vitaeum: Background server API sync failed, relying on local storage cache.', err);
+      console.warn('Aqua Vitaeum: Background server API sync failed, relying on local database cache.', err);
     }
   }, []);
 
-  // Fetch initial spirit collection from server API endpoint or localStorage cache
+  // Fetch initial spirit collection from local database or server API fallback
   useEffect(() => {
     let isMounted = true;
     async function loadSpirits() {
+      let localSpirits: Spirit[] = [];
       try {
-        const res = await fetch('/api/spirits');
-        if (res.ok) {
-          const data = await res.json();
-          if (isMounted && Array.isArray(data.spirits) && data.spirits.length > 0) {
-            setSpirits(data.spirits);
-            setSelectedId((prev) =>
-              prev && data.spirits.some((s: Spirit) => s.id === prev) ? prev : data.spirits[0].id,
-            );
-            try {
-              if (typeof window !== 'undefined') {
-                window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data.spirits));
-              }
-            } catch (err) {
-              console.warn('Aqua Vitaeum: Could not update local storage cache from API.', err);
-            }
-            if (isMounted) setIsLoading(false);
-            return;
-          }
-        }
+        localSpirits = await db.spirits.toArray();
       } catch (err) {
-        console.warn('Aqua Vitaeum: Server fetch failed, attempting local cache fallback.', err);
+        console.warn('Aqua Vitaeum: Failed to load spirits from IndexedDB.', err);
       }
 
-      if (typeof window !== 'undefined') {
+      // If local database is empty, seed from API endpoint (e.g. during dev/seeding)
+      if (localSpirits.length === 0) {
         try {
-          const cached = window.localStorage.getItem(LOCAL_STORAGE_KEY);
-          if (cached) {
-            const parsed = JSON.parse(cached);
-            if (isMounted && Array.isArray(parsed) && parsed.length > 0) {
-              setSpirits(parsed);
+          const res = await fetch('/api/spirits');
+          if (res.ok) {
+            const data = await res.json();
+            if (isMounted && Array.isArray(data.spirits) && data.spirits.length > 0) {
+              setSpirits(data.spirits);
               setSelectedId((prev) =>
-                prev && parsed.some((s: Spirit) => s.id === prev) ? prev : parsed[0].id,
+                prev && data.spirits.some((s: Spirit) => s.id === prev) ? prev : data.spirits[0].id,
               );
+              try {
+                await db.spirits.bulkPut(data.spirits);
+              } catch (err) {
+                console.warn('Aqua Vitaeum: Could not seed IndexedDB from API.', err);
+              }
+              if (isMounted) setIsLoading(false);
+              return;
             }
           }
         } catch (err) {
-          console.warn('Aqua Vitaeum: Failed to parse cached spirits from local storage.', err);
+          console.warn('Aqua Vitaeum: Server fetch failed, attempting local cache fallback.', err);
+        }
+      } else {
+        if (isMounted) {
+          setSpirits(localSpirits);
+          setSelectedId((prev) =>
+            prev && localSpirits.some((s: Spirit) => s.id === prev) ? prev : localSpirits[0].id,
+          );
         }
       }
 
@@ -157,18 +154,15 @@ export function useSpiritCollection(initialSpirits: Spirit[] = MOCK_SPIRITS) {
     (id: string) => {
       setSpirits((prev) => {
         const next = prev.filter((s) => s.id !== id);
-        let finalNext = next;
         if (selectedId === id) {
           if (next.length > 0) {
             setSelectedId(next[0].id);
           } else {
-            const blank = createBlankSpirit();
-            setSelectedId(blank.id);
-            finalNext = [blank];
+            setSelectedId(null);
           }
         }
-        persistSpirits(finalNext);
-        return finalNext;
+        persistSpirits(next);
+        return next;
       });
     },
     [selectedId, persistSpirits],
