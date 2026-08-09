@@ -4,9 +4,6 @@
 
   <!-- Gold/Brass Outline Logo -->
   <g fill="none" stroke="#C59B27" stroke-linecap="round" stroke-linejoin="round">
-    <!-- Outer Circle -->
-    <circle cx="256" cy="256" r="204" stroke-width="16" />
-
     <!-- Glass Bowl -->
     <path 
       d="M 218 140 
