@@ -52,7 +52,7 @@ export default function Home() {
         {/* ── App Header ─────────────────────────────────────────────────── */}
         <header
           id="app-header"
-          className="flex-shrink-0 h-14 flex items-center justify-between px-3 sm:px-6 border-b border-white/10 bg-[var(--wood-accent)]/60 backdrop-blur-sm z-10"
+          className="flex-shrink-0 h-14 flex items-center justify-between px-3 sm:px-6 border-b border-white/10 bg-[var(--wood-accent)] z-10 shadow-md"
         >
           {/* Left Header: Mobile Hamburger Menu Trigger + Brand Logo & Title */}
           <div className="flex items-center gap-2.5 sm:gap-3">
@@ -61,7 +61,7 @@ export default function Home() {
               id="mobile-menu-btn"
               type="button"
               onClick={() => setIsMobileDrawerOpen(true)}
-              className="lg:hidden h-7 w-7 flex items-center justify-center rounded border border-[#C59B27]/40 bg-[#1A120B] text-[#C59B27] hover:bg-[#C59B27]/10 transition-all duration-150 cursor-pointer select-none"
+              className="lg:hidden h-7 w-7 flex items-center justify-center rounded border border-[#C59B27]/40 bg-[var(--wood-accent)] text-[#C59B27] hover:bg-[#C59B27]/10 transition-all duration-150 cursor-pointer select-none"
               aria-label="Open sidebar menu"
               aria-expanded={isMobileDrawerOpen}
               title="Open menu"
@@ -71,9 +71,14 @@ export default function Home() {
 
             {/* Brand Logo & Title */}
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full border border-[#C59B27] flex items-center justify-center bg-[#C59B27]/10 shadow-[0_0_10px_rgba(197,155,39,0.25)] flex-shrink-0">
-                <WhiskyLogo size={16} className="text-[#C59B27]" />
-              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/whisky-logo-with-circle.svg"
+                alt="Aqua Vitaeum Logo"
+                className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 select-none pointer-events-none rounded-full"
+                width={40}
+                height={40}
+              />
               <div>
                 <h1 className="font-display text-sm sm:text-base font-bold text-[#C59B27] tracking-wide leading-none">
                   {t('appTitle')}
@@ -122,7 +127,7 @@ export default function Home() {
             aria-modal="true"
             aria-label={t('collection')}
             className={cn(
-              'fixed top-0 left-0 bottom-0 w-[310px] sm:w-[360px] bg-[#120C07] border-r border-[#C59B27]/40 shadow-2xl z-50 flex flex-col p-4 transition-transform duration-300 ease-in-out lg:hidden',
+              'fixed top-0 left-0 bottom-0 w-[310px] sm:w-[360px] bg-[var(--pub-bg-panel)] border-r border-[#C59B27]/40 shadow-2xl z-50 flex flex-col p-4 transition-transform duration-300 ease-in-out lg:hidden',
               isMobileDrawerOpen ? 'translate-x-0' : '-translate-x-full'
             )}
           >
@@ -173,7 +178,7 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={handleNewNote}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded text-xs sm:text-sm font-display uppercase tracking-wider font-bold border shrink-0 bg-[#1A120B] text-[#C59B27] border-[#C59B27] hover:bg-[#C59B27] hover:text-[#1A120B] transition-all duration-250 cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.3)] hover:scale-[1.02]"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded text-xs sm:text-sm font-display uppercase tracking-wider font-bold border shrink-0 bg-[var(--wood-accent)] text-[#C59B27] border-[#C59B27] hover:bg-[#C59B27] hover:text-[var(--wood-accent)] transition-all duration-250 cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.3)] hover:scale-[1.02]"
                 >
                   <Plus size={14} />
                   {t('newNote')}

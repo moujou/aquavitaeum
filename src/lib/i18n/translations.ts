@@ -134,6 +134,22 @@ export const TRANSLATIONS = {
     radar_chocolate: 'Chocolate',
     cellarEmptyTitle: 'Your Cellar is Empty',
     cellarEmptySubtitle: 'Start recording your collection by clicking "New Note" in the sidebar.',
+
+    // Welcome Screen
+    welcomeTitle: 'Aqua Vitaeum',
+    welcomeSubtitle: 'Your Sensory Spirits Journal',
+    welcomeSlogan: 'Uncask your journey. Capture the notes, the textures, and the finish of your finest spirits.',
+    createFirstJournal: 'Create your first Journal',
+    
+    // Journals Overview
+    journalsTitle: 'My Compendiums',
+    createJournalBtn: 'Create Journal',
+    journalNamePlaceholder: 'e.g. Islay Malts, Caribbean Rums...',
+    deleteJournalConfirm: 'Are you sure you want to delete this journal? All associated tasting notes will be permanently removed.',
+    statsBottles: 'Bottles',
+    statsAvgRating: 'Avg. Rating',
+    statsLatest: 'Latest',
+    statsUnrated: 'No notes yet',
   },
   DE: {
     // Header & Brand
@@ -267,6 +283,22 @@ export const TRANSLATIONS = {
     radar_chocolate: 'Schokolade',
     cellarEmptyTitle: 'Dein Keller ist leer',
     cellarEmptySubtitle: 'Beginne mit deiner Sammlung, indem du im Seitenmenü auf "Neue Notiz" klickst.',
+
+    // Welcome Screen
+    welcomeTitle: 'Aqua Vitaeum',
+    welcomeSubtitle: 'Dein sensorisches Spirituosen-Journal',
+    welcomeSlogan: 'Entkorke deine Reise. Erfasse die Noten, Texturen und den Abgang deiner edelsten Spirituosen.',
+    createFirstJournal: 'Erstelle dein erstes Journal',
+    
+    // Journals Overview
+    journalsTitle: 'Meine Kompendien',
+    createJournalBtn: 'Journal erstellen',
+    journalNamePlaceholder: 'z.B. Islay Malts, Karibischer Rum...',
+    deleteJournalConfirm: 'Bist du sicher, dass du dieses Journal löschen möchtest? Alle zugehörigen Verkostungsnotizen werden unwiderruflich gelöscht.',
+    statsBottles: 'Flaschen',
+    statsAvgRating: 'Schnitt',
+    statsLatest: 'Zuletzt',
+    statsUnrated: 'Noch keine Notizen',
   },
 } as const;
 

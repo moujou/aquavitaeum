@@ -37,6 +37,8 @@ The name subtly fuses the historical Medieval Latin **"Aqua Vitae"** (*Water of 
 ## Core Capabilities & Features
 
 - **Interactive Tasting Ledger**: Record comprehensive production metadata, distillery details, region, age statements, cask configurations, and alcohol strength. Track production attributes such as cask strength or non-chill filtration, alongside serving methods and tasting dates via a custom locale-aware calendar.
+- **Multi-Journal & Compendium Folders**: Organize and partition tasting notes into separate, distinct journals (e.g., "Islay Scotch Collection", "Caribbean Rums", or "Tasting Club 2026"). Each journal maintains its own isolated list of tasting notes and is fully queryable in IndexedDB.
+- **Immersive Onboarding & Welcome Screen**: Introduces new users to the app with a dark vintage pub splash screen featuring smooth, CSS-animated fluid amber background waves and high-fidelity typography.
 - **Dual-Layer Sensory Radar Analytics**: Evaluate and visualize spirit profiles through an interactive 11-dimension sensory radar chart. The dual-layer design enables direct side-by-side comparison between Nose aromas and Palate flavors in real time.
 - **60-Second Finish Time-Intensity Curve**: Map the temporal evolution of a spirit's finish using custom SVG cubic Bezier spline graphs. Track flavor onset, peak intensity, and extinction across a 60-second timeline, complete with dynamic flavor-matched accent colors.
 - **Human-Instinctive Color System**: Every flavor descriptor within the SWRI-aligned taxonomy is mapped to a natural, human-associated color palette carefully tuned for high visual contrast and intuitive sensory recognition.

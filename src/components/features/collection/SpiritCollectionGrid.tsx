@@ -68,7 +68,7 @@ export function SpiritCollectionGrid({
             onClick={onNewNote}
             className={cn(
               'flex items-center gap-1 px-2.5 py-1 rounded text-[11px] sm:text-xs font-display uppercase tracking-wider font-bold border shrink-0 whitespace-nowrap',
-              'bg-[#1A120B] text-[#C59B27] border-[#C59B27] hover:bg-[#C59B27] hover:text-[#1A120B] transition-colors duration-200 cursor-pointer shadow-xs',
+              'bg-[var(--wood-accent)] text-[#C59B27] border-[#C59B27] hover:bg-[#C59B27] hover:text-[var(--wood-accent)] transition-colors duration-200 cursor-pointer shadow-xs',
               'disabled:opacity-50 disabled:cursor-not-allowed',
             )}
           >
@@ -100,7 +100,7 @@ export function SpiritCollectionGrid({
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('searchPlaceholder')}
             className={cn(
-              'w-full pl-7 pr-2.5 py-1.5 rounded-md bg-[#1A120B]/40 border border-[#C4A87A]/30',
+              'w-full pl-7 pr-2.5 py-1.5 rounded-md bg-[var(--wood-accent)] border border-[#C4A87A]/30',
               'text-xs text-[#e8d5b7] font-body placeholder:text-white/30',
               'focus:outline-none focus:border-[#C59B27]/80 transition-colors',
               'disabled:opacity-50',
@@ -113,15 +113,15 @@ export function SpiritCollectionGrid({
           disabled={isLoading}
           onChange={(e) => setTypeFilter(e.target.value as SpiritType | 'All')}
           className={cn(
-            'bg-[#1A120B] border border-[#C4A87A]/40 text-[11px] text-[#C59B27] font-body rounded-md px-2 py-1.5',
+            'bg-[var(--wood-accent)] border border-[#C4A87A]/40 text-[11px] text-[#C59B27] font-body rounded-md px-2 py-1.5',
             'focus:outline-none focus:border-[#C59B27] cursor-pointer transition-colors w-[100px] sm:w-[110px] flex-shrink-0',
             'disabled:opacity-50',
           )}
           aria-label="Filter spirits by type"
         >
-          <option value="All">{t('allTypes')}</option>
+          <option value="All" className="bg-[var(--wood-accent)]">{t('allTypes')}</option>
           {TYPE_FILTERS.filter((t) => t !== 'All').map((type) => (
-            <option key={type} value={type} className="bg-[#1A120B] text-white">
+            <option key={type} value={type} className="bg-[var(--wood-accent)] text-white">
               {type}
             </option>
           ))}

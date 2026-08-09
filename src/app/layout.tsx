@@ -1,6 +1,10 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { LanguageProvider } from '@/context/LanguageContext';
+
+export const viewport: Viewport = {
+  themeColor: '#311e15', // Matches the refined wood-accent brown
+};
 
 export const metadata: Metadata = {
   title: 'Aqua Vitaeum · Fine Spirits Journal',

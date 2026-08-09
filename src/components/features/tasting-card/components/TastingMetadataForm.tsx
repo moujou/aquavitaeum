@@ -267,23 +267,37 @@ export function TastingMetadataForm({
           <div className="flex flex-col gap-1">
             <FieldLabel>{t('glanceMouthfeel')}</FieldLabel>
             <div className="mt-1 grid grid-cols-1 gap-1">
-              {SPIRIT_GLANCES.map((g) => (
-                <button
-                  key={g}
-                  id={`glance-${g.toLowerCase()}`}
-                  type="button"
-                  onClick={() => update('glance', g)}
-                  className={cn(
-                    'px-3 py-1.5 rounded-sm border text-xs sm:text-sm font-body font-medium transition-all duration-200 text-center cursor-pointer',
-                    spirit.glance === g
-                      ? 'bg-[#3D2616] border-[#C59B27] text-[#F5EEDC] font-semibold shadow-xs'
-                      : 'border-[#C4A87A] text-[#5c3d22] hover:bg-[#1A120B]/10',
-                  )}
-                  aria-pressed={spirit.glance === g}
-                >
-                  {translateGlance(g, language)}
-                </button>
-              ))}
+              {SPIRIT_GLANCES.map((g) => {
+                const currentGlance = Array.isArray(spirit.glance)
+                  ? spirit.glance
+                  : (spirit.glance ? [spirit.glance] : []);
+                const isActive = currentGlance.includes(g);
+
+                const handleToggle = () => {
+                  const next = isActive
+                    ? currentGlance.filter((x) => x !== g)
+                    : [...currentGlance, g];
+                  update('glance', next);
+                };
+
+                return (
+                  <button
+                    key={g}
+                    id={`glance-${g.toLowerCase()}`}
+                    type="button"
+                    onClick={handleToggle}
+                    className={cn(
+                      'px-3 py-1.5 rounded-sm border text-xs sm:text-sm font-body font-medium transition-all duration-200 text-center cursor-pointer',
+                      isActive
+                        ? 'bg-[#3D2616] border-[#C59B27] text-[#F5EEDC] font-semibold shadow-xs'
+                        : 'border-[#C4A87A] text-[#5c3d22] hover:bg-[#1A120B]/10',
+                    )}
+                    aria-pressed={isActive}
+                  >
+                    {translateGlance(g, language)}
+                  </button>
+                );
+              })}
             </div>
           </div>
 

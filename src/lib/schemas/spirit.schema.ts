@@ -26,8 +26,15 @@ export function validateSpirit(spirit: Partial<Spirit>): ValidationResult {
     errors.colour = 'Invalid spirit colour choice.';
   }
 
-  if (spirit.glance && !(SPIRIT_GLANCES as readonly string[]).includes(spirit.glance)) {
-    errors.glance = 'Invalid spirit mouthfeel choice.';
+  if (spirit.glance) {
+    if (!Array.isArray(spirit.glance)) {
+      errors.glance = 'Mouthfeel must be an array of choices.';
+    } else {
+      const hasInvalid = spirit.glance.some((g) => !(SPIRIT_GLANCES as readonly string[]).includes(g));
+      if (hasInvalid) {
+        errors.glance = 'Invalid spirit mouthfeel choice(s).';
+      }
+    }
   }
 
   if (spirit.finishCurves) {

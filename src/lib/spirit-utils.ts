@@ -47,9 +47,10 @@ export const DEFAULT_FLAVOR_PROFILE: FlavorProfile = {
 /**
  * Factory creating a fresh blank Spirit object initialized with default properties.
  */
-export function createBlankSpirit(): Spirit {
+export function createBlankSpirit(journalId: string = 'default-compendium'): Spirit {
   return {
     id: `new-${Date.now()}`,
+    journalId,
     spiritType: 'Single Malt Scotch',
     distillery: '',
     name: '',
@@ -59,7 +60,7 @@ export function createBlankSpirit(): Spirit {
     rating100: 0,
     starRating: 0,
     colour: 'Clear',
-    glance: 'Smooth',
+    glance: [],
     finish: 'Medium',
     finishNotes: '',
     noseProfile: { ...DEFAULT_FLAVOR_PROFILE },

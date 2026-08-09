@@ -95,8 +95,9 @@ export function useSpiritCollection(initialSpirits: Spirit[] = []) {
       const q = search.trim().toLowerCase();
       if (!q) return matchesType;
 
-      const glanceEN = s.glance.toLowerCase();
-      const glanceDE = translateGlance(s.glance, 'DE').toLowerCase();
+      const glances = Array.isArray(s.glance) ? s.glance : (s.glance ? [s.glance] : []);
+      const glanceEN = glances.map((g) => g.toLowerCase()).join(' ');
+      const glanceDE = glances.map((g) => translateGlance(g, 'DE').toLowerCase()).join(' ');
 
       const colourEN = s.colour.toLowerCase();
       const colourDE = translateColour(s.colour, 'DE').toLowerCase();

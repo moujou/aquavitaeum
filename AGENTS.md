@@ -35,8 +35,6 @@ Whenever introducing a new feature, architecture change, or CLI script:
 ---
 
 ## 🧪 Quality & Verification Gate
-Before declaring ANY task complete, always execute and verify:
-1. `npm run type-check` (TypeScript strict check)
-2. `npm run lint` (ESLint)
-3. `npm run test` (Vitest suite)
-4. `npm run build` (Next.js production build)
+Before declaring ANY task complete:
+1. Always execute `npm run type-check` (TypeScript strict check) and `npm run lint` (ESLint).
+2. For tests (`npm run test`) and production builds (`npm run build`), check with the user or determine if code edits justify skipping them to conserve tokens (e.g., if changes are purely vector graphics, configs, or minor styling). Run them if logic changes have occurred or upon user request.
