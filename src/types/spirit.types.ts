@@ -85,10 +85,19 @@ export interface FlavorProfile {
   chocolate: number;
 }
 
+export interface Journal {
+  id: string;
+  name: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // ─── Spirit Entity ────────────────────────────────────────────────────────────
 
 export interface Spirit {
   id: string;
+  journalId: string; // Associated journal folder ID
   spiritType: SpiritType;
   distillery: string;
   name: string;
@@ -100,7 +109,7 @@ export interface Spirit {
   rating100: number; // 1–100 score
   starRating: number; // 1–5 scale
   colour: SpiritColour;
-  glance: SpiritGlance;
+  glance?: SpiritGlance[];
   finish?: string;
   finishNotes: string;
   finishCurves?: Record<string, FinishCurveParams>;

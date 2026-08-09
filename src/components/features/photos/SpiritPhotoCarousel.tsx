@@ -69,9 +69,9 @@ export function SpiritPhotoCarousel({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             className={cn(
-              'flex items-center gap-2 px-4.5 py-2.5 rounded-sm border border-[#C59B27]',
-              'bg-[#1A120B] text-[#F5EEDC] text-xs sm:text-sm font-body font-semibold',
-              'hover:bg-[#2A1B12] transition-colors cursor-pointer shadow-sm',
+              'flex items-center gap-2 px-4.5 py-2.5 rounded-sm border border-[var(--sepia-muted)]',
+              'bg-transparent text-[var(--sepia-text)] text-xs sm:text-sm font-body font-semibold',
+              'hover:bg-[var(--parchment-bg-alt)] transition-colors cursor-pointer shadow-xs',
             )}
           >
             <Camera size={16} />

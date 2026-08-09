@@ -7,6 +7,7 @@ import { LanguageProvider } from '@/context/LanguageContext';
 const MOCK_SPIRITS: Spirit[] = [
   {
     id: 'spirit-1',
+    journalId: 'default-compendium',
     spiritType: 'Single Malt Scotch',
     distillery: 'Laphroaig',
     name: '10 Year Old',
@@ -17,7 +18,7 @@ const MOCK_SPIRITS: Spirit[] = [
     rating100: 92,
     starRating: 4.5,
     colour: 'Amber',
-    glance: 'Oily',
+    glance: ['Oily'],
     finish: 'Long',
     finishNotes: 'Peat smoke and marine brine',
     noseProfile: {
@@ -50,6 +51,7 @@ const MOCK_SPIRITS: Spirit[] = [
   },
   {
     id: 'spirit-2',
+    journalId: 'default-compendium',
     spiritType: 'Bourbon',
     distillery: 'Woodford Reserve',
     name: 'Double Oaked',
@@ -59,7 +61,7 @@ const MOCK_SPIRITS: Spirit[] = [
     rating100: 88,
     starRating: 4.4,
     colour: 'Dark Oak',
-    glance: 'Creamy',
+    glance: ['Creamy'],
     finish: 'Medium',
     finishNotes: 'Vanilla and charred oak',
     thumbnailImage: 'data:image/png;base64,mockthumb',

@@ -14,7 +14,22 @@ interface LanguageContextValue {
 const LanguageContext = createContext<LanguageContextValue | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<Language>('EN');
+  // Initialize state synchronously to prevent first-render language flickering
+  const [language, setLanguageState] = useState<Language>(() => {
+    if (typeof window !== 'undefined') {
+      // 1. Check if user already has a saved preference
+      const cached = window.localStorage.getItem(LOCAL_STORAGE_LANG_KEY);
+      if (cached === 'DE' || cached === 'EN') {
+        return cached as Language;
+      }
+      // 2. If first-time load, fall back to browser's system language
+      const browserLang = window.navigator.language;
+      if (browserLang.startsWith('de')) {
+        return 'DE';
+      }
+    }
+    return 'EN';
+  });
 
   // Hydrate language on startup from /api/settings or localStorage fallback
   useEffect(() => {

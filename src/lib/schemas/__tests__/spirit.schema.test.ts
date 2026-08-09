@@ -7,7 +7,7 @@ describe('Spirit Schema Validation', () => {
     const validSpirit = {
       spiritType: 'Single Malt Scotch' as const,
       colour: 'Gold' as const,
-      glance: 'Oily' as const,
+      glance: ['Oily'] as SpiritGlance[],
       abv: 43.0,
       rating100: 92,
       age: 12,
@@ -46,7 +46,7 @@ describe('Spirit Schema Validation', () => {
   it('detects invalid glance/mouthfeel values outside as const tuple', () => {
     const invalidGlance = {
       spiritType: 'Irish Whiskey' as const,
-      glance: 'Sandpaper' as unknown as SpiritGlance,
+      glance: ['Sandpaper'] as unknown as SpiritGlance[],
     };
     const result = validateSpirit(invalidGlance);
     expect(result.valid).toBe(false);

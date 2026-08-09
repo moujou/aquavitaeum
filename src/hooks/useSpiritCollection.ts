@@ -4,59 +4,63 @@ import { createBlankSpirit } from '@/lib/spirit-utils';
 import { translateColour, translateGlance } from '@/lib/i18n/translations';
 import { db } from '@/lib/db';
 
-export function useSpiritCollection(initialSpirits: Spirit[] = []) {
-  const [spirits, setSpirits] = useState<Spirit[]>(initialSpirits);
-  const [selectedId, setSelectedId] = useState<string | null>(initialSpirits[0]?.id ?? null);
+export function useSpiritCollection(activeJournalId: string | null) {
+  const [spirits, setSpirits] = useState<Spirit[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<SpiritType | 'All'>('All');
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Helper to persist array to IndexedDB and server API endpoint fallback
-  const persistSpirits = useCallback(async (updatedList: Spirit[]) => {
+  // Helper to sync local database state to server API endpoint (for development fallback)
+  const syncWithServer = useCallback(async () => {
     try {
-      await db.spirits.clear();
-      if (updatedList.length > 0) {
-        await db.spirits.bulkPut(updatedList);
-      }
-    } catch (err) {
-      console.warn('Aqua Vitaeum: Failed to persist spirit collection to local database.', err);
-    }
-
-    try {
+      const allSpirits = await db.spirits.toArray();
       await fetch('/api/spirits', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ spirits: updatedList }),
+        body: JSON.stringify({ spirits: allSpirits }),
       });
     } catch (err) {
       console.warn('Aqua Vitaeum: Background server API sync failed, relying on local database cache.', err);
     }
   }, []);
 
-  // Fetch initial spirit collection from local database or server API fallback
+  // Fetch spirits for the active journal
   useEffect(() => {
     let isMounted = true;
+    if (!activeJournalId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setIsLoading(false);
+      return;
+    }
+    const journalId = activeJournalId;
+
     async function loadSpirits() {
+      setIsLoading(true);
       let localSpirits: Spirit[] = [];
       try {
-        localSpirits = await db.spirits.toArray();
+        localSpirits = await db.spirits.where('journalId').equals(journalId).toArray();
       } catch (err) {
         console.warn('Aqua Vitaeum: Failed to load spirits from IndexedDB.', err);
       }
 
-      // If local database is empty, seed from API endpoint (e.g. during dev/seeding)
-      if (localSpirits.length === 0) {
+      // If local database has no spirits for this journal AND it's the default journal, 
+      // we check the server API endpoint for fallback/seeding
+      if (localSpirits.length === 0 && journalId === 'default-compendium') {
         try {
           const res = await fetch('/api/spirits');
           if (res.ok) {
             const data = await res.json();
             if (isMounted && Array.isArray(data.spirits) && data.spirits.length > 0) {
-              setSpirits(data.spirits);
-              setSelectedId((prev) =>
-                prev && data.spirits.some((s: Spirit) => s.id === prev) ? prev : data.spirits[0].id,
-              );
+              // Seed spirits to default journal
+              const seeded = data.spirits.map((s: Spirit) => ({
+                ...s,
+                journalId: 'default-compendium'
+              }));
+              setSpirits(seeded);
+              setSelectedId(seeded[0].id);
               try {
-                await db.spirits.bulkPut(data.spirits);
+                await db.spirits.bulkPut(seeded);
               } catch (err) {
                 console.warn('Aqua Vitaeum: Could not seed IndexedDB from API.', err);
               }
@@ -67,27 +71,28 @@ export function useSpiritCollection(initialSpirits: Spirit[] = []) {
         } catch (err) {
           console.warn('Aqua Vitaeum: Server fetch failed, attempting local cache fallback.', err);
         }
-      } else {
-        if (isMounted) {
-          setSpirits(localSpirits);
-          setSelectedId((prev) =>
-            prev && localSpirits.some((s: Spirit) => s.id === prev) ? prev : localSpirits[0].id,
-          );
-        }
       }
 
-      if (isMounted) setIsLoading(false);
+      if (isMounted) {
+        // Sort spirits by tasted date (newest first)
+        localSpirits.sort((a, b) => b.dateTasted.localeCompare(a.dateTasted));
+        setSpirits(localSpirits);
+        setSelectedId((prev) =>
+          prev && localSpirits.some((s) => s.id === prev) ? prev : (localSpirits[0]?.id ?? null)
+        );
+        setIsLoading(false);
+      }
     }
 
     loadSpirits();
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [activeJournalId]);
 
   const activeSpirit = useMemo(() => {
-    return spirits.find((s) => s.id === selectedId) ?? createBlankSpirit();
-  }, [spirits, selectedId]);
+    return spirits.find((s) => s.id === selectedId) ?? createBlankSpirit(activeJournalId || undefined);
+  }, [spirits, selectedId, activeJournalId]);
 
   const filteredSpirits = useMemo(() => {
     return spirits.filter((s) => {
@@ -95,8 +100,9 @@ export function useSpiritCollection(initialSpirits: Spirit[] = []) {
       const q = search.trim().toLowerCase();
       if (!q) return matchesType;
 
-      const glanceEN = s.glance.toLowerCase();
-      const glanceDE = translateGlance(s.glance, 'DE').toLowerCase();
+      const glances = Array.isArray(s.glance) ? s.glance : (s.glance ? [s.glance] : []);
+      const glanceEN = glances.map((g) => g.toLowerCase()).join(' ');
+      const glanceDE = glances.map((g) => translateGlance(g, 'DE').toLowerCase()).join(' ');
 
       const colourEN = s.colour.toLowerCase();
       const colourDE = translateColour(s.colour, 'DE').toLowerCase();
@@ -126,46 +132,58 @@ export function useSpiritCollection(initialSpirits: Spirit[] = []) {
     setSelectedId(id);
   }, []);
 
-  const handleNewNote = useCallback(() => {
-    const blank = createBlankSpirit();
-    setSpirits((prev) => {
-      const next = [blank, ...prev];
-      persistSpirits(next);
-      return next;
-    });
-    setSelectedId(blank.id);
-  }, [persistSpirits]);
+  const handleNewNote = useCallback(async () => {
+    if (!activeJournalId) return;
+    const blank = createBlankSpirit(activeJournalId);
+    try {
+      await db.spirits.add(blank);
+      setSpirits((prev) => [blank, ...prev]);
+      setSelectedId(blank.id);
+      await syncWithServer();
+    } catch (err) {
+      console.error('Aqua Vitaeum: Failed to create new note.', err);
+    }
+  }, [activeJournalId, syncWithServer]);
 
   const handleSave = useCallback(
-    (updated: Spirit) => {
-      setSpirits((prev) => {
-        const next = prev.some((s) => s.id === updated.id)
-          ? prev.map((s) => (s.id === updated.id ? updated : s))
-          : [updated, ...prev];
-        persistSpirits(next);
-        return next;
-      });
-      setSelectedId(updated.id);
+    async (updated: Spirit) => {
+      if (!activeJournalId) return;
+      try {
+        await db.spirits.put(updated);
+        setSpirits((prev) =>
+          prev.some((s) => s.id === updated.id)
+            ? prev.map((s) => (s.id === updated.id ? updated : s))
+            : [updated, ...prev]
+        );
+        setSelectedId(updated.id);
+        await syncWithServer();
+      } catch (err) {
+        console.error('Aqua Vitaeum: Failed to save note.', err);
+      }
     },
-    [persistSpirits],
+    [activeJournalId, syncWithServer]
   );
 
   const handleDelete = useCallback(
-    (id: string) => {
-      setSpirits((prev) => {
-        const next = prev.filter((s) => s.id !== id);
-        if (selectedId === id) {
-          if (next.length > 0) {
-            setSelectedId(next[0].id);
-          } else {
-            setSelectedId(null);
-          }
-        }
-        persistSpirits(next);
-        return next;
-      });
+    async (id: string) => {
+      try {
+        await db.spirits.delete(id);
+        setSpirits((prev) => {
+          const next = prev.filter((s) => s.id !== id);
+          setSelectedId((currentId) => {
+            if (currentId === id) {
+              return next[0]?.id ?? null;
+            }
+            return currentId;
+          });
+          return next;
+        });
+        await syncWithServer();
+      } catch (err) {
+        console.error('Aqua Vitaeum: Failed to delete note.', err);
+      }
     },
-    [selectedId, persistSpirits],
+    [syncWithServer]
   );
 
   return {

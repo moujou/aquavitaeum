@@ -15,22 +15,22 @@ export default function manifest(): MetadataRoute.Manifest {
     display: 'standalone',
     orientation: 'portrait',
     background_color: '#0c1a0e', // matches --pub-bg
-    theme_color: '#2A1B12',      // matches --wood-accent
+    theme_color: '#311e15',      // refined --wood-accent
     icons: [
       {
-        src: `${prefix}/whisky-logo-with-circle.svg?v=2`,
+        src: `${prefix}/whisky-logo-with-circle-v3.svg`,
         sizes: 'any',
         type: 'image/svg+xml',
         purpose: 'any',
       },
       {
-        src: `${prefix}/whisky-logo-maskable.svg?v=2`,
+        src: `${prefix}/whisky-logo-maskable-v3.svg`,
         sizes: 'any',
         type: 'image/svg+xml',
         purpose: 'maskable',
       },
       {
-        src: `${prefix}/whisky-logo-with-circle.svg?v=2`,
+        src: `${prefix}/whisky-logo-with-circle-v3.svg`,
         sizes: 'any',
         type: 'image/svg+xml',
         purpose: 'monochrome',
