@@ -3,6 +3,7 @@ import { Spirit } from '@/types/spirit.types';
 export const MOCK_SPIRITS: Spirit[] = [
   {
     id: 'laphroaig-10',
+    journalId: 'default-compendium',
     spiritType: 'Single Malt Scotch',
     distillery: 'Laphroaig',
     name: '10 Year Old Original Cask Strength',
@@ -14,7 +15,7 @@ export const MOCK_SPIRITS: Spirit[] = [
     rating100: 92,
     starRating: 4.8,
     colour: 'Gold',
-    glance: 'Oily',
+    glance: ['Oily'],
     finish: 'Long',
     finishNotes: 'Ex-Bourbon & Quarter Cask Finish',
     noseProfile: {
@@ -29,6 +30,7 @@ export const MOCK_SPIRITS: Spirit[] = [
   },
   {
     id: 'lagavulin-16',
+    journalId: 'default-compendium',
     spiritType: 'Single Malt Scotch',
     distillery: 'Lagavulin',
     name: '16 Year Old Single Malt',
@@ -39,7 +41,7 @@ export const MOCK_SPIRITS: Spirit[] = [
     rating100: 95,
     starRating: 5.0,
     colour: 'Amber',
-    glance: 'Creamy',
+    glance: ['Creamy'],
     finish: 'Long',
     finishNotes: 'Oloroso Sherry Cask Finish',
     noseProfile: {
@@ -54,6 +56,7 @@ export const MOCK_SPIRITS: Spirit[] = [
   },
   {
     id: 'glenfiddich-12',
+    journalId: 'default-compendium',
     spiritType: 'Single Malt Scotch',
     distillery: 'Glenfiddich',
     name: '12 Year Old Our Original Twelve',
@@ -64,7 +67,7 @@ export const MOCK_SPIRITS: Spirit[] = [
     rating100: 84,
     starRating: 4.2,
     colour: 'Straw',
-    glance: 'Smooth',
+    glance: ['Smooth'],
     finish: 'Medium',
     finishNotes: 'Bourbon & Oloroso Sherry Oak Cask Finish',
     noseProfile: {
@@ -79,6 +82,7 @@ export const MOCK_SPIRITS: Spirit[] = [
   },
   {
     id: 'makers-mark-bourbon',
+    journalId: 'default-compendium',
     spiritType: 'Bourbon',
     distillery: "Maker's Mark",
     name: 'Original Red Wax',
@@ -88,7 +92,7 @@ export const MOCK_SPIRITS: Spirit[] = [
     rating100: 82,
     starRating: 4.1,
     colour: 'Copper',
-    glance: 'Smooth',
+    glance: ['Smooth'],
     finish: 'Medium',
     finishNotes: 'Virgin Charred American Oak Barrel Finish',
     noseProfile: {
@@ -103,6 +107,7 @@ export const MOCK_SPIRITS: Spirit[] = [
   },
   {
     id: 'appleton-estate-rum',
+    journalId: 'default-compendium',
     spiritType: 'Rum',
     distillery: 'Appleton Estate',
     name: '12 Year Old Rare Casks',
@@ -113,7 +118,7 @@ export const MOCK_SPIRITS: Spirit[] = [
     rating100: 88,
     starRating: 4.4,
     colour: 'Mahogany',
-    glance: 'Oily',
+    glance: ['Oily'],
     finish: 'Long',
     finishNotes: 'Jamaican Cask Aged Finish',
     noseProfile: {
@@ -128,6 +133,7 @@ export const MOCK_SPIRITS: Spirit[] = [
   },
   {
     id: 'hendricks-gin',
+    journalId: 'default-compendium',
     spiritType: 'Gin',
     distillery: "Hendrick's",
     name: 'Original Gin',
@@ -137,7 +143,7 @@ export const MOCK_SPIRITS: Spirit[] = [
     rating100: 86,
     starRating: 4.3,
     colour: 'Clear',
-    glance: 'Watery',
+    glance: ['Watery'],
     finish: 'Short',
     finishNotes: 'Cucumber & Rose Petal Infused Finish',
     noseProfile: {

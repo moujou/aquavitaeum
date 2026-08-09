@@ -79,14 +79,6 @@ export const SPIRIT_FLAVOR_TAXONOMY: FlavorCategory[] = [
           { id: 'heftpflaster', name: { EN: 'Bandage / Plaster', DE: 'Heftpflaster' }, radarDimension: 'peaty', color: '#1F7385', aliases: ['Bandage', 'Plaster', 'Pflaster'] },
         ],
       },
-      {
-        id: 'maritim',
-        name: { EN: 'Maritime & Saline', DE: 'Maritim & Salzig' },
-        descriptors: [
-          { id: 'sea_salt', name: { EN: 'Sea Salt', DE: 'Meersalz' }, radarDimension: 'peaty', color: '#2B788B', aliases: ['Sea Salt', 'Meersalz', 'Salz'] },
-          { id: 'seegras', name: { EN: 'Seaweed / Kelp', DE: 'Seegras / Tang' }, radarDimension: 'peaty', color: '#246D5E', aliases: ['Seaweed', 'Kelp', 'Seegras', 'Tang'] },
-        ],
-      },
     ],
   },
 
@@ -165,6 +157,24 @@ export const SPIRIT_FLAVOR_TAXONOMY: FlavorCategory[] = [
           { id: 'fleischig', name: { EN: 'Meaty / Gravy', DE: 'Fleischig / Bratensauce' }, radarDimension: 'sulphury', color: '#823B33', aliases: ['Meaty', 'Gravy'] },
           { id: 'braten', name: { EN: 'Roast Beef', DE: 'Rinderbraten' }, radarDimension: 'sulphury', color: '#733029', aliases: ['Roast Beef'] },
           { id: 'speck', name: { EN: 'Bacon', DE: 'Speck' }, radarDimension: 'sulphury', color: '#8F382E', aliases: ['Bacon'] },
+        ],
+      },
+    ],
+  },
+
+  // ─── 4. MARITIME & MINERAL ─────────────────────────────────────────────────
+  {
+    id: 'maritim',
+    name: { EN: 'Maritime & Mineral', DE: 'Maritim & Mineralisch' },
+    emoji: '🌊',
+    radarDimension: 'sulphury',
+    subcategories: [
+      {
+        id: 'kueste',
+        name: { EN: 'Coastline', DE: 'Küste' },
+        descriptors: [
+          { id: 'sea_salt', name: { EN: 'Sea Salt', DE: 'Meersalz' }, radarDimension: 'sulphury', color: '#2B788B', aliases: ['Sea Salt', 'Meersalz', 'Salz'] },
+          { id: 'seegras', name: { EN: 'Seaweed / Kelp', DE: 'Seegras / Tang' }, radarDimension: 'sulphury', color: '#246D5E', aliases: ['Seaweed', 'Kelp', 'Seegras', 'Tang'] },
         ],
       },
     ],

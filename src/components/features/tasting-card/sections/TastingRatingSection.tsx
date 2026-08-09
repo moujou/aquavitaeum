@@ -89,7 +89,7 @@ export function TastingRatingSection({
               'text-xs sm:text-sm font-display uppercase tracking-wider font-semibold transition-all duration-200 cursor-pointer',
               saved
                 ? 'bg-green-800 text-white border-green-800'
-                : 'bg-[#1A120B] text-[#F5EEDC] border-[#C59B27] hover:bg-[#2A1B12] hover:border-[#e8c247]',
+                : 'bg-[var(--wood-accent)] text-[#F5EEDC] border-[#C59B27] hover:bg-[var(--wood-light)] hover:border-[#e8c247]',
             )}
           >
             <CheckCircle size={15} />

@@ -5,11 +5,11 @@
 :root,
 [data-theme="pub-dark"] {
   /* Pub atmosphere */
-  --pub-bg: #0c1a0e;
-  --pub-bg-alt: #172B1C;
-  --pub-bg-panel: #1a2f1e;
-  --wood-accent: #2A1B12;
-  --wood-light: #3d2b1a;
+  --pub-bg: #122616;       /* Lighter, richer dark forest green */
+  --pub-bg-alt: #1c3822;   /* Lighter secondary green */
+  --pub-bg-panel: #224229; /* Lighter panel background */
+  --wood-accent: #311e15;  /* Richer, slightly darker dark walnut brown */
+  --wood-light: #442a1e;   /* Adjusted wood trim accent */
   --brass-accent: #C59B27;
   --brass-muted: #a07d1a;
   --brass-light: #e8c247;

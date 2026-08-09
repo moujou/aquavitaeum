@@ -28,16 +28,20 @@ export function WhiskyLogo({ size = 24, className, hasCircle = false, ...props }
 
           {/* Glass Bowl */}
           <path
-            d="M 218 140 
-               H 294 
-               C 314 188 326 212 326 244 
-               C 326 292 294 322 256 322 
-               C 218 322 186 292 186 244 
-               C 186 212 198 188 218 140 Z"
+            d="M 220 140 
+               H 292 
+               C 299 175, 326 215, 326 244 
+               C 326 292, 294 322, 256 322 
+               C 218 322, 186 292, 186 244 
+               C 186 215, 213 175, 220 140 Z"
           />
 
-          {/* Fill Line */}
-          <path d="M 187 244 H 325" />
+          {/* Wavy Fill Line */}
+          <path
+            d="M 194 263 
+               C 210 251, 240 277, 280 262 
+               C 300 255, 310 258, 318 264"
+          />
 
           {/* Compact Curved Base/Pedestal */}
           <path
@@ -75,16 +79,20 @@ export function WhiskyLogo({ size = 24, className, hasCircle = false, ...props }
       >
         {/* Glass Bowl */}
         <path
-          d="M 218 140 
-             H 294 
-             C 314 188 326 212 326 244 
-             C 326 292 294 322 256 322 
-             C 218 322 186 292 186 244 
-             C 186 212 198 188 218 140 Z"
+          d="M 220 140 
+             H 292 
+             C 299 175, 326 215, 326 244 
+             C 326 292, 294 322, 256 322 
+             C 218 322, 186 292, 186 244 
+             C 186 215, 213 175, 220 140 Z"
         />
 
-        {/* Fill Line */}
-        <path d="M 187 244 H 325" />
+        {/* Wavy Fill Line */}
+        <path
+          d="M 194 263 
+             C 210 251, 240 277, 280 262 
+             C 300 255, 310 258, 318 264"
+        />
 
         {/* Compact Curved Base/Pedestal */}
         <path
