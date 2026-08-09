@@ -6,6 +6,7 @@ export interface JournalWithStats extends Journal {
   bottleCount: number;
   averageRating: number;
   latestTastedDate: string | null;
+  recentImages: string[];
 }
 
 export function useJournals() {
@@ -34,11 +35,19 @@ export function useJournals() {
             return s.dateTasted > latest ? s.dateTasted : latest;
           }, null);
 
+          // Get images of up to 3 most recently tasted bottles
+          const sortedSpirits = [...spirits].sort((a, b) => b.dateTasted.localeCompare(a.dateTasted));
+          const recentImages = sortedSpirits
+            .map((s) => s.thumbnailImage || (s.images && s.images[0]))
+            .filter((img): img is string => !!img)
+            .slice(0, 3);
+
           return {
             ...journal,
             bottleCount,
             averageRating,
             latestTastedDate,
+            recentImages,
           };
         })
       );
@@ -84,10 +93,11 @@ export function useJournals() {
   }, [loadJournals]);
 
   // Rename an existing journal
-  const renameJournal = useCallback(async (id: string, newName: string) => {
+  const renameJournal = useCallback(async (id: string, newName: string, newDescription?: string) => {
     try {
       await db.journals.update(id, {
         name: newName.trim(),
+        description: newDescription !== undefined ? newDescription.trim() : undefined,
         updatedAt: new Date().toISOString(),
       });
       await loadJournals();

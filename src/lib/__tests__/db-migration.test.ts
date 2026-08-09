@@ -49,7 +49,7 @@ describe('Database Migration', () => {
       if (count === 0) {
         await tx.table('journals').add({
           id: defaultId,
-          name: 'My Compendium',
+          name: 'My Journal',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         });
@@ -68,7 +68,7 @@ describe('Database Migration', () => {
     expect(journalsCountMock).toHaveBeenCalled();
     expect(journalsAddMock).toHaveBeenCalledWith(expect.objectContaining({
       id: 'default-compendium',
-      name: 'My Compendium',
+      name: 'My Journal',
     }));
     expect(mockJournals.length).toBe(1);
 

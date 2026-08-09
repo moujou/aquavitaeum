@@ -12,10 +12,10 @@ export const metadata: Metadata = {
     'A premium fine spirits tasting journal. Record and explore tasting notes for Single Malt Scotch, Bourbon, Rum, Gin, Tequila, and more.',
   icons: {
     icon: [
-      { url: '/whisky-logo-with-circle.svg', type: 'image/svg+xml' },
+      { url: '/whisky-logo-with-circle-v3.svg', type: 'image/svg+xml' },
     ],
-    shortcut: '/whisky-logo-with-circle.svg',
-    apple: '/whisky-logo-maskable.svg',
+    shortcut: '/whisky-logo-with-circle-v3.svg',
+    apple: '/whisky-logo-maskable-v3.svg',
   },
   appleWebApp: {
     capable: true,

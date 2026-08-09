@@ -137,17 +137,17 @@ export const TRANSLATIONS = {
 
     // Welcome Screen
     welcomeTitle: 'Aqua Vitaeum',
-    welcomeSubtitle: 'Your Sensory Spirits Journal',
-    welcomeSlogan: 'Uncask your journey. Capture the notes, the textures, and the finish of your finest spirits.',
+    welcomeSubtitle: 'Your Fine Spirits Tasting Journal',
     createFirstJournal: 'Create your first Journal',
+    enterJournalBtn: 'Open Tasting Journal',
     
     // Journals Overview
-    journalsTitle: 'My Compendiums',
+    journalsTitle: 'My Journals',
     createJournalBtn: 'Create Journal',
     journalNamePlaceholder: 'e.g. Islay Malts, Caribbean Rums...',
     deleteJournalConfirm: 'Are you sure you want to delete this journal? All associated tasting notes will be permanently removed.',
     statsBottles: 'Bottles',
-    statsAvgRating: 'Avg. Rating',
+    statsAvgRating: 'Rating',
     statsLatest: 'Latest',
     statsUnrated: 'No notes yet',
   },
@@ -286,17 +286,17 @@ export const TRANSLATIONS = {
 
     // Welcome Screen
     welcomeTitle: 'Aqua Vitaeum',
-    welcomeSubtitle: 'Dein sensorisches Spirituosen-Journal',
-    welcomeSlogan: 'Entkorke deine Reise. Erfasse die Noten, Texturen und den Abgang deiner edelsten Spirituosen.',
+    welcomeSubtitle: 'Dein feines Spirituosen-Verkostungsjournal',
     createFirstJournal: 'Erstelle dein erstes Journal',
+    enterJournalBtn: 'Tasting-Journal öffnen',
     
     // Journals Overview
-    journalsTitle: 'Meine Kompendien',
+    journalsTitle: 'Meine Journals',
     createJournalBtn: 'Journal erstellen',
     journalNamePlaceholder: 'z.B. Islay Malts, Karibischer Rum...',
     deleteJournalConfirm: 'Bist du sicher, dass du dieses Journal löschen möchtest? Alle zugehörigen Verkostungsnotizen werden unwiderruflich gelöscht.',
     statsBottles: 'Flaschen',
-    statsAvgRating: 'Schnitt',
+    statsAvgRating: 'Bewertung',
     statsLatest: 'Zuletzt',
     statsUnrated: 'Noch keine Notizen',
   },

@@ -20,7 +20,7 @@ export class AquaVitaeumDatabase extends Dexie {
       if (count === 0) {
         await tx.table('journals').add({
           id: defaultId,
-          name: 'My Compendium',
+          name: 'My Journal',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         });

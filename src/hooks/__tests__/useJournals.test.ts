@@ -50,7 +50,7 @@ describe('useJournals Hook', () => {
     mockJournalsStore = [
       {
         id: 'default-compendium',
-        name: 'My Compendium',
+        name: 'My Journal',
         createdAt: '2026-08-01T00:00:00Z',
         updatedAt: '2026-08-01T00:00:00Z',
       },
@@ -148,7 +148,7 @@ describe('useJournals Hook', () => {
     expect(result.current.journals.length).toBe(3);
   });
 
-  it('renames a journal successfully', async () => {
+  it('renames and updates a journal successfully', async () => {
     const { result } = renderHook(() => useJournals());
 
     // Wait for async load to finish
@@ -157,11 +157,12 @@ describe('useJournals Hook', () => {
     });
 
     await act(async () => {
-      await result.current.renameJournal('journal-1', 'Peated Malts');
+      await result.current.renameJournal('journal-1', 'Peated Malts', 'High-peat single malts');
     });
 
     const updated = mockJournalsStore.find((j) => j.id === 'journal-1');
     expect(updated?.name).toBe('Peated Malts');
+    expect(updated?.description).toBe('High-peat single malts');
   });
 
   it('deletes a journal and cascade deletes its spirits', async () => {
