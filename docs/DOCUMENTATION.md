@@ -38,7 +38,7 @@ npm run build
 | `npm run start` | Serves compiled Next.js application | Production server environment |
 | `npm run lint` | Executes ESLint flat config checks | Code style, React hooks rules, and syntax validation |
 | `npm run type-check` | Runs TypeScript compiler (`tsc --noEmit`) | Strict mode type verification across codebase |
-| `npm run test` | Executes Vitest test suite once | Runs all 138 unit tests across 22 test files |
+| `npm run test` | Executes Vitest test suite once | Runs all 145 unit tests across 24 test files |
 | `npm run test:watch` | Runs Vitest in interactive watch mode | Real-time test-driven development (TDD) |
 | `npm run test:coverage` | Generates Vitest coverage reports | Code coverage auditing |
 
@@ -57,13 +57,17 @@ Aqua Vitaeum is configured for **Static HTML Export Mode** (`output: "export"` i
 
 ---
 
-## 📱 Progressive Web App (PWA) Architecture
+## 📱 Progressive Web App (PWA) & Navigation Architecture
 
 Aqua Vitaeum is configured as a fully installable PWA for mobile and desktop systems:
 
 - **Web App Manifest (`src/app/manifest.ts`)**: A dynamic manifest configures standalone orientation, theme/background colors (`#2A1B12` and `#0c1a0e`), app naming, and references scalable vector and maskable SVG icons.
-- **Offline Capabilities (`public/sw.js`)**: A custom network-first Service Worker script caches primary shell assets (`/`, `whisky-logo-with-circle.svg`, `whisky-logo-maskable.svg`) and caches fetched pages/bundles dynamically to enable full offline use.
+- **Offline Capabilities (`public/sw.js`)**: A custom network-first Service Worker script caches primary shell assets (`/`, `whisky-logo-with-circle-v4.svg`, `whisky-logo-maskable-v4.svg`) and caches fetched pages/bundles dynamically to enable full offline use.
 - **iOS/Safari High-Fidelity**: Apple mobile-web-app-capable and status-bar-style metadata tags are injected automatically via Next.js metadata layout headers to ensure a clean browser-less look on iOS devices.
+- **Mobile Usability & Tab Navigation (`src/app/page.tsx`)**:
+  - **Bottom Navigation Bar**: Displays a compact 56px (`h-14`) bar at `z-50` with a solid wood texture (`bg-wood`). Provides icon-only buttons for Bookshelf (Exit) and Collection (Toggle). Active tabs display an Amazon-style gold top line (`border-t-4 border-[#C59B27]`) casting a tiny 6px drop shadow gradient (`bg-gradient-to-b from-black/35 from-0% to-transparent to-[12%]`) downwards.
+  - **Full-Screen mobile drawer**: Toggling the Collection drawer opens a full-screen view (`top-0 left-0 right-0 bottom-14`) that ends exactly at the top of the bottom bar, keeping the bottom navigation bar accessible underneath.
+  - **Responsive Spacing**: Section container `#tasting-card-section` applies bottom padding `pb-20` on mobile viewports so inputs and actions (Save/Delete buttons) can be scrolled fully above the sticky bottom navigation.
 
 
 ---
@@ -102,5 +106,5 @@ Unit tests are written using Vitest 4 and `@testing-library/react`.
 Before submitting code or merging pull requests:
 1. `npm run type-check` (Must pass with 0 errors)
 2. `npm run lint` (Must pass with 0 errors/warnings)
-3. `npm run test` (Must pass all 138 unit tests)
+3. `npm run test` (Must pass all 145 unit tests)
 4. `npm run build` (Must complete static build successfully)

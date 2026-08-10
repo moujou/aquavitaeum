@@ -18,19 +18,19 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: '#311e15',      // refined --wood-accent
     icons: [
       {
-        src: `${prefix}/whisky-logo-with-circle-v3.svg`,
+        src: `${prefix}/whisky-logo-with-circle-v4.svg`,
         sizes: 'any',
         type: 'image/svg+xml',
         purpose: 'any',
       },
       {
-        src: `${prefix}/whisky-logo-maskable-v3.svg`,
+        src: `${prefix}/whisky-logo-maskable-v4.svg`,
         sizes: 'any',
         type: 'image/svg+xml',
         purpose: 'maskable',
       },
       {
-        src: `${prefix}/whisky-logo-with-circle-v3.svg`,
+        src: `${prefix}/whisky-logo-with-circle-v4.svg`,
         sizes: 'any',
         type: 'image/svg+xml',
         purpose: 'monochrome',

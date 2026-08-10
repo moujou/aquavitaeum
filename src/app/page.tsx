@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { Menu, Plus, ArrowLeft } from 'lucide-react';
+import { Menu, Plus, ArrowLeft, BookOpen } from 'lucide-react';
 import { useSpiritCollection } from '@/hooks/useSpiritCollection';
 import { useJournals } from '@/hooks/useJournals';
 import { TastingCard } from '@/components/features/tasting-card/TastingCard';
@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 
 export default function Home() {
   const { t } = useLanguage();
+  const basePath = process.env.NODE_ENV === 'production' ? '/aquavitaeum' : '';
   
   // Navigation View State: loading | welcome (onboarding) | overview (bookshelf) | journal-detail (tasting ledger)
   const [activeView, setActiveView] = useState<'loading' | 'welcome' | 'overview' | 'journal-detail'>('loading');
@@ -141,7 +142,7 @@ export default function Home() {
         {/* ── App Header ─────────────────────────────────────────────────── */}
         <header
           id="app-header"
-          className="flex-shrink-0 h-14 flex items-center justify-between px-3 sm:px-6 border-b border-white/10 bg-[var(--wood-accent)] z-10 shadow-md"
+          className="flex-shrink-0 h-14 flex items-center justify-between px-3 sm:px-6 border-b border-black/40 border-t border-white/[0.03] bg-wood z-10 shadow-md"
         >
           {/* Left Header: Back button OR Mobile Menu Trigger + Brand Logo & Title */}
           <div className="flex items-center gap-2.5 sm:gap-3">
@@ -153,25 +154,10 @@ export default function Home() {
                   setActiveJournalId(null);
                   setActiveView('overview');
                 }}
-                className="h-8 w-8 flex items-center justify-center rounded border border-[#C59B27]/40 bg-[var(--wood-accent)] text-[#C59B27] hover:bg-[#C59B27]/10 transition-all duration-150 cursor-pointer select-none"
+                className="hidden lg:flex h-8 w-8 items-center justify-center rounded border border-[#C59B27]/40 bg-[var(--wood-accent)] text-[#C59B27] hover:bg-[#C59B27]/10 transition-all duration-150 cursor-pointer select-none"
                 title="Back to Journals"
               >
                 <ArrowLeft size={16} />
-              </button>
-            ) : null}
-
-            {/* Mobile Hamburger Menu Icon (only inside journal view, < lg screens) */}
-            {activeView === 'journal-detail' ? (
-              <button
-                id="mobile-menu-btn"
-                type="button"
-                onClick={() => setIsMobileDrawerOpen(true)}
-                className="lg:hidden h-7 w-7 flex items-center justify-center rounded border border-[#C59B27]/40 bg-[var(--wood-accent)] text-[#C59B27] hover:bg-[#C59B27]/10 transition-all duration-150 cursor-pointer select-none"
-                aria-label="Open sidebar menu"
-                aria-expanded={isMobileDrawerOpen}
-                title="Open menu"
-              >
-                <Menu size={18} />
               </button>
             ) : null}
 
@@ -179,7 +165,7 @@ export default function Home() {
             <div className="flex items-center gap-2.5">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/whisky-logo-with-circle-v3.svg"
+                src={`${basePath}/whisky-logo-with-circle-v4.svg`}
                 alt="Aqua Vitaeum Logo"
                 className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 select-none pointer-events-none rounded-full"
                 width={40}
@@ -245,22 +231,13 @@ export default function Home() {
               />
             </aside>
 
-            {/* Mobile Off-Canvas Collection Drawer Backdrop */}
-            {isMobileDrawerOpen && (
-              <div
-                className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 lg:hidden transition-opacity cursor-pointer"
-                onClick={() => setIsMobileDrawerOpen(false)}
-                aria-hidden="true"
-              />
-            )}
-
-            {/* Mobile Off-Canvas Sidebar Drawer */}
+            {/* Mobile Off-Canvas Sidebar Drawer - Full Screen Width, stopping above bottom bar */}
             <div
               role="dialog"
               aria-modal="true"
               aria-label={t('collection')}
               className={cn(
-                'fixed top-0 left-0 bottom-0 w-[310px] sm:w-[360px] bg-[var(--pub-bg-panel)] border-r border-[#C59B27]/40 shadow-2xl z-50 flex flex-col p-4 transition-transform duration-300 ease-in-out lg:hidden',
+                'fixed top-0 left-0 right-0 bottom-14 bg-[var(--pub-bg)] z-40 flex flex-col p-4 sm:p-6 transition-transform duration-300 ease-in-out lg:hidden',
                 isMobileDrawerOpen ? 'translate-x-0' : '-translate-x-full'
               )}
             >
@@ -279,7 +256,6 @@ export default function Home() {
                     handleNewNote();
                     setIsMobileDrawerOpen(false);
                   }}
-                  onClose={() => setIsMobileDrawerOpen(false)}
                 />
               </div>
             </div>
@@ -287,7 +263,7 @@ export default function Home() {
             {/* Main: Tasting Card (Independent Scroll with Error Boundary) */}
             <section
               id="tasting-card-section"
-              className="flex-1 h-full overflow-y-auto overflow-x-hidden p-3 sm:p-6 flex justify-center items-center"
+              className="flex-1 h-full overflow-y-auto overflow-x-hidden p-3 sm:p-6 pb-20 sm:pb-22 lg:pb-6 flex justify-center items-center"
             >
               {isLoadingSpirits ? (
                 <div className="flex flex-col items-center justify-center text-center p-6 select-none animate-pulse">
@@ -331,6 +307,38 @@ export default function Home() {
                 </div>
               )}
             </section>
+
+            {/* Mobile Bottom Navigation Bar (lg:hidden) */}
+            <nav className="fixed bottom-0 left-0 right-0 h-14 z-50 bg-wood border-t border-black/40 shadow-[0_-8px_30px_rgba(0,0,0,0.6)] flex items-center justify-around pb-safe lg:hidden">
+              {/* Tab 1: Bookshelf (Exit) */}
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveJournalId(null);
+                  setActiveView('overview');
+                  setIsMobileDrawerOpen(false);
+                }}
+                className="flex items-center justify-center w-24 h-full border-t-4 border-transparent text-[#e8d5b7]/60 hover:text-[#e8d5b7]/90 active:border-[#C59B27] active:bg-gradient-to-b active:from-black/35 active:from-0% active:to-transparent active:to-[12%] active:text-[#e8d5b7] transition-all cursor-pointer"
+                title={t('journalsTitle')}
+              >
+                <BookOpen size={26} />
+              </button>
+
+              {/* Tab 2: Collection Drawer (Toggle) */}
+              <button
+                type="button"
+                onClick={() => setIsMobileDrawerOpen(!isMobileDrawerOpen)}
+                className={cn(
+                  "flex items-center justify-center w-24 h-full border-t-4 transition-all cursor-pointer",
+                  isMobileDrawerOpen 
+                    ? "border-[#C59B27] bg-gradient-to-b from-black/35 from-0% to-transparent to-[12%] text-[#e8d5b7]" 
+                    : "border-transparent text-[#e8d5b7]/60 hover:text-[#e8d5b7]/90 active:border-[#C59B27] active:bg-gradient-to-b active:from-black/30 active:from-0% active:to-transparent active:to-[12%] active:text-[#e8d5b7]"
+                )}
+                title={t('collection')}
+              >
+                <Menu size={26} />
+              </button>
+            </nav>
           </div>
         )}
       </main>
