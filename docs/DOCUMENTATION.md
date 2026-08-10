@@ -38,7 +38,7 @@ npm run build
 | `npm run start` | Serves compiled Next.js application | Production server environment |
 | `npm run lint` | Executes ESLint flat config checks | Code style, React hooks rules, and syntax validation |
 | `npm run type-check` | Runs TypeScript compiler (`tsc --noEmit`) | Strict mode type verification across codebase |
-| `npm run test` | Executes Vitest test suite once | Runs all 145 unit tests across 24 test files |
+| `npm run test` | Executes Vitest test suite once | Runs all 147 unit tests across 25 test files |
 | `npm run test:watch` | Runs Vitest in interactive watch mode | Real-time test-driven development (TDD) |
 | `npm run test:coverage` | Generates Vitest coverage reports | Code coverage auditing |
 
@@ -49,7 +49,8 @@ npm run build
 Aqua Vitaeum is configured for **Static HTML Export Mode** (`output: "export"` in `next.config.ts`), allowing zero-overhead hosting on **GitHub Pages**, Cloudflare Pages, or static CDNs:
 
 - **Static Bundle Generation**: `npm run build` outputs pure static HTML, CSS, and JS into the `./out` directory.
-- **Client Storage Resilience**: Data persistence uses a high-capacity client-side **IndexedDB database (managed via Dexie.js)**, eliminating the 5MB localStorage limits and allowing unlimited photos and notes. It triggers an automatic background server API synchronization when running the Node.js development server backend.
+- **Client Storage Resilience**: Data persistence uses a high-capacity client-side **IndexedDB database (managed via Dexie.js)**, eliminating the 5MB localStorage limits and allowing unlimited photos and notes.
+- **Canvas Image Compression**: When bottle images are uploaded, the application dynamically scales and compresses them on the client side using a `<canvas>` element (down to a max boundary of 1000px, 85% JPEG quality), shrinking raw 3-5MB uploads down to ~80-150KB before IndexedDB serialization.
 - **Multi-Journal Architecture**: Schema version 2 divides tasting notes by `journalId` and stores journal metadata in a dedicated `journals` table. A custom `useJournals.ts` React hook coordinates Dexie database transactions to compute aggregated metrics (spirit counts, average ratings, latest tasted timestamps) per journal in real time.
 - **Automated CI/CD Workflows**:
   - `.github/workflows/ci.yml`: `Build & Code Quality` — Runs ESLint, `tsc --noEmit`, Vitest test suite, and static build validation on every Pull Request.
@@ -61,13 +62,15 @@ Aqua Vitaeum is configured for **Static HTML Export Mode** (`output: "export"` i
 
 Aqua Vitaeum is configured as a fully installable PWA for mobile and desktop systems:
 
-- **Web App Manifest (`src/app/manifest.ts`)**: A dynamic manifest configures standalone orientation, theme/background colors (`#2A1B12` and `#0c1a0e`), app naming, and references scalable vector and maskable SVG icons.
+- **Web App Manifest (`src/app/manifest.ts`)**: A dynamic manifest configures standalone orientation, theme/background colors (`#311e15` and `#0c1a0e`), app naming, and references scalable vector and maskable SVG icons.
 - **Offline Capabilities (`public/sw.js`)**: A custom network-first Service Worker script caches primary shell assets (`/`, `whisky-logo-with-circle-v4.svg`, `whisky-logo-maskable-v4.svg`) and caches fetched pages/bundles dynamically to enable full offline use.
 - **iOS/Safari High-Fidelity**: Apple mobile-web-app-capable and status-bar-style metadata tags are injected automatically via Next.js metadata layout headers to ensure a clean browser-less look on iOS devices.
 - **Mobile Usability & Tab Navigation (`src/app/page.tsx`)**:
-  - **Bottom Navigation Bar**: Displays a compact 56px (`h-14`) bar at `z-50` with a solid wood texture (`bg-wood`). Provides icon-only buttons for Bookshelf (Exit) and Collection (Toggle). Active tabs display an Amazon-style gold top line (`border-t-4 border-[#C59B27]`) casting a tiny 6px drop shadow gradient (`bg-gradient-to-b from-black/35 from-0% to-transparent to-[12%]`) downwards.
-  - **Full-Screen mobile drawer**: Toggling the Collection drawer opens a full-screen view (`top-0 left-0 right-0 bottom-14`) that ends exactly at the top of the bottom bar, keeping the bottom navigation bar accessible underneath.
-  - **Responsive Spacing**: Section container `#tasting-card-section` applies bottom padding `pb-20` on mobile viewports so inputs and actions (Save/Delete buttons) can be scrolled fully above the sticky bottom navigation.
+  - **Bottom Navigation Bar**: Displays a compact 48px (`h-12`) bar at `z-50` with a solid wood texture (`bg-wood`). Provides icon-only buttons for Bookshelf (Exit) and Collection (Toggle). Active tabs display an Amazon-style gold top line (`border-t-4 border-[#C59B27]`) casting a tiny 6px drop shadow gradient (`bg-gradient-to-b from-black/35 from-0% to-transparent to-[12%]`) downwards.
+  - **Off-Canvas Sidebar Drawer**: Toggling the Collection drawer opens an overlay drawer (`fixed top-0 left-0 bottom-0 w-[85%] max-w-[320px] h-full`) positioned above the bottom bar with safe-area padding offsets. Closes via backdrop click or the Escape key.
+  - **Responsive Spacing**: Page switcher views utilize static padding top `pt-17 sm:pt-20 lg:pt-0` layout heights, allowing the mobile scroll-hide header transitions to execute cleanly without dynamic padding shifting or scroll jitter loops.
+  - **Persistent Welcome state**: Onboarding visibility checks compare both `localStorage` welcome keys and session markers, bypassing the launch screen for returning users.
+  - **Collapsible Sidebar (Desktop)**: The sidebar collection panel collapses to a thin `16px` rail line. Content is hidden via a smooth `opacity-0 -translate-x-4` CSS transition wrapper, while the circular `Menu` action toggle stays centered on the vertical line.
 
 
 ---
@@ -88,13 +91,13 @@ Aqua Vitaeum features a human-instinctive color system where flavor descriptors 
 | :--- | :--- | :--- | :--- | :--- |
 | **Peaty** | Peat Smoke | `#655A52` | Smoky Grey-Brown | High Visibility |
 | **Peaty** | Ash / Soot | `#4F565C` | Ash Slate Grey | High Visibility |
-| **Peaty** | Sea Salt | `#2B788B` | Marine Coastal Teal | High Visibility |
+| **Maritime & Mineral** | Sea Salt | `#2B788B` | Marine Coastal Teal | High Visibility |
 | **Peaty** | Iodine | `#1C6878` | Medical Kelp Cyan | High Visibility |
 | **Fruity** | Green Apple | `#3E8E41` | Crisp Apple Green | High Visibility |
 | **Fruity** | Citrus Peel | `#C88210` | Citrus Amber Gold | High Visibility |
-| **Fruity** | Dried Fig | `#6E2235` | Rich Burgundy Plum | High Visibility |
-| **Woody** | Dark Chocolate | `#4A2E1B` | 85% Cacao Espresso | High Visibility |
-| **Woody** | Vanilla & Honey | `#D49B22` | Warm Amber Honey | High Visibility |
+| **Winey & Dried Fruit** | Dried Fig | `#6E2235` | Rich Burgundy Plum | High Visibility |
+| **Sweetness & Bakery** | Dark Chocolate | `#4A2E1B` | 85% Cacao Espresso | High Visibility |
+| **Sweetness & Bakery** | Vanilla & Honey | `#D49B22` | Warm Amber Honey | High Visibility |
 | **Woody** | Toasted Oak | `#8B4513` | Mahogany Barrel Oak | High Visibility |
 
 ---
@@ -106,5 +109,5 @@ Unit tests are written using Vitest 4 and `@testing-library/react`.
 Before submitting code or merging pull requests:
 1. `npm run type-check` (Must pass with 0 errors)
 2. `npm run lint` (Must pass with 0 errors/warnings)
-3. `npm run test` (Must pass all 145 unit tests)
+3. `npm run test` (Must pass all 147 unit tests)
 4. `npm run build` (Must complete static build successfully)

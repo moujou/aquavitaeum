@@ -237,7 +237,7 @@ export function TastingMetadataSection({
         {/* Left Sub-Column: Vertical colour scale */}
         <div className="flex flex-col items-start gap-1 flex-1">
           <SectionHeader className="mb-1">{t('colour')}</SectionHeader>
-          <div className="mt-1 flex flex-col gap-1 w-full">
+          <div className="mt-1 flex flex-col gap-1.5 sm:gap-1 w-full">
             {COLOURS.map(({ value, hex }) => (
               <button
                 key={value}
@@ -245,7 +245,7 @@ export function TastingMetadataSection({
                 type="button"
                 onClick={() => update('colour', value)}
                 className={cn(
-                  'flex items-center gap-2.5 px-2.5 py-1 rounded-sm transition-all duration-200 text-left w-full cursor-pointer',
+                  'flex items-center gap-2.5 px-3 py-2 sm:px-2.5 sm:py-1 rounded-sm transition-all duration-200 text-left w-full cursor-pointer min-h-[36px] sm:min-h-0',
                   spirit.colour === value
                     ? 'bg-[#3D2616] ring-1 ring-[#C59B27] font-semibold text-[#F5EEDC]'
                     : 'hover:bg-[#1A120B]/10 text-[#5c3d22]',
@@ -256,7 +256,7 @@ export function TastingMetadataSection({
                   className="w-4.5 h-4.5 rounded-sm border border-[#C4A87A] flex-shrink-0"
                   style={{ backgroundColor: hex }}
                 />
-                <span className="text-xs sm:text-sm font-medium font-body whitespace-nowrap">
+                <span className="text-sm sm:text-xs font-medium font-body whitespace-nowrap">
                   {translateColour(value, language)}
                 </span>
               </button>
@@ -289,7 +289,7 @@ export function TastingMetadataSection({
                     type="button"
                     onClick={handleToggle}
                     className={cn(
-                      'px-3 py-1.5 rounded-sm border text-xs sm:text-sm font-body font-medium transition-all duration-200 text-center cursor-pointer',
+                      'px-3 py-1.5 rounded-sm border text-sm sm:text-xs font-body font-medium transition-all duration-200 text-center cursor-pointer',
                       isActive
                         ? 'bg-[#3D2616] border-[#C59B27] text-[#F5EEDC] font-semibold shadow-xs'
                         : 'border-[#C4A87A] text-[#5c3d22] hover:bg-[#1A120B]/10',

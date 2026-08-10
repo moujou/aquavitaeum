@@ -255,7 +255,7 @@ export function DynamicProfileSliders({
           return (
             <div
               key={tagName}
-              className="grid grid-cols-[130px_1fr_24px] items-center gap-2.5 bg-[#1A120B]/5 px-2.5 py-1.5 rounded-sm border border-[#C4A87A]/40"
+              className="grid grid-cols-[130px_1fr_24px] items-center gap-2.5 bg-[#1A120B]/5 px-2.5 py-2.5 rounded-sm border border-[#C4A87A]/40"
             >
               <span className="font-body text-xs sm:text-[13px] font-bold text-[#1A120B] truncate" title={displayTagName}>
                 {displayTagName}

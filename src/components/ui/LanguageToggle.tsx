@@ -14,7 +14,7 @@ export function LanguageToggle({ className }: LanguageToggleProps) {
     <div
       id="language-toggle"
       className={cn(
-        'h-7 flex items-center rounded border border-[#C59B27]/40 bg-[var(--wood-accent)] p-0.5 shadow-sm text-[11px] font-display font-semibold select-none',
+        'h-7 flex items-center rounded border border-[#E8D5B7]/30 bg-[#311e15]/60 p-0.5 shadow-sm text-[11px] font-display font-semibold select-none',
         className,
       )}
       aria-label="Language selector"
@@ -26,14 +26,14 @@ export function LanguageToggle({ className }: LanguageToggleProps) {
         className={cn(
           'px-2 py-0.5 rounded-xs transition-all duration-150 cursor-pointer',
           language === 'DE'
-            ? 'bg-[#C59B27] text-[#1A120B] font-bold shadow-xs'
-            : 'text-[#C59B27]/60 hover:text-[#C59B27]',
+            ? 'bg-[#E8D5B7] text-[#311e15] font-bold shadow-xs'
+            : 'text-[#E8D5B7]/60 hover:text-[#E8D5B7]',
         )}
         aria-pressed={language === 'DE'}
       >
         DE
       </button>
-      <span className="text-white/20 px-0.5 text-[9px] font-body">|</span>
+      <span className="text-[#E8D5B7]/20 px-0.5 text-[9px] font-body">|</span>
       <button
         id="lang-toggle-en"
         type="button"
@@ -41,8 +41,8 @@ export function LanguageToggle({ className }: LanguageToggleProps) {
         className={cn(
           'px-2 py-0.5 rounded-xs transition-all duration-150 cursor-pointer',
           language === 'EN'
-            ? 'bg-[#C59B27] text-[#1A120B] font-bold shadow-xs'
-            : 'text-[#C59B27]/60 hover:text-[#C59B27]',
+            ? 'bg-[#E8D5B7] text-[#311e15] font-bold shadow-xs'
+            : 'text-[#E8D5B7]/60 hover:text-[#E8D5B7]',
         )}
         aria-pressed={language === 'EN'}
       >
