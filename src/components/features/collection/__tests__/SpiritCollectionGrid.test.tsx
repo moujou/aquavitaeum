@@ -103,7 +103,6 @@ describe('SpiritCollectionGrid Component', () => {
           spirits={MOCK_SPIRITS}
           selectedId="spirit-1"
           onSelect={vi.fn()}
-          onNewNote={vi.fn()}
         />
       </LanguageProvider>,
     );
@@ -124,7 +123,6 @@ describe('SpiritCollectionGrid Component', () => {
           spirits={MOCK_SPIRITS}
           selectedId="spirit-2"
           onSelect={vi.fn()}
-          onNewNote={vi.fn()}
         />
       </LanguageProvider>,
     );
@@ -132,25 +130,6 @@ describe('SpiritCollectionGrid Component', () => {
     const thumbImg = screen.getByAltText('Double Oaked');
     expect(thumbImg).toBeDefined();
     expect(thumbImg.getAttribute('src')).toBe('data:image/png;base64,mockthumb');
-  });
-
-  it('filters spirits by search query input', () => {
-    render(
-      <LanguageProvider>
-        <SpiritCollectionGrid
-          spirits={MOCK_SPIRITS}
-          selectedId="spirit-1"
-          onSelect={vi.fn()}
-          onNewNote={vi.fn()}
-        />
-      </LanguageProvider>,
-    );
-
-    const searchInput = screen.getByPlaceholderText('Search spirits…');
-    fireEvent.change(searchInput, { target: { value: 'Woodford' } });
-
-    expect(screen.queryByText('Laphroaig')).toBeNull();
-    expect(screen.getByText('Woodford Reserve')).toBeDefined();
   });
 
   it('calls onSelect when a spirit card is clicked', () => {
@@ -161,7 +140,6 @@ describe('SpiritCollectionGrid Component', () => {
           spirits={MOCK_SPIRITS}
           selectedId="spirit-1"
           onSelect={handleSelect}
-          onNewNote={vi.fn()}
         />
       </LanguageProvider>,
     );
@@ -172,26 +150,6 @@ describe('SpiritCollectionGrid Component', () => {
     expect(handleSelect).toHaveBeenCalledWith(MOCK_SPIRITS[1]);
   });
 
-  it('calls onNewNote when New Note button is clicked', () => {
-    const handleNewNote = vi.fn();
-    render(
-      <LanguageProvider>
-        <SpiritCollectionGrid
-          spirits={MOCK_SPIRITS}
-          selectedId="spirit-1"
-          onSelect={vi.fn()}
-          onNewNote={handleNewNote}
-        />
-      </LanguageProvider>,
-    );
-
-    const newNoteBtn = screen.getByRole('button', { name: /New Note/i });
-    fireEvent.click(newNoteBtn);
-
-    expect(handleNewNote).toHaveBeenCalledTimes(1);
-  });
-
-
   it('renders themed spinner and uncasking loading text when isLoading is true', () => {
     render(
       <LanguageProvider>
@@ -200,7 +158,6 @@ describe('SpiritCollectionGrid Component', () => {
           selectedId={null}
           isLoading={true}
           onSelect={vi.fn()}
-          onNewNote={vi.fn()}
         />
       </LanguageProvider>,
     );

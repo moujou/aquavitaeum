@@ -12,6 +12,9 @@ interface JournalsOverviewProps {
   onRenameJournal: (id: string, name: string, description?: string) => Promise<unknown>;
   onDeleteJournal: (id: string) => Promise<unknown>;
   onSelectJournal: (id: string) => void;
+  isCreateOpen?: boolean;
+  onCloseCreate?: () => void;
+  onOpenCreate?: () => void;
 }
 
 export function JournalsOverview({
@@ -20,14 +23,20 @@ export function JournalsOverview({
   onRenameJournal,
   onDeleteJournal,
   onSelectJournal,
+  isCreateOpen,
+  onCloseCreate,
+  onOpenCreate,
 }: JournalsOverviewProps) {
   const { t, language } = useLanguage();
   
   // Modals & Inline inputs state
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isCreateOpenLocal, setIsCreateOpenLocal] = useState(false);
   const [newJournalName, setNewJournalName] = useState('');
   const [newJournalDescription, setNewJournalDescription] = useState('');
   
+  const isCreateVisible = isCreateOpen !== undefined ? isCreateOpen : isCreateOpenLocal;
+  const triggerCloseCreate = onCloseCreate ? onCloseCreate : () => setIsCreateOpenLocal(false);
+
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [editDescription, setEditDescription] = useState('');
@@ -41,7 +50,7 @@ export function JournalsOverview({
       await onCreateJournal(newJournalName, newJournalDescription);
       setNewJournalName('');
       setNewJournalDescription('');
-      setIsCreateOpen(false);
+      triggerCloseCreate();
     } catch (err) {
       console.error(err);
     }
@@ -279,23 +288,10 @@ export function JournalsOverview({
             </div>
           );
         })}
-
-        {/* Create Empty Placeholder Add Card */}
-        <div
-          onClick={() => setIsCreateOpen(true)}
-          className="flex flex-col items-center justify-center h-48 bg-white/[0.01] hover:bg-[#224229]/20 border-2 border-dashed border-white/10 hover:border-[#C59B27]/30 rounded-xl transition-all duration-300 cursor-pointer text-gray-400 hover:text-[#C59B27] group shadow-[inset_0_10px_20px_rgba(0,0,0,0.1)]"
-        >
-          <div className="w-12 h-12 rounded-full border border-white/10 group-hover:border-[#C59B27]/40 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-            <Plus className="w-6 h-6" />
-          </div>
-          <span className="font-display text-sm font-bold uppercase tracking-wider">
-            {t('createJournalBtn')}
-          </span>
-        </div>
       </div>
 
       {/* Creation Modal / Dialog Overlay */}
-      {isCreateOpen && (
+      {isCreateVisible && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in p-4">
           <div className="w-full max-w-md bg-[#224229] border border-[#C59B27]/30 rounded-xl p-6 shadow-2xl">
             <div className="flex items-center justify-between border-b border-[#C59B27]/20 pb-3 mb-4">
@@ -304,7 +300,7 @@ export function JournalsOverview({
               </h3>
               <button
                 onClick={() => {
-                  setIsCreateOpen(false);
+                  triggerCloseCreate();
                   setNewJournalName('');
                   setNewJournalDescription('');
                 }}
@@ -349,7 +345,7 @@ export function JournalsOverview({
                 <button
                   type="button"
                   onClick={() => {
-                    setIsCreateOpen(false);
+                    triggerCloseCreate();
                     setNewJournalName('');
                     setNewJournalDescription('');
                   }}

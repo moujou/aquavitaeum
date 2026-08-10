@@ -150,6 +150,8 @@ export const TRANSLATIONS = {
     statsAvgRating: 'Rating',
     statsLatest: 'Latest',
     statsUnrated: 'No notes yet',
+    profileTab: 'You',
+    profileLanguage: 'Language',
   },
   DE: {
     // Header & Brand
@@ -299,6 +301,8 @@ export const TRANSLATIONS = {
     statsAvgRating: 'Bewertung',
     statsLatest: 'Zuletzt',
     statsUnrated: 'Noch keine Notizen',
+    profileTab: 'Du',
+    profileLanguage: 'Sprache',
   },
 } as const;
 

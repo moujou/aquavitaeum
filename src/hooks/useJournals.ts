@@ -36,7 +36,7 @@ export function useJournals() {
           }, null);
 
           // Get images of up to 3 most recently tasted bottles
-          const sortedSpirits = [...spirits].sort((a, b) => b.dateTasted.localeCompare(a.dateTasted));
+          const sortedSpirits = [...spirits].sort((a, b) => (b.dateTasted || '').localeCompare(a.dateTasted || ''));
           const recentImages = sortedSpirits
             .map((s) => s.thumbnailImage || (s.images && s.images[0]))
             .filter((img): img is string => !!img)

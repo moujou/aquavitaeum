@@ -14,7 +14,6 @@ interface TastingRatingSectionProps {
   saved: boolean;
   update: <K extends keyof Spirit>(key: K, value: Spirit[K]) => void;
   handleSave: () => void;
-  handleReset: () => void;
   onDelete?: (id: string) => void;
   setShowDeleteModal: (show: boolean) => void;
   t: (key: TranslationKey) => string;

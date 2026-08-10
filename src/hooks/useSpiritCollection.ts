@@ -75,7 +75,7 @@ export function useSpiritCollection(activeJournalId: string | null) {
 
       if (isMounted) {
         // Sort spirits by tasted date (newest first)
-        localSpirits.sort((a, b) => b.dateTasted.localeCompare(a.dateTasted));
+        localSpirits.sort((a, b) => (b.dateTasted || '').localeCompare(a.dateTasted || ''));
         setSpirits(localSpirits);
         setSelectedId((prev) =>
           prev && localSpirits.some((s) => s.id === prev) ? prev : (localSpirits[0]?.id ?? null)

@@ -120,7 +120,6 @@ describe('Modular OO Tasting Card Sections', () => {
           saved={false}
           update={updateFn}
           handleSave={saveFn}
-          handleReset={resetFn}
           onDelete={deleteFn}
           setShowDeleteModal={modalFn}
           t={mockT}

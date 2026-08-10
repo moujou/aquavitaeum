@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { X } from 'lucide-react';
-import { LanguageToggle } from '@/components/ui/LanguageToggle';
+
 
 interface WelcomePageProps {
   hasJournals: boolean;
@@ -48,10 +48,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
         isAnimating ? 'opacity-0 scale-105 pointer-events-none' : 'opacity-100 scale-100'
       }`}
     >
-      {/* Floating Top-Right Controls: Language Toggle */}
-      <div className="absolute top-4 right-4 z-50 select-none">
-        <LanguageToggle />
-      </div>
+
       {/* Immersive 10% Brighter Glowing Liquid Background */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         {/* Shifting Amber Fluid Glow Spot 1 */}

@@ -75,9 +75,8 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
       </LanguageProvider>,
     );
 
-    // Should display welcome screen branding and language selector
+    // Should display welcome screen branding
     expect(screen.getByText('Your Fine Spirits Tasting Journal')).toBeDefined();
-    expect(screen.getByText('EN')).toBeDefined();
   });
 
   it('navigates to bookshelf overview when session is started', async () => {
@@ -116,9 +115,9 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
     // 3. Click Collection button to open full-screen drawer
     fireEvent.click(collectionBtn);
 
-    // 4. Verify search inputs in the Collection grids are present (both desktop and mobile)
-    const searchInputs = screen.getAllByPlaceholderText(/Search spirits/i);
-    expect(searchInputs.length).toBeGreaterThan(0);
+    // 4. Verify global search bar is present in the document
+    const globalSearch = screen.getByPlaceholderText(/Search spirits & journals/i);
+    expect(globalSearch).toBeDefined();
 
     // 5. Click Collection button again to close drawer
     fireEvent.click(collectionBtn);
@@ -144,5 +143,69 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
     // Verify 'New Note' CTA button exists in empty state
     const newNoteButtons = screen.getAllByRole('button', { name: /New Note/i });
     expect(newNoteButtons.length).toBeGreaterThan(0);
+  });
+
+  it('collapses desktop sidebar to Reddit-style 16px width and toggles Menu icon', async () => {
+    sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
+    
+    render(
+      <LanguageProvider>
+        <Home />
+      </LanguageProvider>,
+    );
+
+    // Enter journal
+    const journalCard = await screen.findByText('My Journal');
+    fireEvent.click(journalCard);
+
+    // Find the toggle rail container buttons
+    const toggleButton = screen.getByTitle(/Collapse sidebar/i);
+    expect(toggleButton).toBeDefined();
+
+    // Click to collapse sidebar
+    fireEvent.click(toggleButton);
+
+    // Check if sidebar has collapsed class
+    const sidebar = document.getElementById('collection-sidebar');
+    expect(sidebar?.className).toContain('w-[16px]');
+  });
+
+  it('renders symmetrical floating buttons in detail view (Bookshelf & New Note)', async () => {
+    sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
+    
+    render(
+      <LanguageProvider>
+        <Home />
+      </LanguageProvider>,
+    );
+
+    // Enter journal
+    const journalCard = await screen.findByText('My Journal');
+    fireEvent.click(journalCard);
+
+    // Verify presence of bottom-left Bookshelf/Journals button
+    const backBtns = screen.getAllByTitle(/Journals/i);
+    const desktopBackBtn = backBtns.find(btn => btn.className.includes('absolute'));
+    expect(desktopBackBtn).toBeDefined();
+    expect(desktopBackBtn?.className).toContain('absolute bottom-6 left-6');
+
+    // Verify presence of bottom-right New Note button
+    const newNoteBtn = screen.getByRole('button', { name: /New Note/i });
+    expect(newNoteBtn).toBeDefined();
+  });
+
+  it('renders floating Plus button in Bookshelf Overview view', async () => {
+    sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
+    
+    render(
+      <LanguageProvider>
+        <Home />
+      </LanguageProvider>,
+    );
+
+    // Verify presence of creation FAB on bookshelf overview
+    const createBtn = screen.getByTitle(/Create Journal/i);
+    expect(createBtn).toBeDefined();
+    expect(createBtn.className).toContain('absolute bottom-6 right-6');
   });
 });

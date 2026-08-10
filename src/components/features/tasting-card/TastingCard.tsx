@@ -35,7 +35,6 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
     subtitleLocation,
     update,
     handleSave,
-    handleReset,
     confirmDelete,
   } = useTastingCardForm(initialSpirit, onSave, onDelete);
 
@@ -107,7 +106,6 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
           saved={saved}
           update={update}
           handleSave={handleSave}
-          handleReset={handleReset}
           onDelete={onDelete}
           setShowDeleteModal={setShowDeleteModal}
           t={t}
