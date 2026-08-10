@@ -32,7 +32,8 @@ export function SpiritPhotoCarousel({
     prevImage,
   } = usePhotoUpload(images, onChange);
 
-  const currentPhoto = images[activeIndex];
+  const safeActiveIndex = activeIndex >= images.length ? Math.max(0, images.length - 1) : activeIndex;
+  const currentPhoto = images[safeActiveIndex];
   const isThumbnail = currentPhoto && currentPhoto === thumbnailImage;
 
   return (
@@ -86,8 +87,8 @@ export function SpiritPhotoCarousel({
             {/* Image */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={images[activeIndex]}
-              alt={`Spirit photo ${activeIndex + 1}`}
+              src={images[safeActiveIndex]}
+              alt={`Spirit photo ${safeActiveIndex + 1}`}
               className="w-full h-full object-contain bg-[#1A120B]"
             />
 
@@ -115,7 +116,7 @@ export function SpiritPhotoCarousel({
 
             {/* Counter badge */}
             <div className="absolute top-2.5 left-2.5 px-3 py-1 rounded-full bg-[#1A120B]/80 border border-[#C4A87A]/50 text-xs font-body text-[#F5EEDC]">
-              {activeIndex + 1} / {images.length}
+              {safeActiveIndex + 1} / {images.length}
             </div>
 
             {/* Subtle Cover / Thumbnail Star Icon Button */}
@@ -142,9 +143,6 @@ export function SpiritPhotoCarousel({
               <button
                 type="button"
                 onClick={() => {
-                  if (isThumbnail) {
-                    onSetThumbnail?.(undefined);
-                  }
                   handleDelete(activeIndex);
                 }}
                 className="w-8 h-8 rounded-full bg-red-900/80 text-white hover:bg-red-800 flex items-center justify-center border border-red-400/40 transition-colors"

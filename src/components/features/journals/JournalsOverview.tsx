@@ -1,9 +1,10 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { JournalWithStats } from '@/hooks/useJournals';
-import { Plus, Trash2, Edit3, Star, X, AlertTriangle } from 'lucide-react';
+import { Trash2, Edit3, Star, X, AlertTriangle, FileText, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface JournalsOverviewProps {
@@ -12,6 +13,8 @@ interface JournalsOverviewProps {
   onRenameJournal: (id: string, name: string, description?: string) => Promise<unknown>;
   onDeleteJournal: (id: string) => Promise<unknown>;
   onSelectJournal: (id: string) => void;
+  isCreateOpen?: boolean;
+  onCloseCreate?: () => void;
 }
 
 export function JournalsOverview({
@@ -20,14 +23,19 @@ export function JournalsOverview({
   onRenameJournal,
   onDeleteJournal,
   onSelectJournal,
+  isCreateOpen,
+  onCloseCreate,
 }: JournalsOverviewProps) {
   const { t, language } = useLanguage();
   
   // Modals & Inline inputs state
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isCreateOpenLocal, setIsCreateOpenLocal] = useState(false);
   const [newJournalName, setNewJournalName] = useState('');
   const [newJournalDescription, setNewJournalDescription] = useState('');
   
+  const isCreateVisible = isCreateOpen !== undefined ? isCreateOpen : isCreateOpenLocal;
+  const triggerCloseCreate = onCloseCreate ? onCloseCreate : () => setIsCreateOpenLocal(false);
+
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [editDescription, setEditDescription] = useState('');
@@ -41,7 +49,7 @@ export function JournalsOverview({
       await onCreateJournal(newJournalName, newJournalDescription);
       setNewJournalName('');
       setNewJournalDescription('');
-      setIsCreateOpen(false);
+      triggerCloseCreate();
     } catch (err) {
       console.error(err);
     }
@@ -69,19 +77,6 @@ export function JournalsOverview({
     }
   };
 
-  const formatDate = (dateStr: string | null) => {
-    if (!dateStr) return t('statsUnrated');
-    try {
-      const date = new Date(dateStr);
-      return date.toLocaleDateString(language === 'DE' ? 'de-DE' : 'en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      });
-    } catch {
-      return dateStr;
-    }
-  };
 
   return (
     <div className="flex-1 w-full max-w-6xl mx-auto px-4 py-8 animate-fade-in">
@@ -102,100 +97,77 @@ export function JournalsOverview({
             <div
               key={journal.id}
               onClick={() => !isEditing && onSelectJournal(journal.id)}
-              className="group relative flex flex-col justify-between h-48 bg-[#224229] border border-white/[0.05] rounded-xl p-5 shadow-[0_10px_20px_rgba(0,0,0,0.4)] hover:shadow-[0_15px_30px_rgba(197,155,39,0.15)] hover:border-[#C59B27]/30 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer overflow-hidden"
+              className="group relative flex flex-col justify-between h-auto min-h-[220px] bg-[#224229]/10 border border-[#2A5E3F]/20 rounded-xl hover:shadow-[0_0_20px_rgba(42,94,63,0.15)] hover:border-[#2A5E3F]/40 hover:scale-[1.01] transition-all duration-300 transform cursor-pointer overflow-hidden"
             >
-              {/* Right Side Bleed Image Stack Container (Only shown when not editing) */}
-              {!isEditing && journal.recentImages && journal.recentImages.length > 0 && (
-                <div className="absolute top-0 right-0 bottom-0 w-24 sm:w-36 h-full flex overflow-hidden rounded-r-xl select-none pointer-events-none z-0 border-l border-black/40">
-                  {/* Subtle gold divider line on the left edge of the image zone */}
-                  <div className="absolute top-0 left-0 bottom-0 w-[1px] bg-gradient-to-b from-transparent via-[#C59B27]/30 to-transparent z-40" />
-                  
-                  {journal.recentImages.map((img, idx) => {
-                    const len = journal.recentImages.length;
-                    let leftStyle = '';
-                    let widthStyle = '';
-                    let zIndexClass = '';
-                    
-                    if (len === 1) {
-                      leftStyle = 'left-0';
-                      widthStyle = 'w-full';
-                      zIndexClass = 'z-30';
-                    } else if (len === 2) {
-                      leftStyle = idx === 0 ? 'left-0' : 'left-[50%]';
-                      widthStyle = 'w-[65%]'; // 15% overlap
-                      zIndexClass = idx === 0 ? 'z-30 shadow-[4px_0_10px_rgba(0,0,0,0.5)]' : 'z-20';
-                    } else {
-                      leftStyle = idx === 0 ? 'left-0' : idx === 1 ? 'left-[33.3%]' : 'left-[66.6%]';
-                      widthStyle = 'w-[50%]'; // 16.6% overlap
-                      zIndexClass = idx === 0 ? 'z-30 shadow-[4px_0_10px_rgba(0,0,0,0.5)]' :
-                                    idx === 1 ? 'z-20 shadow-[4px_0_10px_rgba(0,0,0,0.5)]' : 'z-10';
-                    }
-                    
-                    return (
-                      <div 
-                        key={idx}
-                        className={cn(
-                          "absolute top-0 bottom-0 h-full overflow-hidden border-l border-black/30 transition-all duration-300",
-                          idx === 0 ? "group-hover:translate-x-1" :
-                          idx === 1 ? "group-hover:-translate-x-0.5" : "group-hover:-translate-x-2",
-                          leftStyle,
-                          widthStyle,
-                          zIndexClass
-                        )}
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
+              {/* Cover Image / Widescreen Thumbnail Container (h-32) */}
+              <div className="relative w-full h-32 overflow-hidden bg-gradient-to-br from-[#122418] to-[#0A140F] border-b border-white/5 shrink-0">
+                {/* Split Widescreen Preview Grid or Dynamic Placeholder */}
+                {!isEditing && journal.recentImages && journal.recentImages.length > 0 ? (
+                  <div className={cn(
+                    "w-full h-full grid",
+                    Math.min(journal.recentImages.length, 3) === 1 ? "grid-cols-1" :
+                    Math.min(journal.recentImages.length, 3) === 2 ? "grid-cols-2" : "grid-cols-3"
+                  )}>
+                    {journal.recentImages.slice(0, 3).map((img, idx) => (
+                      <div key={idx} className="w-full h-full overflow-hidden border-r last:border-r-0 border-black/20">
                         <img
                           src={img}
                           alt="Recent Bottle Preview"
-                          className="w-full h-full object-cover grayscale-[40%] brightness-[0.45] saturate-[0.6] group-hover:grayscale-0 group-hover:brightness-[0.7] group-hover:saturate-100 transition-all duration-500"
+                          className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
                         />
                       </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* Top Bar: Rename/Delete Controls */}
-              <div className="flex items-start justify-start h-8 z-10 relative">
-                {/* Edit & Delete Actions (hide delete for default compendium) */}
-                <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setEditingId(journal.id);
-                      setEditName(journal.name);
-                      setEditDescription(journal.description || '');
+                    ))}
+                  </div>
+                ) : (
+                  <div
+                    className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden"
+                    style={{
+                      background: 'radial-gradient(circle at center, #2A5E3F1c 0%, #121212 80%, #0C0C0C 100%)',
                     }}
-                    className="p-1.5 rounded bg-white/5 hover:bg-[#E8D5B7] border border-white/10 hover:border-[#C59B27]/40 text-gray-400 hover:text-[#311e15] transition-all cursor-pointer"
-                    title="Rename"
                   >
-                    <Edit3 className="w-3.5 h-3.5" />
-                  </button>
-                  {!isDefault && (
+                    {/* Ambient Background Grid pattern */}
+                    <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]" />
+                  </div>
+                )}
+
+                {/* Edit & Delete Action overlay (top-left) */}
+                {!isEditing && (
+                  <div className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        setConfirmDeleteId(journal.id);
+                        setEditingId(journal.id);
+                        setEditName(journal.name);
+                        setEditDescription(journal.description || '');
                       }}
-                      className="p-1.5 rounded bg-white/5 hover:bg-red-950/40 border border-white/10 hover:border-red-500/50 text-gray-400 hover:text-red-400 transition-all cursor-pointer"
-                      title="Delete"
+                      className="p-1.5 rounded bg-black/60 hover:bg-[#E8D5B7] border border-white/10 hover:border-[#C59B27]/40 text-gray-300 hover:text-[#311e15] transition-all cursor-pointer"
+                      title="Rename"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Edit3 className="w-3.5 h-3.5" />
                     </button>
-                  )}
-                </div>
+                    {!isDefault && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setConfirmDeleteId(journal.id);
+                        }}
+                        className="p-1.5 rounded bg-black/60 hover:bg-red-950/60 border border-white/10 hover:border-red-500/50 text-gray-300 hover:text-red-400 transition-all cursor-pointer"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
 
-              {/* Middle: Title & Edit Input */}
-              <div className={cn(
-                "my-3 flex-1 flex flex-col justify-center transition-all duration-300",
-                !isEditing && journal.recentImages && journal.recentImages.length > 0 ? "mr-20 sm:mr-32" : ""
-              )}>
+              {/* Middle & Bottom Details Container (No accent column, full width) */}
+              <div className="w-full pt-3.5 pb-3.5 pl-4 pr-4 flex flex-col gap-2 flex-1 min-w-0 bg-black/15">
                 {isEditing ? (
                   <form
                     onSubmit={(e) => handleRename(e, journal.id)}
                     onClick={(e) => e.stopPropagation()}
-                    className="flex flex-col gap-2 w-full"
+                    className="flex flex-col gap-2 w-full z-10"
                   >
                     <input
                       type="text"
@@ -230,72 +202,60 @@ export function JournalsOverview({
                     </div>
                   </form>
                 ) : (
-                  <div 
-                    onClick={() => onSelectJournal(journal.id)}
-                    className="cursor-pointer text-left"
-                  >
-                    <h3 className="font-display text-xl font-bold text-gray-100 group-hover:text-[#C59B27] transition-colors leading-tight line-clamp-1">
-                      {journal.name}
-                    </h3>
-                    {journal.description ? (
-                      <p className="font-body text-xs text-gray-400 line-clamp-2 mt-1 leading-normal">
-                        {journal.description}
-                      </p>
-                    ) : (
-                      <p className="font-body text-[11px] text-gray-500 italic mt-1 leading-normal">
-                        No description provided.
-                      </p>
-                    )}
+                  <div className="flex-1 min-w-0 flex flex-col justify-between h-full">
+                    {/* Header Info (Centered & Italicized Description) */}
+                    <div className="min-w-0 text-center w-full">
+                      <h3 className="font-display text-[17px] lg:text-[19px] font-black text-white group-hover:text-[#C59B27] transition-colors leading-snug truncate text-center">
+                        {journal.name}
+                      </h3>
+                      {journal.description ? (
+                        <p className="font-body text-[14px] text-white/70 italic line-clamp-2 mt-1 leading-snug text-center">
+                          {journal.description}
+                        </p>
+                      ) : (
+                        <p className="font-body text-[14px] text-white/40 italic mt-1 leading-snug text-center">
+                          No description provided.
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Separator & Stats Grid */}
+                    <div className="w-full">
+                      <div className="w-full border-t border-white/5 mt-3 pt-3" />
+                      <div className="grid grid-cols-3 text-xs font-body text-white/60 gap-1 mt-1 text-left">
+                        <div className="flex flex-col">
+                          <span className="text-[11px] text-white/40 uppercase tracking-wider font-bold">{language === 'DE' ? 'Notizen' : 'Notes'}</span>
+                          <span className="font-bold text-white mt-0.5 flex items-center gap-1">
+                            <FileText className="w-3.5 h-3.5 text-[#C59B27] shrink-0" />
+                            {journal.bottleCount}
+                          </span>
+                        </div>
+                        <div className="flex flex-col items-center">
+                          <span className="text-[11px] text-white/40 uppercase tracking-wider font-bold">{language === 'DE' ? 'Durchschnitt' : 'Average Rating'}</span>
+                          <span className="font-bold text-white mt-0.5 flex items-center gap-0.5">
+                            <Star className="w-3.5 h-3.5 text-[#C59B27] fill-[#C59B27] -mt-0.5" />
+                            {journal.averageRating > 0 ? journal.averageRating : '-'}
+                          </span>
+                        </div>
+                        <div className="flex flex-col items-end">
+                          <span className="text-[11px] text-white/40 uppercase tracking-wider font-bold">{t('statsLatest')}</span>
+                          <span className="font-bold text-white mt-0.5 flex items-center gap-1 truncate max-w-full">
+                            <Calendar className="w-3.5 h-3.5 text-[#C59B27] shrink-0" />
+                            {journal.latestTastedDate ? new Date(journal.latestTastedDate).toLocaleDateString(language === 'DE' ? 'de-DE' : 'en-US', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '-'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
-              </div>
-
-              {/* Bottom: Statistics Grid */}
-              <div 
-                onClick={() => !isEditing && onSelectJournal(journal.id)}
-                className={cn(
-                  "grid grid-cols-3 border-t border-white/[0.06] pt-3 text-[11px] font-body text-gray-400 gap-1 cursor-pointer transition-all duration-300 z-10 relative",
-                  !isEditing && journal.recentImages && journal.recentImages.length > 0 ? "mr-20 sm:mr-32" : ""
-                )}
-              >
-                <div className="flex flex-col">
-                  <span className="text-[10px] text-gray-500 uppercase tracking-wider">{t('statsBottles')}</span>
-                  <span className="font-semibold text-gray-200 mt-0.5">{journal.bottleCount}</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <span className="text-[10px] text-gray-500 uppercase tracking-wider">{t('statsAvgRating')}</span>
-                  <span className="font-semibold text-gray-200 mt-0.5 flex items-center gap-0.5">
-                    <Star className="w-3 h-3 text-[#C59B27] fill-[#C59B27] -mt-0.5" />
-                    {journal.averageRating > 0 ? journal.averageRating : '-'}
-                  </span>
-                </div>
-                <div className="flex flex-col items-end">
-                  <span className="text-[10px] text-gray-500 uppercase tracking-wider">{t('statsLatest')}</span>
-                  <span className="font-semibold text-gray-200 mt-0.5 text-right line-clamp-1">
-                    {journal.latestTastedDate ? formatDate(journal.latestTastedDate) : '-'}
-                  </span>
-                </div>
               </div>
             </div>
           );
         })}
-
-        {/* Create Empty Placeholder Add Card */}
-        <div
-          onClick={() => setIsCreateOpen(true)}
-          className="flex flex-col items-center justify-center h-48 bg-white/[0.01] hover:bg-[#224229]/20 border-2 border-dashed border-white/10 hover:border-[#C59B27]/30 rounded-xl transition-all duration-300 cursor-pointer text-gray-400 hover:text-[#C59B27] group shadow-[inset_0_10px_20px_rgba(0,0,0,0.1)]"
-        >
-          <div className="w-12 h-12 rounded-full border border-white/10 group-hover:border-[#C59B27]/40 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-            <Plus className="w-6 h-6" />
-          </div>
-          <span className="font-display text-sm font-bold uppercase tracking-wider">
-            {t('createJournalBtn')}
-          </span>
-        </div>
       </div>
 
       {/* Creation Modal / Dialog Overlay */}
-      {isCreateOpen && (
+      {isCreateVisible && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in p-4">
           <div className="w-full max-w-md bg-[#224229] border border-[#C59B27]/30 rounded-xl p-6 shadow-2xl">
             <div className="flex items-center justify-between border-b border-[#C59B27]/20 pb-3 mb-4">
@@ -304,7 +264,7 @@ export function JournalsOverview({
               </h3>
               <button
                 onClick={() => {
-                  setIsCreateOpen(false);
+                  triggerCloseCreate();
                   setNewJournalName('');
                   setNewJournalDescription('');
                 }}
@@ -349,7 +309,7 @@ export function JournalsOverview({
                 <button
                   type="button"
                   onClick={() => {
-                    setIsCreateOpen(false);
+                    triggerCloseCreate();
                     setNewJournalName('');
                     setNewJournalDescription('');
                   }}

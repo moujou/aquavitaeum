@@ -95,6 +95,7 @@ export const TRANSLATIONS = {
     reset: 'Reset',
     saveTastingNote: 'Save',
     saved: 'Saved!',
+    saving: 'Saving...',
 
     // Delete Modal
     deleteModalTitle: 'Delete Tasting Note?',
@@ -150,6 +151,8 @@ export const TRANSLATIONS = {
     statsAvgRating: 'Rating',
     statsLatest: 'Latest',
     statsUnrated: 'No notes yet',
+    profileTab: 'You',
+    profileLanguage: 'Language',
   },
   DE: {
     // Header & Brand
@@ -244,6 +247,7 @@ export const TRANSLATIONS = {
     reset: 'Zurücksetzen',
     saveTastingNote: 'Speichern',
     saved: 'Gespeichert!',
+    saving: 'Speichern...',
 
     // Delete Modal
     deleteModalTitle: 'Verkostung wirklich löschen?',
@@ -299,6 +303,8 @@ export const TRANSLATIONS = {
     statsAvgRating: 'Bewertung',
     statsLatest: 'Zuletzt',
     statsUnrated: 'Noch keine Notizen',
+    profileTab: 'Du',
+    profileLanguage: 'Sprache',
   },
 } as const;
 
