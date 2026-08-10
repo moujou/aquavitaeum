@@ -37,6 +37,8 @@ jobs:
 
       - name: Unit tests & coverage
         run: npm run test:coverage
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
 
   production-build:
     name: Production Build
