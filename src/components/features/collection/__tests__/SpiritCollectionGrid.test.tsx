@@ -191,26 +191,6 @@ describe('SpiritCollectionGrid Component', () => {
     expect(handleNewNote).toHaveBeenCalledTimes(1);
   });
 
-  it('renders close button when onClose prop is provided and triggers callback on click', () => {
-    const handleClose = vi.fn();
-    render(
-      <LanguageProvider>
-        <SpiritCollectionGrid
-          spirits={MOCK_SPIRITS}
-          selectedId="spirit-1"
-          onSelect={vi.fn()}
-          onNewNote={vi.fn()}
-          onClose={handleClose}
-        />
-      </LanguageProvider>,
-    );
-
-    const closeBtn = screen.getByRole('button', { name: /Close menu/i });
-    expect(closeBtn).toBeDefined();
-
-    fireEvent.click(closeBtn);
-    expect(handleClose).toHaveBeenCalledTimes(1);
-  });
 
   it('renders themed spinner and uncasking loading text when isLoading is true', () => {
     render(

@@ -109,19 +109,19 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
     const journalCard = await screen.findByText('My Journal');
     fireEvent.click(journalCard);
 
-    // 2. Mobile Hamburger menu button should now be rendered in journal detail view
-    const menuBtn = await screen.findByRole('button', { name: /Open sidebar menu/i });
-    expect(menuBtn).toBeDefined();
+    // 2. Mobile Collection button should now be rendered in bottom navigation bar
+    const collectionBtn = await screen.findByRole('button', { name: /Collection/i });
+    expect(collectionBtn).toBeDefined();
 
-    // 3. Click menu button to open drawer
-    fireEvent.click(menuBtn);
+    // 3. Click Collection button to open full-screen drawer
+    fireEvent.click(collectionBtn);
 
-    // 4. Close button [X] should be present in mobile drawer
-    const closeBtns = screen.getAllByRole('button', { name: /Close menu/i });
-    expect(closeBtns.length).toBeGreaterThan(0);
+    // 4. Verify search inputs in the Collection grids are present (both desktop and mobile)
+    const searchInputs = screen.getAllByPlaceholderText(/Search spirits/i);
+    expect(searchInputs.length).toBeGreaterThan(0);
 
-    // 5. Click close button to close drawer
-    fireEvent.click(closeBtns[0]);
+    // 5. Click Collection button again to close drawer
+    fireEvent.click(collectionBtn);
   });
 
   it('renders the empty cellar state UI when the active journal has 0 spirits', async () => {

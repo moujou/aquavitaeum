@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Search, Plus, X } from 'lucide-react';
+import { Search, Plus } from 'lucide-react';
 import { Spirit, SpiritType, SPIRIT_TYPES } from '@/types/spirit.types';
 import { useLanguage } from '@/context/LanguageContext';
 import { cn } from '@/lib/utils';
@@ -16,7 +16,6 @@ interface SpiritCollectionGridProps {
   isLoading?: boolean;
   onSelect: (spirit: Spirit) => void;
   onNewNote: () => void;
-  onClose?: () => void;
   className?: string;
 }
 
@@ -31,7 +30,6 @@ export function SpiritCollectionGrid({
   isLoading = false,
   onSelect,
   onNewNote,
-  onClose,
   className,
 }: SpiritCollectionGridProps) {
   const { t } = useLanguage();
@@ -77,16 +75,7 @@ export function SpiritCollectionGrid({
             <Plus size={13} />
             {t('newNote')}
           </button>
-          {onClose && (
-            <button
-              type="button"
-              onClick={onClose}
-              className="p-1 text-[#C4A87A] hover:text-white transition-colors cursor-pointer rounded border border-white/10 hover:border-white/30 bg-white/5 shrink-0"
-              aria-label="Close menu"
-            >
-              <X size={16} />
-            </button>
-          )}
+
         </div>
       </div>
 

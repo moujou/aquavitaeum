@@ -22,7 +22,7 @@ export function TastingHeaderSection({
   update,
 }: TastingHeaderSectionProps) {
   return (
-    <div className="bg-[var(--wood-accent)] text-center py-5 px-6 border-b border-[#C4A87A] flex flex-col items-center justify-center gap-1.5">
+    <div className="bg-wood text-center py-5 px-6 border-b border-[#C4A87A] flex flex-col items-center justify-center gap-1.5 border-t border-white/[0.03] shadow-[inset_0_-10px_20px_-10px_rgba(0,0,0,0.35)]">
       {/* Spirit Type Badge */}
       <span className="font-display text-xs sm:text-sm font-bold uppercase tracking-[0.25em] text-[#C4A87A]">
         {spirit.spiritType}
