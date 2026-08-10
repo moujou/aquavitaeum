@@ -4,6 +4,7 @@ import React from 'react';
 import { MapPin, Star } from 'lucide-react';
 import { Spirit, SPIRIT_COLOUR_HEX, SpiritColour } from '@/types/spirit.types';
 import { cn } from '@/lib/utils';
+import { scoreToStars } from '@/lib/spirit-utils';
 
 interface SpiritCardProps {
   spirit: Spirit;
@@ -12,7 +13,7 @@ interface SpiritCardProps {
 }
 
 export function SpiritCard({ spirit, isSelected, onClick }: SpiritCardProps) {
-  const stars = Math.round((spirit.rating100 / 100) * 5 * 2) / 2;
+  const stars = scoreToStars(spirit.rating100);
   const colourHex = SPIRIT_COLOUR_HEX[spirit.colour as SpiritColour] ?? '#FFD700';
 
   const scoreGlowClass =
@@ -68,7 +69,7 @@ export function SpiritCard({ spirit, isSelected, onClick }: SpiritCardProps) {
           {/* Info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
-              <p className="font-display text-sm lg:text-base font-bold text-[#C59B27] truncate leading-snug">
+              <p className="font-display text-sm lg:text-base font-bold text-white group-hover:text-[#C59B27]/90 transition-colors truncate leading-snug">
                 {spirit.distillery}
               </p>
               {/* Mobile Only Inline Pure Glowing Score (< lg screens) */}
@@ -82,11 +83,11 @@ export function SpiritCard({ spirit, isSelected, onClick }: SpiritCardProps) {
               </span>
             </div>
 
-            <p className="text-xs lg:text-sm font-body text-[#e8d5b7] leading-tight truncate mt-0.5">
+            <p className="text-[13px] lg:text-[14px] font-body text-white/80 leading-tight truncate mt-0.5">
               {spirit.name}
             </p>
 
-            <div className="flex items-center gap-2.5 sm:gap-3 mt-1 lg:mt-1.5 flex-wrap text-white/60 font-body text-[11px] lg:text-xs">
+            <div className="flex items-center gap-2.5 sm:gap-3 mt-1 lg:mt-1.5 flex-wrap text-white/60 font-body text-[12px] lg:text-[13px]">
               <span className="flex items-center gap-1 sm:gap-1.5">
                 <MapPin size={13} className="text-white/40" />
                 <span className="truncate max-w-[100px] lg:max-w-[110px]">{spirit.region}</span>
@@ -111,7 +112,7 @@ export function SpiritCard({ spirit, isSelected, onClick }: SpiritCardProps) {
               ))}
             </div>
 
-            <p className="text-[10px] lg:text-xs text-[#a07d1a] font-body mt-1 font-semibold truncate">
+            <p className="text-[11px] lg:text-[12px] text-white/45 font-body mt-1 font-semibold truncate">
               {spirit.spiritType}
             </p>
           </div>

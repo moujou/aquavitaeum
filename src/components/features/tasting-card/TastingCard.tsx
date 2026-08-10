@@ -25,7 +25,6 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
   const { language, t } = useLanguage();
   const {
     spirit,
-    saved,
     showDeleteModal,
     setShowDeleteModal,
     isEditingTitle,
@@ -34,7 +33,6 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
     displayName,
     subtitleLocation,
     update,
-    handleSave,
     confirmDelete,
   } = useTastingCardForm(initialSpirit, onSave, onDelete);
 
@@ -103,9 +101,7 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
         <TastingRatingSection
           spirit={spirit}
           stars={stars}
-          saved={saved}
           update={update}
-          handleSave={handleSave}
           onDelete={onDelete}
           setShowDeleteModal={setShowDeleteModal}
           t={t}

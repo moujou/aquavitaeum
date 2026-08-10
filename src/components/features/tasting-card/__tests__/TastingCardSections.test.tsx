@@ -109,21 +109,17 @@ describe('Modular OO Tasting Card Sections', () => {
       const updateFn = vi.fn();
       const deleteFn = vi.fn();
       const modalFn = vi.fn();
-      const saveFn = vi.fn();
-      const resetFn = vi.fn();
       const mockT = (key: string) => key;
 
       render(
         <TastingRatingSection
           spirit={sampleSpirit}
           stars={4.5}
-          saved={false}
           update={updateFn}
-          handleSave={saveFn}
           onDelete={deleteFn}
           setShowDeleteModal={modalFn}
           t={mockT}
-        />
+        />,
       );
 
       expect(screen.getByText('92')).toBeDefined();

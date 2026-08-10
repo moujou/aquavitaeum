@@ -282,7 +282,7 @@ export function FlavorTagSelector({
                           {subName}
                         </p>
 
-                        <div className="flex flex-wrap gap-1.5">
+                        <div className="flex flex-wrap gap-2 sm:gap-1.5">
                           {descriptors.map((desc: FlavorDescriptor) => {
                             const tagName = desc.name[language] ?? desc.name.EN;
                             const selectedInCurrent = isTagSelected(desc, currentActiveTags);
@@ -298,7 +298,7 @@ export function FlavorTagSelector({
                                 type="button"
                                 onClick={() => handleDescriptorClick(desc)}
                                 className={cn(
-                                  'px-2.5 py-1 rounded-sm border text-xs sm:text-[13px] font-medium font-body transition-all duration-150 cursor-pointer select-none',
+                                  'px-3 py-2 sm:py-1.5 rounded-sm border text-sm sm:text-xs font-medium font-body transition-all duration-150 cursor-pointer select-none min-h-[36px] sm:min-h-0',
                                   selectedInCurrent
                                     ? activeSensoryMode === 'nose' && !isLegacyMode
                                       ? 'bg-[#3D2616] border-[#C59B27] text-[#F5EEDC] shadow-xs font-semibold'

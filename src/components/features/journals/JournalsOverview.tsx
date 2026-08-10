@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { JournalWithStats } from '@/hooks/useJournals';
-import { Plus, Trash2, Edit3, Star, X, AlertTriangle } from 'lucide-react';
+import { Trash2, Edit3, Star, X, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface JournalsOverviewProps {
@@ -14,7 +14,6 @@ interface JournalsOverviewProps {
   onSelectJournal: (id: string) => void;
   isCreateOpen?: boolean;
   onCloseCreate?: () => void;
-  onOpenCreate?: () => void;
 }
 
 export function JournalsOverview({
@@ -25,7 +24,6 @@ export function JournalsOverview({
   onSelectJournal,
   isCreateOpen,
   onCloseCreate,
-  onOpenCreate,
 }: JournalsOverviewProps) {
   const { t, language } = useLanguage();
   
@@ -251,7 +249,7 @@ export function JournalsOverview({
                         {journal.description}
                       </p>
                     ) : (
-                      <p className="font-body text-[11px] text-gray-500 italic mt-1 leading-normal">
+                      <p className="font-body text-xs text-gray-500 italic mt-1 leading-normal">
                         No description provided.
                       </p>
                     )}
@@ -263,23 +261,23 @@ export function JournalsOverview({
               <div 
                 onClick={() => !isEditing && onSelectJournal(journal.id)}
                 className={cn(
-                  "grid grid-cols-3 border-t border-white/[0.06] pt-3 text-[11px] font-body text-gray-400 gap-1 cursor-pointer transition-all duration-300 z-10 relative",
+                  "grid grid-cols-3 border-t border-white/[0.06] pt-3 text-xs font-body text-gray-400 gap-1 cursor-pointer transition-all duration-300 z-10 relative",
                   !isEditing && journal.recentImages && journal.recentImages.length > 0 ? "mr-20 sm:mr-32" : ""
                 )}
               >
                 <div className="flex flex-col">
-                  <span className="text-[10px] text-gray-500 uppercase tracking-wider">{t('statsBottles')}</span>
+                  <span className="text-[11px] text-gray-500 uppercase tracking-wider">{t('statsBottles')}</span>
                   <span className="font-semibold text-gray-200 mt-0.5">{journal.bottleCount}</span>
                 </div>
                 <div className="flex flex-col items-center">
-                  <span className="text-[10px] text-gray-500 uppercase tracking-wider">{t('statsAvgRating')}</span>
+                  <span className="text-[11px] text-gray-500 uppercase tracking-wider">{t('statsAvgRating')}</span>
                   <span className="font-semibold text-gray-200 mt-0.5 flex items-center gap-0.5">
                     <Star className="w-3 h-3 text-[#C59B27] fill-[#C59B27] -mt-0.5" />
                     {journal.averageRating > 0 ? journal.averageRating : '-'}
                   </span>
                 </div>
                 <div className="flex flex-col items-end">
-                  <span className="text-[10px] text-gray-500 uppercase tracking-wider">{t('statsLatest')}</span>
+                  <span className="text-[11px] text-gray-500 uppercase tracking-wider">{t('statsLatest')}</span>
                   <span className="font-semibold text-gray-200 mt-0.5 text-right line-clamp-1">
                     {journal.latestTastedDate ? formatDate(journal.latestTastedDate) : '-'}
                   </span>

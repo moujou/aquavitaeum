@@ -10,7 +10,7 @@ describe('useTastingCardForm Hook', () => {
 
     expect(result.current.spirit.id).toBe(testSpirit.id);
     expect(result.current.displayName).toBe(testSpirit.name);
-    expect(result.current.saved).toBe(false);
+    expect(result.current.saved).toBe(true);
     expect(result.current.showDeleteModal).toBe(false);
   });
 

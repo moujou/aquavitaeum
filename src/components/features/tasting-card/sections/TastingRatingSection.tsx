@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { CheckCircle, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { Spirit } from '@/types/spirit.types';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { RatingStars } from '@/components/ui/RatingStars';
@@ -11,9 +11,7 @@ import { cn } from '@/lib/utils';
 interface TastingRatingSectionProps {
   spirit: Spirit;
   stars: number;
-  saved: boolean;
   update: <K extends keyof Spirit>(key: K, value: Spirit[K]) => void;
-  handleSave: () => void;
   onDelete?: (id: string) => void;
   setShowDeleteModal: (show: boolean) => void;
   t: (key: TranslationKey) => string;
@@ -22,9 +20,7 @@ interface TastingRatingSectionProps {
 export function TastingRatingSection({
   spirit,
   stars,
-  saved,
   update,
-  handleSave,
   onDelete,
   setShowDeleteModal,
   t,
@@ -60,7 +56,7 @@ export function TastingRatingSection({
         </div>
       </div>
 
-      {/* Action Buttons */}
+      {/* Action Buttons & Autosave Status */}
       <div className="flex justify-between items-center gap-3.5 w-full mt-2">
         <div>
           {onDelete && (
@@ -78,22 +74,10 @@ export function TastingRatingSection({
             </button>
           )}
         </div>
-        <div>
-          <button
-            id="tasting-card-save"
-            type="button"
-            onClick={handleSave}
-            className={cn(
-              'min-w-[130px] sm:min-w-[155px] flex items-center justify-center gap-2 px-6 py-3 rounded-sm border',
-              'text-xs sm:text-sm font-display uppercase tracking-wider font-semibold transition-all duration-200 cursor-pointer',
-              saved
-                ? 'bg-green-800 text-white border-green-800'
-                : 'bg-[var(--wood-accent)] text-[#F5EEDC] border-[#C59B27] hover:bg-[var(--wood-light)] hover:border-[#e8c247]',
-            )}
-          >
-            <CheckCircle size={15} />
-            {saved ? t('saved') : t('saveTastingNote')}
-          </button>
+        
+        {/* Reserved for future CSV/PDF import/export buttons */}
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Future actions will be placed here */}
         </div>
       </div>
     </section>

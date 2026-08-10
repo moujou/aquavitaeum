@@ -28,9 +28,10 @@ To bypass the 5MB browser `localStorage` limits and prevent data loss, Aqua Vita
 The schema is defined in [`src/lib/db.ts`](../src/lib/db.ts):
 
 * **Version 1**:
-  - `spirits`: Primary key `id`. Indexes: `journalId` (stores flat collection items).
+  - `spirits`: Primary key `id`. Indexes: `spiritType`, `distillery`, `name`, `rating100`. (Stores flat collection items).
 * **Version 2 (Migration upgrade)**:
-  - Adds the `journals` table (keys: `++id`).
+  - Adds the `journals` table (keys: `id`, `name`, `createdAt`).
+  - Adds `journalId` index to the `spirits` table to group spirits by journal.
   - Automatically migrates existing version 1 spirits by wrapping them inside a fallback `default-compendium` journal entry to preserve user data.
 
 ---

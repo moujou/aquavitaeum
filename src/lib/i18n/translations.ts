@@ -95,6 +95,7 @@ export const TRANSLATIONS = {
     reset: 'Reset',
     saveTastingNote: 'Save',
     saved: 'Saved!',
+    saving: 'Saving...',
 
     // Delete Modal
     deleteModalTitle: 'Delete Tasting Note?',
@@ -246,6 +247,7 @@ export const TRANSLATIONS = {
     reset: 'Zurücksetzen',
     saveTastingNote: 'Speichern',
     saved: 'Gespeichert!',
+    saving: 'Speichern...',
 
     // Delete Modal
     deleteModalTitle: 'Verkostung wirklich löschen?',

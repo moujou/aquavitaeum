@@ -32,7 +32,7 @@ export function ProfileView({
         <h2 className="font-display text-lg sm:text-xl font-bold text-[#E8D5B7] tracking-wider uppercase mb-1">
           {t('profileTab')}
         </h2>
-        <p className="font-body text-[10px] sm:text-xs text-white/40 uppercase tracking-widest mb-6">
+        <p className="font-body text-[11px] sm:text-xs text-white/40 uppercase tracking-widest mb-6">
           Offline tasting ledger
         </p>
 
@@ -46,7 +46,7 @@ export function ProfileView({
                 <p className="font-display text-xs sm:text-sm font-semibold text-[#E8D5B7]">
                   {t('profileLanguage')}
                 </p>
-                <p className="font-body text-[9px] sm:text-[10px] text-white/40">
+                <p className="font-body text-[11px] sm:text-xs text-white/40">
                   Select application interface language
                 </p>
               </div>
@@ -62,12 +62,12 @@ export function ProfileView({
                 <p className="font-display text-xs sm:text-sm font-semibold text-white/75">
                   Google Sync
                 </p>
-                <p className="font-body text-[9px] sm:text-[10px] text-white/40">
+                <p className="font-body text-[11px] sm:text-xs text-white/40">
                   Sync journals with Google Account
                 </p>
               </div>
             </div>
-            <span className="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-white/5 text-white/40 border border-white/10">
+            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-white/5 text-white/40 border border-white/10">
               Offline
             </span>
           </div>
@@ -80,12 +80,12 @@ export function ProfileView({
                 <p className="font-display text-xs sm:text-sm font-semibold text-[#E8D5B7]">
                   App Version
                 </p>
-                <p className="font-body text-[9px] sm:text-[10px] text-white/40">
+                <p className="font-body text-[11px] sm:text-xs text-white/40">
                   Aqua Vitaeum Codex release details
                 </p>
               </div>
             </div>
-            <span className="text-[10px] sm:text-xs font-mono text-white/30">
+            <span className="text-[11px] sm:text-xs font-mono text-white/30">
               Beta v0.1.0
             </span>
           </div>

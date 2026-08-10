@@ -147,7 +147,6 @@ export function useSpiritCollection(activeJournalId: string | null) {
 
   const handleSave = useCallback(
     async (updated: Spirit) => {
-      if (!activeJournalId) return;
       try {
         await db.spirits.put(updated);
         setSpirits((prev) =>
@@ -161,7 +160,7 @@ export function useSpiritCollection(activeJournalId: string | null) {
         console.error('Aqua Vitaeum: Failed to save note.', err);
       }
     },
-    [activeJournalId, syncWithServer]
+    [syncWithServer]
   );
 
   const handleDelete = useCallback(

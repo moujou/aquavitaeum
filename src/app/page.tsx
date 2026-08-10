@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { Menu, Plus, ArrowLeft, BookOpen, User, Search, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Menu, Plus, BookOpen, User, Search } from 'lucide-react';
 import { useSpiritCollection } from '@/hooks/useSpiritCollection';
 import { useJournals } from '@/hooks/useJournals';
 import { TastingCard } from '@/components/features/tasting-card/TastingCard';
@@ -180,6 +180,18 @@ export default function Home() {
   useEffect(() => {
     refreshJournals();
   }, [spirits, refreshJournals]);
+
+  // Lock body scroll when mobile drawer is open to prevent background scroll chaining
+  useEffect(() => {
+    if (isMobileDrawerOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobileDrawerOpen]);
 
   // Show welcome screen on initial session start, but skip if onboarding is completed
   useEffect(() => {
@@ -426,7 +438,6 @@ export default function Home() {
                   onRenameJournal={renameJournal}
                   onDeleteJournal={deleteJournal}
                   isCreateOpen={isCreateJournalModalOpen}
-                  onOpenCreate={() => setIsCreateJournalModalOpen(true)}
                   onCloseCreate={() => setIsCreateJournalModalOpen(false)}
                   onSelectJournal={(id) => {
                     setActiveJournalId(id);
@@ -448,7 +459,7 @@ export default function Home() {
           </div>
         ) : (
           /* activeView === 'journal-detail' */
-          <div className="flex flex-1 overflow-hidden relative pt-14 lg:pt-0">
+          <div className="flex flex-1 overflow-hidden relative">
             {/* Desktop Sidebar: Collection (lg:flex, ~380px) */}
             <aside
               id="collection-sidebar"
@@ -469,6 +480,7 @@ export default function Home() {
               >
                 <SpiritCollectionGrid
                   title={activeJournal?.name}
+                  description={activeJournal?.description}
                   spirits={filteredSpirits}
                   selectedId={selectedId}
                   isLoading={isLoadingSpirits}
@@ -494,44 +506,36 @@ export default function Home() {
               </button>
             </div>
 
-            {/* Mobile Off-Canvas Sidebar Drawer - Full Screen Width, stopping above bottom bar */}
+            {/* Mobile Off-Canvas Sidebar Drawer Backdrop */}
+            {isMobileDrawerOpen && (
+              <div
+                className="fixed inset-0 bg-black/60 z-30 transition-opacity lg:hidden"
+                onClick={() => setIsMobileDrawerOpen(false)}
+              />
+            )}
+
+            {/* Mobile Off-Canvas Sidebar Drawer - Premium Overlay, stopping above bottom bar */}
             <div
               role="dialog"
               aria-modal="true"
               aria-label={t('collection')}
               className={cn(
-                'fixed top-0 left-0 right-0 bottom-12 bg-[var(--pub-bg)] z-40 flex flex-col p-4 sm:p-6 transition-transform duration-300 ease-in-out lg:hidden',
+                'fixed top-0 left-0 bottom-0 w-[85%] max-w-[320px] h-full bg-[var(--pub-bg)] border-r border-white/10 z-40 flex flex-col p-4 sm:p-6 pb-[calc(3.5rem+env(safe-area-inset-bottom))] transition-transform duration-300 ease-in-out shadow-2xl lg:hidden',
                 isMobileDrawerOpen ? 'translate-x-0' : '-translate-x-full'
               )}
             >
-              {/* Collection Grid inside Drawer with Close Button in header */}
-              <div className="flex-1 overflow-hidden flex flex-col">
-                <div className="flex justify-between items-center pb-3 mb-2 border-b border-white/10 shrink-0">
-                  <h3 className="font-display text-sm font-bold text-[#C59B27] uppercase tracking-wider">
-                    {t('collection') || 'Collection'}
-                  </h3>
-                  <button
-                    type="button"
-                    onClick={() => setIsMobileDrawerOpen(false)}
-                    className="p-1 rounded bg-white/5 text-gray-400 hover:text-white transition-colors cursor-pointer"
-                    title="Close"
-                  >
-                    <X size={20} />
-                  </button>
-                </div>
-
-                <div className="flex-1 overflow-hidden">
-                  <SpiritCollectionGrid
-                    title={activeJournal?.name}
-                    spirits={filteredSpirits}
-                    selectedId={selectedId}
-                    isLoading={isLoadingSpirits}
-                    onSelect={(spirit) => {
-                      selectSpirit(spirit.id);
-                      setIsMobileDrawerOpen(false);
-                    }}
-                  />
-                </div>
+              <div className="flex-1 overflow-hidden">
+                <SpiritCollectionGrid
+                  title={activeJournal?.name}
+                  description={activeJournal?.description}
+                  spirits={filteredSpirits}
+                  selectedId={selectedId}
+                  isLoading={isLoadingSpirits}
+                  onSelect={(spirit) => {
+                    selectSpirit(spirit.id);
+                    setIsMobileDrawerOpen(false);
+                  }}
+                />
               </div>
             </div>
 
@@ -539,7 +543,7 @@ export default function Home() {
             <div className="flex-1 h-full relative overflow-hidden flex flex-col">
               <section
                 id="tasting-card-section"
-                className="flex-1 h-full overflow-y-auto overflow-x-hidden p-3 sm:p-6 pb-16 sm:pb-18 lg:pb-6 flex justify-center items-center"
+                className="flex-1 h-full overflow-y-auto overflow-x-hidden px-3 pt-17 pb-16 sm:px-6 sm:pt-20 sm:pb-18 lg:pt-6 lg:pb-6 flex justify-center items-center"
               >
                 {isLoadingSpirits ? (
                   <div className="flex flex-col items-center justify-center text-center p-6 select-none animate-pulse">
