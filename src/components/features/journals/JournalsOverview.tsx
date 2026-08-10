@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import React, { useState } from 'react';
@@ -76,19 +77,6 @@ export function JournalsOverview({
     }
   };
 
-  const formatDate = (dateStr: string | null) => {
-    if (!dateStr) return t('statsUnrated');
-    try {
-      const date = new Date(dateStr);
-      return date.toLocaleDateString(language === 'DE' ? 'de-DE' : 'en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      });
-    } catch {
-      return dateStr;
-    }
-  };
 
   return (
     <div className="flex-1 w-full max-w-6xl mx-auto px-4 py-8 animate-fade-in">

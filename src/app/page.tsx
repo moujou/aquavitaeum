@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
@@ -36,6 +37,28 @@ export default function Home() {
     journals: { id: string; name: string; recentImages?: string[]; bottleCount: number; averageRating: number; description?: string }[];
     spirits: { id: string; name: string; distillery: string; journalId: string; journalName: string; thumbnailImage?: string; region: string; rating100: number; spiritType: string }[];
   }>({ journals: [], spirits: [] });
+
+  // Load journals hook
+  const {
+    journals,
+    isLoading: isLoadingJournals,
+    createJournal,
+    renameJournal,
+    deleteJournal,
+    refreshJournals,
+  } = useJournals();
+
+  // Load spirits collection hook for the selected journal
+  const {
+    spirits,
+    selectedId,
+    activeSpirit,
+    isLoading: isLoadingSpirits,
+    selectSpirit,
+    handleNewNote,
+    handleSave,
+    handleDelete,
+  } = useSpiritCollection(activeJournalId);
 
   // Close search dropdown on click outside
   useEffect(() => {
@@ -111,7 +134,7 @@ export default function Home() {
     return () => {
       isMounted = false;
     };
-  }, [globalSearchQuery, globalTypeFilter]);
+  }, [globalSearchQuery, globalTypeFilter, journals]);
 
   // Scroll visibility for bottom bar
   useEffect(() => {
@@ -149,27 +172,7 @@ export default function Home() {
     lastScrollTop.current = 0;
   }, [activeView]);
 
-  // Load journals hook
-  const {
-    journals,
-    isLoading: isLoadingJournals,
-    createJournal,
-    renameJournal,
-    deleteJournal,
-    refreshJournals,
-  } = useJournals();
 
-  // Load spirits collection hook for the selected journal
-  const {
-    spirits,
-    selectedId,
-    activeSpirit,
-    isLoading: isLoadingSpirits,
-    selectSpirit,
-    handleNewNote,
-    handleSave,
-    handleDelete,
-  } = useSpiritCollection(activeJournalId);
 
   // Local filtered spirits inside the active journal
   const filteredSpirits = useMemo(() => {
@@ -305,7 +308,6 @@ export default function Home() {
         >
           {/* Left Header: Brand Logo & Title (Desktop Only) */}
           <div className="hidden lg:flex items-center gap-2.5">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={`${basePath}/whisky-logo-with-circle-v4.svg`}
               alt="Aqua Vitaeum Logo"
