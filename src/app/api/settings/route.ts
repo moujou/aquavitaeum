@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { readSettingsFromFile, writeSettingsToFile } from '@/lib/settings-storage';
 import { SUPPORTED_LANGUAGES, Language } from '@/lib/i18n/translations';
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-static';
 
 export async function GET() {
   try {

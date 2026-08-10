@@ -208,4 +208,33 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
     expect(createBtn).toBeDefined();
     expect(createBtn.className).toContain('absolute bottom-6 right-6');
   });
+
+  it('redirects from Profile view to Journal Detail view and opens mobile collection drawer when tapping the Collection button in bottom navigation', async () => {
+    sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
+    
+    render(
+      <LanguageProvider>
+        <Home />
+      </LanguageProvider>,
+    );
+
+    // 1. Enter a journal to make activeJournalId present
+    const journalCard = await screen.findByText('My Journal');
+    fireEvent.click(journalCard);
+
+    // 2. Navigate to Profile ("You")
+    const profileBtns = await screen.findAllByTitle(/You/i);
+    fireEvent.click(profileBtns[0]);
+
+    // Verify Profile view content (e.g. settings text)
+    expect(screen.getByText('Language')).toBeDefined();
+
+    // 3. Tapping the Collection (Menu icon) button should redirect back and open drawer
+    const collectionBtn = await screen.findByRole('button', { name: /Collection/i });
+    fireEvent.click(collectionBtn);
+
+    // Verify search input is present in the open mobile drawer
+    const globalSearch = screen.getByPlaceholderText(/Search spirits & journals/i);
+    expect(globalSearch).toBeDefined();
+  });
 });
