@@ -40,6 +40,8 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
     }, 600); // matches transition timing
   };
 
+  const basePath = process.env.NODE_ENV === 'production' ? '/aquavitaeum' : '';
+
   return (
     <div
       className={`fixed inset-0 z-50 flex flex-col items-center justify-between bg-[#0c1a0e] overflow-hidden select-none transition-all duration-700 ease-in-out ${
@@ -54,10 +56,8 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         {/* Shifting Amber Fluid Glow Spot 1 */}
         <div
-          className="absolute rounded-full filter blur-[140px] opacity-45 bg-gradient-to-tr from-[#A05B17] via-[#D48A22] to-[#FFC04D]"
+          className="absolute rounded-full bg-gradient-to-tr from-[#A05B17] via-[#D48A22] to-[#FFC04D] w-[50vw] h-[50vw] sm:w-[650px] sm:h-[650px] filter blur-[110px] sm:blur-[140px]"
           style={{
-            width: '650px',
-            height: '650px',
             top: '-15%',
             left: '-15%',
             animation: 'liquidGlow 18s ease-in-out infinite alternate',
@@ -66,10 +66,8 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
 
         {/* Shifting Amber Fluid Glow Spot 2 */}
         <div
-          className="absolute rounded-full filter blur-[150px] opacity-35 bg-gradient-to-br from-[#FFC04D] via-[#D48A22] to-[#A05B17]"
+          className="absolute rounded-full bg-gradient-to-br from-[#FFC04D] via-[#D48A22] to-[#A05B17] w-[60vw] h-[60vw] sm:w-[750px] sm:h-[750px] filter blur-[120px] sm:blur-[150px]"
           style={{
-            width: '750px',
-            height: '750px',
             bottom: '-20%',
             right: '-15%',
             animation: 'liquidGlow 22s ease-in-out infinite alternate-reverse',
@@ -165,7 +163,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
           <div className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-gradient-to-b from-white/[0.04] to-transparent border border-[#C59B27]/40 shadow-[0_0_50px_rgba(197,155,39,0.3)] flex items-center justify-center mb-6">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/whisky-logo-with-circle-v3.svg"
+              src={`${basePath}/whisky-logo-with-circle-v4.svg`}
               alt="Aqua Vitaeum Logo"
               className="w-28 h-28 sm:w-32 sm:h-32 select-none pointer-events-none rounded-full"
               width={128}
@@ -217,7 +215,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-body uppercase text-gray-400 mb-2 tracking-wider">
+                <label className="block text-xs font-body text-gray-400 mb-2 tracking-wider">
                   Journal Name
                 </label>
                 <input
@@ -233,7 +231,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
               </div>
 
               <div>
-                <label className="block text-xs font-body uppercase text-gray-400 mb-2 tracking-wider">
+                <label className="block text-xs font-body text-gray-400 mb-2 tracking-wider">
                   Description (optional)
                 </label>
                 <input
@@ -260,7 +258,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
                 </button>
                 <button
                   type="submit"
-                  className="h-10 px-5 rounded-lg bg-[#311e15] hover:bg-[#442a1e] border border-[#C59B27]/40 text-[#C59B27] font-semibold text-sm transition-colors cursor-pointer shadow-lg"
+                  className="h-10 px-5 rounded-lg bg-[#E8D5B7] hover:bg-[#F5F2EB] border border-[#C59B27]/40 text-[#311e15] hover:text-[#21140e] font-semibold text-sm transition-all cursor-pointer shadow-lg active:scale-[0.98]"
                 >
                   {t('createJournalBtn')}
                 </button>

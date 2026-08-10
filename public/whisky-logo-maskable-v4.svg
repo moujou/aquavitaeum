@@ -34,49 +34,58 @@
 
   <!-- Scaling container to expand the artwork (reducing canvas padding) -->
   <g transform="translate(256, 256) scale(1.22) translate(-256, -256)">
-    <!-- Filled Liquid showing a waving fluid line (clipped inside the tapered glass bowl) -->
-    <g clip-path="url(#glassBowlClip)">
-      <!-- Wavy Liquid Fill from bottom up to approx y=262 (golden ratio tasting pour level) -->
+    <!-- Filled Liquid showing a waving fluid line (clipped inside the tapered glass bowl) and surface wave scaled down to fit inside thinned glass borders -->
+    <g transform="translate(256, 231) scale(0.88) translate(-256, -231)">
+      <!-- Wavy Surface Highlights (matching liquid wave contour at y=263) -->
       <path 
-        d="M 160 262 
-           C 210 250, 240 278, 280 262 
-           C 300 254, 320 258, 352 266 
-           V 340 
-           H 160 Z" 
-        fill="url(#whiskyLiquid)" 
-        opacity="0.85"
+        d="M 194 263 
+           C 210 251, 240 277, 280 262 
+           C 300 255, 310 258, 318 264" 
+        stroke="#C59B27"
+        stroke-width="9"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        fill="none"
+        stroke-opacity="0.9"
       />
+
+      <g clip-path="url(#glassBowlClip)">
+        <!-- Wavy Liquid Fill from bottom up to approx y=262 (golden ratio tasting pour level) -->
+        <path 
+          d="M 160 262 
+             C 210 250, 240 278, 280 262 
+             C 300 254, 320 258, 352 266 
+             V 340 
+             H 160 Z" 
+          fill="url(#whiskyLiquid)" 
+          opacity="0.85"
+        />
+      </g>
     </g>
 
-    <!-- Gold/Brass Outline Logo Glass (without outer circle border) -->
-    <g fill="none" stroke="#C59B27" stroke-linecap="round" stroke-linejoin="round">
+    <!-- White Outline Logo Glass (without outer circle border) -->
+    <g stroke="#E8D5B7" stroke-linecap="round" stroke-linejoin="round">
       <!-- Tapered Nosing Glass Bowl Outline (Bulbous Base, Perfect Sweet-Spot Tapered Neck) -->
       <path 
+        fill="none"
         d="M 220 140 
            H 292 
            C 299 175, 326 215, 326 244 
            C 326 292, 294 322, 256 322 
            C 218 322, 186 292, 186 244 
            C 186 215, 213 175, 220 140 Z" 
-        stroke-width="16" 
+        stroke-width="8" 
       />
 
-      <!-- Wavy Surface Highlights (matching liquid wave contour at y=263) -->
+      <!-- Compact Curved Base/Pedestal Filled with Tasting Card White -->
       <path 
-        d="M 194 263 
-           C 210 251, 240 277, 280 262 
-           C 300 255, 310 258, 318 264" 
-        stroke-width="12" 
-        stroke-opacity="0.9"
-      />
-
-      <!-- Compact Curved Base/Pedestal -->
-      <path 
+        fill="#E8D5B7"
         d="M 230 320 
            C 230 340 212 344 198 368 
            H 314 
-           C 300 344 282 340 282 320" 
-        stroke-width="16" 
+           C 300 344 282 340 282 320 
+           C 270 322, 242 322, 230 320 Z" 
+        stroke-width="8" 
       />
     </g>
   </g>

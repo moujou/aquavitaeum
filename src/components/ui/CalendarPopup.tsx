@@ -135,106 +135,115 @@ export function CalendarPopup({ value, language, onSelect, onClose, anchorRef }:
   const todayD = today.getDate();
 
   return (
-    <div
-      ref={popupRef}
-      role="dialog"
-      aria-modal="true"
-      aria-label={language === 'DE' ? 'Kalender' : 'Calendar'}
-      className={[
-        'absolute z-50 mt-2 w-72 rounded-xl border border-[#C4A87A]/30',
-        'bg-[#1A0F0A] shadow-[0_8px_32px_rgba(0,0,0,0.6)]',
-        'backdrop-blur-sm select-none',
-        // Position: open downward, left-aligned
-        'top-full left-0',
-      ].join(' ')}
-    >
-      {/* ── Header ── */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[#C4A87A]/20">
-        <button
-          type="button"
-          onClick={prevMonth}
-          aria-label={language === 'DE' ? 'Vorheriger Monat' : 'Previous month'}
-          className="p-1 rounded-md text-[#C4A87A] hover:text-[#F0C87A] hover:bg-[#C4A87A]/10 transition-all"
-        >
-          <ChevronLeft size={16} />
-        </button>
+    <>
+      {/* Mobile-only backdrop overlay */}
+      <div
+        className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs sm:hidden animate-fade-in"
+        onClick={onClose}
+      />
 
-        <span className="text-sm font-semibold tracking-wide text-[#F0C87A] font-body">
-          {MONTH_NAMES[language][viewMonth]}&nbsp;{viewYear}
-        </span>
-
-        <button
-          type="button"
-          onClick={nextMonth}
-          aria-label={language === 'DE' ? 'Nächster Monat' : 'Next month'}
-          className="p-1 rounded-md text-[#C4A87A] hover:text-[#F0C87A] hover:bg-[#C4A87A]/10 transition-all"
-        >
-          <ChevronRight size={16} />
-        </button>
-      </div>
-
-      {/* ── Weekday labels ── */}
-      <div className="grid grid-cols-7 gap-px px-3 pt-3 pb-1">
-        {WEEKDAY_LABELS[language].map((label) => (
-          <div
-            key={label}
-            className="text-center text-[10px] font-bold uppercase tracking-widest text-[#C4A87A]/50"
+      <div
+        ref={popupRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={language === 'DE' ? 'Kalender' : 'Calendar'}
+        className={[
+          'rounded-xl border border-[#C4A87A]/40 bg-[#F5EEDC]',
+          'shadow-[0_8px_32px_rgba(42,27,18,0.25)] select-none w-72',
+          // Mobile: fixed centered modal
+          'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 animate-fade-in',
+          // Desktop: absolute below input
+          'sm:absolute sm:top-full sm:left-0 sm:translate-x-0 sm:translate-y-0 sm:mt-2 sm:z-50',
+        ].join(' ')}
+      >
+        {/* ── Header ── */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-[#C4A87A]/25">
+          <button
+            type="button"
+            onClick={prevMonth}
+            aria-label={language === 'DE' ? 'Vorheriger Monat' : 'Previous month'}
+            className="p-1 rounded-md text-[#5c3d22] hover:text-[#1A120B] hover:bg-[#1A120B]/10 transition-all cursor-pointer"
           >
-            {label}
-          </div>
-        ))}
-      </div>
+            <ChevronLeft size={16} />
+          </button>
 
-      {/* ── Day cells ── */}
-      <div className="grid grid-cols-7 gap-px px-3 pb-3">
-        {cells.map((day, idx) => {
-          if (day === null) {
-            return <div key={`empty-${idx}`} />;
-          }
+          <span className="text-sm font-semibold tracking-wide text-[#1A120B] font-body">
+            {MONTH_NAMES[language][viewMonth]}&nbsp;{viewYear}
+          </span>
 
-          const isSelected =
-            parsed?.year === viewYear &&
-            parsed?.month === viewMonth &&
-            parsed?.day === day;
+          <button
+            type="button"
+            onClick={nextMonth}
+            aria-label={language === 'DE' ? 'Nächster Monat' : 'Next month'}
+            className="p-1 rounded-md text-[#5c3d22] hover:text-[#1A120B] hover:bg-[#1A120B]/10 transition-all cursor-pointer"
+          >
+            <ChevronRight size={16} />
+          </button>
+        </div>
 
-          const isToday =
-            todayY === viewYear && todayM === viewMonth && todayD === day;
-
-          return (
-            <button
-              key={day}
-              type="button"
-              onClick={() => onSelect(toIso(viewYear, viewMonth, day))}
-              aria-label={`${day} ${MONTH_NAMES[language][viewMonth]} ${viewYear}`}
-              aria-pressed={isSelected}
-              className={[
-                'relative h-8 w-full rounded-md text-xs font-medium transition-all duration-150',
-                isSelected
-                  ? 'bg-[#C59B27] text-[#1A0F0A] font-bold shadow-[0_0_8px_rgba(197,155,39,0.5)]'
-                  : isToday
-                  ? 'text-[#F0C87A] ring-1 ring-inset ring-[#C4A87A]/60 hover:bg-[#C4A87A]/15'
-                  : 'text-[#D4B896] hover:bg-[#C4A87A]/10 hover:text-[#F0C87A]',
-              ].join(' ')}
+        {/* ── Weekday labels ── */}
+        <div className="grid grid-cols-7 gap-px px-3 pt-3 pb-1">
+          {WEEKDAY_LABELS[language].map((label) => (
+            <div
+              key={label}
+              className="text-center text-[10px] font-bold uppercase tracking-widest text-[#5c3d22]/60"
             >
-              {day}
-              {isToday && !isSelected && (
-                <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#C59B27]" />
-              )}
-            </button>
-          );
-        })}
-      </div>
+              {label}
+            </div>
+          ))}
+        </div>
 
-      {/* ── Today shortcut ── */}
-      <div className="border-t border-[#C4A87A]/15 px-3 py-2 flex justify-center">
-        <button
-          type="button"
-          onClick={() => onSelect(toIso(todayY, todayM, todayD))}
-          className="text-[11px] font-semibold text-[#C4A87A] hover:text-[#F0C87A] tracking-wide uppercase transition-colors"
-        >
-          {language === 'DE' ? 'Heute' : 'Today'}
-        </button>
+        {/* ── Day cells ── */}
+        <div className="grid grid-cols-7 gap-px px-3 pb-3">
+          {cells.map((day, idx) => {
+            if (day === null) {
+              return <div key={`empty-${idx}`} />;
+            }
+
+            const isSelected =
+              parsed?.year === viewYear &&
+              parsed?.month === viewMonth &&
+              parsed?.day === day;
+
+            const isToday =
+              todayY === viewYear && todayM === viewMonth && todayD === day;
+
+            return (
+              <button
+                key={day}
+                type="button"
+                onClick={() => onSelect(toIso(viewYear, viewMonth, day))}
+                aria-label={`${day} ${MONTH_NAMES[language][viewMonth]} ${viewYear}`}
+                aria-pressed={isSelected}
+                className={[
+                  'relative h-8 w-full rounded-md text-xs font-medium transition-all duration-150 cursor-pointer',
+                  isSelected
+                    ? 'bg-[#C59B27] text-[#1A0F0A] font-bold shadow-[0_0_8px_rgba(197,155,39,0.4)]'
+                    : isToday
+                    ? 'text-[#1A120B] ring-1 ring-inset ring-[#C4A87A] hover:bg-[#1A120B]/10'
+                    : 'text-[#5c3d22] hover:bg-[#1A120B]/10 hover:text-[#1A120B]',
+                ].join(' ')}
+              >
+                {day}
+                {isToday && !isSelected && (
+                  <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#C59B27]" />
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* ── Today shortcut ── */}
+        <div className="border-t border-[#C4A87A]/25 px-3 py-2 flex justify-center">
+          <button
+            type="button"
+            onClick={() => onSelect(toIso(todayY, todayM, todayD))}
+            className="text-[11px] font-semibold text-[#5c3d22] hover:text-[#1A120B] tracking-wide uppercase transition-colors cursor-pointer"
+          >
+            {language === 'DE' ? 'Heute' : 'Today'}
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

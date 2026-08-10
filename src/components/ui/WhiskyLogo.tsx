@@ -19,7 +19,7 @@ export function WhiskyLogo({ size = 24, className, hasCircle = false, ...props }
         <g
           fill="none"
           stroke="currentColor"
-          strokeWidth={16}
+          strokeWidth={8}
           strokeLinecap="round"
           strokeLinejoin="round"
         >
@@ -38,6 +38,7 @@ export function WhiskyLogo({ size = 24, className, hasCircle = false, ...props }
 
           {/* Wavy Fill Line */}
           <path
+            strokeWidth={6}
             d="M 194 263 
                C 210 251, 240 277, 280 262 
                C 300 255, 310 258, 318 264"
@@ -45,10 +46,12 @@ export function WhiskyLogo({ size = 24, className, hasCircle = false, ...props }
 
           {/* Compact Curved Base/Pedestal */}
           <path
+            fill="currentColor"
             d="M 230 320 
                C 230 340 212 344 198 368 
                H 314 
-               C 300 344 282 340 282 320"
+               C 300 344 282 340 282 320 
+               C 270 322, 242 322, 230 320 Z"
           />
         </g>
       </svg>
@@ -59,8 +62,8 @@ export function WhiskyLogo({ size = 24, className, hasCircle = false, ...props }
   // viewBox spans from X: 110 to 402 (width 292), Y: 106 to 398 (height 292)
   // Centers are: X_mid = 256, Y_mid = 252 (halfway between 140 and 368 plus minor vertical offset)
   // This results in a perfectly centered 292x292 coordinate window.
-  // With a viewBox width of 292, strokeWidth={24} corresponds to a 24/292 = 8.2% relative weight,
-  // which visually matches the standard Lucide stroke weights of 2/24 = 8.3%.
+  // With a viewBox width of 292, strokeWidth={12} corresponds to a 12/292 = 4.1% relative weight,
+  // which visually matches the standard Lucide stroke weights.
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -73,7 +76,7 @@ export function WhiskyLogo({ size = 24, className, hasCircle = false, ...props }
       <g
         fill="none"
         stroke="currentColor"
-        strokeWidth={24}
+        strokeWidth={12}
         strokeLinecap="round"
         strokeLinejoin="round"
       >
@@ -89,6 +92,7 @@ export function WhiskyLogo({ size = 24, className, hasCircle = false, ...props }
 
         {/* Wavy Fill Line */}
         <path
+          strokeWidth={9}
           d="M 194 263 
              C 210 251, 240 277, 280 262 
              C 300 255, 310 258, 318 264"
@@ -96,10 +100,12 @@ export function WhiskyLogo({ size = 24, className, hasCircle = false, ...props }
 
         {/* Compact Curved Base/Pedestal */}
         <path
+          fill="currentColor"
           d="M 230 320 
              C 230 340 212 344 198 368 
              H 314 
-             C 300 344 282 340 282 320"
+             C 300 344 282 340 282 320 
+             C 270 322, 242 322, 230 320 Z"
         />
       </g>
     </svg>
