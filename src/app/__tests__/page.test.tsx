@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Home from '../page';
 import { LanguageProvider } from '@/context/LanguageContext';
@@ -55,7 +55,7 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
   beforeEach(() => {
     sessionStorage.clear();
     localStorage.clear();
-    
+
     vi.stubGlobal(
       'fetch',
       vi.fn().mockImplementation(() => {
@@ -81,7 +81,7 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
 
   it('navigates to bookshelf overview when session is started', async () => {
     sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
-    
+
     render(
       <LanguageProvider>
         <Home />
@@ -97,7 +97,7 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
 
   it('opens and closes mobile off-canvas drawer when inside journal detail view', async () => {
     sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
-    
+
     render(
       <LanguageProvider>
         <Home />
@@ -108,24 +108,24 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
     const journalCard = await screen.findByText('My Journal');
     fireEvent.click(journalCard);
 
-    // 2. Mobile Collection button should now be rendered in bottom navigation bar
-    const collectionBtn = await screen.findByRole('button', { name: /Collection/i });
+    // 2. Mobile hamburger/drawer toggle button should now be visible in the header
+    const collectionBtn = await screen.findByTitle('Toggle Spirit List');
     expect(collectionBtn).toBeDefined();
 
-    // 3. Click Collection button to open full-screen drawer
+    // 3. Click drawer toggle to open the full-screen collection drawer
     fireEvent.click(collectionBtn);
 
-    // 4. Verify global search bar is present in the document
-    const globalSearch = screen.getByPlaceholderText(/Search spirits & journals/i);
-    expect(globalSearch).toBeDefined();
+    // 4. Verify global search bar is present (multiple may render — check at least one)
+    const globalSearchInputs = screen.getAllByPlaceholderText(/Search spirits & journals/i);
+    expect(globalSearchInputs.length).toBeGreaterThan(0);
 
-    // 5. Click Collection button again to close drawer
+    // 5. Click drawer toggle again to close
     fireEvent.click(collectionBtn);
   });
 
   it('renders the empty cellar state UI when the active journal has 0 spirits', async () => {
     sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
-    
+
     render(
       <LanguageProvider>
         <Home />
@@ -147,7 +147,7 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
 
   it('collapses desktop sidebar to Reddit-style 16px width and toggles Menu icon', async () => {
     sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
-    
+
     render(
       <LanguageProvider>
         <Home />
@@ -163,7 +163,7 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
     expect(toggleButton).toBeDefined();
 
     // Click to collapse sidebar
-    fireEvent.click(toggleButton);
+    await act(async () => { fireEvent.click(toggleButton); });
 
     // Check if sidebar has collapsed class
     const sidebar = document.getElementById('collection-sidebar');
@@ -172,7 +172,7 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
 
   it('renders symmetrical floating buttons in detail view (Bookshelf & New Note)', async () => {
     sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
-    
+
     render(
       <LanguageProvider>
         <Home />
@@ -196,7 +196,7 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
 
   it('renders floating Plus button in Bookshelf Overview view', async () => {
     sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
-    
+
     render(
       <LanguageProvider>
         <Home />
@@ -209,9 +209,9 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
     expect(createBtn.className).toContain('absolute bottom-6 right-6');
   });
 
-  it('redirects from Profile view to Journal Detail view and opens mobile collection drawer when tapping the Collection button in bottom navigation', async () => {
+  it('redirects from Profile view back to journals overview when tapping Journals in bottom navigation', async () => {
     sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
-    
+
     render(
       <LanguageProvider>
         <Home />
@@ -229,12 +229,14 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
     // Verify Profile view content (e.g. settings text)
     expect(screen.getByText('Language')).toBeDefined();
 
-    // 3. Tapping the Collection (Menu icon) button should redirect back and open drawer
-    const collectionBtn = await screen.findByRole('button', { name: /Collection/i });
-    fireEvent.click(collectionBtn);
+    // 3. Navigate back to overview via the Journals bookshelf tab in bottom nav
+    // (Toggle Spirit List only appears in journal-detail view; in profile view we
+    // navigate via the bookshelf tab button which has title t('journalsTitle'))
+    const journalNavBtns = screen.getAllByTitle(/My Journals/i);
+    fireEvent.click(journalNavBtns[0]);
 
-    // Verify search input is present in the open mobile drawer
-    const globalSearch = screen.getByPlaceholderText(/Search spirits & journals/i);
-    expect(globalSearch).toBeDefined();
+    // 4. Verify we are back at journals overview (journal title visible again)
+    const overviewTitle = await screen.findByText('My Journals');
+    expect(overviewTitle).toBeDefined();
   });
 });
