@@ -12,6 +12,7 @@ Aqua Vitaeum is built as a client-first, server-fallback static application. It 
 graph TD
   A[Presentation Layer: Next.js Client Views] --> B[State Orchestrator: page.tsx]
   B --> C[Custom Hooks: useJournals, useSpiritCollection, useTastingCardForm]
+  B --> G[Gesture Layer: useSwipeBack]
   C --> D[Data Persistence: Dexie IndexedDB]
   C --> E[Local Server Fallback Sync: /api/spirits /api/settings]
   E --> F[Static JSON Storage: spirits.json settings.json]
@@ -43,6 +44,17 @@ The application implements a single-source-of-truth state orchestrator inside th
 - **View Switching**: Simulates layout routing through client-side active views (`activeView` state switching between `'welcome'`, `'overview'`, `'journal-detail'`, `'profile'`).
 - **Top-Down Prop Injection**: Parent states (`activeJournalId`, `selectedId`, `globalSearchQuery`) flow down to component grids and detail forms.
 - **Dynamic Stats Aggregation**: Journal statistics (total bottles, average rating, latest tasted dates, recent thumbnail images) are calculated on-the-fly when modifications in the spirits collection are saved.
+
+---
+
+## 👆 Gesture Abstraction Layer
+
+[`src/hooks/useSwipeBack.ts`](../src/hooks/useSwipeBack.ts) is a zero-coupling gesture hook that separates detection from navigation semantics:
+
+- Registers passive `touchstart` / `touchend` listeners on `document` — never blocks scrolling or other touch handlers.
+- Detects a right-edge → left swipe: start zone within the last `44px` of screen width, minimum `60px` leftward displacement, maximum `80px` vertical drift.
+- Fires a caller-owned `onBack` callback when all conditions are met. The hook knows nothing about view state; all navigation logic lives in `page.tsx`.
+- The browser/OS native left-edge back gesture is preserved as a complementary interaction — the two mechanisms cover both hands ergonomically.
 
 ---
 

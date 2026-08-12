@@ -144,10 +144,10 @@ describe('useSwipeBack Hook — Gesture Detection', () => {
 
   // ── Branch 1: enabled=false ──────────────────────────────────────────────
 
-  it('does NOT fire onBack when enabled=false, even for a valid left-edge swipe', () => {
+  it('does NOT fire onBack when enabled=false, even for a valid right-edge swipe', () => {
     const { unmount } = renderHook(() => useSwipeBack(onBack, false));
 
-    swipe(10, 300, 120, 300); // valid gesture — but hook is disabled
+    swipe(990, 300, 890, 300); // valid right-edge leftward gesture — but hook is disabled
 
     expect(onBack).not.toHaveBeenCalled();
     unmount();
@@ -155,10 +155,11 @@ describe('useSwipeBack Hook — Gesture Detection', () => {
 
   // ── Branch 2: Valid swipe — fires onBack ─────────────────────────────────
 
-  it('fires onBack for a clean left-edge rightward swipe (dx=100, dy=0)', () => {
+  it('fires onBack for a clean right-edge leftward swipe (dx=-100, dy=0)', () => {
     const { unmount } = renderHook(() => useSwipeBack(onBack));
 
-    swipe(10, 300, 110, 300); // starts at x=10 (inside 44px zone), moves +100px
+    // JSDOM window.innerWidth = 1024; right edge zone: x >= 980
+    swipe(990, 300, 890, 300); // starts at x=990 (inside 44px zone), moves -100px left
 
     expect(onBack).toHaveBeenCalledTimes(1);
     unmount();
@@ -166,10 +167,10 @@ describe('useSwipeBack Hook — Gesture Detection', () => {
 
   // ── Branch 3: Valid swipe with acceptable vertical drift ─────────────────
 
-  it('fires onBack when dx≥60 and vertical drift is within MAX_DRIFT_Y=80', () => {
+  it('fires onBack when |dx|≥60 and vertical drift is within MAX_DRIFT_Y=80', () => {
     const { unmount } = renderHook(() => useSwipeBack(onBack));
 
-    swipe(10, 300, 80, 370); // dx=70, dy=70 — both within limits
+    swipe(990, 300, 920, 370); // dx=-70, dy=70 — both within limits
 
     expect(onBack).toHaveBeenCalledTimes(1);
     unmount();
@@ -177,10 +178,10 @@ describe('useSwipeBack Hook — Gesture Detection', () => {
 
   // ── Branch 4: Swipe too short — does NOT fire ────────────────────────────
 
-  it('does NOT fire onBack when horizontal swipe is below MIN_SWIPE_X=60 (dx=40)', () => {
+  it('does NOT fire onBack when horizontal swipe is below MIN_SWIPE_X=60 (|dx|=40)', () => {
     const { unmount } = renderHook(() => useSwipeBack(onBack));
 
-    swipe(10, 300, 50, 300); // dx=40 — below the 60px threshold
+    swipe(990, 300, 950, 300); // starts in right-edge zone, but dx=-40 — below 60px threshold
 
     expect(onBack).not.toHaveBeenCalled();
     unmount();
@@ -191,7 +192,7 @@ describe('useSwipeBack Hook — Gesture Detection', () => {
   it('does NOT fire onBack when vertical drift exceeds MAX_DRIFT_Y=80 (dy=100)', () => {
     const { unmount } = renderHook(() => useSwipeBack(onBack));
 
-    swipe(10, 300, 80, 400); // dx=70 (valid), dy=100 (too much drift — likely a scroll)
+    swipe(990, 300, 920, 400); // dx=-70 (valid), dy=100 (too much drift — likely a scroll)
 
     expect(onBack).not.toHaveBeenCalled();
     unmount();
@@ -199,10 +200,10 @@ describe('useSwipeBack Hook — Gesture Detection', () => {
 
   // ── Branch 6: Touch starts outside edge zone — does NOT track ────────────
 
-  it('does NOT fire onBack when touch starts outside EDGE_ZONE_PX=44 (startX=50)', () => {
+  it('does NOT fire onBack when touch starts outside EDGE_ZONE_PX=44 from right (startX=500)', () => {
     const { unmount } = renderHook(() => useSwipeBack(onBack));
 
-    swipe(50, 300, 150, 300); // starts at x=50 — outside 44px edge zone
+    swipe(500, 300, 400, 300); // starts at x=500 — far from the right edge (needs x≥980)
 
     expect(onBack).not.toHaveBeenCalled();
     unmount();
@@ -210,13 +211,13 @@ describe('useSwipeBack Hook — Gesture Detection', () => {
 
   // ── Branch 7: Touchend without prior tracked touchstart — no-op ──────────
 
-  it('does NOT fire onBack on touchend when no touchstart was tracked (non-edge origin)', () => {
+  it('does NOT fire onBack on touchend when no touchstart was tracked (non-right-edge origin)', () => {
     const { unmount } = renderHook(() => useSwipeBack(onBack));
 
-    // Touch started well outside the edge zone — tracking=false
+    // Touch started well outside the right-edge zone — tracking=false
     touchStart(200, 300);
-    // Even a long swipe end does not trigger
-    touchEnd(350, 300);
+    // Even a long leftward swipe end does not trigger
+    touchEnd(100, 300);
 
     expect(onBack).not.toHaveBeenCalled();
     unmount();
