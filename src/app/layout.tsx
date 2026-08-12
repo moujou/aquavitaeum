@@ -39,7 +39,7 @@ export default function RootLayout({
                   const prefix = isProd ? '/aquavitaeum' : '';
                   navigator.serviceWorker.register(prefix + '/sw.js').then(
                     function(reg) {
-                      console.log('Aqua Vitaeum: ServiceWorker registered successfully with scope: ', reg.scope);
+
                     },
                     function(err) {
                       console.warn('Aqua Vitaeum: ServiceWorker registration failed: ', err);

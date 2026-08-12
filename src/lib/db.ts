@@ -31,6 +31,13 @@ export class AquaVitaeumDatabase extends Dexie {
         }
       });
     });
+
+    // Version 3: adds optional coverImage field to Journal.
+    // No data migration needed — existing records simply won't have coverImage set.
+    this.version(3).stores({
+      spirits: 'id, journalId, spiritType, distillery, name, rating100',
+      journals: 'id, name, createdAt',
+    });
   }
 }
 

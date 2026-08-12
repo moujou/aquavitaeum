@@ -73,11 +73,12 @@ export function useJournals() {
   }, [loadJournals]);
 
   // Create a new journal
-  const createJournal = useCallback(async (name: string, description?: string) => {
+  const createJournal = useCallback(async (name: string, description?: string, coverImage?: string) => {
     const newJournal: Journal = {
       id: `journal-${Date.now()}`,
       name: name.trim() || 'New Journal',
       description,
+      coverImage,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -93,11 +94,12 @@ export function useJournals() {
   }, [loadJournals]);
 
   // Rename an existing journal
-  const renameJournal = useCallback(async (id: string, newName: string, newDescription?: string) => {
+  const renameJournal = useCallback(async (id: string, newName: string, newDescription?: string, newCoverImage?: string) => {
     try {
       await db.journals.update(id, {
         name: newName.trim(),
         description: newDescription !== undefined ? newDescription.trim() : undefined,
+        ...(newCoverImage !== undefined && { coverImage: newCoverImage }),
         updatedAt: new Date().toISOString(),
       });
       await loadJournals();

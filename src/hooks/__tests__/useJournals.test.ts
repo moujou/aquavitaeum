@@ -183,4 +183,142 @@ describe('useJournals Hook', () => {
     expect(mockSpiritsStore.length).toBe(0);
     expect(result.current.journals.length).toBe(1);
   });
+
+  // ── New branch coverage tests ───────────────────────────────────────────────
+
+  it('falls back to "New Journal" when name is an empty string', async () => {
+    const { result } = renderHook(() => useJournals());
+    await act(async () => { await new Promise((r) => setTimeout(r, 10)); });
+
+    let created: Journal | undefined;
+    await act(async () => {
+      created = await result.current.createJournal('   '); // only whitespace
+    });
+
+    expect(created?.name).toBe('New Journal');
+    expect(mockJournalsStore.some((j) => j.name === 'New Journal')).toBe(true);
+  });
+
+  it('creates a journal with a coverImage and persists it on the record', async () => {
+    const { result } = renderHook(() => useJournals());
+    await act(async () => { await new Promise((r) => setTimeout(r, 10)); });
+
+    const COVER = 'data:image/jpeg;base64,MOCK';
+    let created: Journal | undefined;
+    await act(async () => {
+      created = await result.current.createJournal('Islay Collection', 'Peat monsters', COVER);
+    });
+
+    expect(created?.coverImage).toBe(COVER);
+    const stored = mockJournalsStore.find((j) => j.name === 'Islay Collection');
+    expect(stored?.coverImage).toBe(COVER);
+  });
+
+  it('renames a journal and persists the new coverImage via spread conditional', async () => {
+    const { result } = renderHook(() => useJournals());
+    await act(async () => { await new Promise((r) => setTimeout(r, 10)); });
+
+    const COVER = 'data:image/jpeg;base64,COVER_UPDATE';
+    await act(async () => {
+      await result.current.renameJournal('journal-1', 'Peated Malts v2', 'Updated desc', COVER);
+    });
+
+    const updated = mockJournalsStore.find((j) => j.id === 'journal-1');
+    expect(updated?.name).toBe('Peated Malts v2');
+    expect(updated?.coverImage).toBe(COVER);
+  });
+
+  it('renames a journal without passing description — description stays undefined (else branch)', async () => {
+    const { result } = renderHook(() => useJournals());
+    await act(async () => { await new Promise((r) => setTimeout(r, 10)); });
+
+    await act(async () => {
+      // newDescription is undefined — should hit the undefined branch (no trimming)
+      await result.current.renameJournal('journal-1', 'No Desc Update');
+    });
+
+    const updated = mockJournalsStore.find((j) => j.id === 'journal-1');
+    expect(updated?.name).toBe('No Desc Update');
+    // description should remain undefined (the else branch returns undefined)
+    expect(updated?.description).toBeUndefined();
+  });
+
+  it('re-throws and logs error when createJournal DB call fails', async () => {
+    const { result } = renderHook(() => useJournals());
+    await act(async () => { await new Promise((r) => setTimeout(r, 10)); });
+
+    const { db } = await import('@/lib/db');
+    vi.mocked(db.journals.add).mockRejectedValueOnce(new Error('DB write error'));
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    await expect(
+      act(async () => { await result.current.createJournal('Fail Journal'); })
+    ).rejects.toThrow('DB write error');
+
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Failed to create journal'),
+      expect.any(Error),
+    );
+  });
+
+  it('re-throws and logs error when renameJournal DB call fails', async () => {
+    const { result } = renderHook(() => useJournals());
+    await act(async () => { await new Promise((r) => setTimeout(r, 10)); });
+
+    const { db } = await import('@/lib/db');
+    vi.mocked(db.journals.update).mockRejectedValueOnce(new Error('DB update error'));
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    await expect(
+      act(async () => { await result.current.renameJournal('journal-1', 'Will Fail'); })
+    ).rejects.toThrow('DB update error');
+
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Failed to rename journal'),
+      expect.any(Error),
+    );
+  });
+
+  it('re-throws and logs error when deleteJournal DB call fails', async () => {
+    const { result } = renderHook(() => useJournals());
+    await act(async () => { await new Promise((r) => setTimeout(r, 10)); });
+
+    const { db } = await import('@/lib/db');
+    vi.mocked(db.journals.delete).mockRejectedValueOnce(new Error('DB delete error'));
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    await expect(
+      act(async () => { await result.current.deleteJournal('journal-1'); })
+    ).rejects.toThrow('DB delete error');
+
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Failed to delete journal'),
+      expect.any(Error),
+    );
+  });
+
+  it('sorts two non-default journals by createdAt descending (newest first)', async () => {
+    // Replace store with two non-default journals only, to test sort logic
+    mockJournalsStore = [
+      {
+        id: 'journal-older',
+        name: 'Older Journal',
+        createdAt: '2026-06-01T00:00:00Z',
+        updatedAt: '2026-06-01T00:00:00Z',
+      },
+      {
+        id: 'journal-newer',
+        name: 'Newer Journal',
+        createdAt: '2026-08-01T00:00:00Z',
+        updatedAt: '2026-08-01T00:00:00Z',
+      },
+    ];
+
+    const { result } = renderHook(() => useJournals());
+    await act(async () => { await new Promise((r) => setTimeout(r, 10)); });
+
+    expect(result.current.journals[0].id).toBe('journal-newer');
+    expect(result.current.journals[1].id).toBe('journal-older');
+  });
 });
+

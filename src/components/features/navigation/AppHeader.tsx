@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { User } from 'lucide-react';
+import { User, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
 import { SpiritType } from '@/types/spirit.types';
@@ -18,6 +18,7 @@ interface AppHeaderProps {
   selectSpirit: (id: string) => void;
   isBottomBarVisible: boolean;
   isMobileDrawerOpen: boolean;
+  setIsMobileDrawerOpen?: (open: boolean) => void;
   globalSearchQuery: string;
   setGlobalSearchQuery: (q: string) => void;
   globalTypeFilter: SpiritType | 'All';
@@ -34,6 +35,7 @@ export default function AppHeader({
   selectSpirit,
   isBottomBarVisible,
   isMobileDrawerOpen,
+  setIsMobileDrawerOpen,
   globalSearchQuery,
   setGlobalSearchQuery,
   globalTypeFilter,
@@ -52,7 +54,7 @@ export default function AppHeader({
           : "translate-y-0 opacity-100"
       )}
     >
-      {/* Left Header: Brand Logo & Title (Desktop Only) */}
+      {/* ── Desktop Layout Header ─────────────────────────────────── */}
       <div className="hidden lg:flex items-center gap-2.5">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -72,20 +74,20 @@ export default function AppHeader({
         </div>
       </div>
 
-      {/* Middle Header: Global Search Bar */}
-      <GlobalSearch
-        journals={journals}
-        setActiveJournalId={setActiveJournalId}
-        setActiveView={setActiveView}
-        selectSpirit={selectSpirit}
-        globalSearchQuery={globalSearchQuery}
-        setGlobalSearchQuery={setGlobalSearchQuery}
-        globalTypeFilter={globalTypeFilter}
-        setGlobalTypeFilter={setGlobalTypeFilter}
-      />
+      <div className="hidden lg:block flex-1 max-w-sm sm:max-w-md mx-4">
+        <GlobalSearch
+          journals={journals}
+          setActiveJournalId={setActiveJournalId}
+          setActiveView={setActiveView}
+          selectSpirit={selectSpirit}
+          globalSearchQuery={globalSearchQuery}
+          setGlobalSearchQuery={setGlobalSearchQuery}
+          globalTypeFilter={globalTypeFilter}
+          setGlobalTypeFilter={setGlobalTypeFilter}
+        />
+      </div>
 
-      {/* Right Header: Desktop Profile Button */}
-      <div className="flex items-center gap-3">
+      <div className="hidden lg:flex items-center gap-3">
         <button
           onClick={() => {
             if (activeView === 'profile') {
@@ -99,13 +101,50 @@ export default function AppHeader({
             }
           }}
           className={cn(
-            "hidden lg:flex h-8 w-8 items-center justify-center rounded-full bg-[#E8D5B7] text-[#311e15] hover:bg-[#F5F2EB] transition-all duration-150 cursor-pointer select-none",
+            "flex h-8 w-8 items-center justify-center rounded-full bg-[#E8D5B7] text-[#311e15] hover:bg-[#F5F2EB] transition-all duration-150 cursor-pointer select-none",
             activeView === 'profile' && "ring-2 ring-[#C59B27] ring-offset-2 ring-offset-[#311e15]"
           )}
           title={t('profileTab')}
         >
           <User size={16} />
         </button>
+      </div>
+
+      {/* ── Mobile Layout Header ─────────────────────────────────── */}
+      <div className="flex lg:hidden items-center justify-between w-full">
+        {/* Left Slot: Burger Menu FAB (Reddit Style) */}
+        <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
+          {activeView === 'journal-detail' && activeJournalId && setIsMobileDrawerOpen && (
+            <button
+              type="button"
+              onClick={() => setIsMobileDrawerOpen(!isMobileDrawerOpen)}
+              className={cn(
+                "w-8 h-8 rounded-full bg-[#E8D5B7] text-[#311e15] border border-[#C59B27]/40 shadow-[0_2px_6px_rgba(0,0,0,0.35)] flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 transition-all z-20 hover:bg-[#F5F2EB]",
+                isMobileDrawerOpen && "bg-[#F5F2EB] text-[#21140e] border-[#C59B27]/80"
+              )}
+              title="Toggle Spirit List"
+            >
+              <Menu size={14} strokeWidth={2.5} />
+            </button>
+          )}
+        </div>
+
+        {/* Center Search Bar */}
+        <div className="flex-1 flex justify-center px-1.5 min-w-0">
+          <GlobalSearch
+            journals={journals}
+            setActiveJournalId={setActiveJournalId}
+            setActiveView={setActiveView}
+            selectSpirit={selectSpirit}
+            globalSearchQuery={globalSearchQuery}
+            setGlobalSearchQuery={setGlobalSearchQuery}
+            globalTypeFilter={globalTypeFilter}
+            setGlobalTypeFilter={setGlobalTypeFilter}
+          />
+        </div>
+
+        {/* Right Slot: Symmetrical balance spacer */}
+        <div className="w-8 h-8 flex-shrink-0" />
       </div>
     </header>
   );

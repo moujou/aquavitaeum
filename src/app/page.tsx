@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Plus, BookOpen } from 'lucide-react';
 import { useSpiritCollection } from '@/hooks/useSpiritCollection';
 import { useJournals } from '@/hooks/useJournals';
@@ -17,6 +17,7 @@ import AppLoader from '@/components/ui/AppLoader';
 import AppHeader from '@/components/features/navigation/AppHeader';
 import SpiritSidebar from '@/components/features/collection/SpiritSidebar';
 import MobileBottomNav from '@/components/features/navigation/MobileBottomNav';
+import { useSwipeBack } from '@/hooks/useSwipeBack';
 
 export default function Home() {
   const { t } = useLanguage();
@@ -57,6 +58,10 @@ export default function Home() {
 
 
 
+  // Only these two scrollable containers should trigger the bottom-bar hide/show.
+  // Any other scrollable element (filter dropdowns, modals, etc.) is excluded by design.
+  const SCROLL_TRACKED_IDS = ['tasting-card-section', 'journal-overview-scroll'];
+
   // Scroll visibility for bottom bar
   useEffect(() => {
     const handleScroll = (e: Event) => {
@@ -65,6 +70,12 @@ export default function Home() {
       }
       const target = e.target as HTMLElement;
       if (!target || typeof target.scrollTop === 'undefined') return;
+
+      // Guard: only react to scroll events from our designated main-content scrollers.
+      // This prevents filter dropdowns and other inner scrollable containers from
+      // accidentally hiding the bottom nav.
+      const isTrackedScroller = SCROLL_TRACKED_IDS.some((id) => target.id === id);
+      if (!isTrackedScroller) return;
 
       const scrollTop = target.scrollTop;
       if (scrollTop < 0) return;
@@ -84,7 +95,8 @@ export default function Home() {
     return () => {
       window.removeEventListener('scroll', handleScroll, true);
     };
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Reset scroll state on view transition
   useEffect(() => {
@@ -127,12 +139,11 @@ export default function Home() {
     };
   }, [isMobileDrawerOpen]);
 
-  // Show welcome screen on initial session start, but skip if onboarding is completed
+  // Show welcome screen on initial session start (every time a new session starts)
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const welcomeCompleted = localStorage.getItem('aqua-vitaeum-welcome-completed');
       const sessionStarted = sessionStorage.getItem('aqua-vitaeum-session-started');
-      if (welcomeCompleted === 'true' || sessionStarted === 'true') {
+      if (sessionStarted === 'true') {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setActiveView('overview');
       } else {
@@ -157,9 +168,33 @@ export default function Home() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isMobileDrawerOpen]);
 
+  // Swipe-back navigation: left-edge → right swipe maps to logical "go back".
+  // Navigation semantics live here; gesture mechanics live in useSwipeBack.
+  const handleSwipeBack = useCallback(() => {
+    if (activeView === 'journal-detail') {
+      setActiveJournalId(null);
+      setActiveView('overview');
+    } else if (activeView === 'profile') {
+      // Return to journal-detail if a journal was active, otherwise overview.
+      if (activeJournalId) {
+        setActiveView('journal-detail');
+      } else {
+        setActiveView('overview');
+      }
+    }
+    // 'overview' is the root — no further back action.
+  }, [activeView, activeJournalId]);
+
+  // Register the swipe-back gesture. The 44px edge-zone guard in the hook
+  // effectively makes it a no-op on desktop even without an explicit lg: check.
+  useSwipeBack(handleSwipeBack);
+
   // Handle welcome onboarding completion
   const handleWelcomeComplete = async (firstJournalName: string, description?: string) => {
     try {
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
+      }
       const created = await createJournal(firstJournalName, description);
       if (created && typeof created === 'object' && 'id' in created) {
         setActiveJournalId(created.id as string);
@@ -186,7 +221,12 @@ export default function Home() {
         <WelcomePage 
           hasJournals={journals.length > 0}
           onComplete={handleWelcomeComplete} 
-          onEnter={() => setActiveView('overview')}
+          onEnter={() => {
+            if (typeof window !== 'undefined') {
+              sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
+            }
+            setActiveView('overview');
+          }}
         />
       </>
     );
@@ -218,6 +258,7 @@ export default function Home() {
           selectSpirit={selectSpirit}
           isBottomBarVisible={isBottomBarVisible}
           isMobileDrawerOpen={isMobileDrawerOpen}
+          setIsMobileDrawerOpen={setIsMobileDrawerOpen}
           globalSearchQuery={globalSearchQuery}
           setGlobalSearchQuery={setGlobalSearchQuery}
           globalTypeFilter={globalTypeFilter}
@@ -231,7 +272,7 @@ export default function Home() {
           </div>
         ) : activeView === 'overview' ? (
           <div className="flex-1 h-full relative overflow-hidden flex flex-col">
-            <div className="flex-1 overflow-y-auto bg-[var(--pub-bg)] pt-14 lg:pt-0 pb-16 lg:pb-0">
+            <div id="journal-overview-scroll" className="flex-1 overflow-y-auto bg-[var(--pub-bg)] pt-14 lg:pt-0 pb-16 lg:pb-0">
               {isLoadingJournals ? (
                 <div className="flex-1 h-64 flex flex-col items-center justify-center text-center p-6 select-none animate-pulse">
                   <div className="w-16 h-16 rounded-full border border-[#C59B27]/40 flex items-center justify-center bg-[#C59B27]/10 mb-4 shadow-[0_0_25px_rgba(197,155,39,0.25)]">
