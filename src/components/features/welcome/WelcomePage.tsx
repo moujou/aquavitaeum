@@ -53,20 +53,22 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         {/* Shifting Amber Fluid Glow Spot 1 */}
         <div
-          className="absolute rounded-full bg-gradient-to-tr from-[#A05B17] via-[#D48A22] to-[#FFC04D] w-[50vw] h-[50vw] sm:w-[650px] sm:h-[650px] filter blur-[110px] sm:blur-[140px]"
+          className="absolute rounded-full bg-gradient-to-tr from-[#A05B17] via-[#D48A22] to-[#FFC04D] w-[55vw] h-[55vw] lg:w-[600px] lg:h-[600px]"
           style={{
             top: '-15%',
             left: '-15%',
+            filter: 'blur(clamp(80px, 12vw, 130px))',
             animation: 'liquidGlow 18s ease-in-out infinite alternate',
           }}
         />
 
         {/* Shifting Amber Fluid Glow Spot 2 */}
         <div
-          className="absolute rounded-full bg-gradient-to-br from-[#FFC04D] via-[#D48A22] to-[#A05B17] w-[60vw] h-[60vw] sm:w-[750px] sm:h-[750px] filter blur-[120px] sm:blur-[150px]"
+          className="absolute rounded-full bg-gradient-to-br from-[#FFC04D] via-[#D48A22] to-[#A05B17] w-[65vw] h-[65vw] lg:w-[700px] lg:h-[700px]"
           style={{
             bottom: '-20%',
             right: '-15%',
+            filter: 'blur(clamp(90px, 14vw, 145px))',
             animation: 'liquidGlow 22s ease-in-out infinite alternate-reverse',
           }}
         />

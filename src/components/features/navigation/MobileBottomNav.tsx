@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Menu, Plus, BookOpen, User } from 'lucide-react';
+import { Plus, BookOpen, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -39,70 +39,47 @@ export default function MobileBottomNav({
           : "translate-y-full opacity-0 pointer-events-none"
       )}
     >
-      {/* Left Group (flex-1) */}
-      <div className="flex-1 flex justify-around items-center h-full">
-        {/* Tab 1: Bookshelf */}
+      {/* Left Group: Bookshelf Button */}
+      <div className="flex-1 flex justify-center items-center h-full">
         <button
           type="button"
           onClick={() => {
             setActiveJournalId(null);
             setActiveView('overview');
-            setIsMobileDrawerOpen(false);
+            if (setIsMobileDrawerOpen) setIsMobileDrawerOpen(false);
           }}
           className={cn(
-            "flex items-center justify-center w-16 h-full border-t-4 transition-all cursor-pointer",
+            "flex items-center justify-center w-20 h-full border-t-4 transition-all cursor-pointer",
             activeView === 'overview'
               ? "border-[#C59B27] bg-gradient-to-b from-black/35 from-0% to-transparent to-[12%] text-[#e8d5b7]"
               : "border-transparent text-[#e8d5b7]/60 hover:text-[#e8d5b7]/90 active:border-[#C59B27]"
           )}
           title={t('journalsTitle')}
         >
-          <BookOpen size={20} />
+          <BookOpen 
+            size={24} 
+            strokeWidth={activeView === 'overview' ? 2 : 1.75} 
+            fill={activeView === 'overview' ? 'currentColor' : 'none'}
+            fillOpacity={activeView === 'overview' ? 0.25 : 0}
+          />
         </button>
-
-        {/* Tab 2: Collection Drawer (Only visible when activeJournalId is present) */}
-        {activeJournalId ? (
-          <button
-            type="button"
-            onClick={() => {
-              if (activeView !== 'journal-detail') {
-                setActiveView('journal-detail');
-                setIsMobileDrawerOpen(true);
-              } else {
-                setIsMobileDrawerOpen(!isMobileDrawerOpen);
-              }
-            }}
-            className={cn(
-              "flex items-center justify-center w-16 h-full border-t-4 transition-all cursor-pointer",
-              (isMobileDrawerOpen && activeView === 'journal-detail')
-                ? "border-[#C59B27] bg-gradient-to-b from-black/35 from-0% to-transparent to-[12%] text-[#e8d5b7]"
-                : "border-transparent text-[#e8d5b7]/60 hover:text-[#e8d5b7]/90 active:border-[#C59B27]"
-            )}
-            title={t('collection')}
-          >
-            <Menu size={20} />
-          </button>
-        ) : (
-          // Spacer to maintain centering alignment when no active journal
-          <div className="w-16 h-full" />
-        )}
       </div>
 
-      {/* Center Group: Primary Action Highlighted Circular FAB (flex-shrink-0) */}
+      {/* Center Group: Primary Action FAB */}
       <div className="w-14 flex items-center justify-center flex-shrink-0 h-full">
         <button
           type="button"
           onClick={() => {
             if (activeView === 'journal-detail') {
               handleNewNote();
-              setIsMobileDrawerOpen(false);
+              if (setIsMobileDrawerOpen) setIsMobileDrawerOpen(false);
             } else if (activeView === 'overview') {
               setIsCreateJournalModalOpen(true);
             } else if (activeView === 'profile') {
               if (activeJournalId) {
                 setActiveView('journal-detail');
                 handleNewNote();
-                setIsMobileDrawerOpen(false);
+                if (setIsMobileDrawerOpen) setIsMobileDrawerOpen(false);
               } else {
                 setActiveView('overview');
                 setIsCreateJournalModalOpen(true);
@@ -116,32 +93,28 @@ export default function MobileBottomNav({
         </button>
       </div>
 
-      {/* Right Group (flex-1) */}
-      <div className="flex-1 flex justify-around items-center h-full">
-        {/* Symmetrical inner spacer to match the left Collection tab */}
-        {activeJournalId ? (
-          <div className="w-16 h-full" />
-        ) : (
-          // Spacer to maintain centering alignment when no active journal
-          <div className="w-16 h-full" />
-        )}
-
-        {/* Tab 3: You (Profile) */}
+      {/* Right Group: Profile/You Button */}
+      <div className="flex-1 flex justify-center items-center h-full">
         <button
           type="button"
           onClick={() => {
             setActiveView('profile');
-            setIsMobileDrawerOpen(false);
+            if (setIsMobileDrawerOpen) setIsMobileDrawerOpen(false);
           }}
           className={cn(
-            "flex items-center justify-center w-16 h-full border-t-4 transition-all cursor-pointer",
+            "flex items-center justify-center w-20 h-full border-t-4 transition-all cursor-pointer",
             activeView === 'profile'
               ? "border-[#C59B27] bg-gradient-to-b from-black/35 from-0% to-transparent to-[12%] text-[#e8d5b7]"
               : "border-transparent text-[#e8d5b7]/60 hover:text-[#e8d5b7]/90 active:border-[#C59B27]"
           )}
           title={t('profileTab')}
         >
-          <User size={20} />
+          <User 
+            size={24} 
+            strokeWidth={activeView === 'profile' ? 2 : 1.75} 
+            fill={activeView === 'profile' ? 'currentColor' : 'none'}
+            fillOpacity={activeView === 'profile' ? 0.25 : 0}
+          />
         </button>
       </div>
     </nav>

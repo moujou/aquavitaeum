@@ -89,6 +89,8 @@ export interface Journal {
   id: string;
   name: string;
   description?: string;
+  /** Optional user-selected cover photo for the journal card. Stored as a base64 DataURL. */
+  coverImage?: string;
   createdAt: string;
   updatedAt: string;
 }

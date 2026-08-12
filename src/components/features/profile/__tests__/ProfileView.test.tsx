@@ -1,7 +1,18 @@
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { ProfileView } from '../ProfileView';
 import { LanguageProvider } from '@/context/LanguageContext';
+
+vi.mock('@/lib/db', () => ({
+  db: {
+    journals: {
+      toArray: vi.fn().mockResolvedValue([]),
+    },
+    spirits: {
+      toArray: vi.fn().mockResolvedValue([]),
+    },
+  },
+}));
 
 describe('ProfileView Component', () => {
   it('renders avatar, settings rows and labels correctly in English', () => {
