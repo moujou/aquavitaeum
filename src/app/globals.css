@@ -124,3 +124,17 @@ body {
   background-size: 1200px 200px;
   background-repeat: repeat-x;
 }
+
+/* ─── Select Mode Animations ────────────────────────────────────────────────── */
+@keyframes select-wiggle {
+  0%, 100% { transform: rotate(0deg) scale(1.015); }
+  25%       { transform: rotate(-0.8deg) scale(1.015); }
+  75%       { transform: rotate(0.8deg) scale(1.015); }
+}
+
+/* Applied to selected cards in long-press select mode */
+.animate-select-wiggle {
+  animation: select-wiggle 0.45s ease-in-out 1;
+  transform-origin: center;
+}
+

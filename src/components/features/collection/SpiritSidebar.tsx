@@ -18,6 +18,8 @@ interface SpiritSidebarProps {
   selectedId: string | null;
   isLoadingSpirits: boolean;
   selectSpirit: (id: string) => void;
+  /** When provided, enables long-press multi-delete on spirit cards */
+  onDeleteSpirit?: (id: string) => Promise<void>;
 }
 
 export default function SpiritSidebar({
@@ -30,6 +32,7 @@ export default function SpiritSidebar({
   selectedId,
   isLoadingSpirits,
   selectSpirit,
+  onDeleteSpirit,
 }: SpiritSidebarProps) {
   const { t } = useLanguage();
 
@@ -60,6 +63,7 @@ export default function SpiritSidebar({
             selectedId={selectedId}
             isLoading={isLoadingSpirits}
             onSelect={(spirit) => selectSpirit(spirit.id)}
+            onDelete={onDeleteSpirit}
           />
         </div>
       </aside>
@@ -110,6 +114,9 @@ export default function SpiritSidebar({
               selectSpirit(spirit.id);
               setIsMobileDrawerOpen(false);
             }}
+            onDelete={onDeleteSpirit}
+            onAfterDelete={() => setIsMobileDrawerOpen(false)}
+            isVisible={isMobileDrawerOpen}
           />
         </div>
       </div>

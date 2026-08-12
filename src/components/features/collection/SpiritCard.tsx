@@ -2,7 +2,7 @@
 'use client';
 
 import React from 'react';
-import { MapPin, Star } from 'lucide-react';
+import { MapPin, Star, CheckCircle2 } from 'lucide-react';
 import { Spirit, SPIRIT_COLOUR_HEX, SpiritColour } from '@/types/spirit.types';
 import { cn } from '@/lib/utils';
 import { scoreToStars } from '@/lib/spirit-utils';
@@ -11,9 +11,13 @@ interface SpiritCardProps {
   spirit: Spirit;
   isSelected: boolean;
   onClick: () => void;
+  /** True when the sidebar is in long-press multi-select mode */
+  isSelectMode?: boolean;
+  /** True when this card is checked (selected for bulk delete) */
+  isSelectChecked?: boolean;
 }
 
-export function SpiritCard({ spirit, isSelected, onClick }: SpiritCardProps) {
+export function SpiritCard({ spirit, isSelected, onClick, isSelectMode = false, isSelectChecked = false }: SpiritCardProps) {
   const stars = scoreToStars(spirit.rating100);
   const colourHex = SPIRIT_COLOUR_HEX[spirit.colour as SpiritColour] ?? '#FFD700';
 
@@ -24,10 +28,16 @@ export function SpiritCard({ spirit, isSelected, onClick }: SpiritCardProps) {
       onClick={onClick}
       className={cn(
         'w-full flex flex-col text-left rounded-xl border transition-all duration-300 ease-out group overflow-hidden cursor-pointer relative shrink-0',
-        'hover:shadow-[0_0_20px_rgba(197,155,39,0.15)] hover:scale-[1.01]',
-        isSelected
-          ? 'border-[#C59B27] bg-[#C59B27]/10 shadow-[0_0_15px_rgba(197,155,39,0.25)]'
-          : 'border-[#C4A87A]/20 bg-[#1A120B]/40 hover:border-[#C59B27]/60 hover:bg-[#1A120B]/50',
+        isSelectMode
+          ? isSelectChecked
+            ? 'border-[#C59B27] bg-[#C59B27]/10 shadow-[0_0_15px_rgba(197,155,39,0.25)] scale-[1.02]'
+            : 'border-[#C4A87A]/20 bg-[#1A120B]/40 scale-[0.97]'
+          : [
+              'hover:shadow-[0_0_20px_rgba(197,155,39,0.15)] hover:scale-[1.01]',
+              isSelected
+                ? 'border-[#C59B27] bg-[#C59B27]/10 shadow-[0_0_15px_rgba(197,155,39,0.25)]'
+                : 'border-[#C4A87A]/20 bg-[#1A120B]/40 hover:border-[#C59B27]/60 hover:bg-[#1A120B]/50',
+            ].join(' '),
       )}
       aria-pressed={isSelected}
     >
@@ -61,6 +71,27 @@ export function SpiritCard({ spirit, isSelected, onClick }: SpiritCardProps) {
           >
             {/* Ambient Background Grid pattern */}
             <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]" />
+          </div>
+        )}
+
+        {/* Dark scrim for unselected cards in select mode */}
+        {isSelectMode && !isSelectChecked && (
+          <div className="absolute inset-0 z-10 bg-black/45 transition-opacity duration-200 pointer-events-none" />
+        )}
+
+        {/* Circular checkbox in select mode (top-right of thumbnail) */}
+        {isSelectMode && (
+          <div className="absolute top-2 right-2 z-20">
+            <div
+              className={cn(
+                'w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-200',
+                isSelectChecked
+                  ? 'bg-[#C59B27] border-[#C59B27]'
+                  : 'bg-black/50 border-white/40',
+              )}
+            >
+              {isSelectChecked && <CheckCircle2 className="w-3.5 h-3.5 text-[#1a0f00]" />}
+            </div>
           </div>
         )}
 

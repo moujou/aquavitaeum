@@ -321,6 +321,7 @@ export default function Home() {
               selectedId={selectedId}
               isLoadingSpirits={isLoadingSpirits}
               selectSpirit={selectSpirit}
+              onDeleteSpirit={handleDelete}
             />
 
             {/* Main Wrapper: Holds scrollable card and floating buttons */}
