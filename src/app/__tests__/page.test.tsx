@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Home from '../page';
 import { LanguageProvider } from '@/context/LanguageContext';
@@ -95,34 +95,6 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
     expect(screen.getByText('A mock journal for testing')).toBeDefined();
   });
 
-  it('opens and closes mobile off-canvas drawer when inside journal detail view', async () => {
-    sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
-
-    render(
-      <LanguageProvider>
-        <Home />
-      </LanguageProvider>,
-    );
-
-    // 1. Click on the journal card to open it
-    const journalCard = await screen.findByText('My Journal');
-    fireEvent.click(journalCard);
-
-    // 2. Mobile hamburger/drawer toggle button should now be visible in the header
-    const collectionBtn = await screen.findByTitle('Toggle Spirit List');
-    expect(collectionBtn).toBeDefined();
-
-    // 3. Click drawer toggle to open the full-screen collection drawer
-    fireEvent.click(collectionBtn);
-
-    // 4. Verify global search bar is present (multiple may render — check at least one)
-    const globalSearchInputs = screen.getAllByPlaceholderText(/Search spirits & journals/i);
-    expect(globalSearchInputs.length).toBeGreaterThan(0);
-
-    // 5. Click drawer toggle again to close
-    fireEvent.click(collectionBtn);
-  });
-
   it('renders the empty cellar state UI when the active journal has 0 spirits', async () => {
     sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
 
@@ -132,20 +104,16 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
       </LanguageProvider>,
     );
 
-    // Click to enter the default compendium
+    // Click journal → now navigates to journal-landing (not detail directly)
     const journalCard = await screen.findByText('My Journal');
     fireEvent.click(journalCard);
 
-    // Wait for empty cellar screen to load
+    // Landing page shows NoteEmptyState with i18n text (t('cellarEmptyTitle'))
     const emptyStateTitle = await screen.findByText('Your Cellar is Empty');
     expect(emptyStateTitle).toBeDefined();
-
-    // Verify 'New Note' CTA button exists in empty state
-    const newNoteButtons = screen.getAllByRole('button', { name: /New Note/i });
-    expect(newNoteButtons.length).toBeGreaterThan(0);
   });
 
-  it('collapses desktop sidebar to Reddit-style 16px width and toggles Menu icon', async () => {
+  it('renders New Note desktop FAB in journal-landing view', async () => {
     sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
 
     render(
@@ -154,44 +122,14 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
       </LanguageProvider>,
     );
 
-    // Enter journal
+    // Click journal → lands on journal-landing
     const journalCard = await screen.findByText('My Journal');
     fireEvent.click(journalCard);
 
-    // Find the toggle rail container buttons
-    const toggleButton = screen.getByTitle(/Collapse sidebar/i);
-    expect(toggleButton).toBeDefined();
-
-    // Click to collapse sidebar
-    await act(async () => { fireEvent.click(toggleButton); });
-
-    // Check if sidebar has collapsed class
-    const sidebar = document.getElementById('collection-sidebar');
-    expect(sidebar?.className).toContain('w-[16px]');
-  });
-
-  it('renders symmetrical floating buttons in detail view (Bookshelf & New Note)', async () => {
-    sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
-
-    render(
-      <LanguageProvider>
-        <Home />
-      </LanguageProvider>,
-    );
-
-    // Enter journal
-    const journalCard = await screen.findByText('My Journal');
-    fireEvent.click(journalCard);
-
-    // Verify presence of bottom-left Bookshelf/Journals button
-    const backBtns = screen.getAllByTitle(/Journals/i);
-    const desktopBackBtn = backBtns.find(btn => btn.className.includes('absolute'));
-    expect(desktopBackBtn).toBeDefined();
-    expect(desktopBackBtn?.className).toContain('absolute bottom-6 left-6');
-
-    // Verify presence of bottom-right New Note button
-    const newNoteBtn = screen.getByRole('button', { name: /New Note/i });
-    expect(newNoteBtn).toBeDefined();
+    // Desktop New Note FAB must be present on landing page (hidden on mobile via CSS)
+    const newNoteFab = screen.getByTitle('New Note');
+    expect(newNoteFab).toBeDefined();
+    expect(newNoteFab.className).toContain('absolute bottom-6 right-6');
   });
 
   it('renders floating Plus button in Bookshelf Overview view', async () => {
@@ -218,7 +156,7 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
       </LanguageProvider>,
     );
 
-    // 1. Enter a journal to make activeJournalId present
+    // 1. Enter a journal → lands on journal-landing
     const journalCard = await screen.findByText('My Journal');
     fireEvent.click(journalCard);
 
@@ -230,13 +168,39 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
     expect(screen.getByText('Language')).toBeDefined();
 
     // 3. Navigate back to overview via the Journals bookshelf tab in bottom nav
-    // (Toggle Spirit List only appears in journal-detail view; in profile view we
-    // navigate via the bookshelf tab button which has title t('journalsTitle'))
     const journalNavBtns = screen.getAllByTitle(/My Journals/i);
     fireEvent.click(journalNavBtns[0]);
 
     // 4. Verify we are back at journals overview (journal title visible again)
     const overviewTitle = await screen.findByText('My Journals');
     expect(overviewTitle).toBeDefined();
+  });
+
+  it('returns to journal-landing (not journal-detail) when toggling Profile tab off', async () => {
+    sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
+
+    render(
+      <LanguageProvider>
+        <Home />
+      </LanguageProvider>,
+    );
+
+    // 1. Click journal → journal-landing (NoteEmptyState visible with 0 spirits)
+    const journalCard = await screen.findByText('My Journal');
+    fireEvent.click(journalCard);
+    expect(await screen.findByText('Your Cellar is Empty')).toBeDefined();
+
+    // 2. Open Profile via the Profile icon/tab
+    const profileBtns = await screen.findAllByTitle(/You/i);
+    fireEvent.click(profileBtns[0]);
+    expect(screen.getByText('Language')).toBeDefined();
+
+    // 3. Toggle Profile OFF by clicking Profile icon again
+    fireEvent.click(profileBtns[0]);
+
+    // 4. Must return to journal-landing (not profile): Language settings are gone.
+    //    NoteEmptyState ('Your Cellar is Empty') reappears on landing with 0 spirits.
+    expect(screen.queryByText('Language')).toBeNull();
+    expect(await screen.findByText('Your Cellar is Empty')).toBeDefined();
   });
 });

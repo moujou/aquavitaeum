@@ -66,11 +66,13 @@ Aqua Vitaeum is configured as a fully installable PWA for mobile and desktop sys
 - **Offline Capabilities (`public/sw.js`)**: A custom network-first Service Worker script caches primary shell assets (`/`, `whisky-logo-with-circle-v4.svg`, `whisky-logo-maskable-v4.svg`) and caches fetched pages/bundles dynamically to enable full offline use.
 - **iOS/Safari High-Fidelity**: Apple mobile-web-app-capable and status-bar-style metadata tags are injected automatically via Next.js metadata layout headers to ensure a clean browser-less look on iOS devices.
 - **Mobile Usability & Tab Navigation (`src/app/page.tsx`)**:
-  - **Bottom Navigation Bar**: Displays a compact 48px (`h-12`) bar at `z-50` with a solid wood texture (`bg-wood`). Provides icon-only buttons for Bookshelf (Exit) and Collection (Toggle). Active tabs display an Amazon-style gold top line (`border-t-4 border-[#C59B27]`) casting a tiny 6px drop shadow gradient (`bg-gradient-to-b from-black/35 from-0% to-transparent to-[12%]`) downwards.
+  - **Bottom Navigation Bar**: Displays a flush 56px (`h-14`) bar at `z-50` with a rich dark walnut wood grain texture (`.bg-wood border-t border-[var(--brass-accent)]/25`). Provides contained in-line buttons for Bookshelf (Exit), Collection (Toggle), and a circular in-line Ivory/Brass CTA trigger. Active tabs display a glowing top brass indicator line (`border-t-4 border-[var(--brass-accent)]`).
   - **Off-Canvas Sidebar Drawer**: Toggling the Collection drawer opens an overlay drawer (`fixed top-0 left-0 bottom-0 w-[85%] max-w-[320px] h-full`) positioned above the bottom bar with safe-area padding offsets. Closes via backdrop click or the Escape key.
   - **Responsive Spacing**: Page switcher views utilize static padding top `pt-17 sm:pt-20 lg:pt-0` layout heights, allowing the mobile scroll-hide header transitions to execute cleanly without dynamic padding shifting or scroll jitter loops.
   - **Persistent Welcome state**: Onboarding visibility checks compare both `localStorage` welcome keys and session markers, bypassing the launch screen for returning users.
   - **Collapsible Sidebar (Desktop)**: The sidebar collection panel collapses to a thin `16px` rail line. Content is hidden via a smooth `opacity-0 -translate-x-4` CSS transition wrapper, while the circular `Menu` action toggle stays centered on the vertical line.
+  - **Swipe-Back Gesture (`src/hooks/useSwipeBack.ts`)**: A passive `touchstart` / `touchend` listener registered on `document` detects a right-edge → left swipe. Detection parameters: start zone within the last `44px` of screen width, minimum horizontal displacement `60px` leftward, maximum vertical drift `80px`. When all conditions are met, an `onBack` callback owned by `page.tsx` fires and performs the appropriate view transition. The browser/OS native left-edge swipe is preserved alongside it. The hook is zero-coupling: it knows nothing about view state — navigation semantics live entirely in the caller.
+  - **Long-Press Select Mode** (`JournalsOverview.tsx`, `SpiritCollectionGrid.tsx`): A 500 ms `setTimeout` ref (`longPressTimer`) starts on `onTouchStart`. If it fires before being cancelled, `longPressActive.current` is set to `true` and `enterSelectMode(id)` is called with haptic feedback (`navigator.vibrate(40)`). On `onTouchEnd`, the timer is cancelled if still pending; if `longPressActive.current` is `true`, `e.preventDefault()` suppresses the synthetic click and the ref resets to `false`. Subsequent taps in select mode call `toggleSelection(id)` via `onClick` — the ref guard is always `false` in select mode, so clicks pass through cleanly. `SpiritCollectionGrid` accepts an optional `isVisible` prop; a `useEffect` auto-exits select mode when `isVisible` becomes `false` (e.g. mobile drawer closes), preventing stale selection state on re-open. The full-screen `bg-black/25` scrim and per-card scale transitions (`scale-[1.02]` selected / `scale-[0.97]` unselected) are driven by `isSelectMode` state.
 
 
 ---
@@ -83,7 +85,16 @@ To prevent Windows `EBUSY` file-locking crashes during concurrent access, atomic
 
 ---
 
-## 🎨 Human-Instinctive Flavor Palette Matrix
+## 🎨 Design System & Visual Specification
+
+Aqua Vitaeum adheres to a centralized design token system modeled after a vintage Irish pub aesthetic (dark forest greens, dark walnut wood, aged parchment, and warm brass).
+
+For the complete visual specification, color token tables, interactive recipes, and accessibility ratings, refer to:
+👉 **[`docs/DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md)**
+
+---
+
+## 🥃 Human-Instinctive Flavor Palette Matrix
 
 Aqua Vitaeum features a human-instinctive color system where flavor descriptors within the 8 SWRI taxonomy categories map to natural hex colors:
 

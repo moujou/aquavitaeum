@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { Plus, BookOpen } from 'lucide-react';
+import { useState, useEffect, useMemo, useRef, useCallback, startTransition } from 'react';
+import { Plus, BookOpen, AlignJustify, LayoutGrid, Table2 } from 'lucide-react';
 import { useSpiritCollection } from '@/hooks/useSpiritCollection';
 import { useJournals } from '@/hooks/useJournals';
+import { useLayoutPreference } from '@/hooks/useLayoutPreference';
 import { TastingCard } from '@/components/features/tasting-card/TastingCard';
 import { WelcomePage } from '@/components/features/welcome/WelcomePage';
 import { JournalsOverview } from '@/components/features/journals/JournalsOverview';
+import { JournalLandingPage } from '@/components/features/journals/landing';
 import { ProfileView } from '@/components/features/profile/ProfileView';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { useLanguage } from '@/context/LanguageContext';
@@ -15,24 +17,27 @@ import { cn } from '@/lib/utils';
 import { SpiritType } from '@/types/spirit.types';
 import AppLoader from '@/components/ui/AppLoader';
 import AppHeader from '@/components/features/navigation/AppHeader';
-import SpiritSidebar from '@/components/features/collection/SpiritSidebar';
 import MobileBottomNav from '@/components/features/navigation/MobileBottomNav';
 import { useSwipeBack } from '@/hooks/useSwipeBack';
+import { NoteEmptyState } from '@/components/features/journals/landing/NoteEmptyState';
 
 export default function Home() {
   const { t } = useLanguage();
   const basePath = process.env.NODE_ENV === 'production' ? '/aquavitaeum' : '';
   
-  // Navigation View State: loading | welcome (onboarding) | overview (bookshelf) | journal-detail (tasting ledger) | profile
-  const [activeView, setActiveView] = useState<'loading' | 'welcome' | 'overview' | 'journal-detail' | 'profile'>('loading');
+  // Navigation View State: loading | welcome (onboarding) | overview (bookshelf) | journal-landing (note list) | journal-detail (tasting ledger) | profile
+  const [activeView, setActiveView] = useState<'loading' | 'welcome' | 'overview' | 'journal-landing' | 'journal-detail' | 'profile'>('loading');
   const [activeJournalId, setActiveJournalId] = useState<string | null>(null);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [isBottomBarVisible, setIsBottomBarVisible] = useState(true);
   const lastScrollTop = useRef(0);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isCreateJournalModalOpen, setIsCreateJournalModalOpen] = useState(false);
   const [globalSearchQuery, setGlobalSearchQuery] = useState('');
   const [globalTypeFilter, setGlobalTypeFilter] = useState<SpiritType | 'All'>('All');
+  const { layout, setLayout } = useLayoutPreference();
+  // Tracks which view the user was on before opening Profile, so toggling
+  // Profile off correctly returns to journal-landing vs journal-detail vs overview.
+  const [viewBeforeProfile, setViewBeforeProfile] = useState<'overview' | 'journal-landing' | 'journal-detail'>('overview');
 
   // Load journals hook
   const {
@@ -47,7 +52,6 @@ export default function Home() {
   // Load spirits collection hook for the selected journal
   const {
     spirits,
-    selectedId,
     activeSpirit,
     isLoading: isLoadingSpirits,
     selectSpirit,
@@ -58,9 +62,8 @@ export default function Home() {
 
 
 
-  // Only these two scrollable containers should trigger the bottom-bar hide/show.
-  // Any other scrollable element (filter dropdowns, modals, etc.) is excluded by design.
-  const SCROLL_TRACKED_IDS = ['tasting-card-section', 'journal-overview-scroll'];
+  // Only these scrollable containers should trigger the bottom-bar hide/show.
+  const SCROLL_TRACKED_IDS = ['tasting-card-section', 'journal-overview-scroll', 'journal-landing-scroll'];
 
   // Scroll visibility for bottom bar
   useEffect(() => {
@@ -170,20 +173,29 @@ export default function Home() {
 
   // Swipe-back navigation: left-edge → right swipe maps to logical "go back".
   // Navigation semantics live here; gesture mechanics live in useSwipeBack.
+  const handleEnterProfile = useCallback(() => {
+    if (activeView !== 'profile') {
+      setViewBeforeProfile(activeView as 'overview' | 'journal-landing' | 'journal-detail');
+      setActiveView('profile');
+    }
+  }, [activeView]);
+
+  const handleLeaveProfile = useCallback(() => {
+    setActiveView(viewBeforeProfile);
+  }, [viewBeforeProfile]);
+
   const handleSwipeBack = useCallback(() => {
     if (activeView === 'journal-detail') {
+      setActiveView('journal-landing');
+    } else if (activeView === 'journal-landing') {
       setActiveJournalId(null);
       setActiveView('overview');
     } else if (activeView === 'profile') {
-      // Return to journal-detail if a journal was active, otherwise overview.
-      if (activeJournalId) {
-        setActiveView('journal-detail');
-      } else {
-        setActiveView('overview');
-      }
+      // Return to the exact view the user was on before opening Profile.
+      handleLeaveProfile();
     }
     // 'overview' is the root — no further back action.
-  }, [activeView, activeJournalId]);
+  }, [activeView, handleLeaveProfile]);
 
   // Register the swipe-back gesture. The 44px edge-zone guard in the hook
   // effectively makes it a no-op on desktop even without an explicit lg: check.
@@ -198,7 +210,7 @@ export default function Home() {
       const created = await createJournal(firstJournalName, description);
       if (created && typeof created === 'object' && 'id' in created) {
         setActiveJournalId(created.id as string);
-        setActiveView('journal-detail');
+        setActiveView('journal-landing');
       } else {
         setActiveView('overview');
       }
@@ -244,7 +256,7 @@ export default function Home() {
         id="app-main"
         className={cn(
           'h-screen flex flex-col overflow-hidden',
-          'bg-[var(--pub-bg)] text-[#e8d5b7]'
+          'bg-[var(--pub-bg)] text-[var(--foreground)]'
         )}
       >
         {/* ── App Header ─────────────────────────────────────────────────── */}
@@ -253,12 +265,12 @@ export default function Home() {
           journals={journals}
           activeView={activeView}
           setActiveView={setActiveView}
-          activeJournalId={activeJournalId}
           setActiveJournalId={setActiveJournalId}
           selectSpirit={selectSpirit}
           isBottomBarVisible={isBottomBarVisible}
           isMobileDrawerOpen={isMobileDrawerOpen}
-          setIsMobileDrawerOpen={setIsMobileDrawerOpen}
+          onEnterProfile={handleEnterProfile}
+          onLeaveProfile={handleLeaveProfile}
           globalSearchQuery={globalSearchQuery}
           setGlobalSearchQuery={setGlobalSearchQuery}
           globalTypeFilter={globalTypeFilter}
@@ -268,17 +280,17 @@ export default function Home() {
         {/* ── Main Layout View switcher ──────────────────────────────────── */}
         {activeView === 'profile' ? (
           <div className="flex-1 overflow-y-auto bg-[var(--pub-bg)] pt-14 lg:pt-0 pb-16 lg:pb-0 flex items-center justify-center">
-            <ProfileView />
+            <ProfileView layout={layout} onLayoutChange={setLayout} />
           </div>
         ) : activeView === 'overview' ? (
           <div className="flex-1 h-full relative overflow-hidden flex flex-col">
             <div id="journal-overview-scroll" className="flex-1 overflow-y-auto bg-[var(--pub-bg)] pt-14 lg:pt-0 pb-16 lg:pb-0">
               {isLoadingJournals ? (
                 <div className="flex-1 h-64 flex flex-col items-center justify-center text-center p-6 select-none animate-pulse">
-                  <div className="w-16 h-16 rounded-full border border-[#C59B27]/40 flex items-center justify-center bg-[#C59B27]/10 mb-4 shadow-[0_0_25px_rgba(197,155,39,0.25)]">
-                    <WhiskyLogo size={32} className="text-[#C59B27]" />
+                  <div className="w-16 h-16 rounded-full border border-[var(--brass-accent)]/40 flex items-center justify-center bg-[var(--brass-accent)]/10 mb-4 shadow-[0_0_25px_rgba(197,155,39,0.25)]">
+                    <WhiskyLogo size={32} className="text-[var(--brass-accent)]" />
                   </div>
-                  <h2 className="font-display text-xs font-bold text-[#C59B27] tracking-widest uppercase">
+                  <h2 className="font-display text-xs font-bold text-[var(--brass-accent)] tracking-widest uppercase">
                     {t('uncasking')}
                   </h2>
                 </div>
@@ -292,7 +304,7 @@ export default function Home() {
                   onCloseCreate={() => setIsCreateJournalModalOpen(false)}
                   onSelectJournal={(id) => {
                     setActiveJournalId(id);
-                    setActiveView('journal-detail');
+                    setActiveView('journal-landing');
                   }}
                 />
               )}
@@ -302,27 +314,62 @@ export default function Home() {
             <button
               type="button"
               onClick={() => setIsCreateJournalModalOpen(true)}
-              className="hidden lg:flex absolute bottom-6 right-6 w-12 h-12 rounded-full bg-[#E8D5B7] text-[#311e15] border border-[#C59B27]/40 shadow-[0_4px_20px_rgba(0,0,0,0.5)] items-center justify-center cursor-pointer hover:scale-105 active:scale-95 transition-all z-30 hover:bg-[#F5F2EB]"
+              className="hidden lg:flex absolute bottom-6 right-6 w-12 h-12 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] border border-[var(--brass-accent)]/40 shadow-[0_4px_20px_rgba(0,0,0,0.5)] items-center justify-center cursor-pointer hover:scale-105 active:scale-95 transition-all z-30 hover:bg-[var(--fab-bg-hover)]"
               title={t('createJournalBtn')}
+            >
+              <Plus size={22} />
+            </button>
+          </div>
+        ) : activeView === 'journal-landing' ? (
+          /* ── Journal Landing Page (Note Overview) ─────────────────── */
+          <div className="flex flex-1 overflow-hidden relative flex-col">
+            <div
+              id="journal-landing-scroll"
+              className="flex-1 overflow-y-auto bg-[var(--pub-bg)] pt-14 lg:pt-0 pb-16 lg:pb-0"
+            >
+              <JournalLandingPage
+                journal={activeJournal!}
+                spirits={filteredSpirits}
+                layout={layout}
+                isLoading={isLoadingSpirits}
+                onSelectSpirit={(id) => {
+                  selectSpirit(id);
+                  setActiveView('journal-detail');
+                }}
+                onNewNote={() => {
+                  handleNewNote().then(() => {
+                    startTransition(() => setActiveView('journal-detail'));
+                  });
+                }}
+                onDeleteSpirit={handleDelete}
+              />
+            </div>
+            {/* Desktop: Back to Journals (BookOpen) FAB */}
+            <button
+              type="button"
+              onClick={() => { setActiveJournalId(null); setActiveView('overview'); }}
+              className="hidden lg:flex absolute bottom-6 left-6 w-12 h-12 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] border border-[var(--brass-accent)]/40 shadow-[0_4px_20px_rgba(0,0,0,0.5)] items-center justify-center cursor-pointer hover:scale-105 active:scale-95 transition-all z-30 hover:bg-[var(--fab-bg-hover)]"
+              title="Back to Journals"
+            >
+              <BookOpen size={22} />
+            </button>
+            {/* Desktop: New Note FAB */}
+            <button
+              type="button"
+              onClick={() => {
+                handleNewNote().then(() => {
+                  startTransition(() => setActiveView('journal-detail'));
+                });
+              }}
+              className="hidden lg:flex absolute bottom-6 right-6 w-12 h-12 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] border border-[var(--brass-accent)]/40 shadow-[0_4px_20px_rgba(0,0,0,0.5)] items-center justify-center cursor-pointer hover:scale-105 active:scale-95 transition-all z-30 hover:bg-[var(--fab-bg-hover)]"
+              title="New Note"
             >
               <Plus size={22} />
             </button>
           </div>
         ) : (
           /* activeView === 'journal-detail' */
-          <div className="flex flex-1 overflow-hidden relative">
-            <SpiritSidebar
-              isSidebarCollapsed={isSidebarCollapsed}
-              setIsSidebarCollapsed={setIsSidebarCollapsed}
-              isMobileDrawerOpen={isMobileDrawerOpen}
-              setIsMobileDrawerOpen={setIsMobileDrawerOpen}
-              activeJournal={activeJournal}
-              filteredSpirits={filteredSpirits}
-              selectedId={selectedId}
-              isLoadingSpirits={isLoadingSpirits}
-              selectSpirit={selectSpirit}
-            />
-
+          <div className="flex flex-1 overflow-hidden relative animate-fade-in">
             {/* Main Wrapper: Holds scrollable card and floating buttons */}
             <div className="flex-1 h-full relative overflow-hidden flex flex-col">
               <section
@@ -331,33 +378,15 @@ export default function Home() {
               >
                 {isLoadingSpirits ? (
                   <div className="flex flex-col items-center justify-center text-center p-6 select-none animate-pulse">
-                    <div className="w-16 h-16 rounded-full border border-[#C59B27]/40 flex items-center justify-center bg-[#C59B27]/10 mb-4 shadow-[0_0_25px_rgba(197,155,39,0.25)]">
-                      <WhiskyLogo size={32} className="text-[#C59B27]" />
+                    <div className="w-16 h-16 rounded-full border border-[var(--brass-accent)]/40 flex items-center justify-center bg-[var(--brass-accent)]/10 mb-4 shadow-[0_0_25px_rgba(197,155,39,0.25)]">
+                      <WhiskyLogo size={32} className="text-[var(--brass-accent)]" />
                     </div>
-                    <h2 className="font-display text-xs font-bold text-[#C59B27] tracking-widest uppercase">
+                    <h2 className="font-display text-xs font-bold text-[var(--brass-accent)] tracking-widest uppercase">
                       {t('uncasking')}
                     </h2>
                   </div>
                 ) : spirits.length === 0 ? (
-                  <div className="w-full max-w-xl flex flex-col items-center justify-center min-h-[380px] rounded-xl border border-[#C59B27]/30 bg-black/45 backdrop-blur-md p-8 sm:p-12 text-center shadow-[0_15px_35px_rgba(0,0,0,0.6)] border-t-[#C59B27]/50 border-l-[#C59B27]/50 my-auto animate-fade-in">
-                    <div className="w-20 h-20 rounded-full border-2 border-[#C59B27]/40 flex items-center justify-center bg-[#C59B27]/10 mb-6 shadow-[0_0_35px_rgba(197,155,39,0.25)] animate-fade-in-up">
-                      <WhiskyLogo size={38} className="text-[#C59B27]" />
-                    </div>
-                    <h2 className="font-display text-xl sm:text-2xl font-bold text-[#C59B27] tracking-wide mb-3">
-                      {t('cellarEmptyTitle')}
-                    </h2>
-                    <p className="font-body text-xs sm:text-sm text-white/50 max-w-md leading-relaxed mb-8">
-                      {t('cellarEmptySubtitle')}
-                    </p>
-                    <button
-                      type="button"
-                      onClick={handleNewNote}
-                      className="flex items-center gap-2 px-5 py-2.5 rounded text-xs sm:text-sm font-display uppercase tracking-wider font-bold border shrink-0 bg-[#E8D5B7] text-[#311e15] border-[#C59B27]/40 hover:bg-[#F5F2EB] hover:text-[#21140e] transition-all duration-250 cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.3)] hover:scale-[1.02]"
-                    >
-                      <Plus size={14} />
-                      {t('newNote')}
-                    </button>
-                  </div>
+                  <NoteEmptyState onNewNote={handleNewNote} />
                 ) : (
                   <div className="w-full max-w-5xl self-start">
                     <ErrorBoundary>
@@ -372,27 +401,30 @@ export default function Home() {
                 )}
               </section>
 
-              {/* Desktop Floating Action Buttons (Symmetrical FABs) */}
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveJournalId(null);
-                  setActiveView('overview');
-                }}
-                className="hidden lg:flex absolute bottom-6 left-6 w-12 h-12 rounded-full bg-[#E8D5B7] text-[#311e15] border border-[#C59B27]/40 shadow-[0_4px_20px_rgba(0,0,0,0.5)] items-center justify-center cursor-pointer hover:scale-105 active:scale-95 transition-all z-30 hover:bg-[#F5F2EB]"
-                title={t('journalsTitle') || 'Journals'}
-              >
-                <BookOpen size={22} />
-              </button>
-
-              <button
-                type="button"
-                onClick={handleNewNote}
-                className="hidden lg:flex absolute bottom-6 right-6 w-12 h-12 rounded-full bg-[#E8D5B7] text-[#311e15] border border-[#C59B27]/40 shadow-[0_4px_20px_rgba(0,0,0,0.5)] items-center justify-center cursor-pointer hover:scale-105 active:scale-95 transition-all z-30 hover:bg-[#F5F2EB]"
-                title={t('newNote')}
-              >
-                <Plus size={22} />
-              </button>
+              {/* Desktop Floating Action Buttons: layout icon → landing, Plus → new note */}
+              {(() => {
+                const LayoutFabIcon = layout === 'grid' ? LayoutGrid : layout === 'table' ? Table2 : AlignJustify;
+                return (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setActiveView('journal-landing')}
+                      className="hidden lg:flex absolute bottom-6 left-6 w-12 h-12 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] border border-[var(--brass-accent)]/40 shadow-[0_4px_20px_rgba(0,0,0,0.5)] items-center justify-center cursor-pointer hover:scale-105 active:scale-95 transition-all z-30 hover:bg-[var(--fab-bg-hover)]"
+                      title="Back to Journal Overview"
+                    >
+                      <LayoutFabIcon size={22} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleNewNote}
+                      className="hidden lg:flex absolute bottom-6 right-6 w-12 h-12 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] border border-[var(--brass-accent)]/40 shadow-[0_4px_20px_rgba(0,0,0,0.5)] items-center justify-center cursor-pointer hover:scale-105 active:scale-95 transition-all z-30 hover:bg-[var(--fab-bg-hover)]"
+                      title="New Note"
+                    >
+                      <Plus size={22} />
+                    </button>
+                  </>
+                );
+              })()}
             </div>
           </div>
         )}
@@ -408,6 +440,8 @@ export default function Home() {
           setIsMobileDrawerOpen={setIsMobileDrawerOpen}
           setIsCreateJournalModalOpen={setIsCreateJournalModalOpen}
           handleNewNote={handleNewNote}
+          onEnterProfile={handleEnterProfile}
+          onLeaveProfile={handleLeaveProfile}
         />
       </main>
     </>

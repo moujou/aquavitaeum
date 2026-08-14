@@ -18,7 +18,7 @@ export function SectionHeader({
   return (
     <Component
       className={cn(
-        'text-xs sm:text-sm font-bold uppercase tracking-widest text-[#755030] font-body select-none block',
+        'text-xs sm:text-sm font-bold uppercase tracking-widest text-[var(--sepia-light)] font-body select-none block',
         className
       )}
       {...props}

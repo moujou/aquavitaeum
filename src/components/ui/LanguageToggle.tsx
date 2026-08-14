@@ -14,7 +14,7 @@ export function LanguageToggle({ className }: LanguageToggleProps) {
     <div
       id="language-toggle"
       className={cn(
-        'h-7 flex items-center rounded border border-[#E8D5B7]/30 bg-[#311e15]/60 p-0.5 shadow-sm text-[11px] font-display font-semibold select-none',
+        'bg-white/5 border border-white/10 rounded-lg p-0.5 flex gap-0.5 select-none',
         className,
       )}
       aria-label="Language selector"
@@ -24,25 +24,24 @@ export function LanguageToggle({ className }: LanguageToggleProps) {
         type="button"
         onClick={() => setLanguage('DE')}
         className={cn(
-          'px-2 py-0.5 rounded-xs transition-all duration-150 cursor-pointer',
+          'px-2.5 py-1 min-w-[34px] flex items-center justify-center rounded-md font-display font-bold text-xs transition-all duration-150 cursor-pointer',
           language === 'DE'
-            ? 'bg-[#E8D5B7] text-[#311e15] font-bold shadow-xs'
-            : 'text-[#E8D5B7]/60 hover:text-[#E8D5B7]',
+            ? 'bg-[var(--brass-accent)] text-[var(--wood-dark)] font-bold shadow-xs'
+            : 'text-white/40 hover:text-white/70 hover:bg-white/5',
         )}
         aria-pressed={language === 'DE'}
       >
         DE
       </button>
-      <span className="text-[#E8D5B7]/20 px-0.5 text-[9px] font-body">|</span>
       <button
         id="lang-toggle-en"
         type="button"
         onClick={() => setLanguage('EN')}
         className={cn(
-          'px-2 py-0.5 rounded-xs transition-all duration-150 cursor-pointer',
+          'px-2.5 py-1 min-w-[34px] flex items-center justify-center rounded-md font-display font-bold text-xs transition-all duration-150 cursor-pointer',
           language === 'EN'
-            ? 'bg-[#E8D5B7] text-[#311e15] font-bold shadow-xs'
-            : 'text-[#E8D5B7]/60 hover:text-[#E8D5B7]',
+            ? 'bg-[var(--brass-accent)] text-[var(--wood-dark)] font-bold shadow-xs'
+            : 'text-white/40 hover:text-white/70 hover:bg-white/5',
         )}
         aria-pressed={language === 'EN'}
       >

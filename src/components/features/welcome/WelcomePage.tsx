@@ -44,7 +44,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex flex-col items-center justify-between bg-[#0c1a0e] overflow-hidden select-none transition-all duration-700 ease-in-out ${
+      className={`fixed inset-0 z-50 flex flex-col items-center justify-between bg-[var(--pub-bg)] overflow-hidden select-none transition-all duration-700 ease-in-out ${
         isAnimating ? 'opacity-0 scale-105 pointer-events-none' : 'opacity-100 scale-100'
       }`}
     >
@@ -108,11 +108,11 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
         <defs>
           <linearGradient id="whiskyWave1" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#A05B17" stopOpacity="0.45" />
-            <stop offset="100%" stopColor="#0c1a0e" stopOpacity="0.95" />
+            <stop offset="100%" stopColor="var(--pub-bg)" stopOpacity="0.95" />
           </linearGradient>
           <linearGradient id="whiskyWave2" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#D48A22" stopOpacity="0.6" />
-            <stop offset="100%" stopColor="#0c1a0e" stopOpacity="1" />
+            <stop offset="100%" stopColor="var(--pub-bg)" stopOpacity="1" />
           </linearGradient>
         </defs>
       </svg>
@@ -159,7 +159,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
         {/* Upper half: Logo, Brand & Elegant cursive Subtitle */}
         <div className="flex-1 flex flex-col items-center justify-center pt-16">
           {/* Logo (Larger, positioned in upper half, no pulse transition) */}
-          <div className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-gradient-to-b from-white/[0.04] to-transparent border border-[#C59B27]/40 shadow-[0_0_50px_rgba(197,155,39,0.3)] flex items-center justify-center mb-6">
+          <div className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-gradient-to-b from-white/[0.04] to-transparent border border-[var(--brass-accent)]/40 shadow-[0_0_50px_rgba(197,155,39,0.3)] flex items-center justify-center mb-6">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={`${basePath}/whisky-logo-with-circle-v4.svg`}
@@ -171,12 +171,12 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
           </div>
 
           {/* Brand Title */}
-          <h1 className="font-display text-4xl sm:text-5xl font-extrabold text-[#C59B27] tracking-widest uppercase drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)] mb-3">
+          <h1 className="font-display text-4xl sm:text-5xl font-extrabold text-[var(--foreground)] tracking-widest uppercase drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)] mb-3">
             {t('welcomeTitle')}
           </h1>
 
           {/* Subsubtitle: Elegant cursive italics */}
-          <p className="font-serif italic text-lg sm:text-xl text-[#e8d5b7]/90 drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)] tracking-wide">
+          <p className="font-serif italic text-lg sm:text-xl text-[var(--foreground)]/90 drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)] tracking-wide">
             {t('welcomeSubtitle')}
           </p>
         </div>
@@ -185,7 +185,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
         <div className="w-full max-w-sm mt-auto pb-8">
           <button
             onClick={hasJournals ? handleEnterClick : () => setIsModalOpen(true)}
-            className="w-full h-12 rounded-lg bg-[#E8D5B7] hover:bg-[#F5F2EB] border border-[#C59B27]/40 text-[#311e15] hover:text-[#21140e] font-body text-xs sm:text-sm font-bold tracking-widest uppercase shadow-[0_8px_30px_rgba(0,0,0,0.5)] cursor-pointer transition-all duration-300 active:scale-[0.98] hover:shadow-[0_8px_35px_rgba(197,155,39,0.35)]"
+            className="w-full h-12 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--brass-accent)]/40 text-[var(--fab-text)] hover:text-[var(--wood-dark)] font-body text-xs sm:text-sm font-bold tracking-widest uppercase shadow-[0_8px_30px_rgba(0,0,0,0.5)] cursor-pointer transition-all duration-300 active:scale-[0.98] hover:shadow-[0_8px_35px_rgba(197,155,39,0.35)]"
           >
             {hasJournals ? t('enterJournalBtn') : t('createFirstJournal')}
           </button>
@@ -195,9 +195,9 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
       {/* Creation Modal Popup (Keeps landing page clean) */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md animate-fade-in p-4">
-          <div className="w-full max-w-md bg-[#1e2e21]/90 backdrop-blur-xl border border-[#C59B27]/40 rounded-2xl p-6 sm:p-8 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-[#C59B27]/20 pb-3 mb-5">
-              <h3 className="font-display text-base sm:text-lg font-bold text-[#C59B27] uppercase tracking-wider">
+          <div className="w-full max-w-md bg-[#1e2e21]/90 backdrop-blur-xl border border-[var(--brass-accent)]/40 rounded-2xl p-6 sm:p-8 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-[var(--brass-accent)]/20 pb-3 mb-5">
+              <h3 className="font-display text-base sm:text-lg font-bold text-[var(--foreground)] uppercase tracking-wider">
                 {t('createFirstJournal')}
               </h3>
               <button
@@ -225,7 +225,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
                   placeholder={t('journalNamePlaceholder')}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full h-11 px-3 rounded-lg bg-[#0c1a0e] border border-[#C59B27]/30 text-gray-100 placeholder-gray-500 font-body text-sm focus:outline-none focus:border-[#C59B27] mb-4"
+                  className="w-full h-11 px-3 rounded-lg bg-[var(--pub-bg)] border border-[var(--brass-accent)]/30 text-gray-100 placeholder-gray-500 font-body text-sm focus:outline-none focus:border-[var(--brass-accent)] mb-4"
                 />
               </div>
 
@@ -239,7 +239,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
                   placeholder="e.g. My collection of Single Malts..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full h-11 px-3 rounded-lg bg-[#0c1a0e] border border-[#C59B27]/30 text-gray-100 placeholder-gray-500 font-body text-sm focus:outline-none focus:border-[#C59B27]"
+                  className="w-full h-11 px-3 rounded-lg bg-[var(--pub-bg)] border border-[var(--brass-accent)]/30 text-gray-100 placeholder-gray-500 font-body text-sm focus:outline-none focus:border-[var(--brass-accent)]"
                 />
               </div>
 
@@ -257,7 +257,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
                 </button>
                 <button
                   type="submit"
-                  className="h-10 px-5 rounded-lg bg-[#E8D5B7] hover:bg-[#F5F2EB] border border-[#C59B27]/40 text-[#311e15] hover:text-[#21140e] font-semibold text-sm transition-all cursor-pointer shadow-lg active:scale-[0.98]"
+                  className="h-10 px-5 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--brass-accent)]/40 text-[var(--fab-text)] hover:text-[var(--wood-dark)] font-semibold text-sm transition-all cursor-pointer shadow-lg active:scale-[0.98]"
                 >
                   {t('createJournalBtn')}
                 </button>

@@ -45,8 +45,8 @@ function TextInput({
       placeholder={placeholder}
       onChange={(e) => onChange(e.target.value)}
       className={cn(
-        'w-full bg-transparent border-b border-[#C4A87A] pb-1 text-sm sm:text-base text-[#1A120B]',
-        'placeholder:text-[#c4a87a] font-body focus:outline-none focus:border-[#5c3d22]',
+        'w-full bg-transparent border-b border-[var(--parchment-border)] pb-1 text-sm sm:text-base text-[var(--sepia-text)]',
+        'placeholder:text-[var(--parchment-border)] font-body focus:outline-none focus:border-[var(--sepia-muted)]',
         'transition-colors duration-200',
         className,
       )}
@@ -76,10 +76,10 @@ export function TastingMetadataSection({
           id="spirit-type-select"
           value={spirit.spiritType}
           onChange={(e) => update('spiritType', e.target.value as SpiritType)}
-          className="w-full bg-transparent border-b border-[#C4A87A] pb-1 text-sm sm:text-base text-[#1A120B] font-body focus:outline-none focus:border-[#5c3d22] cursor-pointer"
+          className="w-full bg-transparent border-b border-[var(--parchment-border)] pb-1 text-sm sm:text-base text-[var(--sepia-text)] font-body focus:outline-none focus:border-[var(--sepia-muted)] cursor-pointer"
         >
           {SPIRIT_TYPES.map((tVal) => (
-            <option key={tVal} value={tVal} className="bg-[#F5EEDC] text-[#1A120B]">
+            <option key={tVal} value={tVal} className="bg-[var(--parchment-bg)] text-[var(--sepia-text)]">
               {tVal}
             </option>
           ))}
@@ -141,7 +141,7 @@ export function TastingMetadataSection({
             value={spirit.age ?? ''}
             placeholder="Years"
             onChange={(e) => update('age', e.target.value ? Number(e.target.value) : undefined)}
-            className="w-full bg-transparent border-b border-[#C4A87A] pb-1 text-sm sm:text-base text-[#1A120B] font-body focus:outline-none focus:border-[#5c3d22] placeholder:text-[#c4a87a]"
+            className="w-full bg-transparent border-b border-[var(--parchment-border)] pb-1 text-sm sm:text-base text-[var(--sepia-text)] font-body focus:outline-none focus:border-[var(--sepia-muted)] placeholder:text-[var(--parchment-border)]"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -165,12 +165,12 @@ export function TastingMetadataSection({
             step={0.1}
             value={spirit.abv}
             onChange={(e) => update('abv', Number(e.target.value))}
-            className="w-full bg-transparent border-b border-[#C4A87A] pb-1 text-sm sm:text-base text-[#1A120B] font-body focus:outline-none focus:border-[#5c3d22]"
+            className="w-full bg-transparent border-b border-[var(--parchment-border)] pb-1 text-sm sm:text-base text-[var(--sepia-text)] font-body focus:outline-none focus:border-[var(--sepia-muted)]"
           />
         </div>
         <div className="flex flex-col gap-1">
           <FieldLabel htmlFor="price-input">{t('bottlePrice')}</FieldLabel>
-          <div className="flex items-center gap-1.5 border-b border-[#C4A87A]">
+          <div className="flex items-center gap-1.5 border-b border-[var(--parchment-border)]">
             <input
               id="price-input"
               type="number"
@@ -180,17 +180,17 @@ export function TastingMetadataSection({
               value={spirit.price ?? ''}
               placeholder="0.00"
               onChange={(e) => update('price', e.target.value ? Number(e.target.value) : undefined)}
-              className="w-full bg-transparent pb-1 text-sm sm:text-base text-[#1A120B] font-body focus:outline-none placeholder:text-[#c4a87a]"
+              className="w-full bg-transparent pb-1 text-sm sm:text-base text-[var(--sepia-text)] font-body focus:outline-none placeholder:text-[var(--parchment-border)]"
             />
             <select
               id="currency-select"
               value={spirit.currency ?? '€'}
               onChange={(e) => update('currency', e.target.value as Currency)}
-              className="bg-transparent text-sm sm:text-base text-[#755030] font-body font-bold focus:outline-none cursor-pointer border-none pb-1 pr-0.5"
+              className="bg-transparent text-sm sm:text-base text-[var(--sepia-light)] font-body font-bold focus:outline-none cursor-pointer border-none pb-1 pr-0.5"
               aria-label="Currency"
             >
               {SUPPORTED_CURRENCIES.map((curr) => (
-                <option key={curr} value={curr} className="bg-[#F5EEDC] text-[#1A120B]">
+                <option key={curr} value={curr} className="bg-[var(--parchment-bg)] text-[var(--sepia-text)]">
                   {curr}
                 </option>
               ))}
@@ -233,7 +233,7 @@ export function TastingMetadataSection({
       </div>
 
       {/* Colour, Glance & Tasting Additions 2-Column Section */}
-      <div className="border-t border-[#D4C3A3] pt-4 flex gap-4">
+      <div className="border-t border-[var(--parchment-divider)] pt-4 flex gap-4">
         {/* Left Sub-Column: Vertical colour scale */}
         <div className="flex flex-col items-start gap-1 flex-1">
           <SectionHeader className="mb-1">{t('colour')}</SectionHeader>
@@ -245,15 +245,15 @@ export function TastingMetadataSection({
                 type="button"
                 onClick={() => update('colour', value)}
                 className={cn(
-                  'flex items-center gap-2.5 px-3 py-2 sm:px-2.5 sm:py-1 rounded-sm transition-all duration-200 text-left w-full cursor-pointer min-h-[36px] sm:min-h-0',
+                  'flex items-center gap-2.5 px-3 py-2 sm:px-2.5 sm:py-1 rounded-sm border transition-all duration-200 text-left w-full cursor-pointer min-h-[36px] sm:min-h-0',
                   spirit.colour === value
-                    ? 'bg-[#3D2616] ring-1 ring-[#C59B27] font-semibold text-[#F5EEDC]'
-                    : 'hover:bg-[#1A120B]/10 text-[#5c3d22]',
+                    ? 'bg-[var(--wood-selection)] border-[var(--brass-accent)] font-semibold text-[var(--parchment-bg)] shadow-xs'
+                    : 'border-transparent hover:border-[var(--parchment-border)]/40 hover:bg-[var(--sepia-text)]/8 text-[var(--sepia-muted)]',
                 )}
                 aria-pressed={spirit.colour === value}
               >
                 <span
-                  className="w-4.5 h-4.5 rounded-sm border border-[#C4A87A] flex-shrink-0"
+                  className="w-4.5 h-4.5 rounded-sm border border-[var(--parchment-border)] flex-shrink-0"
                   style={{ backgroundColor: hex }}
                 />
                 <span className="text-sm sm:text-xs font-medium font-body whitespace-nowrap">
@@ -289,10 +289,10 @@ export function TastingMetadataSection({
                     type="button"
                     onClick={handleToggle}
                     className={cn(
-                      'px-3 py-1.5 rounded-sm border text-sm sm:text-xs font-body font-medium transition-all duration-200 text-center cursor-pointer',
+                      'px-3 py-2 sm:py-1.5 rounded-xs border text-sm sm:text-xs font-body font-semibold transition-all duration-200 text-center cursor-pointer min-h-[38px] sm:min-h-0',
                       isActive
-                        ? 'bg-[#3D2616] border-[#C59B27] text-[#F5EEDC] font-semibold shadow-xs'
-                        : 'border-[#C4A87A] text-[#5c3d22] hover:bg-[#1A120B]/10',
+                        ? 'bg-[var(--wood-selection)] border-[var(--brass-accent)] text-[var(--parchment-bg)] shadow-xs'
+                        : 'border-[var(--parchment-border)]/60 bg-[var(--sepia-text)]/5 text-[var(--sepia-muted)] hover:bg-[var(--sepia-text)]/12 hover:border-[var(--parchment-border)]',
                     )}
                     aria-pressed={isActive}
                   >
@@ -303,7 +303,7 @@ export function TastingMetadataSection({
             </div>
           </div>
 
-          <div className="border-t border-[#D4C3A3] pt-3 flex flex-col gap-1.5">
+          <div className="border-t border-[var(--parchment-divider)] pt-3 flex flex-col gap-1.5">
             <SectionHeader className="mb-1">{t('tastingAdditions')}</SectionHeader>
             <div className="grid grid-cols-1 gap-1 mt-0.5">
               <ToggleButton
@@ -330,7 +330,7 @@ export function TastingMetadataSection({
       </div>
 
       {/* Active Flavor Tag Selector (Left Column Bottom) */}
-      <div className="border-t border-[#D4C3A3] pt-4 flex flex-col gap-2 w-full">
+      <div className="border-t border-[var(--parchment-divider)] pt-4 flex flex-col gap-2 w-full">
         <FlavorTagSelector
           spiritId={spirit.id}
           noseFlavorTags={spirit.noseFlavorTags ?? []}

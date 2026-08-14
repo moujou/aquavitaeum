@@ -55,7 +55,7 @@ export function DualRangeSlider({
   return (
     <div className={cn('relative w-full h-7 flex items-center select-none', className)}>
       {/* Slider Track Background */}
-      <div className="absolute w-full h-2 rounded-full bg-[#1A120B]/20 border border-[#C4A87A]/40 overflow-hidden" />
+      <div className="absolute w-full h-2 rounded-full bg-[var(--sepia-text)]/20 border border-[var(--parchment-border)]/40 overflow-hidden" />
 
       {/* Active Range Highlight Fill */}
       <div

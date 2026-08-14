@@ -1,0 +1,140 @@
+'use client';
+
+import React from 'react';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useLanguage } from '@/context/LanguageContext';
+import { JournalWithStats } from '@/hooks/useJournals';
+import { Spirit } from '@/types/spirit.types';
+import { OverviewLayout } from '@/hooks/useLayoutPreference';
+import { useMultiSelect } from '@/hooks/useMultiSelect';
+import { JournalLandingHeader } from './JournalLandingHeader';
+import { NoteEmptyState } from './NoteEmptyState';
+import { NoteListView } from './layouts/NoteListView';
+import { NoteGridView } from './layouts/NoteGridView';
+import { NoteTableView } from './layouts/NoteTableView';
+
+interface JournalLandingPageProps {
+  journal: JournalWithStats;
+  spirits: Spirit[];
+  layout: OverviewLayout;
+  isLoading: boolean;
+  onSelectSpirit: (id: string) => void;
+  onNewNote: () => void;
+  onDeleteSpirit: (id: string) => Promise<void>;
+}
+
+export function JournalLandingPage({
+  journal,
+  spirits,
+  layout,
+  isLoading,
+  onSelectSpirit,
+  onNewNote,
+  onDeleteSpirit,
+}: JournalLandingPageProps) {
+  // ── Language ──────────────────────────────────────────────────────────────
+  const { t, language } = useLanguage();
+
+  // ── Multi-Select (shared hook — identical logic to JournalsOverview) ──────
+  const {
+    isSelectMode,
+    selectedIds,
+    confirmBulkDelete,
+    setConfirmBulkDelete,
+    exitSelectMode,
+    toggleSelection,
+    handleTouchStart,
+    cancelLongPress,
+    handleTouchEnd,
+    handleBulkDelete,
+  } = useMultiSelect();
+
+  const canDelete = selectedIds.size > 0;
+
+  // ── Shared props piped to every layout view ───────────────────────────────
+  const selectModeProps = {
+    isSelectMode,
+    selectedIds,
+    onToggleSelect: toggleSelection,
+    onTouchStart: handleTouchStart,
+    cancelLongPress,
+    onTouchEnd: handleTouchEnd,
+  };
+
+  // ── Loading ───────────────────────────────────────────────────────────────
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center flex-1 h-full min-h-[400px]">
+        <div className="w-12 h-12 rounded-full border-2 border-white/10 border-t-[var(--brass-accent)] animate-spin mb-4" />
+        <p className="font-display text-[var(--brass-accent)] animate-pulse">Uncasking...</p>
+      </div>
+    );
+  }
+
+  // ── Empty ─────────────────────────────────────────────────────────────────
+  if (spirits.length === 0) {
+    return <NoteEmptyState onNewNote={onNewNote} />;
+  }
+
+  // ── Main ──────────────────────────────────────────────────────────────────
+  return (
+    <div className="flex flex-col min-h-full max-w-6xl mx-auto w-full">
+
+      {/* ── Header — always shown; select mode props toggle inline Trash+X ────── */}
+      <JournalLandingHeader
+        journal={journal}
+        noteCount={spirits.length}
+        isSelectMode={isSelectMode}
+        selectedCount={selectedIds.size}
+        canDelete={canDelete}
+        onConfirmDelete={() => setConfirmBulkDelete(true)}
+        onExitSelectMode={exitSelectMode}
+        language={language}
+      />
+
+      {/* ── Global dim overlay in select mode (pointer-events-none — items remain interactive) */}
+      {isSelectMode && (
+        <div className="fixed inset-0 z-10 bg-black/25 pointer-events-none transition-opacity duration-300 animate-fade-in" />
+      )}
+
+      {/* ── Layout content */}
+      <div className="flex-1">
+        {layout === 'list' && (
+          <NoteListView
+            spirits={spirits}
+            onSelect={onSelectSpirit}
+            {...selectModeProps}
+          />
+        )}
+        {layout === 'grid' && (
+          <NoteGridView
+            spirits={spirits}
+            onSelect={onSelectSpirit}
+            {...selectModeProps}
+          />
+        )}
+        {layout === 'table' && (
+          <NoteTableView
+            spirits={spirits}
+            onSelect={onSelectSpirit}
+            {...selectModeProps}
+          />
+        )}
+      </div>
+
+      <ConfirmDialog
+        isOpen={confirmBulkDelete}
+        title={language === 'DE' ? 'Warnung / Achtung!' : 'Warning / Achtung!'}
+        message={
+          selectedIds.size === 1
+            ? <>{t('deleteModalMessage')}?</>
+            : <>{selectedIds.size} {t('deleteBulkNotesConfirm')}</>
+        }
+        confirmLabel={t('confirmDelete')}
+        cancelLabel={t('cancel')}
+        onConfirm={() => handleBulkDelete(onDeleteSpirit)}
+        onCancel={() => setConfirmBulkDelete(false)}
+      />
+    </div>
+  );
+}

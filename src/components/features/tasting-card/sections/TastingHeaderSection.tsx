@@ -22,9 +22,9 @@ export function TastingHeaderSection({
   update,
 }: TastingHeaderSectionProps) {
   return (
-    <div className="bg-wood text-center py-5 px-6 border-b border-[#C4A87A] flex flex-col items-center justify-center gap-1.5 border-t border-white/[0.03] shadow-[inset_0_-10px_20px_-10px_rgba(0,0,0,0.35)]">
+    <div className="bg-wood text-center py-5 px-6 border-b border-[var(--parchment-border)] flex flex-col items-center justify-center gap-1.5 border-t border-white/[0.03] shadow-[inset_0_-10px_20px_-10px_rgba(0,0,0,0.35)]">
       {/* Spirit Type Badge */}
-      <span className="font-display text-xs sm:text-sm font-bold uppercase tracking-[0.25em] text-[#C4A87A]">
+      <span className="font-display text-xs sm:text-sm font-bold uppercase tracking-[0.25em] text-[var(--parchment-border)]">
         {spirit.spiritType}
       </span>
 
@@ -41,12 +41,12 @@ export function TastingHeaderSection({
             onKeyDown={(e) => {
               if (e.key === 'Enter') setIsEditingTitle(false);
             }}
-            className="w-full bg-[#F5EEDC] text-[#1A120B] font-display text-xl sm:text-2xl font-bold px-3 py-1 rounded border border-[#C59B27] focus:outline-none text-center uppercase tracking-wider"
+            className="w-full bg-[var(--parchment-bg)] text-[var(--sepia-text)] font-display text-xl sm:text-2xl font-bold px-3 py-1 rounded border border-[var(--brass-accent)] focus:outline-none text-center uppercase tracking-wider"
           />
           <button
             type="button"
             onClick={() => setIsEditingTitle(false)}
-            className="p-1.5 rounded-full bg-[#C59B27] text-[#1A120B] hover:bg-[#e8c247] transition-colors cursor-pointer"
+            className="p-1.5 rounded-full bg-[var(--brass-accent)] text-[var(--sepia-text)] hover:bg-[var(--brass-light)] transition-colors cursor-pointer"
             title="Done editing name"
           >
             <Check size={18} />
@@ -57,7 +57,7 @@ export function TastingHeaderSection({
           className="flex items-center justify-center gap-2.5 group cursor-pointer"
           onClick={() => setIsEditingTitle(true)}
         >
-          <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-widest text-[#F5EEDC] uppercase leading-tight">
+          <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-widest text-[var(--parchment-bg)] uppercase leading-tight">
             {displayName}
           </h1>
           <button
@@ -66,7 +66,7 @@ export function TastingHeaderSection({
               e.stopPropagation();
               setIsEditingTitle(true);
             }}
-            className="p-1 rounded text-[#C4A87A] opacity-60 group-hover:opacity-100 hover:text-[#C59B27] transition-opacity cursor-pointer"
+            className="p-1 rounded text-[var(--parchment-border)] opacity-60 group-hover:opacity-100 hover:text-[var(--brass-accent)] transition-opacity cursor-pointer"
             title="Edit Spirit Name"
           >
             <Pencil size={16} />
@@ -75,7 +75,7 @@ export function TastingHeaderSection({
       )}
 
       {/* Subtitle */}
-      <p className="font-display text-xs sm:text-sm uppercase tracking-[0.25em] text-[#a07d1a] italic">
+      <p className="font-display text-xs sm:text-sm uppercase tracking-[0.25em] text-[var(--brass-muted)] italic">
         {subtitleLocation}
       </p>
     </div>

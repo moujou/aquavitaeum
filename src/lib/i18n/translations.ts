@@ -153,6 +153,17 @@ export const TRANSLATIONS = {
     statsUnrated: 'No notes yet',
     profileTab: 'You',
     profileLanguage: 'Language',
+
+    // Overview Layout Preference
+    overviewLayout: 'Overview Layout',
+    overviewLayoutDesc: 'Journal notes display style',
+    layoutList: 'List',
+    layoutGrid: 'Grid',
+    layoutTable: 'Table',
+
+    // Bulk Tasting Note Delete (JournalLandingPage)
+    deleteBulkNotesConfirm: 'notes will be permanently deleted. This action cannot be undone.',
+    confirmDelete: 'Confirm Delete',
   },
   DE: {
     // Header & Brand
@@ -305,6 +316,17 @@ export const TRANSLATIONS = {
     statsUnrated: 'Noch keine Notizen',
     profileTab: 'Du',
     profileLanguage: 'Sprache',
+
+    // Overview Layout Preference
+    overviewLayout: 'Übersicht-Layout',
+    overviewLayoutDesc: 'Anzeigestil der Journal-Notizen',
+    layoutList: 'Liste',
+    layoutGrid: 'Raster',
+    layoutTable: 'Tabelle',
+
+    // Bulk Tasting Note Delete (JournalLandingPage)
+    deleteBulkNotesConfirm: 'Notizen werden unwiderruflich gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.',
+    confirmDelete: 'Löschen bestätigen',
   },
 } as const;
 

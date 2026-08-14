@@ -14,7 +14,7 @@ export function FieldLabel({ children, htmlFor, className, ...props }: FieldLabe
     <label
       htmlFor={htmlFor}
       className={cn(
-        'block text-xs font-bold uppercase tracking-wider text-[#755030] mb-1 font-body select-none',
+        'block text-xs font-bold uppercase tracking-wider text-[var(--sepia-light)] mb-1 font-body select-none',
         className
       )}
       {...props}
