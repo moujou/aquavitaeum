@@ -159,6 +159,7 @@ To avoid flat "2010" muddy aesthetics, surfaces use subtle physical lighting:
 - **Malt Shimmer Hover**: Warm left-edge brass highlight (`border-l-2 border-l-[var(--brass-accent)]`) on interactive row/card hover.
 
 ### 5.5 Interactive Ledger & Card Recipes
+- **Grid View (`SpiritCard`)**: Obsidian velvet card (`rounded-2xl backdrop-blur-xl`) with top specular rim lighting, 6% width animated liquid shimmer column, sculpted gold rating badge, and frosted micro-pills.
 - **Table View (`NoteTableView`)**: Frosted sticky header (`backdrop-blur-xl bg-[#0B120E]/95 border-b border-[var(--brass-accent)]/25`), micro-bottle thumbnails, a dedicated **Colour Column** with circular liquid swatches, editorial distillery headings, and sculpted gold rating medals.
 - **List View (`NoteListItem`)**: Tactile floating cards with a **signature animated liquid shimmer column** on the right edge (matching `SpiritCard`), top flavor tag preview pills, and clean gap spacing.
 - **Iconography Standard**: Use crisp vector icons from `lucide-react`. Avoid decorative emoji clutter on primary UI surfaces to maintain timeless editorial elegance.
@@ -166,6 +167,11 @@ To avoid flat "2010" muddy aesthetics, surfaces use subtle physical lighting:
 ### 5.6 Bookshelf Compendium Cards & Header Dividers
 - **Compendium Bookshelf (`JournalsOverview`)**: Elevated leather-bound cards (`bg-gradient-to-b from-[#131C16]/90 via-[#0E1511]/95 to-[#0A0F0C] backdrop-blur-xl rounded-2xl`) with top specular rim lighting, antique distillery crest seals, and a frosted glass stats shelf with illuminated brass icons.
 - **Header Gradient Dividers**: Replaced flat solid borders with a glowing multi-stop gradient rule (`bg-gradient-to-r from-transparent via-[var(--brass-accent)]/30 to-transparent h-[1px]`) across all view headers.
+
+### 5.7 Rich Wood Chrome & Mobile Navigation
+- **Rich Dark Walnut Wood Chrome (`.bg-wood`)**: Authentic smoked walnut & aged mahogany texture (`#1E120B` to `#2A1A10`) with fine organic wood fibers and brass rim fittings, framing the app with warm craftsmanship instead of monochrome green.
+- **Flush Mobile Navigation Dock (`MobileBottomNav`)**: Sleek flush 56px bar (`h-14 bg-wood border-t border-[var(--brass-accent)]/25`) with in-line ivory/brass action button (no protruding overlaps) and active gold indicators.
+- **Profile View (`ProfileView`)**: Obsidian velvet card (`rounded-2xl backdrop-blur-xl`) with ambient top lantern illumination, glowing avatar ring, and frosted settings tiles.
 
 ---
 
@@ -202,6 +208,11 @@ All text color combinations are calibrated against **WCAG 2.1 Level AA**:
 | `--sepia-muted` (`#5c3d22`) | `--parchment-bg` (`#F5EEDC`) | **6.7 : 1** | Double-A (AA) |
 | `--brass-accent` (`#C59B27`) | `--pub-bg` (`#122616`) | **6.9 : 1** | Double-A (AA) |
 | `--fab-text` (`#311e15`) | `--fab-bg` (`#E8D5B7`) | **9.4 : 1** | Triple-A (AAA) |
+
+### 7.1 Mobile Ergonomics & Daylight Usability
+- **Card Surface Luminance**: Card surfaces use elevated dark slate (`#18241D` to `#131D16`) with crisp `border-white/12` boundaries so cards never blend into near-black mud on low screen brightness.
+- **Secondary Text Opacity**: Secondary labels and descriptors are maintained at `text-white/80` to `text-white/85` (WCAG AA+) to ensure comfortable reading under outdoor sunlight or dimmed phone screens.
+- **Solid Micro-Pills**: Badges and specification tags use solid frosted backings (`bg-white/8 border border-white/15`) for maximum legibility.
 
 ---
 

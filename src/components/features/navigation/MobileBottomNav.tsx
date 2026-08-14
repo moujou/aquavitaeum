@@ -34,49 +34,51 @@ export default function MobileBottomNav({
 }: MobileBottomNavProps) {
   const { t } = useLanguage();
 
+  const isBookshelfActive = activeView === 'overview' || activeView === 'journal-landing';
+  const isProfileActive = activeView === 'profile';
+
   return (
     <nav
       className={cn(
-        "fixed bottom-0 left-0 right-0 h-12 z-50 bg-wood border-t border-black/40 shadow-[0_-8px_30px_rgba(0,0,0,0.6)] flex items-center pb-safe lg:hidden transition-all duration-300 ease-in-out",
+        "fixed bottom-0 left-0 right-0 h-14 z-50 bg-wood border-t border-[var(--brass-accent)]/25 shadow-[0_-8px_30px_rgba(0,0,0,0.7)] flex items-center justify-around px-6 pb-safe lg:hidden transition-all duration-300 ease-in-out",
         (isBottomBarVisible || isMobileDrawerOpen || activeView === 'profile')
           ? "translate-y-0 opacity-100"
           : "translate-y-full opacity-0 pointer-events-none"
       )}
     >
-      {/* Left Group: Bookshelf Button */}
-      <div className="flex-1 flex justify-center items-center h-full">
-        <button
-          type="button"
-          onClick={() => {
-            if (activeView === 'journal-detail') {
-              // From detail → go back to landing page
-              setActiveView('journal-landing');
-            } else {
-              // From landing → go back to overview
-              setActiveJournalId(null);
-              setActiveView('overview');
-            }
-            if (setIsMobileDrawerOpen) setIsMobileDrawerOpen(false);
-          }}
-          className={cn(
-            "flex items-center justify-center w-20 h-full border-t-4 transition-all cursor-pointer",
-            activeView === 'overview' || activeView === 'journal-landing'
-              ? "border-[var(--brass-accent)] bg-gradient-to-b from-black/35 from-0% to-transparent to-[12%] text-[var(--foreground)]"
-              : "border-transparent text-[var(--foreground)]/60 hover:text-[var(--foreground)]/90 active:border-[var(--brass-accent)]"
-          )}
-          title={t('journalsTitle')}
-        >
-          <BookOpen 
-            size={24} 
-            strokeWidth={activeView === 'overview' ? 2 : 1.75} 
-            fill={activeView === 'overview' ? 'currentColor' : 'none'}
-            fillOpacity={activeView === 'overview' ? 0.25 : 0}
-          />
-        </button>
-      </div>
+      {/* Left: Journals / Bookshelf Tab */}
+      <button
+        type="button"
+        onClick={() => {
+          if (activeView === 'journal-detail') {
+            setActiveView('journal-landing');
+          } else {
+            setActiveJournalId(null);
+            setActiveView('overview');
+          }
+          if (setIsMobileDrawerOpen) setIsMobileDrawerOpen(false);
+        }}
+        className={cn(
+          "flex items-center justify-center w-14 h-full transition-all cursor-pointer relative group",
+          isBookshelfActive
+            ? "text-[var(--brass-accent)]"
+            : "text-[var(--foreground)]/60 hover:text-[var(--foreground)]/90 active:scale-95"
+        )}
+        title={t('journalsTitle')}
+      >
+        <BookOpen
+          size={22}
+          strokeWidth={isBookshelfActive ? 2.2 : 1.75}
+          className="transition-transform group-hover:scale-110 duration-200"
+        />
+        {/* Active Golden Bar Indicator */}
+        {isBookshelfActive && (
+          <div className="absolute bottom-1 w-5 h-0.5 rounded-full bg-[var(--brass-accent)] shadow-[0_0_6px_var(--brass-accent)]" />
+        )}
+      </button>
 
-      {/* Center Group: Primary Action FAB */}
-      <div className="w-14 flex items-center justify-center flex-shrink-0 h-full">
+      {/* Center: Flush In-Line Action Button (Contained inside bar) */}
+      <div className="flex items-center justify-center">
         <button
           type="button"
           onClick={() => {
@@ -100,41 +102,42 @@ export default function MobileBottomNav({
               }
             }
           }}
-          className="w-9 h-9 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] border border-[var(--brass-accent)]/40 shadow-[0_0_12px_rgba(197,155,39,0.4)] flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 transition-all z-20 hover:bg-[var(--fab-bg-hover)]"
+          className="w-9 h-9 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] border border-[var(--brass-accent)]/50 shadow-md flex items-center justify-center cursor-pointer hover:bg-[var(--fab-bg-hover)] active:scale-95 transition-all"
           title="Create New"
         >
-          <Plus size={20} />
+          <Plus size={20} strokeWidth={2.5} />
         </button>
       </div>
 
-      {/* Right Group: Profile/You Button */}
-      <div className="flex-1 flex justify-center items-center h-full">
-        <button
-          type="button"
-          onClick={() => {
-            if (activeView === 'profile') {
-              onLeaveProfile();
-            } else {
-              onEnterProfile();
-            }
-            if (setIsMobileDrawerOpen) setIsMobileDrawerOpen(false);
-          }}
-          className={cn(
-            "flex items-center justify-center w-20 h-full border-t-4 transition-all cursor-pointer",
-            activeView === 'profile'
-              ? "border-[var(--brass-accent)] bg-gradient-to-b from-black/35 from-0% to-transparent to-[12%] text-[var(--foreground)]"
-              : "border-transparent text-[var(--foreground)]/60 hover:text-[var(--foreground)]/90 active:border-[var(--brass-accent)]"
-          )}
-          title={t('profileTab')}
-        >
-          <User 
-            size={24} 
-            strokeWidth={activeView === 'profile' ? 2 : 1.75} 
-            fill={activeView === 'profile' ? 'currentColor' : 'none'}
-            fillOpacity={activeView === 'profile' ? 0.25 : 0}
-          />
-        </button>
-      </div>
+      {/* Right: Profile Tab */}
+      <button
+        type="button"
+        onClick={() => {
+          if (activeView === 'profile') {
+            onLeaveProfile();
+          } else {
+            onEnterProfile();
+          }
+          if (setIsMobileDrawerOpen) setIsMobileDrawerOpen(false);
+        }}
+        className={cn(
+          "flex items-center justify-center w-14 h-full transition-all cursor-pointer relative group",
+          isProfileActive
+            ? "text-[var(--brass-accent)]"
+            : "text-[var(--foreground)]/60 hover:text-[var(--foreground)]/90 active:scale-95"
+        )}
+        title={t('profileTab')}
+      >
+        <User
+          size={22}
+          strokeWidth={isProfileActive ? 2.2 : 1.75}
+          className="transition-transform group-hover:scale-110 duration-200"
+        />
+        {/* Active Golden Bar Indicator */}
+        {isProfileActive && (
+          <div className="absolute bottom-1 w-5 h-0.5 rounded-full bg-[var(--brass-accent)] shadow-[0_0_6px_var(--brass-accent)]" />
+        )}
+      </button>
     </nav>
   );
 }

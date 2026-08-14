@@ -61,8 +61,9 @@ html {
 body {
   background: var(--pub-bg);
   background-image:
-    radial-gradient(ellipse at 20% 50%, rgba(197, 155, 39, 0.04) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 20%, rgba(23, 43, 28, 0.8) 0%, transparent 50%);
+    radial-gradient(ellipse at 50% -10%, rgba(197, 155, 39, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 85% 25%, rgba(32, 48, 35, 0.20) 0%, transparent 50%),
+    radial-gradient(ellipse at 15% 85%, rgba(45, 26, 17, 0.40) 0%, transparent 60%);
   color: var(--foreground);
   min-height: 100vh;
   overflow-x: hidden;
@@ -135,12 +136,14 @@ body {
 
 /* ─── Premium Pub Wood Panel (Subtile Holzoptik) ───────────────────────────── */
 .bg-wood {
-  background-color: var(--wood-accent); /* Fallback */
+  background-color: #1E120B;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   background-image:
-    /* Licht-Effekt: Subtiler Lichtschein oben (3%), Schatten unten (15%) */
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 0%, rgba(0, 0, 0, 0.15) 100%),
-    /* Horizontal gedehntes Perlin-Noise für die organischen Holzlinien */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='200'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.003 0.07' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.45 %0A 0 0 0 0 0.3 %0A 0 0 0 0 0.18 %0A 0.09 0 0 0 0'/%3E%3C/filter%3E%3Crect width='1200' height='200' filter='url(%23w)'/%3E%3C/svg%3E");
+    /* Warm specular highlight on top wood edge, deep dark mahogany shadow below */
+    linear-gradient(to bottom, rgba(197, 155, 39, 0.08) 0%, rgba(30, 18, 11, 0.94) 45%, rgba(16, 9, 5, 0.98) 100%),
+    /* Fine organic wood grain */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='200'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.003 0.07' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.55 %0A 0 0 0 0 0.35 %0A 0 0 0 0 0.22 %0A 0.12 0 0 0 0'/%3E%3C/filter%3E%3Crect width='1200' height='200' filter='url(%23w)'/%3E%3C/svg%3E");
   background-size: 1200px 200px;
   background-repeat: repeat-x;
 }

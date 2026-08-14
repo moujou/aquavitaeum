@@ -218,16 +218,16 @@ export function JournalsOverview({
               }}
               className={[
                 'group relative flex flex-col justify-between h-auto min-h-[260px] rounded-2xl transition-all duration-300 transform overflow-hidden cursor-pointer',
-                'bg-gradient-to-b from-[#131C16]/90 via-[#0E1511]/95 to-[#0A0F0C] backdrop-blur-xl border border-t-white/12 border-x-white/6 border-b-black/40 shadow-xl',
+                'bg-gradient-to-b from-[#18241D]/95 via-[#131D16]/98 to-[#0E1510] backdrop-blur-xl border border-t-white/18 border-x-white/10 border-b-black/50 shadow-xl',
                 isSelected
                   ? 'border-[var(--brass-accent)] ring-2 ring-[var(--brass-accent)]/50 shadow-[0_0_25px_rgba(197,155,39,0.3)] scale-[1.02]'
                   : isSelectMode
-                    ? 'border-white/6 scale-[0.97] opacity-60'
-                    : 'hover:border-[var(--brass-accent)]/50 hover:shadow-[0_15px_35px_rgba(0,0,0,0.6),0_0_20px_rgba(197,155,39,0.15)] hover:scale-[1.015]',
+                    ? 'border-white/8 scale-[0.97] opacity-60'
+                    : 'hover:border-[var(--brass-accent)]/60 hover:shadow-[0_15px_35px_rgba(0,0,0,0.6),0_0_20px_rgba(197,155,39,0.18)] hover:scale-[1.015]',
               ].join(' ')}
             >
               {/* Cover Image Container */}
-              <div className="relative w-full h-36 sm:h-40 overflow-hidden bg-gradient-to-br from-[#1A120B] to-[#0A0704] border-b border-white/5 shrink-0">
+              <div className="relative w-full h-36 sm:h-40 overflow-hidden bg-gradient-to-br from-[#1C130D] to-[#0A0704] border-b border-white/8 shrink-0">
                 {!isEditing && journal.coverImage ? (
                   <img
                     src={journal.coverImage}
@@ -238,11 +238,11 @@ export function JournalsOverview({
                   <div
                     className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden"
                     style={{
-                      background: 'radial-gradient(circle at center, rgba(197,155,39,0.14) 0%, #16100C 70%, #0A0704 100%)',
+                      background: 'radial-gradient(circle at center, rgba(197,155,39,0.18) 0%, #1A130E 70%, #0D0906 100%)',
                     }}
                   >
-                    <BookOpen className="w-8 h-8 text-[var(--brass-accent)]/45 stroke-[1.2]" />
-                    <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]" />
+                    <BookOpen className="w-8 h-8 text-[var(--brass-accent)]/60 stroke-[1.4]" />
+                    <div className="absolute inset-0 opacity-[0.04] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]" />
                   </div>
                 )}
 
@@ -358,34 +358,34 @@ export function JournalsOverview({
                         {journal.name}
                       </h3>
                       {journal.description ? (
-                        <p className="font-body text-xs sm:text-[13px] text-white/65 line-clamp-2 mt-1 leading-relaxed text-center font-normal">
+                        <p className="font-body text-xs sm:text-[13px] text-white/80 line-clamp-2 mt-1 leading-relaxed text-center font-normal">
                           {journal.description}
                         </p>
                       ) : (
-                        <p className="font-body text-xs text-white/35 italic mt-1 leading-relaxed text-center">
+                        <p className="font-body text-xs text-white/45 italic mt-1 leading-relaxed text-center">
                           Archival spirit ledger
                         </p>
                       )}
                     </div>
 
                     {/* Frosted Glass Stats Shelf */}
-                    <div className="w-full bg-white/[0.03] border-t border-white/6 px-4 py-3 grid grid-cols-3 gap-2 mt-auto text-left">
+                    <div className="w-full bg-white/6 border-t border-white/10 px-4 py-3 grid grid-cols-3 gap-2 mt-auto text-left">
                       <div className="flex flex-col">
-                        <span className="text-[10px] text-white/40 uppercase tracking-wider font-bold">{language === 'DE' ? 'Notizen' : 'Notes'}</span>
+                        <span className="text-[10px] text-white/50 uppercase tracking-wider font-bold">{language === 'DE' ? 'Notizen' : 'Notes'}</span>
                         <span className="font-bold text-white text-xs mt-0.5 flex items-center gap-1">
                           <FileText className="w-3.5 h-3.5 text-[var(--brass-accent)] shrink-0" />
                           {journal.bottleCount}
                         </span>
                       </div>
                       <div className="flex flex-col items-center">
-                        <span className="text-[10px] text-white/40 uppercase tracking-wider font-bold">{language === 'DE' ? 'Ø Score' : 'Avg Score'}</span>
+                        <span className="text-[10px] text-white/50 uppercase tracking-wider font-bold">{language === 'DE' ? 'Ø Score' : 'Avg Score'}</span>
                         <span className="font-bold text-white text-xs mt-0.5 flex items-center gap-1">
                           <Star className="w-3.5 h-3.5 text-[var(--brass-accent)] fill-[var(--brass-accent)] -mt-0.5" />
                           {journal.averageRating > 0 ? journal.averageRating : '—'}
                         </span>
                       </div>
                       <div className="flex flex-col items-end">
-                        <span className="text-[10px] text-white/40 uppercase tracking-wider font-bold">{t('statsLatest')}</span>
+                        <span className="text-[10px] text-white/50 uppercase tracking-wider font-bold">{t('statsLatest')}</span>
                         <span className="font-bold text-white text-xs mt-0.5 flex items-center gap-1 truncate max-w-full">
                           <Calendar className="w-3.5 h-3.5 text-[var(--brass-accent)] shrink-0" />
                           {journal.latestTastedDate ? new Date(journal.latestTastedDate).toLocaleDateString(language === 'DE' ? 'de-DE' : 'en-US', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '—'}
