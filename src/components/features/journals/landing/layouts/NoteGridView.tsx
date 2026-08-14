@@ -26,9 +26,9 @@ export function NoteGridView({
   onTouchEnd,
 }: NoteGridViewProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4 sm:p-6">
+    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-5 lg:gap-6 p-3 sm:p-6 w-full">
       {spirits.map((spirit) => (
-        <div key={spirit.id} className="relative">
+        <div key={spirit.id} className="relative w-full">
           <SpiritCard
             spirit={spirit}
             isSelected={false}

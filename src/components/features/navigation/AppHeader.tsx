@@ -65,10 +65,10 @@ export default function AppHeader({
           height={40}
         />
         <div>
-          <h1 className="font-display text-sm sm:text-base font-bold text-[var(--brass-accent)] tracking-wide leading-none">
+          <h1 className="font-display text-sm sm:text-base font-bold text-[var(--foreground)] tracking-wider leading-none">
             {t('appTitle')}
           </h1>
-          <p className="font-body text-[9px] text-white/40 uppercase tracking-widest leading-none mt-1">
+          <p className="font-body text-[9px] text-white/50 uppercase tracking-widest leading-none mt-1">
             {t('appSubtitle')}
           </p>
         </div>

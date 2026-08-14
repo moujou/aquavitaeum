@@ -54,8 +54,8 @@ graph TD
 
 | Token Name | Hex Value | RGB / Alpha | Semantic Role & Surface |
 | :--- | :--- | :--- | :--- |
-| `--brass-accent` | `#C59B27` | `rgb(197, 155, 39)` | Primary active borders, focus rings, star ratings, and titles. |
-| `--brass-muted` | `#a07d1a` | `rgb(160, 125, 26)` | Secondary gold, italic distillery subtitles, subtitle notes. |
+| `--brass-accent` | `#C59B27` | `rgb(197, 155, 39)` | Primary active borders, focus rings, star ratings, medals, and specular highlights (NOT plain static text ink). |
+| `--brass-muted` | `#a07d1a` | `rgb(160, 125, 26)` | Secondary antique gold, subtle border accents, and muted metal trims. |
 | `--brass-light` | `#e8c247` | `rgb(232, 194, 71)` | Hover highlights on brass buttons and icons. |
 
 ### 3.3 Parchment Tasting Card & Ink
@@ -96,6 +96,12 @@ graph LR
 | **Display Italic** | `Playfair Display` | `font-display italic` | Distillery subtitles, historical region notes, Latin quotes. |
 | **Body & UI** | `Inter` | `font-body` | All form inputs, metadata details, paragraph text, tags. |
 | **Micro Labels** | `Inter` | `font-body uppercase tracking-wider text-[11px]` | Form field uppercase headers (`FieldLabel`), rating sliders. |
+
+### 4.1 Standardized 3-Tier Typographic Color System
+To prevent visual chaos and maintain editorial serenity:
+1. **Tier 1 (Content Titles & Expression Names)**: Always Aged Ivory (`text-[var(--foreground)]` `#e8d5b7`) or pure white, shifting into Warm Gold on interactive hover (`group-hover:text-[var(--brass-accent)]`).
+2. **Tier 2 (Structural Headers & Metadata Labels)**: Antique Muted Gold (`text-[var(--foreground)]/70` or `text-[var(--brass-muted)]` with `text-[11px] uppercase tracking-widest font-bold`). Serves as a discreet structural guide without competing with content titles.
+3. **Tier 3 (Interactive Accents & Badges)**: Luminous Brass Gold (`text-[var(--brass-accent)]` `#C59B27`) strictly reserved for active states, star icons, and noble rating medals.
 
 ---
 
@@ -159,9 +165,10 @@ To avoid flat "2010" muddy aesthetics, surfaces use subtle physical lighting:
 - **Malt Shimmer Hover**: Warm left-edge brass highlight (`border-l-2 border-l-[var(--brass-accent)]`) on interactive row/card hover.
 
 ### 5.5 Interactive Ledger & Card Recipes
-- **Grid View (`SpiritCard`)**: Obsidian velvet card (`rounded-2xl backdrop-blur-xl`) with top specular rim lighting, 6% width animated liquid shimmer column, sculpted gold rating badge, and frosted micro-pills.
-- **Table View (`NoteTableView`)**: Frosted sticky header (`backdrop-blur-xl bg-[#0B120E]/95 border-b border-[var(--brass-accent)]/25`), micro-bottle thumbnails, a dedicated **Colour Column** with circular liquid swatches, editorial distillery headings, and sculpted gold rating medals.
-- **List View (`NoteListItem`)**: Tactile floating cards with a **signature animated liquid shimmer column** on the right edge (matching `SpiritCard`), top flavor tag preview pills, and clean gap spacing.
+- **Grid View (`SpiritCard`)**: **The Sleek Vault Frame Architecture** (`aspect-[4/5] sm:aspect-[3/4]` tall portrait exhibition photo portal on top with ambient liquid backglow for expansive bottle photo visibility; signature liquid color shimmer ribbon; compact full-width body below with Tier 1 Identity title, Spirit Type tag with Age & ABV directly underneath, prominent floating noble score medal `[⭐ 92]` in the top-right corner, and provenance/date footer). Rendered in a 2-column mobile baseline gallery (`grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5`).
+- **Table View (`NoteTableView`)**: Frosted sticky header (`backdrop-blur-xl bg-[#0B120E]/95 border-b border-[var(--brass-accent)]/25`), micro-bottle thumbnails, a dedicated **Colour Column** with circular liquid swatches, editorial distillery headings, and dynamic score-tier rating medals.
+- **List View (`NoteListItem`)**: Tactile floating cards with a **signature animated liquid shimmer column** on the right edge (matching `SpiritCard`), dynamic score-tier rating medals, top flavor tag preview pills, and clean gap spacing.
+- **Authentic Noble Metal Rating Tiers**: Rating medals and stars use natural whisky & pub metal tones with **solid opaque dark obsidian backings** for 100% contrast over any photo: 90–100 (Radiant 24k Gold `bg-[#14120A] border-amber-400/90 text-amber-300`), 80–89 (Warm Aged Brass `bg-[#13120C] border-[var(--brass-accent)] text-[var(--foreground)]`), 70–79 (Toasted Copper Oak `bg-[#150F0B] border-amber-700/90 text-amber-200`), <70 (Aged Slate & Parchment `bg-[#111412] border-white/35 text-white/90`).
 - **Iconography Standard**: Use crisp vector icons from `lucide-react`. Avoid decorative emoji clutter on primary UI surfaces to maintain timeless editorial elegance.
 
 ### 5.6 Bookshelf Compendium Cards & Header Dividers

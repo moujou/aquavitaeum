@@ -76,7 +76,7 @@ export function ProfileView({
                 <p className="font-display text-sm sm:text-base font-semibold text-[var(--foreground)]">
                   {t('overviewLayout')}
                 </p>
-                <p className="font-body text-xs text-white/45 mt-0.5">
+                <p className="font-body text-xs text-white/65 mt-0.5">
                   {t('overviewLayoutDesc')}
                 </p>
               </div>
@@ -85,21 +85,21 @@ export function ProfileView({
           </div>
 
           {/* Row 3: Cloud Sync (Coming Soon) */}
-          <div className="flex items-center justify-between p-4 sm:p-5 hover:bg-white/[0.02] transition-colors opacity-75">
+          <div className="flex items-center justify-between p-4 sm:p-5 hover:bg-white/[0.02] transition-colors opacity-80">
             <div className="flex items-center gap-3.5 sm:gap-4">
-              <div className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/50 shrink-0">
+              <div className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/60 shrink-0">
                 <Database size={18} />
               </div>
               <div>
-                <p className="font-display text-sm sm:text-base font-semibold text-white/80">
+                <p className="font-display text-sm sm:text-base font-semibold text-white/90">
                   Google Sync
                 </p>
-                <p className="font-body text-xs text-white/45 mt-0.5">
+                <p className="font-body text-xs text-white/65 mt-0.5">
                   Sync journals with Google Account
                 </p>
               </div>
             </div>
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/5 text-white/45 border border-white/10 shrink-0">
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/10 text-white/70 border border-white/15 shrink-0">
               Offline
             </span>
           </div>
@@ -107,19 +107,19 @@ export function ProfileView({
           {/* Row 4: App Version */}
           <div className="flex items-center justify-between p-4 sm:p-5 hover:bg-white/[0.02] transition-colors">
             <div className="flex items-center gap-3.5 sm:gap-4">
-              <div className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/50 shrink-0">
+              <div className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/60 shrink-0">
                 <Info size={18} />
               </div>
               <div>
                 <p className="font-display text-sm sm:text-base font-semibold text-[var(--foreground)]">
                   App Version
                 </p>
-                <p className="font-body text-xs text-white/45 mt-0.5">
+                <p className="font-body text-xs text-white/65 mt-0.5">
                   Aqua Vitaeum release details
                 </p>
               </div>
             </div>
-            <span className="text-xs font-mono text-white/35 shrink-0 bg-white/5 px-2.5 py-1 rounded-md border border-white/5">
+            <span className="text-xs font-mono text-white/70 shrink-0 bg-white/8 px-2.5 py-1 rounded-md border border-white/15">
               Beta v0.1.0
             </span>
           </div>

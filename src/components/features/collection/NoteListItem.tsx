@@ -5,6 +5,7 @@ import React from 'react';
 import { MapPin, Check, Star } from 'lucide-react';
 import { Spirit, SPIRIT_COLOUR_HEX, SpiritColour } from '@/types/spirit.types';
 import { cn } from '@/lib/utils';
+import { getRatingTierStyle } from '@/lib/spirit-utils';
 
 interface NoteListItemProps {
   spirit: Spirit;
@@ -28,6 +29,7 @@ export function NoteListItem({
   onTouchEnd
 }: NoteListItemProps) {
   const colourHex = SPIRIT_COLOUR_HEX[spirit.colour as SpiritColour] ?? '#FFD700';
+  const tierStyle = getRatingTierStyle(spirit.rating100);
   
   const formattedDate = spirit.dateTasted
     ? new Date(spirit.dateTasted).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -54,7 +56,7 @@ export function NoteListItem({
           : "border-t-white/18 border-x-white/10 border-b-black/50 hover:border-[var(--brass-accent)]/60 hover:shadow-[0_8px_25px_rgba(0,0,0,0.45),inset_4px_0_12px_rgba(197,155,39,0.15)] hover:scale-[1.008]"
       )}
     >
-      {/* Signature Animated Liquid Accent Column (Matching SpiritCard) */}
+      {/* Signature Animated Liquid Accent Column (Refined Liquid Bar) */}
       <div
         className="absolute top-0 right-0 bottom-0 w-2 sm:w-2.5 overflow-hidden shrink-0 pointer-events-none z-10"
         style={{ backgroundColor: colourHex }}
@@ -62,11 +64,11 @@ export function NoteListItem({
         <div
           className="absolute inset-0 animate-fluid-flow"
           style={{
-            backgroundImage: 'linear-gradient(to bottom, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.05) 30%, rgba(0,0,0,0.18) 70%, rgba(255,255,255,0.22) 100%)',
+            backgroundImage: 'linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.08) 30%, rgba(0,0,0,0.2) 70%, rgba(255,255,255,0.3) 100%)',
             backgroundSize: '100% 200%',
           }}
         />
-        <div className="absolute inset-0 shadow-[inset_1px_0_3px_rgba(0,0,0,0.35)] pointer-events-none" />
+        <div className="absolute inset-0 shadow-[inset_1px_0_3px_rgba(0,0,0,0.45)] pointer-events-none" />
       </div>
 
       {/* Ambient Spirit Color Light-Pipe Backglow */}
@@ -150,9 +152,16 @@ export function NoteListItem({
         {formattedDate}
       </div>
 
-      {/* Rating Medal */}
-      <div className="shrink-0 flex items-center justify-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-lg bg-[var(--brass-accent)]/15 border border-[var(--brass-accent)]/40 text-[var(--brass-accent)] font-display font-black text-sm sm:text-base shadow-xs min-w-[50px] sm:min-w-[58px] z-10">
-        <Star size={13} className="fill-[var(--brass-accent)] -mt-0.5" />
+      {/* Dynamic Score-Tier Rating Medal */}
+      <div
+        className={cn(
+          "shrink-0 flex items-center justify-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-lg border font-display font-black text-sm sm:text-base shadow-xs min-w-[50px] sm:min-w-[58px] z-10",
+          tierStyle.bg,
+          tierStyle.border,
+          tierStyle.text
+        )}
+      >
+        <Star size={13} className={cn("shrink-0 -mt-0.5", tierStyle.starColor)} />
         <span>{spirit.rating100}</span>
       </div>
     </button>

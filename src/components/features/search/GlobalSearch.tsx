@@ -154,7 +154,7 @@ export default function GlobalSearch({
       {/* Filter Dropdown Popover */}
       {isFilterDropdownOpen && (
         <div className="absolute top-11 right-0 bg-[var(--pub-bg)] border border-[var(--brass-accent)]/40 rounded-lg shadow-2xl z-50 py-1.5 w-48 max-h-[260px] overflow-y-auto divide-y divide-white/5 scrollbar-thin scrollbar-thumb-white/10">
-          <div className="px-3 py-1.5 text-[10px] uppercase font-bold text-[var(--brass-accent)]/80 tracking-wider">
+          <div className="px-3 py-1.5 text-[10px] uppercase font-bold text-[var(--foreground)]/70 tracking-wider">
             Filter by Type
           </div>
           <button
@@ -198,7 +198,7 @@ export default function GlobalSearch({
             <>
               {searchResults.journals.length > 0 && (
                 <div className="py-1">
-                  <p className="text-[10px] uppercase font-bold text-[var(--brass-accent)] tracking-wider px-2 mb-1.5">Journals</p>
+                  <p className="text-[10px] uppercase font-bold text-[var(--foreground)]/70 tracking-wider px-2 mb-1.5">Journals</p>
                   {searchResults.journals.map(j => {
                     const hasImg = (j.coverImage && j.coverImage.trim() !== '') || (j.recentImages && j.recentImages.length > 0 && j.recentImages[0] && j.recentImages[0].trim() !== '');
                     const imgSrc = j.coverImage && j.coverImage.trim() !== '' ? j.coverImage : j.recentImages?.[0];
@@ -221,11 +221,8 @@ export default function GlobalSearch({
                               className="w-14 h-14 rounded-md object-cover border border-white/10"
                             />
                           ) : (
-                            <div
-                              className="w-14 h-14 rounded-md border border-white/5 flex items-center justify-center"
-                              style={{ background: 'radial-gradient(circle, #2A5E3F33 0%, #121212 100%)' }}
-                            >
-                              <BookOpen size={22} className="text-[var(--forest-green)] opacity-70" />
+                            <div className="w-14 h-14 rounded-md border border-white/5 flex items-center justify-center bg-gradient-to-br from-[#1C130D] to-[#0A0704]">
+                              <BookOpen size={22} className="text-[var(--brass-accent)] opacity-60" />
                             </div>
                           )}
                           {j.averageRating > 0 && (
@@ -256,7 +253,7 @@ export default function GlobalSearch({
 
               {searchResults.spirits.length > 0 && (
                 <div className="py-1">
-                  <p className="text-[10px] uppercase font-bold text-[var(--brass-accent)] tracking-wider px-2 mb-1.5">Spirits</p>
+                  <p className="text-[10px] uppercase font-bold text-[var(--foreground)]/70 tracking-wider px-2 mb-1.5">Spirits</p>
                   {searchResults.spirits.map(s => {
                     const hasImg = s.thumbnailImage && s.thumbnailImage.trim() !== '';
                     return (

@@ -171,7 +171,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
           </div>
 
           {/* Brand Title */}
-          <h1 className="font-display text-4xl sm:text-5xl font-extrabold text-[var(--brass-accent)] tracking-widest uppercase drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)] mb-3">
+          <h1 className="font-display text-4xl sm:text-5xl font-extrabold text-[var(--foreground)] tracking-widest uppercase drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)] mb-3">
             {t('welcomeTitle')}
           </h1>
 
@@ -197,7 +197,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md animate-fade-in p-4">
           <div className="w-full max-w-md bg-[#1e2e21]/90 backdrop-blur-xl border border-[var(--brass-accent)]/40 rounded-2xl p-6 sm:p-8 shadow-2xl">
             <div className="flex items-center justify-between border-b border-[var(--brass-accent)]/20 pb-3 mb-5">
-              <h3 className="font-display text-base sm:text-lg font-bold text-[var(--brass-accent)] uppercase tracking-wider">
+              <h3 className="font-display text-base sm:text-lg font-bold text-[var(--foreground)] uppercase tracking-wider">
                 {t('createFirstJournal')}
               </h3>
               <button

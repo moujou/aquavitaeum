@@ -7,6 +7,7 @@ import { Check, Star, MapPin } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { translateColour } from '@/lib/i18n/translations';
 import { cn } from '@/lib/utils';
+import { getRatingTierStyle } from '@/lib/spirit-utils';
 
 interface NoteTableViewProps {
   spirits: Spirit[];
@@ -36,16 +37,16 @@ export function NoteTableView({
       <div className="overflow-x-auto w-full rounded-xl border border-white/12 bg-[#141E17]/85 backdrop-blur-md shadow-xl">
         <table className="w-full text-left border-collapse min-w-[900px]">
           {/* Frosted Luxury Header */}
-          <thead className="sticky top-0 z-10 backdrop-blur-xl bg-[#0F1711]/95 border-b border-[var(--brass-accent)]/30 shadow-md">
+          <thead className="sticky top-0 z-10 backdrop-blur-xl bg-[#0F1711]/95 border-b border-[var(--brass-accent)]/20 shadow-md">
             <tr>
-              {isSelectMode && <th className="px-3 py-3.5 w-10"></th>}
-              <th className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider text-[var(--brass-accent)] font-display">Spirit</th>
-              <th className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider text-[var(--brass-accent)] font-display">Type</th>
-              <th className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider text-[var(--brass-accent)] font-display">Colour</th>
-              <th className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider text-[var(--brass-accent)] font-display">Region</th>
-              <th className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider text-[var(--brass-accent)] font-display">ABV</th>
-              <th className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider text-[var(--brass-accent)] font-display text-center">Score</th>
-              <th className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider text-[var(--brass-accent)] font-display text-right">Date Tasted</th>
+              {isSelectMode && <th className="px-3 py-3 w-10"></th>}
+              <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-[var(--foreground)]/70 font-display">Spirit</th>
+              <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-[var(--foreground)]/70 font-display">Type</th>
+              <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-[var(--foreground)]/70 font-display">Colour</th>
+              <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-[var(--foreground)]/70 font-display">Region</th>
+              <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-[var(--foreground)]/70 font-display">ABV</th>
+              <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-[var(--foreground)]/70 font-display text-center">Score</th>
+              <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-[var(--foreground)]/70 font-display text-right">Date Tasted</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/8">
@@ -57,6 +58,7 @@ export function NoteTableView({
               const isSelected = selectedIds.has(spirit.id);
               const colourHex = SPIRIT_COLOUR_HEX[spirit.colour as SpiritColour] ?? '#FFD700';
               const colourName = spirit.colour ? translateColour(spirit.colour, language) : '—';
+              const tierStyle = getRatingTierStyle(spirit.rating100);
 
               return (
                 <tr
@@ -155,10 +157,17 @@ export function NoteTableView({
                     {spirit.abv ? `${spirit.abv}%` : '—'}
                   </td>
 
-                  {/* Rating Badge Medal */}
+                  {/* Dynamic Rating Badge Medal */}
                   <td className="px-4 py-3.5 whitespace-nowrap text-center">
-                    <div className="inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-md bg-[var(--brass-accent)]/15 border border-[var(--brass-accent)]/40 text-[var(--brass-accent)] font-display font-black text-sm shadow-xs min-w-[54px]">
-                      <Star size={12} className="fill-[var(--brass-accent)] -mt-0.5" />
+                    <div
+                      className={cn(
+                        "inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-md border font-display font-black text-sm shadow-xs min-w-[54px]",
+                        tierStyle.bg,
+                        tierStyle.border,
+                        tierStyle.text
+                      )}
+                    >
+                      <Star size={12} className={cn("shrink-0 -mt-0.5", tierStyle.starColor)} />
                       <span>{spirit.rating100}</span>
                     </div>
                   </td>
