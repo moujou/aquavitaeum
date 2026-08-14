@@ -16,6 +16,53 @@ export function scoreToStars(score: number): number {
   return Math.round((score / 100) * 5 * 2) / 2;
 }
 
+export interface RatingTierStyle {
+  bg: string;
+  border: string;
+  text: string;
+  starColor: string;
+}
+
+/**
+ * Returns dynamic styling classes matching authentic spirits noble metal & oak judging tiers.
+ */
+export function getRatingTierStyle(score: number): RatingTierStyle {
+  if (score >= 90) {
+    // Masterpiece / Exceptional: Radiant 24k Gold with Solid Dark Obsidian Backing
+    return {
+      bg: 'bg-[#14120A]',
+      border: 'border-amber-400/90',
+      text: 'text-amber-300',
+      starColor: 'fill-amber-400 text-amber-400',
+    };
+  }
+  if (score >= 80) {
+    // Distinguished / Very Good: Warm Aged Brass with Solid Dark Backing
+    return {
+      bg: 'bg-[#13120C]',
+      border: 'border-[var(--brass-accent)]',
+      text: 'text-[var(--foreground)]',
+      starColor: 'fill-[var(--brass-accent)] text-[var(--brass-accent)]',
+    };
+  }
+  if (score >= 70) {
+    // Pleasant / Good: Toasted Copper Oak with Solid Dark Backing
+    return {
+      bg: 'bg-[#150F0B]',
+      border: 'border-amber-700/90',
+      text: 'text-amber-200',
+      starColor: 'fill-amber-600 text-amber-600',
+    };
+  }
+  // Standard / Developing: Aged Slate & Parchment with Solid Dark Backing
+  return {
+    bg: 'bg-[#111412]',
+    border: 'border-white/35',
+    text: 'text-white/90',
+    starColor: 'fill-white/70 text-white/70',
+  };
+}
+
 /**
  * Trims whitespace, removes empty entries, and deduplicates flavor tags.
  */

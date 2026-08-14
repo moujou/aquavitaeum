@@ -144,12 +144,12 @@ export function FinishTimeIntensityDiagram({
   };
 
   const renderHeader = () => (
-    <div className="flex items-center justify-between border-b border-[#C4A87A]/50 pb-1">
+    <div className="flex items-center justify-between border-b border-[var(--parchment-border)]/50 pb-1">
       <SectionHeader>
         {t('finishTimeIntensityDiagram')}
       </SectionHeader>
       {onViewModeChange && (
-        <div className="flex items-center p-0.5 rounded-sm bg-[#1A120B]/10 border border-[#C4A87A]/80 shrink-0">
+        <div className="flex items-center p-0.5 rounded-sm bg-[var(--sepia-text)]/10 border border-[var(--parchment-border)]/80 shrink-0">
           <button
             id="finish-mode-simple"
             type="button"
@@ -157,8 +157,8 @@ export function FinishTimeIntensityDiagram({
             className={cn(
               'px-3 py-1.5 text-xs font-body font-bold rounded-xs transition-all cursor-pointer',
               viewMode === 'simple'
-                ? 'bg-[#C59B27] text-[#1A120B] shadow-xs'
-                : 'text-[#5c3d22] hover:text-[#1A120B]'
+                ? 'bg-[var(--brass-accent)] text-[var(--sepia-text)] shadow-xs'
+                : 'text-[var(--sepia-muted)] hover:text-[var(--sepia-text)]'
             )}
             aria-pressed={viewMode === 'simple'}
           >
@@ -171,8 +171,8 @@ export function FinishTimeIntensityDiagram({
             className={cn(
               'px-3 py-1.5 text-xs font-body font-bold rounded-xs transition-all cursor-pointer',
               viewMode === 'advanced'
-                ? 'bg-[#C59B27] text-[#1A120B] shadow-xs'
-                : 'text-[#5c3d22] hover:text-[#1A120B]'
+                ? 'bg-[var(--brass-accent)] text-[var(--sepia-text)] shadow-xs'
+                : 'text-[var(--sepia-muted)] hover:text-[var(--sepia-text)]'
             )}
             aria-pressed={viewMode === 'advanced'}
           >
@@ -196,8 +196,8 @@ export function FinishTimeIntensityDiagram({
             className={cn(
               'px-3 py-2.5 rounded-md border text-xs sm:text-sm font-body font-semibold transition-all text-center cursor-pointer',
               selectedFinish === key
-                ? 'bg-[#3D2616] border-[#C59B27] text-[#F5EEDC] shadow-sm'
-                : 'border-[#C4A87A]/60 bg-[#1A120B]/5 text-[#5c3d22] hover:bg-[#1A120B]/12'
+                ? 'bg-[var(--wood-selection)] border-[var(--brass-accent)] text-[var(--parchment-bg)] shadow-sm'
+                : 'border-[var(--parchment-border)]/60 bg-[var(--sepia-text)]/5 text-[var(--sepia-muted)] hover:bg-[var(--sepia-text)]/12'
             )}
             aria-pressed={selectedFinish === key}
           >
@@ -221,8 +221,8 @@ export function FinishTimeIntensityDiagram({
     return (
       <div className={cn('flex flex-col gap-2 w-full', className)}>
         {renderHeader()}
-        <div className="p-6 text-center border border-dashed border-[#C4A87A]/50 rounded-sm bg-[#1A120B]/5 flex flex-col items-center justify-center gap-2">
-          <p className="text-xs sm:text-sm text-[#8c6440] font-body italic max-w-md">
+        <div className="p-6 text-center border border-dashed border-[var(--parchment-border)]/50 rounded-sm bg-[var(--sepia-text)]/5 flex flex-col items-center justify-center gap-2">
+          <p className="text-xs sm:text-sm text-[var(--sepia-light)] font-body italic max-w-md">
             {t('noActiveFlavorTagsFinish')}
           </p>
         </div>
@@ -235,7 +235,7 @@ export function FinishTimeIntensityDiagram({
       {renderHeader()}
 
       {/* SVG Canvas (Clean 60s Graph Display) */}
-      <div className="relative w-full bg-[#1A120B]/8 border border-[#C4A87A]/60 rounded-md p-2 shadow-inner overflow-hidden select-none">
+      <div className="relative w-full bg-[var(--sepia-text)]/8 border border-[var(--parchment-border)]/60 rounded-md p-2 shadow-inner overflow-hidden select-none">
         <svg
           ref={svgRef}
           viewBox={`0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`}
@@ -251,14 +251,14 @@ export function FinishTimeIntensityDiagram({
                   y1={y}
                   x2={CANVAS_WIDTH - PADDING.right}
                   y2={y}
-                  stroke="#C4A87A"
+                  stroke="var(--parchment-border)"
                   strokeOpacity={intVal === 0 ? 0.4 : 0.15}
                   strokeDasharray={intVal === 0 ? undefined : '3,3'}
                 />
                 <text
                   x={PADDING.left - 8}
                   y={y + 4}
-                  fill="#755030"
+                  fill="var(--sepia-light)"
                   fontSize={11}
                   fontFamily="Inter"
                   textAnchor="end"
@@ -279,14 +279,14 @@ export function FinishTimeIntensityDiagram({
                   y1={PADDING.top}
                   x2={x}
                   y2={CANVAS_HEIGHT - PADDING.bottom}
-                  stroke="#C4A87A"
+                  stroke="var(--parchment-border)"
                   strokeOpacity={0.15}
                   strokeDasharray="3,3"
                 />
                 <text
                   x={x}
                   y={CANVAS_HEIGHT - PADDING.bottom + 18}
-                  fill="#755030"
+                  fill="var(--sepia-light)"
                   fontSize={11}
                   fontFamily="Inter"
                   textAnchor="middle"
@@ -301,7 +301,7 @@ export function FinishTimeIntensityDiagram({
           <text
             x={CANVAS_WIDTH / 2}
             y={CANVAS_HEIGHT - 4}
-            fill="#755030"
+            fill="var(--sepia-light)"
             fontSize={12}
             fontFamily="Inter"
             fontWeight={700}
@@ -312,7 +312,7 @@ export function FinishTimeIntensityDiagram({
           <text
             x={14}
             y={CANVAS_HEIGHT / 2}
-            fill="#755030"
+            fill="var(--sepia-light)"
             fontSize={12}
             fontFamily="Inter"
             fontWeight={700}
@@ -360,7 +360,7 @@ export function FinishTimeIntensityDiagram({
       </div>
 
       {/* Prominent Multi-Control Panel with Dual-Thumb Sliders */}
-      <div className="flex flex-col gap-3 w-full bg-[#1A120B]/5 p-3.5 sm:p-4 rounded-md border border-[#C4A87A]/50">
+      <div className="flex flex-col gap-3 w-full bg-[var(--sepia-text)]/5 p-3.5 sm:p-4 rounded-md border border-[var(--parchment-border)]/50">
         <SectionHeader className="mb-0">
           {language === 'DE' ? 'Abgangs-Intensität Steuerung' : 'Finish Intensity Timeline Controls'}
         </SectionHeader>
@@ -385,18 +385,18 @@ export function FinishTimeIntensityDiagram({
                 className={cn(
                   'flex flex-col gap-3 p-3.5 rounded-md border transition-all',
                   isHovered
-                    ? 'border-[#C59B27] bg-[#1A120B]/12 shadow-sm'
-                    : 'border-[#C4A87A]/40 bg-[#1A120B]/5'
+                    ? 'border-[var(--brass-accent)] bg-[var(--sepia-text)]/12 shadow-sm'
+                    : 'border-[var(--parchment-border)]/40 bg-[var(--sepia-text)]/5'
                 )}
               >
                 {/* Header with Color Pill Indicator */}
-                <div className="flex items-center justify-between border-b border-[#C4A87A]/30 pb-1.5">
+                <div className="flex items-center justify-between border-b border-[var(--parchment-border)]/30 pb-1.5">
                   <div className="flex items-center gap-2">
                     <span
                       className="w-3.5 h-3.5 rounded-full flex-shrink-0 border border-white/30 shadow-xs"
                       style={{ backgroundColor: color }}
                     />
-                    <span className="font-body text-xs sm:text-sm font-bold text-[#1A120B] truncate">
+                    <span className="font-body text-xs sm:text-sm font-bold text-[var(--sepia-text)] truncate">
                       {displayTagName}
                     </span>
                   </div>
@@ -406,9 +406,9 @@ export function FinishTimeIntensityDiagram({
                 <div className="flex flex-col gap-3 font-body">
                   {/* Control 1: Dual-Thumb Start O ====== O End Time Window */}
                   <div className="flex flex-col gap-1">
-                    <div className="flex justify-between items-center text-xs text-[#755030]">
+                    <div className="flex justify-between items-center text-xs text-[var(--sepia-light)]">
                       <span className="font-semibold">Time Span</span>
-                      <span className="font-bold text-[#1A120B] text-xs">
+                      <span className="font-bold text-[var(--sepia-text)] text-xs">
                         Start {curve.startTime}s | End {curve.endTime}s
                       </span>
                     </div>
@@ -437,9 +437,9 @@ export function FinishTimeIntensityDiagram({
 
                   {/* Control 2: Peak Intensity Slider (1-10) */}
                   <div className="flex flex-col gap-1">
-                    <div className="flex justify-between items-center text-xs text-[#755030]">
+                    <div className="flex justify-between items-center text-xs text-[var(--sepia-light)]">
                       <span className="font-semibold">{t('peakIntensity')}</span>
-                      <span className="font-bold text-[#1A120B] text-xs sm:text-sm">{curve.peakIntensity} / 10</span>
+                      <span className="font-bold text-[var(--sepia-text)] text-xs sm:text-sm">{curve.peakIntensity} / 10</span>
                     </div>
                     <input
                       type="range"

@@ -26,12 +26,12 @@ export function TastingRatingSection({
   t,
 }: TastingRatingSectionProps) {
   return (
-    <section className="border-t border-[#D4C3A3] pt-5 flex flex-col gap-4 w-full" aria-label="Score & Rating Section">
+    <section className="border-t border-[var(--parchment-divider)] pt-5 flex flex-col gap-4 w-full" aria-label="Score & Rating Section">
       <SectionHeader>{t('scoreRatingSection')}</SectionHeader>
-      <div className="bg-[#1A120B]/5 p-5 rounded border border-[#C4A87A]/60 flex flex-col sm:flex-row items-center justify-between gap-6">
+      <div className="bg-[var(--sepia-text)]/5 p-5 rounded border border-[var(--parchment-border)]/60 flex flex-col sm:flex-row items-center justify-between gap-6">
         {/* Rating Score & Enlarged Stars */}
         <div className="flex items-center gap-5 w-full sm:w-auto">
-          <span className="font-display text-4xl sm:text-5xl font-bold text-[#1A120B] leading-none">
+          <span className="font-display text-4xl sm:text-5xl font-bold text-[var(--sepia-text)] leading-none">
             {spirit.rating100}
           </span>
           <div className="flex flex-col gap-1 flex-1 sm:flex-none">
@@ -41,7 +41,7 @@ export function TastingRatingSection({
 
         {/* Rating Slider */}
         <div className="flex-1 max-w-md w-full flex items-center gap-3">
-          <span className="text-xs sm:text-sm text-[#755030] font-body font-semibold">1</span>
+          <span className="text-xs sm:text-sm text-[var(--sepia-light)] font-body font-semibold">1</span>
           <input
             id="rating-slider"
             type="range"
@@ -49,10 +49,10 @@ export function TastingRatingSection({
             max={100}
             value={spirit.rating100}
             onChange={(e) => update('rating100', Number(e.target.value))}
-            className="flex-1 accent-[#C59B27] h-2.5 cursor-pointer"
+            className="flex-1 accent-[var(--brass-accent)] h-2.5 cursor-pointer"
             aria-label="Rating score"
           />
-          <span className="text-xs sm:text-sm text-[#755030] font-body font-semibold">100</span>
+          <span className="text-xs sm:text-sm text-[var(--sepia-light)] font-body font-semibold">100</span>
         </div>
       </div>
 

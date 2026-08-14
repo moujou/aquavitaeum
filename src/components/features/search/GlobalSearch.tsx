@@ -116,14 +116,14 @@ export default function GlobalSearch({
   return (
     <div ref={searchRef} className="relative flex-1 max-w-sm sm:max-w-md mx-2 sm:mx-4 z-40">
       {/* Search Input Bar */}
-      <div className="relative flex items-center bg-black/35 hover:bg-black/45 focus-within:bg-black/50 border border-white/10 focus-within:border-[#C59B27]/50 rounded-md px-3 py-1.5 focus-within:ring-0 focus-within:outline-none h-10 transition-colors duration-150">
+      <div className="relative flex items-center bg-black/35 hover:bg-black/45 focus-within:bg-black/50 border border-white/10 focus-within:border-[var(--brass-accent)]/50 rounded-md px-3 py-1.5 focus-within:ring-0 focus-within:outline-none h-10 transition-colors duration-150">
         <Search size={16} className="text-white/60 mr-2.5 flex-shrink-0" />
         <input
           type="text"
           value={globalSearchQuery}
           onChange={(e) => setGlobalSearchQuery(e.target.value)}
           placeholder="Search spirits & journals..."
-          className="bg-transparent border-none text-sm text-[#e8d5b7] placeholder-white/40 focus:outline-none focus:ring-0 focus-within:ring-0 w-full pr-10"
+          className="bg-transparent border-none text-sm text-[var(--foreground)] placeholder-white/40 focus:outline-none focus:ring-0 focus-within:ring-0 w-full pr-10"
         />
 
         {/* Filter Popover Trigger */}
@@ -134,9 +134,9 @@ export default function GlobalSearch({
             className={cn(
               "h-7 w-7 rounded flex items-center justify-center border border-transparent transition-all cursor-pointer",
               isFilterDropdownOpen
-                ? "bg-[#C59B27]/20 border-[#C59B27]/40 text-[#C59B27]"
+                ? "bg-[var(--brass-accent)]/20 border-[var(--brass-accent)]/40 text-[var(--brass-accent)]"
                 : globalTypeFilter !== 'All'
-                  ? "bg-[#C59B27]/10 border-[#C59B27]/20 text-[#C59B27] hover:bg-[#C59B27]/20"
+                  ? "bg-[var(--brass-accent)]/10 border-[var(--brass-accent)]/20 text-[var(--brass-accent)] hover:bg-[var(--brass-accent)]/20"
                   : "text-white/60 hover:text-white/90 hover:bg-white/5"
             )}
             title="Filter by Spirit Type"
@@ -146,15 +146,15 @@ export default function GlobalSearch({
 
           {/* Active filter badge dot */}
           {globalTypeFilter !== 'All' && (
-            <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-[#C59B27] ring-1 ring-black" />
+            <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-[var(--brass-accent)] ring-1 ring-black" />
           )}
         </div>
       </div>
 
       {/* Filter Dropdown Popover */}
       {isFilterDropdownOpen && (
-        <div className="absolute top-11 right-0 bg-[#122616] border border-[#C59B27]/40 rounded-lg shadow-2xl z-50 py-1.5 w-48 max-h-[260px] overflow-y-auto divide-y divide-white/5 scrollbar-thin scrollbar-thumb-white/10">
-          <div className="px-3 py-1.5 text-[10px] uppercase font-bold text-[#C59B27]/80 tracking-wider">
+        <div className="absolute top-11 right-0 bg-[var(--pub-bg)] border border-[var(--brass-accent)]/40 rounded-lg shadow-2xl z-50 py-1.5 w-48 max-h-[260px] overflow-y-auto divide-y divide-white/5 scrollbar-thin scrollbar-thumb-white/10">
+          <div className="px-3 py-1.5 text-[10px] uppercase font-bold text-[var(--foreground)]/70 tracking-wider">
             Filter by Type
           </div>
           <button
@@ -163,8 +163,8 @@ export default function GlobalSearch({
             className={cn(
               "w-full text-left text-xs px-3.5 py-2 flex items-center transition-colors cursor-pointer",
               globalTypeFilter === 'All'
-                ? "text-[#C59B27] font-semibold bg-white/5 border-l-2 border-[#C59B27] pl-3"
-                : "text-[#e8d5b7]/80 hover:text-white hover:bg-white/5"
+                ? "text-[var(--brass-accent)] font-semibold bg-white/5 border-l-2 border-[var(--brass-accent)] pl-3"
+                : "text-[var(--foreground)]/80 hover:text-white hover:bg-white/5"
             )}
           >
             All Spirits
@@ -177,8 +177,8 @@ export default function GlobalSearch({
               className={cn(
                 "w-full text-left text-xs px-3.5 py-2 flex items-center transition-colors cursor-pointer",
                 globalTypeFilter === type
-                  ? "text-[#C59B27] font-semibold bg-[#C59B27]/10 border-l-2 border-[#C59B27] pl-3"
-                  : "text-[#e8d5b7]/80 hover:text-white hover:bg-white/5"
+                  ? "text-[var(--brass-accent)] font-semibold bg-[var(--brass-accent)]/10 border-l-2 border-[var(--brass-accent)] pl-3"
+                  : "text-[var(--foreground)]/80 hover:text-white hover:bg-white/5"
               )}
             >
               {type}
@@ -189,7 +189,7 @@ export default function GlobalSearch({
 
       {/* Search Results Dropdown */}
       {globalSearchQuery.trim() !== '' && (
-        <div className="absolute top-10 left-0 right-0 bg-[#224229] border border-[#C59B27]/40 rounded-lg shadow-2xl z-50 p-2 max-h-[380px] overflow-y-auto divide-y divide-white/5">
+        <div className="absolute top-10 left-0 right-0 bg-[var(--pub-bg-panel)] border border-[var(--brass-accent)]/40 rounded-lg shadow-2xl z-50 p-2 max-h-[380px] overflow-y-auto divide-y divide-white/5">
           {searchResults.journals.length === 0 && searchResults.spirits.length === 0 ? (
             <p className="text-center text-xs text-white/40 py-4 italic">
               No matches found.
@@ -198,7 +198,7 @@ export default function GlobalSearch({
             <>
               {searchResults.journals.length > 0 && (
                 <div className="py-1">
-                  <p className="text-[10px] uppercase font-bold text-[#C59B27] tracking-wider px-2 mb-1.5">Journals</p>
+                  <p className="text-[10px] uppercase font-bold text-[var(--foreground)]/70 tracking-wider px-2 mb-1.5">Journals</p>
                   {searchResults.journals.map(j => {
                     const hasImg = (j.coverImage && j.coverImage.trim() !== '') || (j.recentImages && j.recentImages.length > 0 && j.recentImages[0] && j.recentImages[0].trim() !== '');
                     const imgSrc = j.coverImage && j.coverImage.trim() !== '' ? j.coverImage : j.recentImages?.[0];
@@ -210,7 +210,7 @@ export default function GlobalSearch({
                           setActiveView('journal-detail');
                           setGlobalSearchQuery('');
                         }}
-                        className="w-full text-left text-xs text-[#E8D5B7] hover:bg-white/5 p-3 rounded-lg transition-all flex items-center gap-4.5 cursor-pointer group min-h-[84px]"
+                        className="w-full text-left text-xs text-[var(--foreground)] hover:bg-white/5 p-3 rounded-lg transition-all flex items-center gap-4.5 cursor-pointer group min-h-[84px]"
                       >
                         {/* Left Column: Image & Rating */}
                         <div className="flex flex-col items-center justify-center shrink-0 w-14 text-center">
@@ -221,16 +221,13 @@ export default function GlobalSearch({
                               className="w-14 h-14 rounded-md object-cover border border-white/10"
                             />
                           ) : (
-                            <div
-                              className="w-14 h-14 rounded-md border border-white/5 flex items-center justify-center"
-                              style={{ background: 'radial-gradient(circle, #2A5E3F33 0%, #121212 100%)' }}
-                            >
-                              <BookOpen size={22} className="text-[#2A5E3F] opacity-70" />
+                            <div className="w-14 h-14 rounded-md border border-white/5 flex items-center justify-center bg-gradient-to-br from-[#1C130D] to-[#0A0704]">
+                              <BookOpen size={22} className="text-[var(--brass-accent)] opacity-60" />
                             </div>
                           )}
                           {j.averageRating > 0 && (
-                            <div className="flex items-center gap-0.5 text-[#C59B27] font-black text-[12px] sm:text-[13px] mt-1.5 select-none leading-none">
-                              <Star size={12} className="fill-[#C59B27] text-[#C59B27] shrink-0" />
+                            <div className="flex items-center gap-0.5 text-[var(--brass-accent)] font-black text-[12px] sm:text-[13px] mt-1.5 select-none leading-none">
+                              <Star size={12} className="fill-[var(--brass-accent)] text-[var(--brass-accent)] shrink-0" />
                               <span>{j.averageRating}</span>
                             </div>
                           )}
@@ -238,7 +235,7 @@ export default function GlobalSearch({
 
                         {/* Right Column: Text */}
                         <div className="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
-                          <p className="font-display font-black text-[14px] sm:text-[15px] text-white group-hover:text-[#C59B27] transition-colors truncate">
+                          <p className="font-display font-black text-[14px] sm:text-[15px] text-white group-hover:text-[var(--brass-accent)] transition-colors truncate">
                             {j.name}
                           </p>
                           <p className="font-body text-[12px] text-white/60 line-clamp-1 italic mt-0.5">
@@ -256,7 +253,7 @@ export default function GlobalSearch({
 
               {searchResults.spirits.length > 0 && (
                 <div className="py-1">
-                  <p className="text-[10px] uppercase font-bold text-[#C59B27] tracking-wider px-2 mb-1.5">Spirits</p>
+                  <p className="text-[10px] uppercase font-bold text-[var(--foreground)]/70 tracking-wider px-2 mb-1.5">Spirits</p>
                   {searchResults.spirits.map(s => {
                     const hasImg = s.thumbnailImage && s.thumbnailImage.trim() !== '';
                     return (
@@ -268,7 +265,7 @@ export default function GlobalSearch({
                           selectSpirit(s.id);
                           setGlobalSearchQuery('');
                         }}
-                        className="w-full text-left text-xs text-[#E8D5B7] hover:bg-white/5 p-3 rounded-lg transition-all flex items-center gap-4.5 cursor-pointer group min-h-[84px]"
+                        className="w-full text-left text-xs text-[var(--foreground)] hover:bg-white/5 p-3 rounded-lg transition-all flex items-center gap-4.5 cursor-pointer group min-h-[84px]"
                       >
                         {/* Left Column: Image & Rating */}
                         <div className="flex flex-col items-center justify-center shrink-0 w-14 text-center">
@@ -283,24 +280,24 @@ export default function GlobalSearch({
                               className="w-14 h-14 rounded-md border border-white/5 flex items-center justify-center"
                               style={{ background: 'radial-gradient(circle, #C59B2722 0%, #121212 100%)' }}
                             >
-                              <WhiskyLogo size={22} className="text-[#C59B27] opacity-60" />
+                              <WhiskyLogo size={22} className="text-[var(--brass-accent)] opacity-60" />
                             </div>
                           )}
-                          <div className="flex items-center gap-0.5 text-[#C59B27] font-black text-[12px] sm:text-[13px] mt-1.5 select-none leading-none">
-                            <Star size={12} className="fill-[#C59B27] text-[#C59B27] shrink-0" />
+                          <div className="flex items-center gap-0.5 text-[var(--brass-accent)] font-black text-[12px] sm:text-[13px] mt-1.5 select-none leading-none">
+                            <Star size={12} className="fill-[var(--brass-accent)] text-[var(--brass-accent)] shrink-0" />
                             <span>{s.rating100}</span>
                           </div>
                         </div>
 
                         {/* Right Column: Text */}
                         <div className="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
-                          <p className="font-display font-black text-[14px] sm:text-[15px] text-white group-hover:text-[#C59B27] transition-colors truncate">
+                          <p className="font-display font-black text-[14px] sm:text-[15px] text-white group-hover:text-[var(--brass-accent)] transition-colors truncate">
                             {s.name}
                           </p>
                           <p className="font-body text-[12px] text-white/60 line-clamp-1 italic mt-0.5">
                             {s.distillery} • {s.region} ({s.spiritType})
                           </p>
-                          <p className="text-[11px] text-[#C59B27] font-medium truncate mt-0.5">
+                          <p className="text-[11px] text-[var(--brass-accent)] font-medium truncate mt-0.5">
                             In {s.journalName}
                           </p>
                         </div>

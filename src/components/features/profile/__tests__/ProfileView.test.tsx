@@ -18,7 +18,7 @@ describe('ProfileView Component', () => {
   it('renders avatar, settings rows and labels correctly in English', () => {
     render(
       <LanguageProvider>
-        <ProfileView />
+        <ProfileView layout="list" onLayoutChange={() => {}} />
       </LanguageProvider>
     );
 
