@@ -3,14 +3,20 @@
 import React from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { LanguageToggle } from '@/components/ui/LanguageToggle';
-import { User, Database, Info, Globe } from 'lucide-react';
+import { LayoutToggle } from '@/components/ui/LayoutToggle';
+import { User, Database, Info, Globe, LayoutGrid } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { OverviewLayout } from '@/hooks/useLayoutPreference';
 
 interface ProfileViewProps {
+  layout: OverviewLayout;
+  onLayoutChange: (l: OverviewLayout) => void;
   className?: string;
 }
 
 export function ProfileView({
+  layout,
+  onLayoutChange,
   className,
 }: ProfileViewProps) {
   const { t } = useLanguage();
@@ -23,14 +29,14 @@ export function ProfileView({
       )}
     >
       {/* Main Profile Card Container */}
-      <div className="w-full rounded-xl border border-[#C59B27]/30 bg-black/45 backdrop-blur-md p-6 sm:p-10 text-center shadow-[0_15px_35px_rgba(0,0,0,0.6)] border-t-[#C59B27]/50 border-l-[#C59B27]/50">
+      <div className="w-full rounded-xl border border-[var(--brass-accent)]/30 bg-black/45 backdrop-blur-md p-6 sm:p-10 text-center shadow-[0_15px_35px_rgba(0,0,0,0.6)] border-t-[var(--brass-accent)]/50 border-l-[var(--brass-accent)]/50">
         {/* Circular Avatar Placeholder */}
-        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-2 border-[#C59B27]/40 flex items-center justify-center bg-[#C59B27]/10 mx-auto mb-4 shadow-[0_0_25px_rgba(197,155,39,0.25)] text-[#C59B27]">
+        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-2 border-[var(--brass-accent)]/40 flex items-center justify-center bg-[var(--brass-accent)]/10 mx-auto mb-4 shadow-[0_0_25px_rgba(197,155,39,0.25)] text-[var(--brass-accent)]">
           <User size={38} className="sm:size-[44px] stroke-[1.5]" />
         </div>
 
         {/* Profile Name & Status */}
-        <h2 className="font-display text-lg sm:text-xl font-bold text-[#E8D5B7] tracking-wider uppercase mb-1">
+        <h2 className="font-display text-lg sm:text-xl font-bold text-[var(--foreground)] tracking-wider uppercase mb-1">
           {t('profileTab')}
         </h2>
         <p className="font-body text-[11px] sm:text-xs text-white/40 uppercase tracking-widest mb-8">
@@ -38,13 +44,13 @@ export function ProfileView({
         </p>
 
         {/* Settings Box */}
-        <div className="w-full bg-[#122616]/40 border border-white/5 rounded-lg divide-y divide-white/5 text-left overflow-hidden">
+        <div className="w-full bg-[var(--pub-bg)]/40 border border-white/5 rounded-lg divide-y divide-white/5 text-left overflow-hidden">
           {/* Row 1: Language */}
           <div className="flex items-center justify-between p-4.5 sm:p-5.5 hover:bg-white/[0.01] transition-colors">
             <div className="flex items-center gap-3.5 sm:gap-4.5">
-              <Globe size={20} className="text-[#C59B27] shrink-0" />
+              <Globe size={20} className="text-[var(--brass-accent)] shrink-0" />
               <div>
-                <p className="font-display text-sm sm:text-base font-semibold text-[#E8D5B7]">
+                <p className="font-display text-sm sm:text-base font-semibold text-[var(--foreground)]">
                   {t('profileLanguage')}
                 </p>
                 <p className="font-body text-xs sm:text-sm text-white/45">
@@ -52,13 +58,29 @@ export function ProfileView({
                 </p>
               </div>
             </div>
-            <LanguageToggle className="scale-105 origin-right shrink-0" />
+            <LanguageToggle className="shrink-0" />
+          </div>
+
+          {/* Row 2: Tasting Cards Overview Layout */}
+          <div className="flex items-center justify-between p-4.5 sm:p-5.5 hover:bg-white/[0.01] transition-colors">
+            <div className="flex items-center gap-3.5 sm:gap-4.5">
+              <LayoutGrid size={20} className="text-[var(--brass-accent)] shrink-0" />
+              <div>
+                <p className="font-display text-sm sm:text-base font-semibold text-[var(--foreground)]">
+                  {t('overviewLayout')}
+                </p>
+                <p className="font-body text-xs sm:text-sm text-white/45">
+                  {t('overviewLayoutDesc')}
+                </p>
+              </div>
+            </div>
+            <LayoutToggle value={layout} onChange={onLayoutChange} />
           </div>
 
           {/* Row 2: Cloud Sync (Coming Soon) */}
           <div className="flex items-center justify-between p-4.5 sm:p-5.5 hover:bg-white/[0.01] transition-colors opacity-70">
             <div className="flex items-center gap-3.5 sm:gap-4.5">
-              <Database size={20} className="text-[#C59B27]/60 shrink-0" />
+              <Database size={20} className="text-[var(--brass-accent)]/60 shrink-0" />
               <div>
                 <p className="font-display text-sm sm:text-base font-semibold text-white/75">
                   Google Sync
@@ -76,9 +98,9 @@ export function ProfileView({
           {/* Row 3: App Version */}
           <div className="flex items-center justify-between p-4.5 sm:p-5.5 hover:bg-white/[0.01] transition-colors">
             <div className="flex items-center gap-3.5 sm:gap-4.5">
-              <Info size={20} className="text-[#C59B27] shrink-0" />
+              <Info size={20} className="text-[var(--brass-accent)] shrink-0" />
               <div>
-                <p className="font-display text-sm sm:text-base font-semibold text-[#E8D5B7]">
+                <p className="font-display text-sm sm:text-base font-semibold text-[var(--foreground)]">
                   App Version
                 </p>
                 <p className="font-body text-xs sm:text-sm text-white/45">

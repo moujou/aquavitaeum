@@ -6,15 +6,17 @@ import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
 
 interface MobileBottomNavProps {
-  activeView: 'welcome' | 'overview' | 'journal-detail' | 'profile';
+  activeView: 'welcome' | 'overview' | 'journal-landing' | 'journal-detail' | 'profile';
   activeJournalId: string | null;
   isBottomBarVisible: boolean;
   isMobileDrawerOpen: boolean;
-  setActiveView: (view: 'welcome' | 'overview' | 'journal-detail' | 'profile') => void;
+  setActiveView: (view: 'welcome' | 'overview' | 'journal-landing' | 'journal-detail' | 'profile') => void;
   setActiveJournalId: (id: string | null) => void;
   setIsMobileDrawerOpen: (open: boolean) => void;
   setIsCreateJournalModalOpen: (open: boolean) => void;
   handleNewNote: () => void;
+  onEnterProfile: () => void;
+  onLeaveProfile: () => void;
 }
 
 export default function MobileBottomNav({
@@ -27,6 +29,8 @@ export default function MobileBottomNav({
   setIsMobileDrawerOpen,
   setIsCreateJournalModalOpen,
   handleNewNote,
+  onEnterProfile,
+  onLeaveProfile,
 }: MobileBottomNavProps) {
   const { t } = useLanguage();
 
@@ -44,15 +48,21 @@ export default function MobileBottomNav({
         <button
           type="button"
           onClick={() => {
-            setActiveJournalId(null);
-            setActiveView('overview');
+            if (activeView === 'journal-detail') {
+              // From detail → go back to landing page
+              setActiveView('journal-landing');
+            } else {
+              // From landing → go back to overview
+              setActiveJournalId(null);
+              setActiveView('overview');
+            }
             if (setIsMobileDrawerOpen) setIsMobileDrawerOpen(false);
           }}
           className={cn(
             "flex items-center justify-center w-20 h-full border-t-4 transition-all cursor-pointer",
-            activeView === 'overview'
-              ? "border-[#C59B27] bg-gradient-to-b from-black/35 from-0% to-transparent to-[12%] text-[#e8d5b7]"
-              : "border-transparent text-[#e8d5b7]/60 hover:text-[#e8d5b7]/90 active:border-[#C59B27]"
+            activeView === 'overview' || activeView === 'journal-landing'
+              ? "border-[var(--brass-accent)] bg-gradient-to-b from-black/35 from-0% to-transparent to-[12%] text-[var(--foreground)]"
+              : "border-transparent text-[var(--foreground)]/60 hover:text-[var(--foreground)]/90 active:border-[var(--brass-accent)]"
           )}
           title={t('journalsTitle')}
         >
@@ -73,6 +83,10 @@ export default function MobileBottomNav({
             if (activeView === 'journal-detail') {
               handleNewNote();
               if (setIsMobileDrawerOpen) setIsMobileDrawerOpen(false);
+            } else if (activeView === 'journal-landing') {
+              handleNewNote();
+              setActiveView('journal-detail');
+              if (setIsMobileDrawerOpen) setIsMobileDrawerOpen(false);
             } else if (activeView === 'overview') {
               setIsCreateJournalModalOpen(true);
             } else if (activeView === 'profile') {
@@ -86,7 +100,7 @@ export default function MobileBottomNav({
               }
             }
           }}
-          className="w-9 h-9 rounded-full bg-[#E8D5B7] text-[#311e15] border border-[#C59B27]/40 shadow-[0_0_12px_rgba(197,155,39,0.4)] flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 transition-all z-20 hover:bg-[#F5F2EB]"
+          className="w-9 h-9 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] border border-[var(--brass-accent)]/40 shadow-[0_0_12px_rgba(197,155,39,0.4)] flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 transition-all z-20 hover:bg-[var(--fab-bg-hover)]"
           title="Create New"
         >
           <Plus size={20} />
@@ -98,14 +112,18 @@ export default function MobileBottomNav({
         <button
           type="button"
           onClick={() => {
-            setActiveView('profile');
+            if (activeView === 'profile') {
+              onLeaveProfile();
+            } else {
+              onEnterProfile();
+            }
             if (setIsMobileDrawerOpen) setIsMobileDrawerOpen(false);
           }}
           className={cn(
             "flex items-center justify-center w-20 h-full border-t-4 transition-all cursor-pointer",
             activeView === 'profile'
-              ? "border-[#C59B27] bg-gradient-to-b from-black/35 from-0% to-transparent to-[12%] text-[#e8d5b7]"
-              : "border-transparent text-[#e8d5b7]/60 hover:text-[#e8d5b7]/90 active:border-[#C59B27]"
+              ? "border-[var(--brass-accent)] bg-gradient-to-b from-black/35 from-0% to-transparent to-[12%] text-[var(--foreground)]"
+              : "border-transparent text-[var(--foreground)]/60 hover:text-[var(--foreground)]/90 active:border-[var(--brass-accent)]"
           )}
           title={t('profileTab')}
         >

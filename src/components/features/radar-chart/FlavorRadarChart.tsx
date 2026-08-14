@@ -129,13 +129,13 @@ export function FlavorRadarChart({
 
   return (
     <div className={cn('flex flex-col gap-2 w-full', className)}>
-      <div className="w-full flex justify-center bg-[#1A120B]/8 border border-[#C4A87A]/60 rounded-md p-2 shadow-inner overflow-hidden select-none">
+      <div className="w-full flex justify-center bg-[var(--sepia-text)]/8 border border-[var(--parchment-border)]/60 rounded-md p-2 shadow-inner overflow-hidden select-none">
         <ResponsiveContainer width="100%" height={440}>
           <RadarChart data={chartData} margin={{ top: 16, right: 40, bottom: 16, left: 40 }}>
-            <PolarGrid stroke="#c4a87a" strokeOpacity={0.5} />
+            <PolarGrid stroke="var(--parchment-border)" strokeOpacity={0.5} />
             <PolarAngleAxis
               dataKey="dimension"
-              tick={{ fill: '#5c3d22', fontSize: 12, fontFamily: 'Inter', fontWeight: 700 }}
+              tick={{ fill: 'var(--sepia-muted)', fontSize: 12, fontFamily: 'Inter', fontWeight: 700 }}
             />
             <PolarRadiusAxis
               angle={30}
@@ -146,21 +146,21 @@ export function FlavorRadarChart({
             <Radar
               name={noseLegend}
               dataKey="Nose"
-              stroke="#C59B27"
-              fill="#C59B27"
+              stroke="var(--brass-accent)"
+              fill="var(--brass-accent)"
               fillOpacity={0.25}
               strokeWidth={2}
             />
             <Radar
               name={tasteLegend}
               dataKey="Taste"
-              stroke="#2A5E3F"
-              fill="#2A5E3F"
+              stroke="var(--forest-green)"
+              fill="var(--forest-green)"
               fillOpacity={0.2}
               strokeWidth={2}
             />
             <Legend
-              wrapperStyle={{ fontSize: 12, fontFamily: 'Inter', color: '#5c3d22', fontWeight: 600 }}
+              wrapperStyle={{ fontSize: 12, fontFamily: 'Inter', color: 'var(--sepia-muted)', fontWeight: 600 }}
             />
             <Tooltip
               content={({ active, payload }) => {
@@ -168,30 +168,30 @@ export function FlavorRadarChart({
                 const data = payload[0].payload;
 
                 return (
-                  <div className="bg-[#F5EEDC] border border-[#C4A87A] rounded-sm p-3 shadow-md text-xs font-body text-[#1A120B] max-w-[240px]">
-                    <p className="font-display font-bold uppercase tracking-wider text-[#5c3d22] text-xs mb-1.5 border-b border-[#C4A87A]/60 pb-1">
+                  <div className="bg-[var(--parchment-bg)] border border-[var(--parchment-border)] rounded-sm p-3 shadow-md text-xs font-body text-[var(--sepia-text)] max-w-[240px]">
+                    <p className="font-display font-bold uppercase tracking-wider text-[var(--sepia-muted)] text-xs mb-1.5 border-b border-[var(--parchment-border)]/60 pb-1">
                       {data.dimension}
                     </p>
                     <div className="flex flex-col gap-1.5 mb-2">
-                      <div className="flex flex-col gap-0.5 text-[#8c6440]">
+                      <div className="flex flex-col gap-0.5 text-[var(--sepia-light)]">
                         <div className="flex items-center justify-between font-semibold">
                           <span>{noseLegend}:</span>
-                          <span className="font-bold text-[#C59B27]">{data.Nose} / 10</span>
+                          <span className="font-bold text-[var(--brass-accent)]">{data.Nose} / 10</span>
                         </div>
                         {data.activeNoseTags.length > 0 && (
-                          <p className="text-[11px] text-[#1A120B] italic leading-tight pl-2">
+                          <p className="text-[11px] text-[var(--sepia-text)] italic leading-tight pl-2">
                             {data.activeNoseTags.map((tag: string) => translateFlavorTag(tag, language)).join(', ')}
                           </p>
                         )}
                       </div>
 
-                      <div className="flex flex-col gap-0.5 text-[#8c6440] border-t border-[#C4A87A]/40 pt-1.5">
+                      <div className="flex flex-col gap-0.5 text-[var(--sepia-light)] border-t border-[var(--parchment-border)]/40 pt-1.5">
                         <div className="flex items-center justify-between font-semibold">
                           <span>{tasteLegend}:</span>
-                          <span className="font-bold text-[#2A5E3F]">{data.Taste} / 10</span>
+                          <span className="font-bold text-[var(--forest-green)]">{data.Taste} / 10</span>
                         </div>
                         {data.activeTasteTags.length > 0 && (
-                          <p className="text-[11px] text-[#1A120B] italic leading-tight pl-2">
+                          <p className="text-[11px] text-[var(--sepia-text)] italic leading-tight pl-2">
                             {data.activeTasteTags.map((tag: string) => translateFlavorTag(tag, language)).join(', ')}
                           </p>
                         )}
@@ -220,16 +220,16 @@ export function DynamicProfileSliders({
 }: DynamicProfileSlidersProps) {
   const { language } = useLanguage();
   const isNose = type === 'nose';
-  const accentClass = isNose ? 'accent-[#C59B27]' : 'accent-[#2A5E3F]';
+  const accentClass = isNose ? 'accent-[var(--brass-accent)]' : 'accent-[var(--forest-green)]';
   const valueColorClass = isNose ? 'text-amber-900 font-bold' : 'text-green-950 font-bold';
 
   if (activeTags.length === 0) {
     return (
       <div className={cn('flex flex-col gap-2 w-full', className)}>
-        <div className="flex items-center justify-between border-b border-[#C4A87A]/50 pb-1">
+        <div className="flex items-center justify-between border-b border-[var(--parchment-border)]/50 pb-1">
           <SectionHeader>{title}</SectionHeader>
         </div>
-        <p className="text-xs text-[#755030] italic py-3 text-center border border-dashed border-[#C4A87A]/40 rounded-sm">
+        <p className="text-xs text-[var(--sepia-light)] italic py-3 text-center border border-dashed border-[var(--parchment-border)]/40 rounded-sm">
           {language === 'DE'
             ? `Wähle oben Aromen für ${isNose ? 'Nase' : 'Geschmack'} aus, um Intensitäts-Regler hinzuzufügen.`
             : `Select flavor tags under ${isNose ? 'Nose' : 'Taste'} above to add intensity sliders.`}
@@ -240,11 +240,11 @@ export function DynamicProfileSliders({
 
   return (
     <div className={cn('flex flex-col gap-2 w-full', className)}>
-      <div className="flex items-center justify-between border-b border-[#C4A87A]/50 pb-1">
+      <div className="flex items-center justify-between border-b border-[var(--parchment-border)]/50 pb-1">
         <SectionHeader>
           {title} ({activeTags.length})
         </SectionHeader>
-        <span className="text-xs text-[#755030] font-body italic">0-10 Scale</span>
+        <span className="text-xs text-[var(--sepia-light)] font-body italic">0-10 Scale</span>
       </div>
 
       <div className="flex flex-col gap-2">
@@ -255,9 +255,9 @@ export function DynamicProfileSliders({
           return (
             <div
               key={tagName}
-              className="grid grid-cols-[130px_1fr_24px] items-center gap-2.5 bg-[#1A120B]/5 px-2.5 py-2.5 rounded-sm border border-[#C4A87A]/40"
+              className="grid grid-cols-[130px_1fr_24px] items-center gap-2.5 bg-[var(--sepia-text)]/5 px-2.5 py-2.5 rounded-sm border border-[var(--parchment-border)]/40"
             >
-              <span className="font-body text-xs sm:text-[13px] font-bold text-[#1A120B] truncate" title={displayTagName}>
+              <span className="font-body text-xs sm:text-[13px] font-bold text-[var(--sepia-text)] truncate" title={displayTagName}>
                 {displayTagName}
               </span>
               <input
@@ -291,16 +291,16 @@ export function SingleProfileSliders({
 }: SingleProfileSlidersProps) {
   const { language } = useLanguage();
   const isNose = type === 'nose';
-  const accentClass = isNose ? 'accent-[#C59B27]' : 'accent-[#2A5E3F]';
+  const accentClass = isNose ? 'accent-[var(--brass-accent)]' : 'accent-[var(--forest-green)]';
   const valueColorClass = isNose ? 'text-amber-900 font-bold' : 'text-green-950 font-bold';
 
   return (
     <div className={cn('flex flex-col gap-2 w-full', className)}>
-      <div className="flex items-center justify-between border-b border-[#C4A87A]/50 pb-1">
-        <span className="text-xs sm:text-[13px] font-bold uppercase tracking-widest text-[#8c6440] font-body">
+      <div className="flex items-center justify-between border-b border-[var(--parchment-border)]/50 pb-1">
+        <span className="text-xs sm:text-[13px] font-bold uppercase tracking-widest text-[var(--sepia-light)] font-body">
           {title}
         </span>
-        <span className="text-xs text-[#8c6440] font-body italic">0-10 Scale</span>
+        <span className="text-xs text-[var(--sepia-light)] font-body italic">0-10 Scale</span>
       </div>
 
       <div className="flex flex-col gap-1.5">
@@ -313,7 +313,7 @@ export function SingleProfileSliders({
               key={key}
               className="grid grid-cols-[95px_1fr_24px] items-center gap-2.5"
             >
-              <span className="font-body text-xs sm:text-sm font-bold text-[#1A120B] truncate">
+              <span className="font-body text-xs sm:text-sm font-bold text-[var(--sepia-text)] truncate">
                 {translatedLabel}
               </span>
               <input

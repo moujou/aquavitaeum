@@ -32,15 +32,15 @@ export function RatingStars({
           className={cn(
             'transition-colors drop-shadow-xs',
             stars >= s
-              ? 'fill-[#C59B27] text-[#C59B27]'
+              ? 'fill-[var(--brass-accent)] text-[var(--brass-accent)]'
               : stars >= s - 0.5
-              ? 'fill-[#C59B27]/50 text-[#C59B27]'
-              : 'fill-none text-[#C4A87A]',
+              ? 'fill-[var(--brass-accent)]/50 text-[var(--brass-accent)]'
+              : 'fill-none text-[var(--parchment-border)]',
           )}
         />
       ))}
       {showValue && (
-        <span className="ml-2 text-sm text-[#5c3d22] font-body font-bold">
+        <span className="ml-2 text-sm text-[var(--sepia-muted)] font-body font-bold">
           {stars.toFixed(1)} / {maxStars}
         </span>
       )}

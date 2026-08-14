@@ -35,16 +35,16 @@ export class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="min-h-[300px] w-full parchment p-6 rounded-md flex flex-col items-center justify-center text-center gap-4 my-6">
           <div className="text-3xl">🥃⚠️</div>
-          <h3 className="font-display font-bold text-lg text-[#1A120B]">
+          <h3 className="font-display font-bold text-lg text-[var(--sepia-text)]">
             Something went wrong rendering this tasting card
           </h3>
-          <p className="font-body text-xs sm:text-sm text-[#5c3d22] max-w-md">
+          <p className="font-body text-xs sm:text-sm text-[var(--sepia-muted)] max-w-md">
             An unexpected error occurred. You can reload the page or click below to recover.
           </p>
           <button
             type="button"
             onClick={() => this.setState({ hasError: false, error: null })}
-            className="px-4 py-2 bg-[#C59B27] text-[#1A120B] font-body font-bold text-xs rounded-sm hover:bg-[#e8c247] transition-all cursor-pointer"
+            className="px-4 py-2 bg-[var(--brass-accent)] text-[var(--sepia-text)] font-body font-bold text-xs rounded-sm hover:bg-[var(--brass-light)] transition-all cursor-pointer"
           >
             Try Again
           </button>

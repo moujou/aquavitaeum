@@ -23,7 +23,7 @@ export function TastingFinishSection({
   t,
 }: TastingFinishSectionProps) {
   return (
-    <section className="border-t border-[#D4C3A3] pt-5 flex flex-col gap-5 w-full" aria-label="Finish">
+    <section className="border-t border-[var(--parchment-divider)] pt-5 flex flex-col gap-5 w-full" aria-label="Finish">
       <FinishTimeIntensityDiagram
         noseFlavorTags={spirit.noseFlavorTags ?? []}
         tasteFlavorTags={spirit.tasteFlavorTags ?? []}
@@ -46,9 +46,9 @@ export function TastingFinishSection({
           rows={3}
           placeholder={t('finishNotesPlaceholder')}
           className={cn(
-            'w-full bg-transparent border border-[#C4A87A] rounded-sm p-4',
-            'text-sm sm:text-base text-[#1A120B] font-body placeholder:text-[#c4a87a] leading-relaxed',
-            'focus:outline-none focus:border-[#5c3d22] resize-none transition-colors duration-200',
+            'w-full bg-transparent border border-[var(--parchment-border)] rounded-sm p-4',
+            'text-sm sm:text-base text-[var(--sepia-text)] font-body placeholder:text-[var(--parchment-border)] leading-relaxed',
+            'focus:outline-none focus:border-[var(--sepia-muted)] resize-none transition-colors duration-200',
           )}
         />
       </div>

@@ -15,9 +15,14 @@ interface SpiritCardProps {
   isSelectMode?: boolean;
   /** True when this card is checked (selected for bulk delete) */
   isSelectChecked?: boolean;
+  /** Touch handlers — must be placed on the same element as onClick for correct preventDefault behaviour */
+  onTouchStart?: (e: React.TouchEvent) => void;
+  onTouchEnd?: (e: React.TouchEvent) => void;
+  onTouchCancel?: () => void;
+  onTouchMove?: () => void;
 }
 
-export function SpiritCard({ spirit, isSelected, onClick, isSelectMode = false, isSelectChecked = false }: SpiritCardProps) {
+export function SpiritCard({ spirit, isSelected, onClick, isSelectMode = false, isSelectChecked = false, onTouchStart, onTouchEnd, onTouchCancel, onTouchMove }: SpiritCardProps) {
   const stars = scoreToStars(spirit.rating100);
   const colourHex = SPIRIT_COLOUR_HEX[spirit.colour as SpiritColour] ?? '#FFD700';
 
@@ -26,33 +31,31 @@ export function SpiritCard({ spirit, isSelected, onClick, isSelectMode = false, 
       id={`spirit-card-${spirit.id}`}
       type="button"
       onClick={onClick}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+      onTouchCancel={onTouchCancel}
+      onTouchMove={onTouchMove}
+      // Prevent iOS Safari native image long-press callout from freezing interaction
+      style={{ WebkitTouchCallout: 'none' } as React.CSSProperties}
       className={cn(
-        'w-full flex flex-col text-left rounded-xl border transition-all duration-300 ease-out group overflow-hidden cursor-pointer relative shrink-0',
+        'w-full flex flex-col text-left rounded-xl border transition-all duration-300 ease-out group overflow-hidden cursor-pointer relative shrink-0 select-none',
         isSelectMode
           ? isSelectChecked
-            ? 'border-[#C59B27] bg-[#C59B27]/10 shadow-[0_0_15px_rgba(197,155,39,0.25)] scale-[1.02]'
-            : 'border-[#C4A87A]/20 bg-[#1A120B]/40 scale-[0.97]'
+            ? 'border-[var(--brass-accent)] bg-[var(--brass-accent)]/10 shadow-[0_0_15px_rgba(197,155,39,0.25)] scale-[1.02]'
+            : 'border-[var(--parchment-border)]/20 bg-[var(--sepia-text)]/40'
           : [
               'hover:shadow-[0_0_20px_rgba(197,155,39,0.15)] hover:scale-[1.01]',
               isSelected
-                ? 'border-[#C59B27] bg-[#C59B27]/10 shadow-[0_0_15px_rgba(197,155,39,0.25)]'
-                : 'border-[#C4A87A]/20 bg-[#1A120B]/40 hover:border-[#C59B27]/60 hover:bg-[#1A120B]/50',
+                ? 'border-[var(--brass-accent)] bg-[var(--brass-accent)]/10 shadow-[0_0_15px_rgba(197,155,39,0.25)]'
+                : 'border-[var(--parchment-border)]/20 bg-[var(--sepia-text)]/40 hover:border-[var(--brass-accent)]/60 hover:bg-[var(--sepia-text)]/50',
             ].join(' '),
       )}
       aria-pressed={isSelected}
     >
-      {/* Dynamic Keyframe Animation Stylesheet (Hardware Accelerated) */}
-      <style>{`
-        @keyframes fluid-flow {
-          0% { background-position-y: 0%; }
-          100% { background-position-y: 200%; }
-        }
-        .animate-fluid-flow {
-          background-size: 100% 200%;
-          animation: fluid-flow 5s linear infinite;
-        }
-      `}</style>
-
+      {/* Per-item dim scrim for unselected cards in select mode (matches JournalsOverview) */}
+      {isSelectMode && !isSelectChecked && (
+        <div className="absolute inset-0 bg-black/35 pointer-events-none z-10" />
+      )}
       {/* Cover Image / Widescreen Thumbnail Container */}
       <div className="relative w-full aspect-video overflow-hidden bg-gradient-to-br from-[#22170F] to-[#0D0805] border-b border-white/5 shrink-0">
         {/* Cover Image or Dynamic Placeholder */}
@@ -60,7 +63,8 @@ export function SpiritCard({ spirit, isSelected, onClick, isSelectMode = false, 
           <img
             src={spirit.thumbnailImage}
             alt={spirit.name}
-            className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 pointer-events-none"
+            draggable={false}
           />
         ) : (
           <div
@@ -74,10 +78,6 @@ export function SpiritCard({ spirit, isSelected, onClick, isSelectMode = false, 
           </div>
         )}
 
-        {/* Dark scrim for unselected cards in select mode */}
-        {isSelectMode && !isSelectChecked && (
-          <div className="absolute inset-0 z-10 bg-black/45 transition-opacity duration-200 pointer-events-none" />
-        )}
 
         {/* Circular checkbox in select mode (top-right of thumbnail) */}
         {isSelectMode && (
@@ -86,11 +86,11 @@ export function SpiritCard({ spirit, isSelected, onClick, isSelectMode = false, 
               className={cn(
                 'w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-200',
                 isSelectChecked
-                  ? 'bg-[#C59B27] border-[#C59B27]'
+                  ? 'bg-[var(--brass-accent)] border-[var(--brass-accent)]'
                   : 'bg-black/50 border-white/40',
               )}
             >
-              {isSelectChecked && <CheckCircle2 className="w-3.5 h-3.5 text-[#1a0f00]" />}
+              {isSelectChecked && <CheckCircle2 className="w-3.5 h-3.5 text-[var(--wood-dark)]" />}
             </div>
           </div>
         )}
@@ -118,7 +118,7 @@ export function SpiritCard({ spirit, isSelected, onClick, isSelectMode = false, 
 
         <div className="flex-1 min-w-0">
           {/* Distillery Name (Upgraded typography) */}
-          <p className="font-display text-[17px] lg:text-[19px] font-black text-white group-hover:text-[#C59B27] transition-colors duration-300 truncate leading-snug">
+          <p className="font-display text-[17px] lg:text-[19px] font-black text-white group-hover:text-[var(--brass-accent)] transition-colors duration-300 truncate leading-snug">
             {spirit.distillery}
           </p>
 
@@ -136,9 +136,9 @@ export function SpiritCard({ spirit, isSelected, onClick, isSelectMode = false, 
                   size={15}
                   className={cn(
                     stars >= s
-                      ? 'fill-[#C59B27] text-[#C59B27]'
+                      ? 'fill-[var(--brass-accent)] text-[var(--brass-accent)]'
                       : stars >= s - 0.5
-                      ? 'fill-[#C59B27]/50 text-[#C59B27]'
+                      ? 'fill-[var(--brass-accent)]/50 text-[var(--brass-accent)]'
                       : 'fill-none text-white/10',
                   )}
                 />

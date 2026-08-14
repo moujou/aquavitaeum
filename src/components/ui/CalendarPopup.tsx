@@ -148,7 +148,7 @@ export function CalendarPopup({ value, language, onSelect, onClose, anchorRef }:
         aria-modal="true"
         aria-label={language === 'DE' ? 'Kalender' : 'Calendar'}
         className={[
-          'rounded-xl border border-[#C4A87A]/40 bg-[#F5EEDC]',
+          'rounded-xl border border-[var(--parchment-border)]/40 bg-[var(--parchment-bg)]',
           'shadow-[0_8px_32px_rgba(42,27,18,0.25)] select-none w-72',
           // Mobile: fixed centered modal
           'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 animate-fade-in',
@@ -157,17 +157,17 @@ export function CalendarPopup({ value, language, onSelect, onClose, anchorRef }:
         ].join(' ')}
       >
         {/* ── Header ── */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-[#C4A87A]/25">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--parchment-border)]/25">
           <button
             type="button"
             onClick={prevMonth}
             aria-label={language === 'DE' ? 'Vorheriger Monat' : 'Previous month'}
-            className="p-1 rounded-md text-[#5c3d22] hover:text-[#1A120B] hover:bg-[#1A120B]/10 transition-all cursor-pointer"
+            className="p-1 rounded-md text-[var(--sepia-muted)] hover:text-[var(--sepia-text)] hover:bg-[var(--sepia-text)]/10 transition-all cursor-pointer"
           >
             <ChevronLeft size={16} />
           </button>
 
-          <span className="text-sm font-semibold tracking-wide text-[#1A120B] font-body">
+          <span className="text-sm font-semibold tracking-wide text-[var(--sepia-text)] font-body">
             {MONTH_NAMES[language][viewMonth]}&nbsp;{viewYear}
           </span>
 
@@ -175,7 +175,7 @@ export function CalendarPopup({ value, language, onSelect, onClose, anchorRef }:
             type="button"
             onClick={nextMonth}
             aria-label={language === 'DE' ? 'Nächster Monat' : 'Next month'}
-            className="p-1 rounded-md text-[#5c3d22] hover:text-[#1A120B] hover:bg-[#1A120B]/10 transition-all cursor-pointer"
+            className="p-1 rounded-md text-[var(--sepia-muted)] hover:text-[var(--sepia-text)] hover:bg-[var(--sepia-text)]/10 transition-all cursor-pointer"
           >
             <ChevronRight size={16} />
           </button>
@@ -186,7 +186,7 @@ export function CalendarPopup({ value, language, onSelect, onClose, anchorRef }:
           {WEEKDAY_LABELS[language].map((label) => (
             <div
               key={label}
-              className="text-center text-[10px] font-bold uppercase tracking-widest text-[#5c3d22]/60"
+              className="text-center text-[10px] font-bold uppercase tracking-widest text-[var(--sepia-muted)]/60"
             >
               {label}
             </div>
@@ -218,15 +218,15 @@ export function CalendarPopup({ value, language, onSelect, onClose, anchorRef }:
                 className={[
                   'relative h-8 w-full rounded-md text-xs font-medium transition-all duration-150 cursor-pointer',
                   isSelected
-                    ? 'bg-[#C59B27] text-[#1A0F0A] font-bold shadow-[0_0_8px_rgba(197,155,39,0.4)]'
+                    ? 'bg-[var(--brass-accent)] text-[var(--sepia-text)] font-bold shadow-[0_0_8px_rgba(197,155,39,0.4)]'
                     : isToday
-                    ? 'text-[#1A120B] ring-1 ring-inset ring-[#C4A87A] hover:bg-[#1A120B]/10'
-                    : 'text-[#5c3d22] hover:bg-[#1A120B]/10 hover:text-[#1A120B]',
+                    ? 'text-[var(--sepia-text)] ring-1 ring-inset ring-[var(--parchment-border)] hover:bg-[var(--sepia-text)]/10'
+                    : 'text-[var(--sepia-muted)] hover:bg-[var(--sepia-text)]/10 hover:text-[var(--sepia-text)]',
                 ].join(' ')}
               >
                 {day}
                 {isToday && !isSelected && (
-                  <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#C59B27]" />
+                  <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[var(--brass-accent)]" />
                 )}
               </button>
             );
@@ -234,11 +234,11 @@ export function CalendarPopup({ value, language, onSelect, onClose, anchorRef }:
         </div>
 
         {/* ── Today shortcut ── */}
-        <div className="border-t border-[#C4A87A]/25 px-3 py-2 flex justify-center">
+        <div className="border-t border-[var(--parchment-border)]/25 px-3 py-2 flex justify-center">
           <button
             type="button"
             onClick={() => onSelect(toIso(todayY, todayM, todayD))}
-            className="text-[11px] font-semibold text-[#5c3d22] hover:text-[#1A120B] tracking-wide uppercase transition-colors cursor-pointer"
+            className="text-[11px] font-semibold text-[var(--sepia-muted)] hover:text-[var(--sepia-text)] tracking-wide uppercase transition-colors cursor-pointer"
           >
             {language === 'DE' ? 'Heute' : 'Today'}
           </button>

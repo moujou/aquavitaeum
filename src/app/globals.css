@@ -4,28 +4,48 @@
 /* ─── Design Tokens ─────────────────────────────────────────────────────────── */
 :root,
 [data-theme="pub-dark"] {
-  /* Pub atmosphere */
-  --pub-bg: #122616;       /* Lighter, richer dark forest green */
-  --pub-bg-alt: #1c3822;   /* Lighter secondary green */
-  --pub-bg-panel: #224229; /* Lighter panel background */
-  --wood-accent: #311e15;  /* Richer, slightly darker dark walnut brown */
-  --wood-light: #442a1e;   /* Adjusted wood trim accent */
-  --brass-accent: #C59B27;
-  --brass-muted: #a07d1a;
-  --brass-light: #e8c247;
+  /* ── Pub Atmosphere ──────────────────────────────────────────────────────── */
+  --pub-bg:          #122616;   /* Main app background — dark forest green */
+  --pub-bg-alt:      #1c3822;   /* Secondary green depth */
+  --pub-bg-panel:    #224229;   /* Elevated panels, dialogs, modals */
 
-  /* Parchment / tasting card */
-  --parchment-bg: #F5EEDC;
-  --parchment-bg-alt: #EDE0C4;
-  --parchment-border: #C4A87A;
-  --parchment-shadow: rgba(42, 27, 18, 0.35);
-  --sepia-text: #1A120B;
-  --sepia-muted: #5c3d22;
-  --sepia-light: #755030;
+  /* ── Wood Chrome (Navigation bars) ──────────────────────────────────────── */
+  --wood-accent:     #311e15;   /* Darkest walnut — .bg-wood nav background */
+  --wood-light:      #442a1e;   /* Lighter wood trim */
+  --wood-dark:       #311e15;   /* Dark mahogany — FAB text, icon color on light bg */
+  --wood-selection:  #3D2616;   /* Active/selected state bg on parchment cards */
 
-  /* Semantic */
+  /* ── Brass Fittings (Primary Accent) ────────────────────────────────────── */
+  --brass-accent:    #C59B27;   /* Primary gold — active borders, focus, accent text */
+  --brass-muted:     #a07d1a;   /* Secondary brass — italic subtitles */
+  --brass-light:     #e8c247;   /* Hover state on brass elements */
+
+  /* ── Parchment Surface (Tasting Card) ───────────────────────────────────── */
+  --parchment-bg:      #F5EEDC; /* Card main background */
+  --parchment-bg-alt:  #EDE0C4; /* Alternate parchment depth */
+  --parchment-border:  #C4A87A; /* Input underlines, card border, thin rules */
+  --parchment-divider: #D4C3A3; /* Horizontal section dividers inside tasting card */
+  --parchment-shadow:  rgba(42, 27, 18, 0.35);
+
+  /* ── Aged Ink (Parchment Text) ───────────────────────────────────────────── */
+  --sepia-text:  #1A120B;   /* Primary ink — main text on parchment */
+  --sepia-muted: #5c3d22;   /* Muted — placeholders, focus borders, inactive items */
+  --sepia-light: #755030;   /* Lightest sepia — section headers, labels */
+
+  /* ── Foreground (Dark Surface Text) ─────────────────────────────────────── */
+  --foreground:  #e8d5b7;   /* Primary text on dark pub background (aged ivory) */
+
+  /* ── Floating Action Buttons & Primary CTAs ─────────────────────────────── */
+  --fab-bg:       #E8D5B7;              /* FAB / primary button background */
+  --fab-bg-hover: #F5F2EB;              /* FAB hover state */
+  --fab-text:     #311e15;              /* FAB icon & label color (dark wood) */
+  --fab-border:   rgba(197, 155, 39, 0.4); /* FAB brass ring border */
+
+  /* ── Forest Green Accent (Journal Cards) ────────────────────────────────── */
+  --forest-green: #2A5E3F;   /* Deep forest green — journal card borders & icon placeholders */
+
+  /* ── Semantic Aliases ────────────────────────────────────────────────────── */
   --background: var(--pub-bg);
-  --foreground: #e8d5b7;
 }
 
 /* ─── Base ───────────────────────────────────────────────────────────────────── */
@@ -138,3 +158,63 @@ body {
   transform-origin: center;
 }
 
+/* ─── SpiritCard Accent Column Shimmer ──────────────────────────────────────── */
+/* Moved OUT of SpiritCard's <button> to fix React 19 <style>-in-<button> crash */
+@keyframes fluid-flow {
+  0%   { background-position-y: 0%; }
+  100% { background-position-y: 200%; }
+}
+
+.animate-fluid-flow {
+  background-size: 100% 200%;
+  animation: fluid-flow 5s linear infinite;
+}
+
+/* ─── iOS Safari Long-Press Callout Prevention ───────────────────────────── */
+/* Prevents native "Save Image / Copy" popup from blocking further interaction */
+.no-callout {
+  -webkit-touch-callout: none;
+}
+
+/* ─── Irish Pub Utility Classes ──────────────────────────────────────────── */
+/* Compound pattern shortcuts for the three most-repeated color combos.       */
+/* Use these in className instead of repeating raw token refs each time.      */
+
+/* FAB / Primary CTA button — all desktop FABs + mobile center button + primary action CTAs */
+.btn-fab {
+  background-color: var(--fab-bg);
+  color: var(--fab-text);
+  border: 1px solid var(--fab-border);
+}
+.btn-fab:hover {
+  background-color: var(--fab-bg-hover);
+}
+
+/* Parchment card toggle button — Cask Strength, Added Colour, Glance, Finish pills, etc. */
+.card-toggle {
+  border-color: rgba(196, 168, 122, 0.6); /* --parchment-border at 60% */
+  background-color: rgba(26, 18, 11, 0.05); /* --sepia-text at 5% */
+  color: var(--sepia-muted);
+}
+.card-toggle:hover {
+  background-color: rgba(26, 18, 11, 0.10); /* --sepia-text at 10% */
+}
+.card-toggle[aria-pressed="true"] {
+  background-color: var(--wood-selection);
+  border-color: var(--brass-accent);
+  color: var(--parchment-bg);
+}
+
+/* Parchment text input — transparent underline inputs on the tasting card */
+.input-parchment {
+  background: transparent;
+  border-bottom: 1px solid var(--parchment-border);
+  color: var(--sepia-text);
+}
+.input-parchment::placeholder {
+  color: var(--parchment-border);
+}
+.input-parchment:focus {
+  border-bottom-color: var(--sepia-muted);
+  outline: none;
+}

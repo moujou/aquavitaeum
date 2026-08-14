@@ -83,7 +83,7 @@ export function LocalizedDatePicker({
         onChange={handleTextChange}
         onBlur={handleBlur}
         placeholder={formatHint}
-        className="w-full bg-transparent border-b border-[#C4A87A] pb-1 pr-7 text-sm sm:text-base text-[#1A120B] font-body focus:outline-none focus:border-[#5c3d22] placeholder:text-[#c4a87a]/60"
+        className="w-full bg-transparent border-b border-[var(--parchment-border)] pb-1 pr-7 text-sm sm:text-base text-[var(--sepia-text)] font-body focus:outline-none focus:border-[var(--sepia-muted)] placeholder:text-[var(--parchment-border)]/60"
       />
       {/* Calendar Icon Button */}
       <button
@@ -91,7 +91,7 @@ export function LocalizedDatePicker({
         type="button"
         id={`${id}-calendar-btn`}
         onClick={() => setIsCalendarOpen((prev) => !prev)}
-        className="absolute right-0 bottom-1 p-0.5 text-[#5c3d22] hover:text-[#C59B27] transition-colors cursor-pointer"
+        className="absolute right-0 bottom-1 p-0.5 text-[var(--sepia-muted)] hover:text-[var(--brass-accent)] transition-colors cursor-pointer"
         title={language === 'DE' ? 'Kalender öffnen' : 'Open calendar'}
         aria-expanded={isCalendarOpen}
         aria-haspopup="dialog"

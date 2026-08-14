@@ -85,7 +85,16 @@ To prevent Windows `EBUSY` file-locking crashes during concurrent access, atomic
 
 ---
 
-## 🎨 Human-Instinctive Flavor Palette Matrix
+## 🎨 Design System & Visual Specification
+
+Aqua Vitaeum adheres to a centralized design token system modeled after a vintage Irish pub aesthetic (dark forest greens, dark walnut wood, aged parchment, and warm brass).
+
+For the complete visual specification, color token tables, interactive recipes, and accessibility ratings, refer to:
+👉 **[`docs/DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md)**
+
+---
+
+## 🥃 Human-Instinctive Flavor Palette Matrix
 
 Aqua Vitaeum features a human-instinctive color system where flavor descriptors within the 8 SWRI taxonomy categories map to natural hex colors:
 

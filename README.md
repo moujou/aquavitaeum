@@ -53,11 +53,10 @@ The name subtly fuses the historical Medieval Latin **"Aqua Vitae"** (*Water of 
 
 ---
 
-## Technical Documentation & Developer Guide
+## Technical Documentation & Design System
 
-For complete developer setup instructions, CLI script references (`npm run dev`, `npm run build`), system architecture guidelines, unit testing suites, and color specifications:
-
-[`docs/DOCUMENTATION.md`](./docs/DOCUMENTATION.md)
+- **Developer Setup & Architecture Guide**: [`docs/DOCUMENTATION.md`](./docs/DOCUMENTATION.md)
+- **Visual Design System & Color Tokens**: [`docs/DESIGN_SYSTEM.md`](./docs/DESIGN_SYSTEM.md)
 
 ---
 
