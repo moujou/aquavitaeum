@@ -129,7 +129,7 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
     // Desktop New Note FAB must be present on landing page (hidden on mobile via CSS)
     const newNoteFab = screen.getByTitle('New Note');
     expect(newNoteFab).toBeDefined();
-    expect(newNoteFab.className).toContain('absolute bottom-6 right-6');
+    expect(newNoteFab.className).toContain('w-16 h-16 rounded-full bg-[var(--fab-bg)]');
   });
 
   it('renders floating Plus button in Bookshelf Overview view', async () => {
@@ -144,7 +144,7 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
     // Verify presence of creation FAB on bookshelf overview
     const createBtn = screen.getByTitle(/Create Journal/i);
     expect(createBtn).toBeDefined();
-    expect(createBtn.className).toContain('absolute bottom-6 right-6');
+    expect(createBtn.className).toContain('w-16 h-16 rounded-full bg-[var(--fab-bg)]');
   });
 
   it('redirects from Profile view back to journals overview when tapping Journals in bottom navigation', async () => {

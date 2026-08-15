@@ -3,6 +3,7 @@
 import React from 'react';
 import { Trash2, X } from 'lucide-react';
 import { JournalWithStats } from '@/hooks/useJournals';
+import { cn } from '@/lib/utils';
 
 interface JournalLandingHeaderProps {
   journal: JournalWithStats;
@@ -40,7 +41,7 @@ export function JournalLandingHeader({
             </span>
           )}
           {!isSelectMode && (
-            <div className="bg-white/[0.04] border border-white/10 px-3 py-1 rounded-full text-xs font-mono text-white/60 shrink-0">
+            <div className="bg-[var(--forest-green)]/10 border border-[var(--forest-green)]/25 px-3 py-1 rounded-full text-xs font-mono text-[var(--forest-green)] font-semibold shrink-0">
               {noteCount} {noteCount === 1 ? 'note' : 'notes'}
             </div>
           )}
@@ -48,37 +49,39 @@ export function JournalLandingHeader({
 
         {/* Right: Select mode action buttons */}
         {isSelectMode && (
-          <div className="flex items-center gap-1.5 shrink-0">
-            {/* Delete — red, active when ≥1 selected */}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Delete — prominent red button with counter */}
             <button
               type="button"
               onClick={onConfirmDelete}
               disabled={!canDelete}
               title={language === 'DE' ? 'Löschen' : 'Delete'}
-              className={[
-                'p-2 rounded-lg border transition-all cursor-pointer',
+              className={cn(
+                'px-3 py-1.5 rounded-lg border transition-all flex items-center gap-1.5 text-xs font-display font-bold uppercase tracking-wider select-none shadow-xs',
                 canDelete
-                  ? 'bg-red-950/40 border-red-500/40 text-red-400 hover:bg-red-900/50 shadow-xs'
-                  : 'bg-transparent border-transparent text-white/15 cursor-not-allowed',
-              ].join(' ')}
+                  ? 'bg-red-600 hover:bg-red-700 text-white border-red-700 shadow-md active:scale-95 cursor-pointer'
+                  : 'bg-red-100/70 border-red-200/60 text-red-400/50 cursor-not-allowed'
+              )}
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-3.5 h-3.5 shrink-0" />
+              <span>{language === 'DE' ? 'Löschen' : 'Delete'}{selectedCount > 0 ? ` (${selectedCount})` : ''}</span>
             </button>
-            {/* Cancel */}
+            {/* Done / Cancel button */}
             <button
               type="button"
               onClick={onExitSelectMode}
-              title={language === 'DE' ? 'Abbrechen' : 'Cancel'}
-              className="p-2 rounded-lg border border-white/10 text-gray-400 hover:text-white hover:border-white/25 transition-all cursor-pointer"
+              title={language === 'DE' ? 'Fertig' : 'Done'}
+              className="px-2.5 sm:px-3 py-1.5 rounded-lg border border-[var(--parchment-border)] bg-[var(--pub-bg-panel)] hover:bg-[var(--pub-bg-alt)] text-[var(--foreground)] transition-all flex items-center gap-1 text-xs font-display font-bold uppercase tracking-wider shadow-xs active:scale-95 cursor-pointer select-none"
             >
-              <X className="w-4 h-4" />
+              <X className="w-3.5 h-3.5 shrink-0" />
+              <span className="hidden sm:inline">{language === 'DE' ? 'Fertig' : 'Done'}</span>
             </button>
           </div>
         )}
       </div>
 
       {journal.description && !isSelectMode && (
-        <p className="font-body text-xs sm:text-sm text-white/55 italic mt-1.5 leading-relaxed">
+        <p className="font-body text-xs sm:text-sm text-[var(--sepia-muted)] italic mt-1.5 leading-relaxed">
           {journal.description}
         </p>
       )}

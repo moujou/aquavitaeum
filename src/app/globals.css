@@ -2,49 +2,105 @@
 @import "tailwindcss";
 
 /* ─── Design Tokens ─────────────────────────────────────────────────────────── */
-:root,
+:root {
+  /* ── Canvas & Surfaces (2026 Unified Editorial Atelier) ──────────────── */
+  --pub-bg:          #ECE5D8;   /* Warm Vintage Linen (~4% tiefere Leinen-Atmosphäre) */
+  --pub-bg-alt:      #E2D9C8;   /* Zarte Shelf-Tiefe / Sekundär-Flächen */
+  --pub-bg-panel:    #FDFBF7;   /* Helles Elfenbein für Karten & Dialoge */
+  --nav-bg:          #ECE5D8;   /* Nahtlose schwebende Navigation */
+
+  /* ── Structural Secondary & Accent Color (Irish Clover Green) ────────── */
+  --wood-accent:     #2E945D;   /* Klee-Grün als tragende Strukturfarbe */
+  --wood-light:      #3AB472;   /* Helleres Klee-Grün */
+  --wood-dark:       #237347;   /* Tiefes Klee-Grün */
+  --wood-selection:  #2E945D;   /* Signature Clover Green für aktive Toggles & Auswahlen */
+  --nav-active:      #C97A1E;   /* Leuchtendes Bernstein-Gold für aktive Navigation */
+  --nav-inactive:    #8A7360;   /* Muted Warm Sepia Slate */
+
+  /* ── Sensory Profiling Radar Palette ─────────────────────────────────── */
+  --sensory-nose:        #C97A1E;   /* Luminous Amber-Gold (Flüchtige Aromawolken im Glas) */
+  --sensory-taste:       #1C6B7D;   /* Maritime Coastal Teal / Islay Sea (Kühler Gaumen-Kontrast) */
+  --sensory-taste-light: #258296;   /* Akzent-Teal */
+
+  /* ── Brass & Metallic Accents (Amber-Copper) ─────────────────────────── */
+  --brass-accent:    #C97A1E;   /* Warmes Bernstein-Kupfer (Sterne & Ratings) */
+  --brass-muted:     #A66519;   /* Sekundäres Antik-Kupfer */
+  --brass-light:     #E59632;   /* Hover-Glanz */
+
+  /* ── Parchment Surface (Tasting Card & Notizen) ───────────────────────── */
+  --parchment-bg:      #FDFBF7; /* Helles Elfenbein */
+  --parchment-bg-alt:  #F0EAE0; /* Hover-Tiefe */
+  --parchment-border:  #D8CCB8; /* 1px präzise Buchbinder-Haarlinie */
+  --parchment-divider: rgba(35, 115, 71, 0.22); /* Klee-Grün getönte Trennlinie */
+  --parchment-shadow:  rgba(38, 28, 20, 0.06);
+
+  /* ── Aged Ink (Typography) ───────────────────────────────────────────── */
+  --sepia-text:  #2B1E14;   /* Warmes Buchbinder-Nussbaum-Sepia (13.8:1 AAA) */
+  --sepia-muted: #6D5949;   /* Sekundäre Beschriftungen */
+  --sepia-light: #8A6E55;   /* Sektions-Überschriften */
+  --foreground:  #2B1E14;   /* Standard-Schrift (organisch, nicht stechend) */
+
+  /* ── Action Buttons & Primary CTAs ──────────────────────────────────── */
+  --fab-bg:       #2E945D;              /* Leuchtendes Irisch-Klee */
+  --fab-bg-hover: #237347;              /* Hover-Zustand */
+  --fab-text:     #FDFBF7;              /* Helle Elfenbein-Schrift */
+  --fab-border:   rgba(255, 209, 102, 0.5); /* Feiner Bernsteingold-Rand */
+
+  /* ── Vibrant Irish Clover Green Accent ───────────────────────────────── */
+  --forest-green: #2E945D;   /* Leuchtendes Klee-Grün für Badges & Struktur */
+
+  /* ── Semantic Aliases ────────────────────────────────────────────────── */
+  --background: var(--pub-bg);
+}
+
 [data-theme="pub-dark"] {
   /* ── Pub Atmosphere ──────────────────────────────────────────────────────── */
   --pub-bg:          #122616;   /* Main app background — dark forest green */
   --pub-bg-alt:      #1c3822;   /* Secondary green depth */
   --pub-bg-panel:    #224229;   /* Elevated panels, dialogs, modals */
+  --nav-bg:          #1E120B;   /* Dark mahogany navigation */
 
   /* ── Wood Chrome (Navigation bars) ──────────────────────────────────────── */
-  --wood-accent:     #311e15;   /* Darkest walnut — .bg-wood nav background */
+  --wood-accent:     #311e15;   /* Darkest walnut */
   --wood-light:      #442a1e;   /* Lighter wood trim */
-  --wood-dark:       #311e15;   /* Dark mahogany — FAB text, icon color on light bg */
-  --wood-selection:  #3D2616;   /* Active/selected state bg on parchment cards */
+  --wood-dark:       #311e15;   /* Dark mahogany */
+  --wood-selection:  #2E945D;   /* Active/selected state bg on parchment cards */
+  --nav-active:      #C59B27;   /* Luminous Gold on dark */
+  --nav-inactive:    rgba(232, 213, 183, 0.6);
+
+  /* ── Sensory Profiling Radar Palette ─────────────────────────────────── */
+  --sensory-nose:        #E59632;   /* Luminous Amber on dark */
+  --sensory-taste:       #2B8FA6;   /* Maritime Teal on dark */
+  --sensory-taste-light: #38A4BD;
 
   /* ── Brass Fittings (Primary Accent) ────────────────────────────────────── */
-  --brass-accent:    #C59B27;   /* Primary gold — active borders, focus, accent text */
-  --brass-muted:     #a07d1a;   /* Secondary brass — italic subtitles */
-  --brass-light:     #e8c247;   /* Hover state on brass elements */
+  --brass-accent:    #C59B27;   /* Primary gold */
+  --brass-muted:     #a07d1a;   /* Secondary brass */
+  --brass-light:     #e8c247;   /* Hover state */
 
   /* ── Parchment Surface (Tasting Card) ───────────────────────────────────── */
-  --parchment-bg:      #F5EEDC; /* Card main background */
-  --parchment-bg-alt:  #EDE0C4; /* Alternate parchment depth */
-  --parchment-border:  #C4A87A; /* Input underlines, card border, thin rules */
-  --parchment-divider: #D4C3A3; /* Horizontal section dividers inside tasting card */
+  --parchment-bg:      #F5EEDC;
+  --parchment-bg-alt:  #EDE0C4;
+  --parchment-border:  #C4A87A;
+  --parchment-divider: #D4C3A3;
   --parchment-shadow:  rgba(42, 27, 18, 0.35);
 
   /* ── Aged Ink (Parchment Text) ───────────────────────────────────────────── */
-  --sepia-text:  #1A120B;   /* Primary ink — main text on parchment */
-  --sepia-muted: #5c3d22;   /* Muted — placeholders, focus borders, inactive items */
-  --sepia-light: #755030;   /* Lightest sepia — section headers, labels */
+  --sepia-text:  #1A120B;
+  --sepia-muted: #5c3d22;
+  --sepia-light: #755030;
 
   /* ── Foreground (Dark Surface Text) ─────────────────────────────────────── */
-  --foreground:  #e8d5b7;   /* Primary text on dark pub background (aged ivory) */
+  --foreground:  #e8d5b7;
 
   /* ── Floating Action Buttons & Primary CTAs ─────────────────────────────── */
-  --fab-bg:       #E8D5B7;              /* FAB / primary button background */
-  --fab-bg-hover: #F5F2EB;              /* FAB hover state */
-  --fab-text:     #311e15;              /* FAB icon & label color (dark wood) */
-  --fab-border:   rgba(197, 155, 39, 0.4); /* FAB brass ring border */
+  --fab-bg:       #E8D5B7;
+  --fab-bg-hover: #F5F2EB;
+  --fab-text:     #311e15;
+  --fab-border:   rgba(197, 155, 39, 0.4);
 
   /* ── Forest Green Accent (Journal Cards) ────────────────────────────────── */
-  --forest-green: #2A5E3F;   /* Deep forest green — journal card borders & icon placeholders */
-
-  /* ── Semantic Aliases ────────────────────────────────────────────────────── */
+  --forest-green: #2A5E3F;
   --background: var(--pub-bg);
 }
 
@@ -60,13 +116,16 @@ html {
 
 body {
   background: var(--pub-bg);
+  color: var(--foreground);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+[data-theme="pub-dark"] body {
   background-image:
     radial-gradient(ellipse at 50% -10%, rgba(197, 155, 39, 0.08) 0%, transparent 60%),
     radial-gradient(ellipse at 85% 25%, rgba(32, 48, 35, 0.20) 0%, transparent 50%),
     radial-gradient(ellipse at 15% 85%, rgba(45, 26, 17, 0.40) 0%, transparent 60%);
-  color: var(--foreground);
-  min-height: 100vh;
-  overflow-x: hidden;
 }
 
 /* ─── Scrollbar ──────────────────────────────────────────────────────────────── */
@@ -93,9 +152,9 @@ body {
   color: var(--sepia-text);
   border: 1px solid var(--parchment-border);
   box-shadow:
-    0 1px 0 #fff4 inset,
-    0 20px 60px var(--parchment-shadow),
-    0 4px 16px rgba(0,0,0,0.4);
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 2px 6px var(--parchment-shadow),
+    0 10px 24px var(--parchment-shadow);
 }
 
 /* ─── Animations ─────────────────────────────────────────────────────────────── */
@@ -136,16 +195,11 @@ body {
 
 /* ─── Premium Pub Wood Panel (Subtile Holzoptik) ───────────────────────────── */
 .bg-wood {
-  background-color: #1E120B;
+  background-color: var(--wood-accent);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   background-image:
-    /* Warm specular highlight on top wood edge, deep dark mahogany shadow below */
-    linear-gradient(to bottom, rgba(197, 155, 39, 0.08) 0%, rgba(30, 18, 11, 0.94) 45%, rgba(16, 9, 5, 0.98) 100%),
-    /* Fine organic wood grain */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='200'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.003 0.07' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.55 %0A 0 0 0 0 0.35 %0A 0 0 0 0 0.22 %0A 0.12 0 0 0 0'/%3E%3C/filter%3E%3Crect width='1200' height='200' filter='url(%23w)'/%3E%3C/svg%3E");
-  background-size: 1200px 200px;
-  background-repeat: repeat-x;
+    linear-gradient(to bottom, rgba(140, 83, 27, 0.15) 0%, var(--wood-accent) 100%);
 }
 
 /* ─── Select Mode Animations ────────────────────────────────────────────────── */

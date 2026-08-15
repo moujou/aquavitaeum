@@ -237,7 +237,7 @@ export function TastingMetadataSection({
         {/* Left Sub-Column: Vertical colour scale */}
         <div className="flex flex-col items-start gap-1 flex-1">
           <SectionHeader className="mb-1">{t('colour')}</SectionHeader>
-          <div className="mt-1 flex flex-col gap-1.5 sm:gap-1 w-full">
+          <div className="mt-1 flex flex-col gap-1.5 sm:gap-1.5 w-full">
             {COLOURS.map(({ value, hex }) => (
               <button
                 key={value}
@@ -245,9 +245,9 @@ export function TastingMetadataSection({
                 type="button"
                 onClick={() => update('colour', value)}
                 className={cn(
-                  'flex items-center gap-2.5 px-3 py-2 sm:px-2.5 sm:py-1 rounded-sm border transition-all duration-200 text-left w-full cursor-pointer min-h-[36px] sm:min-h-0',
+                  'flex items-center gap-2.5 px-3 py-2 sm:px-3 sm:py-1.5 rounded-sm border transition-all duration-200 text-left w-full cursor-pointer min-h-[36px]',
                   spirit.colour === value
-                    ? 'bg-[var(--wood-selection)] border-[var(--brass-accent)] font-semibold text-[var(--parchment-bg)] shadow-xs'
+                    ? 'bg-[var(--wood-selection)] border-[var(--wood-selection)] font-semibold text-[var(--parchment-bg)] shadow-xs'
                     : 'border-transparent hover:border-[var(--parchment-border)]/40 hover:bg-[var(--sepia-text)]/8 text-[var(--sepia-muted)]',
                 )}
                 aria-pressed={spirit.colour === value}
@@ -256,7 +256,7 @@ export function TastingMetadataSection({
                   className="w-4.5 h-4.5 rounded-sm border border-[var(--parchment-border)] flex-shrink-0"
                   style={{ backgroundColor: hex }}
                 />
-                <span className="text-sm sm:text-xs font-medium font-body whitespace-nowrap">
+                <span className="text-xs sm:text-sm font-medium font-body whitespace-nowrap">
                   {translateColour(value, language)}
                 </span>
               </button>
@@ -268,7 +268,7 @@ export function TastingMetadataSection({
         <div className="flex flex-col flex-1 gap-4">
           <div className="flex flex-col gap-1">
             <SectionHeader className="mb-1">{t('glanceMouthfeel')}</SectionHeader>
-            <div className="mt-1 grid grid-cols-1 gap-1">
+            <div className="mt-1 grid grid-cols-1 gap-1.5 sm:gap-1.5">
               {SPIRIT_GLANCES.map((g) => {
                 const currentGlance = Array.isArray(spirit.glance)
                   ? spirit.glance
@@ -289,9 +289,9 @@ export function TastingMetadataSection({
                     type="button"
                     onClick={handleToggle}
                     className={cn(
-                      'px-3 py-2 sm:py-1.5 rounded-xs border text-sm sm:text-xs font-body font-semibold transition-all duration-200 text-center cursor-pointer min-h-[38px] sm:min-h-0',
+                      'px-3 py-2 sm:px-3 sm:py-2 rounded-xs border text-xs sm:text-sm font-body font-semibold transition-all duration-200 text-center cursor-pointer min-h-[38px]',
                       isActive
-                        ? 'bg-[var(--wood-selection)] border-[var(--brass-accent)] text-[var(--parchment-bg)] shadow-xs'
+                        ? 'bg-[var(--wood-selection)] border-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs'
                         : 'border-[var(--parchment-border)]/60 bg-[var(--sepia-text)]/5 text-[var(--sepia-muted)] hover:bg-[var(--sepia-text)]/12 hover:border-[var(--parchment-border)]',
                     )}
                     aria-pressed={isActive}

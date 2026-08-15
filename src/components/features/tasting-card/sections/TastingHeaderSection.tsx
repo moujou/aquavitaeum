@@ -22,9 +22,9 @@ export function TastingHeaderSection({
   update,
 }: TastingHeaderSectionProps) {
   return (
-    <div className="bg-wood text-center py-5 px-6 border-b border-[var(--parchment-border)] flex flex-col items-center justify-center gap-1.5 border-t border-white/[0.03] shadow-[inset_0_-10px_20px_-10px_rgba(0,0,0,0.35)]">
+    <div className="bg-[var(--wood-dark)] text-center py-5 px-6 border-b border-[var(--wood-dark)]/80 flex flex-col items-center justify-center gap-1.5 shadow-[inset_0_-10px_20px_-10px_rgba(0,0,0,0.25)]">
       {/* Spirit Type Badge */}
-      <span className="font-display text-xs sm:text-sm font-bold uppercase tracking-[0.25em] text-[var(--parchment-border)]">
+      <span className="font-display text-xs sm:text-sm font-bold uppercase tracking-[0.25em] text-[var(--brass-light)]">
         {spirit.spiritType}
       </span>
 
@@ -46,7 +46,7 @@ export function TastingHeaderSection({
           <button
             type="button"
             onClick={() => setIsEditingTitle(false)}
-            className="p-1.5 rounded-full bg-[var(--brass-accent)] text-[var(--sepia-text)] hover:bg-[var(--brass-light)] transition-colors cursor-pointer"
+            className="p-1.5 rounded-full bg-[var(--brass-accent)] text-[var(--parchment-bg)] hover:bg-[var(--brass-light)] transition-colors cursor-pointer"
             title="Done editing name"
           >
             <Check size={18} />
@@ -66,7 +66,7 @@ export function TastingHeaderSection({
               e.stopPropagation();
               setIsEditingTitle(true);
             }}
-            className="p-1 rounded text-[var(--parchment-border)] opacity-60 group-hover:opacity-100 hover:text-[var(--brass-accent)] transition-opacity cursor-pointer"
+            className="p-1 rounded text-white/70 opacity-60 group-hover:opacity-100 hover:text-[var(--brass-light)] transition-opacity cursor-pointer"
             title="Edit Spirit Name"
           >
             <Pencil size={16} />
@@ -74,8 +74,8 @@ export function TastingHeaderSection({
         </div>
       )}
 
-      {/* Subtitle */}
-      <p className="font-display text-xs sm:text-sm uppercase tracking-[0.25em] text-[var(--brass-muted)] italic">
+      {/* Subtitle (Hersteller & Herkunft) with Crystal Clear Legibility */}
+      <p className="font-display text-xs sm:text-sm uppercase tracking-[0.2em] text-[#D6EBE0] font-medium italic">
         {subtitleLocation}
       </p>
     </div>

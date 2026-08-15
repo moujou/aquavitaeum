@@ -49,36 +49,44 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
       }`}
     >
 
-      {/* Immersive 10% Brighter Glowing Liquid Background */}
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        {/* Shifting Amber Fluid Glow Spot 1 */}
+      {/* Immersive Emerald Aurora & Malt Glow Atmospheric Background */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-80">
+        {/* Shifting Emerald Fluid Glow Spot 1 */}
         <div
-          className="absolute rounded-full bg-gradient-to-tr from-[#A05B17] via-[#D48A22] to-[#FFC04D] w-[55vw] h-[55vw] lg:w-[600px] lg:h-[600px]"
+          className="absolute rounded-full bg-gradient-to-tr from-[#164E2F] via-[#237347] to-[#3AB472] w-[60vw] h-[60vw] lg:w-[650px] lg:h-[650px] opacity-75"
           style={{
             top: '-15%',
             left: '-15%',
-            filter: 'blur(clamp(80px, 12vw, 130px))',
+            filter: 'blur(clamp(50px, 8vw, 85px))',
             animation: 'liquidGlow 18s ease-in-out infinite alternate',
           }}
         />
 
-        {/* Shifting Amber Fluid Glow Spot 2 */}
+        {/* Shifting Irish Clover Fluid Glow Spot 2 */}
         <div
-          className="absolute rounded-full bg-gradient-to-br from-[#FFC04D] via-[#D48A22] to-[#A05B17] w-[65vw] h-[65vw] lg:w-[700px] lg:h-[700px]"
+          className="absolute rounded-full bg-gradient-to-br from-[#2E945D] via-[#237347] to-[#164E2F] w-[70vw] h-[70vw] lg:w-[750px] lg:h-[750px] opacity-75"
           style={{
             bottom: '-20%',
             right: '-15%',
-            filter: 'blur(clamp(90px, 14vw, 145px))',
+            filter: 'blur(clamp(55px, 9vw, 95px))',
             animation: 'liquidGlow 22s ease-in-out infinite alternate-reverse',
           }}
         />
 
-        {/* Subtle Green Lacquer Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#122616]/40 via-transparent to-[#122616]/60" />
+        {/* Shifting Central Highland Malt Glow Spot 3 */}
+        <div
+          className="absolute rounded-full bg-gradient-to-br from-[#C97A1E]/40 via-[#FFD166]/25 to-transparent w-[50vw] h-[50vw] lg:w-[500px] lg:h-[500px] opacity-60"
+          style={{
+            top: '25%',
+            left: '25%',
+            filter: 'blur(clamp(60px, 10vw, 100px))',
+            animation: 'liquidGlow 26s ease-in-out infinite alternate',
+          }}
+        />
       </div>
 
-      {/* Flowing Whisky Waves at the Bottom */}
-      <div className="absolute bottom-0 left-0 right-0 h-48 overflow-hidden pointer-events-none z-0 opacity-40">
+      {/* Flowing Liquid Waves at the Bottom */}
+      <div className="absolute bottom-0 left-0 right-0 h-52 overflow-hidden pointer-events-none z-0 opacity-75">
         <svg
           className="absolute bottom-0 w-[200%] h-full animate-wave-slow"
           viewBox="0 0 1200 120"
@@ -87,7 +95,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
         >
           <path
             d="M0,60 C150,90 350,30 500,60 C650,90 850,30 1000,60 C1150,90 1350,30 1500,60 L1500,120 L0,120 Z"
-            fill="url(#whiskyWave1)"
+            fill="url(#emeraldWave1)"
           />
         </svg>
         <svg
@@ -98,7 +106,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
         >
           <path
             d="M0,50 C200,20 400,80 600,50 C800,20 1000,80 1200,50 L1200,120 L0,120 Z"
-            fill="url(#whiskyWave2)"
+            fill="url(#emeraldWave2)"
           />
         </svg>
       </div>
@@ -106,13 +114,15 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
       {/* Gradients definition for the liquid waves */}
       <svg className="hidden">
         <defs>
-          <linearGradient id="whiskyWave1" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#A05B17" stopOpacity="0.45" />
-            <stop offset="100%" stopColor="var(--pub-bg)" stopOpacity="0.95" />
+          <linearGradient id="emeraldWave1" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#164E2F" stopOpacity="0.7" />
+            <stop offset="60%" stopColor="#237347" stopOpacity="0.85" />
+            <stop offset="100%" stopColor="var(--pub-bg)" stopOpacity="0.98" />
           </linearGradient>
-          <linearGradient id="whiskyWave2" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#D48A22" stopOpacity="0.6" />
-            <stop offset="100%" stopColor="var(--pub-bg)" stopOpacity="1" />
+          <linearGradient id="emeraldWave2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#2E945D" stopOpacity="0.8" />
+            <stop offset="60%" stopColor="#237347" stopOpacity="0.9" />
+            <stop offset="100%" stopColor="var(--pub-bg)" stopOpacity="0.98" />
           </linearGradient>
         </defs>
       </svg>
@@ -154,49 +164,49 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
         }
       `}</style>
 
-      {/* Welcome Screen Content (Floating Directly, No Background Kasten) */}
+      {/* Welcome Screen Content */}
       <div className="relative z-10 flex flex-col items-center justify-between h-full py-16 px-6 max-w-xl mx-auto text-center w-full">
         {/* Upper half: Logo, Brand & Elegant cursive Subtitle */}
         <div className="flex-1 flex flex-col items-center justify-center pt-16">
-          {/* Logo (Larger, positioned in upper half, no pulse transition) */}
-          <div className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-gradient-to-b from-white/[0.04] to-transparent border border-[var(--brass-accent)]/40 shadow-[0_0_50px_rgba(197,155,39,0.3)] flex items-center justify-center mb-6">
+          {/* Logo */}
+          <div className="relative w-32 h-32 sm:w-36 sm:h-36 flex items-center justify-center mb-6 drop-shadow-[0_12px_32px_rgba(35,115,71,0.30)] animate-fade-in">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={`${basePath}/whisky-logo-with-circle-v4.svg`}
+              src={`${basePath}/whisky-logo-with-circle-v5.svg`}
               alt="Aqua Vitaeum Logo"
-              className="w-28 h-28 sm:w-32 sm:h-32 select-none pointer-events-none rounded-full"
-              width={128}
-              height={128}
+              className="w-full h-full select-none pointer-events-none"
+              width={144}
+              height={144}
             />
           </div>
 
           {/* Brand Title */}
-          <h1 className="font-display text-4xl sm:text-5xl font-extrabold text-[var(--foreground)] tracking-widest uppercase drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)] mb-3">
+          <h1 className="font-display text-4xl sm:text-5xl font-extrabold text-[var(--foreground)] tracking-widest uppercase mb-3">
             {t('welcomeTitle')}
           </h1>
 
-          {/* Subsubtitle: Elegant cursive italics */}
-          <p className="font-serif italic text-lg sm:text-xl text-[var(--foreground)]/90 drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)] tracking-wide">
+          {/* Subtitle */}
+          <p className="font-serif italic text-lg sm:text-xl text-[var(--brass-accent)] tracking-wide">
             {t('welcomeSubtitle')}
           </p>
         </div>
 
-        {/* Bottom half: Parchment-colored single button */}
+        {/* Bottom half: Action Button */}
         <div className="w-full max-w-sm mt-auto pb-8">
           <button
             onClick={hasJournals ? handleEnterClick : () => setIsModalOpen(true)}
-            className="w-full h-12 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--brass-accent)]/40 text-[var(--fab-text)] hover:text-[var(--wood-dark)] font-body text-xs sm:text-sm font-bold tracking-widest uppercase shadow-[0_8px_30px_rgba(0,0,0,0.5)] cursor-pointer transition-all duration-300 active:scale-[0.98] hover:shadow-[0_8px_35px_rgba(197,155,39,0.35)]"
+            className="w-full h-12 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] text-[var(--fab-text)] font-body text-xs sm:text-sm font-bold tracking-widest uppercase shadow-md cursor-pointer transition-all duration-300 active:scale-[0.98]"
           >
             {hasJournals ? t('enterJournalBtn') : t('createFirstJournal')}
           </button>
         </div>
       </div>
 
-      {/* Creation Modal Popup (Keeps landing page clean) */}
+      {/* Creation Modal Popup */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md animate-fade-in p-4">
-          <div className="w-full max-w-md bg-[#1e2e21]/90 backdrop-blur-xl border border-[var(--brass-accent)]/40 rounded-2xl p-6 sm:p-8 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-[var(--brass-accent)]/20 pb-3 mb-5">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fade-in p-4">
+          <div className="w-full max-w-md bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] rounded-2xl p-6 sm:p-8 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-[var(--parchment-border)]/60 pb-3 mb-5">
               <h3 className="font-display text-base sm:text-lg font-bold text-[var(--foreground)] uppercase tracking-wider">
                 {t('createFirstJournal')}
               </h3>
@@ -206,7 +216,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
                   setName('');
                   setDescription('');
                 }}
-                className="p-1 rounded hover:bg-white/5 text-gray-400 hover:text-white transition-colors cursor-pointer"
+                className="p-1 rounded hover:bg-black/5 text-[var(--sepia-muted)] hover:text-[var(--foreground)] transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -214,7 +224,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-body text-gray-400 mb-2 tracking-wider">
+                <label className="block text-xs font-body text-[var(--sepia-muted)] mb-2 tracking-wider">
                   Journal Name
                 </label>
                 <input
@@ -225,12 +235,12 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
                   placeholder={t('journalNamePlaceholder')}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full h-11 px-3 rounded-lg bg-[var(--pub-bg)] border border-[var(--brass-accent)]/30 text-gray-100 placeholder-gray-500 font-body text-sm focus:outline-none focus:border-[var(--brass-accent)] mb-4"
+                  className="w-full h-11 px-3 rounded-lg bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/60 font-body text-sm focus:outline-none focus:border-[var(--brass-accent)] mb-4"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-body text-gray-400 mb-2 tracking-wider">
+                <label className="block text-xs font-body text-[var(--sepia-muted)] mb-2 tracking-wider">
                   Description (optional)
                 </label>
                 <input
@@ -239,7 +249,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
                   placeholder="e.g. My collection of Single Malts..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full h-11 px-3 rounded-lg bg-[var(--pub-bg)] border border-[var(--brass-accent)]/30 text-gray-100 placeholder-gray-500 font-body text-sm focus:outline-none focus:border-[var(--brass-accent)]"
+                  className="w-full h-11 px-3 rounded-lg bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/60 font-body text-sm focus:outline-none focus:border-[var(--brass-accent)]"
                 />
               </div>
 
@@ -251,13 +261,13 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
                     setName('');
                     setDescription('');
                   }}
-                  className="h-10 px-4 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 text-sm font-semibold transition-colors cursor-pointer"
+                  className="h-10 px-4 rounded-lg bg-[var(--pub-bg-alt)] hover:bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] text-[var(--sepia-muted)] hover:text-[var(--foreground)] text-sm font-semibold transition-colors cursor-pointer"
                 >
                   {t('cancel')}
                 </button>
                 <button
                   type="submit"
-                  className="h-10 px-5 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--brass-accent)]/40 text-[var(--fab-text)] hover:text-[var(--wood-dark)] font-semibold text-sm transition-all cursor-pointer shadow-lg active:scale-[0.98]"
+                  className="h-10 px-5 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] text-[var(--fab-text)] font-semibold text-sm transition-all cursor-pointer shadow-md active:scale-[0.98]"
                 >
                   {t('createJournalBtn')}
                 </button>

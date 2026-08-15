@@ -16,13 +16,13 @@ interface AppHeaderProps {
   setActiveJournalId: (id: string | null) => void;
   selectSpirit: (id: string) => void;
   isBottomBarVisible: boolean;
-  isMobileDrawerOpen: boolean;
   onEnterProfile: () => void;
   onLeaveProfile: () => void;
   globalSearchQuery: string;
   setGlobalSearchQuery: (q: string) => void;
   globalTypeFilter: SpiritType | 'All';
   setGlobalTypeFilter: (t: SpiritType | 'All') => void;
+  isSelectMode?: boolean;
 }
 
 export default function AppHeader({
@@ -33,100 +33,111 @@ export default function AppHeader({
   setActiveJournalId,
   selectSpirit,
   isBottomBarVisible,
-  isMobileDrawerOpen,
   onEnterProfile,
   onLeaveProfile,
   globalSearchQuery,
   setGlobalSearchQuery,
   globalTypeFilter,
   setGlobalTypeFilter,
+  isSelectMode = false,
 }: AppHeaderProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   return (
     <header
       id="app-header"
       className={cn(
-        "flex-shrink-0 h-14 flex items-center justify-between px-3 sm:px-6 border-b border-[var(--brass-accent)]/20 border-t border-white/[0.05] bg-wood z-30 shadow-md transition-all duration-300 ease-in-out",
+        "flex-shrink-0 h-16 w-full border-b border-[var(--parchment-border)]/60 bg-[var(--nav-bg)]/85 backdrop-blur-xl z-30 shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-all duration-300 ease-in-out",
         "max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:right-0",
-        (!isBottomBarVisible && !isMobileDrawerOpen && activeView !== 'profile')
+        (!isBottomBarVisible && activeView !== 'profile')
           ? "max-lg:-translate-y-full max-lg:opacity-0 max-lg:pointer-events-none"
           : "translate-y-0 opacity-100"
       )}
     >
-      {/* ── Desktop Layout Header ─────────────────────────────────── */}
-      <div className="hidden lg:flex items-center gap-2.5">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={`${basePath}/whisky-logo-with-circle-v4.svg`}
-          alt="Aqua Vitaeum Logo"
-          className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 select-none pointer-events-none rounded-full"
-          width={40}
-          height={40}
-        />
-        <div>
-          <h1 className="font-display text-sm sm:text-base font-bold text-[var(--foreground)] tracking-wider leading-none">
+      <div className="w-full max-w-6xl mx-auto h-full flex items-center justify-between px-3 sm:px-6">
+        {/* ── Desktop Layout Header ─────────────────────────────────── */}
+        <div className="hidden lg:flex items-center gap-3.5 w-60 shrink-0 select-none">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`${basePath}/whisky-logo-with-circle-v5.svg`}
+            alt="Aqua Vitaeum Logo"
+            className="w-11 h-11 sm:w-12 sm:h-12 select-none pointer-events-none drop-shadow-xs"
+            width={48}
+            height={48}
+          />
+          <h1 className="font-display text-lg sm:text-xl font-bold text-[var(--foreground)] tracking-wide leading-none">
             {t('appTitle')}
           </h1>
-          <p className="font-body text-[9px] text-white/50 uppercase tracking-widest leading-none mt-1">
-            {t('appSubtitle')}
-          </p>
         </div>
-      </div>
 
-      <div className="hidden lg:block flex-1 max-w-sm sm:max-w-md mx-4">
-        <GlobalSearch
-          journals={journals}
-          setActiveJournalId={setActiveJournalId}
-          setActiveView={setActiveView}
-          selectSpirit={selectSpirit}
-          globalSearchQuery={globalSearchQuery}
-          setGlobalSearchQuery={setGlobalSearchQuery}
-          globalTypeFilter={globalTypeFilter}
-          setGlobalTypeFilter={setGlobalTypeFilter}
-        />
-      </div>
-
-      <div className="hidden lg:flex items-center gap-3">
-        <button
-          onClick={() => {
-            if (activeView === 'profile') {
-              onLeaveProfile();
-            } else {
-              onEnterProfile();
-            }
-          }}
-          className={cn(
-            "flex h-8 w-8 items-center justify-center rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] hover:bg-[var(--fab-bg-hover)] transition-all duration-150 cursor-pointer select-none",
-            activeView === 'profile' && "ring-2 ring-[var(--brass-accent)] ring-offset-2 ring-offset-[var(--wood-dark)]"
+        <div className="hidden lg:flex flex-1 justify-center max-w-lg xl:max-w-xl mx-4">
+          {isSelectMode ? (
+            <div className="flex items-center justify-center h-10 px-5 rounded-full bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] text-xs font-display uppercase tracking-widest text-[var(--wood-selection)] font-bold shadow-xs select-none animate-fade-in">
+              <span className="w-2 h-2 rounded-full bg-[var(--wood-selection)] animate-pulse mr-2" />
+              {language === 'DE' ? 'Auswahlmodus aktiv' : 'Selection Mode Active'}
+            </div>
+          ) : (
+            <GlobalSearch
+              journals={journals}
+              setActiveJournalId={setActiveJournalId}
+              setActiveView={setActiveView}
+              selectSpirit={selectSpirit}
+              globalSearchQuery={globalSearchQuery}
+              setGlobalSearchQuery={setGlobalSearchQuery}
+              globalTypeFilter={globalTypeFilter}
+              setGlobalTypeFilter={setGlobalTypeFilter}
+            />
           )}
-          title={t('profileTab')}
-        >
-          <User size={16} />
-        </button>
-      </div>
-
-      {/* ── Mobile Layout Header ─────────────────────────────────── */}
-      <div className="flex lg:hidden items-center justify-between w-full">
-        {/* Left Slot: empty spacer (no drawer button — navigation via Bottom Nav) */}
-        <div className="w-8 h-8 flex items-center justify-center flex-shrink-0" />
-
-        {/* Center Search Bar */}
-        <div className="flex-1 flex justify-center px-1.5 min-w-0">
-          <GlobalSearch
-            journals={journals}
-            setActiveJournalId={setActiveJournalId}
-            setActiveView={setActiveView}
-            selectSpirit={selectSpirit}
-            globalSearchQuery={globalSearchQuery}
-            setGlobalSearchQuery={setGlobalSearchQuery}
-            globalTypeFilter={globalTypeFilter}
-            setGlobalTypeFilter={setGlobalTypeFilter}
-          />
         </div>
 
-        {/* Right Slot: Symmetrical balance spacer */}
-        <div className="w-8 h-8 flex-shrink-0" />
+        <div className="hidden lg:flex items-center justify-end w-60 shrink-0 gap-3">
+          <button
+            onClick={() => {
+              if (activeView === 'profile') {
+                onLeaveProfile();
+              } else {
+                onEnterProfile();
+              }
+            }}
+            className={cn(
+              "flex h-11 w-11 items-center justify-center rounded-full bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] text-[var(--fab-text)] border border-[var(--fab-border)] shadow-xs transition-all duration-150 cursor-pointer select-none active:scale-95",
+              activeView === 'profile' && "ring-2 ring-[var(--nav-active)] ring-offset-2 ring-offset-[var(--nav-bg)]"
+            )}
+            title={t('profileTab')}
+          >
+            <User size={22} strokeWidth={2} />
+          </button>
+        </div>
+
+        {/* ── Mobile Layout Header ─────────────────────────────────── */}
+        <div className="flex lg:hidden items-center justify-between w-full">
+          {/* Left Slot: empty spacer (no drawer button — navigation via Bottom Nav) */}
+          <div className="w-8 h-8 flex items-center justify-center flex-shrink-0" />
+
+          {/* Center Search Bar or Selection Indicator */}
+          <div className="flex-1 flex justify-center px-1.5 min-w-0">
+            {isSelectMode ? (
+              <div className="flex items-center justify-center h-8 px-4 rounded-full bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] text-[11px] font-display uppercase tracking-wider text-[var(--wood-selection)] font-bold shadow-xs select-none animate-fade-in">
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--wood-selection)] animate-pulse mr-2" />
+                {language === 'DE' ? 'Auswahlmodus' : 'Select Mode'}
+              </div>
+            ) : (
+              <GlobalSearch
+                journals={journals}
+                setActiveJournalId={setActiveJournalId}
+                setActiveView={setActiveView}
+                selectSpirit={selectSpirit}
+                globalSearchQuery={globalSearchQuery}
+                setGlobalSearchQuery={setGlobalSearchQuery}
+                globalTypeFilter={globalTypeFilter}
+                setGlobalTypeFilter={setGlobalTypeFilter}
+              />
+            )}
+          </div>
+
+          {/* Right Slot: Symmetrical balance spacer */}
+          <div className="w-8 h-8 flex-shrink-0" />
+        </div>
       </div>
     </header>
   );

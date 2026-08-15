@@ -155,8 +155,8 @@ export const TRANSLATIONS = {
     profileLanguage: 'Language',
 
     // Overview Layout Preference
-    overviewLayout: 'Overview Layout',
-    overviewLayoutDesc: 'Journal notes display style',
+    overviewLayout: 'Tasting Notes Layout',
+    overviewLayoutDesc: 'Display style for tasting notes in journals',
     layoutList: 'List',
     layoutGrid: 'Grid',
     layoutTable: 'Table',
@@ -318,8 +318,8 @@ export const TRANSLATIONS = {
     profileLanguage: 'Sprache',
 
     // Overview Layout Preference
-    overviewLayout: 'Übersicht-Layout',
-    overviewLayoutDesc: 'Anzeigestil der Journal-Notizen',
+    overviewLayout: 'Tasting-Karten Layout',
+    overviewLayoutDesc: 'Anzeigestil der Notizen im Journal',
     layoutList: 'Liste',
     layoutGrid: 'Raster',
     layoutTable: 'Tabelle',

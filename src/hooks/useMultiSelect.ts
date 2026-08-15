@@ -22,7 +22,7 @@ export interface MultiSelectReturn {
   handleBulkDelete: (onDelete: (id: string) => Promise<void>) => Promise<void>;
 }
 
-export function useMultiSelect(): MultiSelectReturn {
+export function useMultiSelect(onSelectModeChange?: (active: boolean) => void): MultiSelectReturn {
   const [isSelectMode, setIsSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
@@ -35,14 +35,16 @@ export function useMultiSelect(): MultiSelectReturn {
     }
     setIsSelectMode(true);
     setSelectedIds(new Set([id]));
-  }, []);
+    onSelectModeChange?.(true);
+  }, [onSelectModeChange]);
 
   const exitSelectMode = useCallback(() => {
     setIsSelectMode(false);
     setSelectedIds(new Set());
     setConfirmBulkDelete(false);
     longPressActive.current = false;
-  }, []);
+    onSelectModeChange?.(false);
+  }, [onSelectModeChange]);
 
   const toggleSelection = useCallback((id: string) => {
     setSelectedIds((prev) => {

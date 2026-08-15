@@ -21,6 +21,7 @@ interface JournalLandingPageProps {
   onSelectSpirit: (id: string) => void;
   onNewNote: () => void;
   onDeleteSpirit: (id: string) => Promise<void>;
+  onSelectModeChange?: (active: boolean) => void;
 }
 
 export function JournalLandingPage({
@@ -31,6 +32,7 @@ export function JournalLandingPage({
   onSelectSpirit,
   onNewNote,
   onDeleteSpirit,
+  onSelectModeChange,
 }: JournalLandingPageProps) {
   // ── Language ──────────────────────────────────────────────────────────────
   const { t, language } = useLanguage();
@@ -47,7 +49,7 @@ export function JournalLandingPage({
     cancelLongPress,
     handleTouchEnd,
     handleBulkDelete,
-  } = useMultiSelect();
+  } = useMultiSelect(onSelectModeChange);
 
   const canDelete = selectedIds.size > 0;
 
@@ -91,11 +93,6 @@ export function JournalLandingPage({
         onExitSelectMode={exitSelectMode}
         language={language}
       />
-
-      {/* ── Global dim overlay in select mode (pointer-events-none — items remain interactive) */}
-      {isSelectMode && (
-        <div className="fixed inset-0 z-10 bg-black/25 pointer-events-none transition-opacity duration-300 animate-fade-in" />
-      )}
 
       {/* ── Layout content */}
       <div className="flex-1">

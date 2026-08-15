@@ -10,7 +10,7 @@
 ---
 
 ## 🎨 Aesthetic & Design System
-- **Theme**: Dark vintage iron pub aesthetic (charcoal slate darks `#121212`, warm amber accents `#C59B27`, deep forest green `#2A5E3F`, aged parchment).
+- **Theme**: Warm Vintage Linen & Calibrated Clover Green (warm linen canvas `#ECE5D8`, crisp ivory cards `#FDFBF7`, deep letterpress walnut ink `#2B1E14`, calibrated clover green `#237347`, vibrant Irish clover `#2E945D`, warm honey oak selection `#B3895D`, amber-copper `#C97A1E` / `#FFD166`) with optional vintage dark pub mode (`[data-theme="pub-dark"]`).
 - **Design System Spec**: Refer to [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) for full color theory, contrast ratios, and typography rules.
 - **Sensory Profiling**: Dual-layer 11-dimension radar chart (Nose vs. Taste) and 60-second finish time-intensity Bezier spline graph.
 - **Instinctive Palette**: Flavor descriptors map to natural human-associated hex colors (e.g., Peat Smoke `#655A52`, Sea Salt `#2B788B`, Green Apple `#3E8E41`).
@@ -57,31 +57,31 @@ Before declaring ANY task complete:
 
 ### Token Quick Reference
 
-| Token | Value | Use For |
-|---|---|---|
-| `--pub-bg` | `#122616` | App root bg, all scrollable area backgrounds |
-| `--pub-bg-alt` | `#1c3822` | Secondary depth on dark bg |
-| `--pub-bg-panel` | `#224229` | Dialogs, elevated panels, modals |
-| `--wood-accent` | `#311e15` | `.bg-wood` nav bar background texture |
-| `--wood-dark` | `#311e15` | Text/icon color on light (parchment/FAB) surfaces |
-| `--wood-selection` | `#3D2616` | Active/selected state bg on parchment cards |
-| `--wood-light` | `#442a1e` | Lighter wood trim |
-| `--brass-accent` | `#C59B27` | Active borders, focus rings, accent text, icons |
-| `--brass-muted` | `#a07d1a` | Secondary gold, italic subtitles |
-| `--brass-light` | `#e8c247` | Hover state on brass elements |
-| `--parchment-bg` | `#F5EEDC` | Tasting card body, light text on dark surfaces |
-| `--parchment-bg-alt` | `#EDE0C4` | Alternate parchment / hover depth |
-| `--parchment-border` | `#C4A87A` | Input underlines, card borders, thin rules |
-| `--parchment-divider` | `#D4C3A3` | Section border-t dividers inside tasting card |
-| `--sepia-text` | `#1A120B` | Primary text on parchment |
-| `--sepia-muted` | `#5c3d22` | Placeholders, muted labels, focus borders |
-| `--sepia-light` | `#755030` | Section headers, secondary labels |
-| `--foreground` | `#e8d5b7` | Primary text on dark pub background |
-| `--fab-bg` | `#E8D5B7` | ALL FABs and primary CTA button backgrounds |
-| `--fab-bg-hover` | `#F5F2EB` | FAB / CTA hover state |
-| `--fab-text` | `#311e15` | FAB icon and label color |
-| `--fab-border` | `rgba(197,155,39,0.4)` | FAB brass ring border |
-| `--forest-green` | `#2A5E3F` | Journal card hover borders, journal icon placeholders |
+| Token | Role / Surface |
+|---|---|
+| `--pub-bg` | App root bg, all scrollable area backgrounds (`#ECE5D8`) |
+| `--pub-bg-alt` | Secondary depth, table headers, tags (`#E2D9C8`) |
+| `--pub-bg-panel` | Dialogs, elevated panels, card canvas (`#FDFBF7`) |
+| `--nav-bg` | Seamless floating navigation bar surface (`#ECE5D8`) |
+| `--nav-active` | High-contrast amber-gold active tab indicator (`#C97A1E`) |
+| `--nav-inactive` | Muted warm sepia slate inactive tab icon (`#8A7360`) |
+| `--wood-accent` | Clover green primary secondary and structural accent (`#2E945D`) |
+| `--wood-dark` | Deep clover green tone (`#237347`) |
+| `--wood-selection` | Active selection bg on cards and active toggle pills (`#2E945D`) |
+| `--sensory-nose` | Luminous Amber-Gold for Nose aroma radar layers (`#C97A1E`) |
+| `--sensory-taste` | Maritime Coastal Teal for Taste palate radar layers (`#1C6B7D`) |
+| `--brass-accent` | Active borders, focus rings, stars, ratings (`#C97A1E`) |
+| `--brass-muted` | Secondary brass and subtitles (`#A66519`) |
+| `--parchment-bg` | Tasting card body, light canvas (`#FDFBF7`) |
+| `--parchment-border` | Hairline rules, card borders (`#D8CCB8`) |
+| `--parchment-divider` | Section divider lines (`rgba(35, 115, 71, 0.22)`) |
+| `--sepia-text` | Primary ink text (`#2B1E14`) |
+| `--sepia-muted` | Placeholders, muted labels (`#6D5949`) |
+| `--sepia-light` | Section headers, subheadings (`#8A6E55`) |
+| `--foreground` | Primary text across app (`#2B1E14`) |
+| `--fab-bg` | Primary CTA and action trigger bg (`#2E945D`) |
+| `--fab-text` | FAB icon and label color (`#FDFBF7`) |
+| `--forest-green` | Vibrant Irish Clover green accents (`#2E945D`) |
 
 ### Surface to Token Mapping
 

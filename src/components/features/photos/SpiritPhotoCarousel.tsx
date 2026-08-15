@@ -52,9 +52,9 @@ export function SpiritPhotoCarousel({
       {images.length === 0 ? (
         /* ── Empty State Placeholder ────────────────────────────────────────── */
         <div className="w-full h-96 sm:h-[440px] rounded-md border-2 border-dashed border-[var(--parchment-border)] bg-[var(--sepia-text)]/5 flex flex-col items-center justify-center gap-3.5 p-6 text-center">
-          {/* Signature Wine Icon */}
-          <div className="w-16 h-16 rounded-full bg-[var(--brass-accent)]/15 border border-[var(--brass-accent)]/40 flex items-center justify-center text-[var(--brass-accent)] shadow-[0_0_20px_rgba(197,155,39,0.15)]">
-            <WhiskyLogo size={34} className="text-[var(--brass-accent)]" />
+          {/* Signature Tasting Glass Icon */}
+          <div className="w-16 h-16 rounded-full bg-[var(--wood-dark)]/15 border border-[var(--forest-green)]/40 flex items-center justify-center text-[var(--forest-green)] shadow-[0_0_20px_rgba(35,115,71,0.15)]">
+            <WhiskyLogo size={34} className="text-[var(--forest-green)]" />
           </div>
 
           <div className="flex flex-col gap-1 max-w-sm">
