@@ -39,7 +39,7 @@ export function JournalLandingHeader({
         {/* Left: Journal name + count/selection badge */}
         <div className="flex items-center gap-3 min-w-0 flex-1">
           <h1 className="font-display text-2xl sm:text-3xl font-bold text-[var(--foreground)] tracking-wide truncate">
-            {journal.name}
+            {journal?.name || 'Journal'}
           </h1>
           {isSelectMode && selectedCount > 0 && (
             <span className="text-xs font-body text-[var(--brass-accent)] font-semibold tabular-nums shrink-0 bg-[var(--brass-accent)]/10 px-2 py-0.5 rounded-full border border-[var(--brass-accent)]/30">
@@ -103,7 +103,7 @@ export function JournalLandingHeader({
                   id: 'export-journal',
                   label: language === 'DE' ? 'Journal exportieren' : 'Export Journal',
                   icon: <Download size={16} />,
-                  onClick: () => onExportJournal?.(journal.id),
+                  onClick: () => onExportJournal?.(journal?.id || ''),
                 },
               ]}
             />
