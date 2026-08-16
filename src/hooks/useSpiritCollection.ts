@@ -11,6 +11,7 @@ import {
 } from '@/lib/sync-events';
 
 const SEEDED_STORAGE_KEY = 'aqua-vitaeum-seeded';
+const SESSION_SPIRIT_KEY = 'aqua-vitaeum-active-spirit-id';
 
 import { recordTombstone, removeTombstone } from '@/lib/sync-tombstones';
 
@@ -101,7 +102,9 @@ export function useSpiritCollection(activeJournalId: string | null) {
     // Sort spirits by tasted date (newest first)
     localSpirits.sort((a, b) => (b.dateTasted || '').localeCompare(a.dateTasted || ''));
     setSpirits(localSpirits);
-    const targetId = pendingSelectedIdRef.current;
+    const targetId =
+      pendingSelectedIdRef.current ||
+      (typeof window !== 'undefined' ? sessionStorage.getItem(SESSION_SPIRIT_KEY) : null);
     if (targetId && localSpirits.some((s) => s.id === targetId)) {
       setSelectedId(targetId);
     } else {
@@ -172,6 +175,9 @@ export function useSpiritCollection(activeJournalId: string | null) {
   const selectSpirit = useCallback((id: string) => {
     pendingSelectedIdRef.current = id;
     setSelectedId(id);
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem(SESSION_SPIRIT_KEY, id);
+    }
   }, []);
 
   const handleNewNote = useCallback(async () => {
@@ -181,6 +187,9 @@ export function useSpiritCollection(activeJournalId: string | null) {
       await db.spirits.add(blank);
       setSpirits((prev) => [blank, ...prev]);
       setSelectedId(blank.id);
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem(SESSION_SPIRIT_KEY, blank.id);
+      }
       await syncWithServer();
       notifyDataMutated();
     } catch (err) {
@@ -203,6 +212,9 @@ export function useSpiritCollection(activeJournalId: string | null) {
             : [spiritToSave, ...prev]
         );
         setSelectedId(spiritToSave.id);
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem(SESSION_SPIRIT_KEY, spiritToSave.id);
+        }
         await syncWithServer();
         notifyDataMutated();
       } catch (err) {
@@ -218,10 +230,24 @@ export function useSpiritCollection(activeJournalId: string | null) {
       try {
         recordTombstone(id, 'spirit');
         await db.spirits.delete(id);
-        setSpirits((prev) => prev.filter((s) => s.id !== id));
-        if (selectedId === id) {
-          setSelectedId(null);
-        }
+        setSpirits((prev) => {
+          const next = prev.filter((s) => s.id !== id);
+          setSelectedId((currentId) => {
+            if (currentId === id) {
+              const nextId = next[0]?.id ?? null;
+              if (typeof window !== 'undefined') {
+                if (nextId) {
+                  sessionStorage.setItem(SESSION_SPIRIT_KEY, nextId);
+                } else {
+                  sessionStorage.removeItem(SESSION_SPIRIT_KEY);
+                }
+              }
+              return nextId;
+            }
+            return currentId;
+          });
+          return next;
+        });
         await syncWithServer();
         notifyDataMutated();
       } catch (err) {
@@ -229,7 +255,7 @@ export function useSpiritCollection(activeJournalId: string | null) {
         throw err;
       }
     },
-    [selectedId, syncWithServer]
+    [syncWithServer]
   );
 
   return {

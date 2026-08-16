@@ -51,6 +51,7 @@ vi.mock('@/lib/db', () => {
 describe('useSpiritCollection Hook', () => {
   beforeEach(() => {
     localStorage.clear();
+    sessionStorage.clear();
     localStorage.setItem('aqua-vitaeum-seeded', 'true');
     mockDatabaseStore = [...MOCK_SPIRITS];
     vi.stubGlobal(
@@ -71,6 +72,8 @@ describe('useSpiritCollection Hook', () => {
   });
 
   afterEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
     vi.restoreAllMocks();
   });
 
