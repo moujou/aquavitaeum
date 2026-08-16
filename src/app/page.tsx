@@ -387,57 +387,61 @@ export default function Home() {
           </div>
         ) : activeView === 'journal-landing' ? (
           /* ── Journal Landing Page (Note Overview) ─────────────────── */
-          <div className="flex flex-1 overflow-hidden relative flex-col">
-            <div
-              id="journal-landing-scroll"
-              className="flex-1 overflow-y-auto bg-[var(--pub-bg)] pt-16 lg:pt-0 pb-16 lg:pb-0"
-            >
-              <JournalLandingPage
-                journal={activeJournal!}
-                spirits={filteredSpirits}
-                layout={layout}
-                isLoading={isLoadingSpirits}
-                onSelectModeChange={setIsSelectModeActive}
-                onSelectSpirit={(id) => {
-                  selectSpirit(id);
-                  setActiveView('journal-detail');
-                }}
-                onNewNote={() => {
-                  handleNewNote().then(() => {
-                    startTransition(() => setActiveView('journal-detail'));
-                  });
-                }}
-                onDeleteSpirit={handleDelete}
-              />
-            </div>
-            {/* Content-Aligned Desktop Action Layer (Journal Landing) */}
-            <div className="hidden lg:block absolute inset-0 pointer-events-none z-30">
-              <div className="w-full max-w-6xl mx-auto h-full relative px-4 sm:px-6">
-                {/* Back to Journals (BookOpen) FAB */}
-                <button
-                  type="button"
-                  onClick={() => { setActiveJournalId(null); setActiveView('overview'); }}
-                  className="pointer-events-auto absolute bottom-10 left-4 xl:-left-10 2xl:-left-16 w-16 h-16 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] border border-[var(--brass-accent)]/50 shadow-[0_12px_32px_rgba(0,0,0,0.35)] flex items-center justify-center cursor-pointer hover:scale-108 active:scale-95 transition-all hover:bg-[var(--fab-bg-hover)]"
-                  title="Back to Journals"
-                >
-                  <BookOpen size={26} strokeWidth={2} />
-                </button>
-                {/* New Note FAB */}
-                <button
-                  type="button"
-                  onClick={() => {
+          isLoadingJournals || !activeJournal ? (
+            <AppLoader />
+          ) : (
+            <div className="flex flex-1 overflow-hidden relative flex-col">
+              <div
+                id="journal-landing-scroll"
+                className="flex-1 overflow-y-auto bg-[var(--pub-bg)] pt-16 lg:pt-0 pb-16 lg:pb-0"
+              >
+                <JournalLandingPage
+                  journal={activeJournal}
+                  spirits={filteredSpirits}
+                  layout={layout}
+                  isLoading={isLoadingSpirits}
+                  onSelectModeChange={setIsSelectModeActive}
+                  onSelectSpirit={(id) => {
+                    selectSpirit(id);
+                    setActiveView('journal-detail');
+                  }}
+                  onNewNote={() => {
                     handleNewNote().then(() => {
                       startTransition(() => setActiveView('journal-detail'));
                     });
                   }}
-                  className="pointer-events-auto absolute bottom-10 right-4 xl:-right-10 2xl:-right-16 w-16 h-16 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] border border-[var(--brass-accent)]/50 shadow-[0_12px_32px_rgba(0,0,0,0.35)] flex items-center justify-center cursor-pointer hover:scale-108 active:scale-95 transition-all hover:bg-[var(--fab-bg-hover)]"
-                  title="New Note"
-                >
-                  <Plus size={28} strokeWidth={2.5} />
-                </button>
+                  onDeleteSpirit={handleDelete}
+                />
+              </div>
+              {/* Content-Aligned Desktop Action Layer (Journal Landing) */}
+              <div className="hidden lg:block absolute inset-0 pointer-events-none z-30">
+                <div className="w-full max-w-6xl mx-auto h-full relative px-4 sm:px-6">
+                  {/* Back to Journals (BookOpen) FAB */}
+                  <button
+                    type="button"
+                    onClick={() => { setActiveJournalId(null); setActiveView('overview'); }}
+                    className="pointer-events-auto absolute bottom-10 left-4 xl:-left-10 2xl:-left-16 w-16 h-16 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] border border-[var(--brass-accent)]/50 shadow-[0_12px_32px_rgba(0,0,0,0.35)] flex items-center justify-center cursor-pointer hover:scale-108 active:scale-95 transition-all hover:bg-[var(--fab-bg-hover)]"
+                    title="Back to Journals"
+                  >
+                    <BookOpen size={26} strokeWidth={2} />
+                  </button>
+                  {/* New Note FAB */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleNewNote().then(() => {
+                        startTransition(() => setActiveView('journal-detail'));
+                      });
+                    }}
+                    className="pointer-events-auto absolute bottom-10 right-4 xl:-right-10 2xl:-right-16 w-16 h-16 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] border border-[var(--brass-accent)]/50 shadow-[0_12px_32px_rgba(0,0,0,0.35)] flex items-center justify-center cursor-pointer hover:scale-108 active:scale-95 transition-all hover:bg-[var(--fab-bg-hover)]"
+                    title="New Note"
+                  >
+                    <Plus size={28} strokeWidth={2.5} />
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          )
         ) : (
           /* activeView === 'journal-detail' */
           <div className="flex flex-1 overflow-hidden relative animate-fade-in">

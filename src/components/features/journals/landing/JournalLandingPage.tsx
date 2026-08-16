@@ -94,7 +94,7 @@ export function JournalLandingPage({
         onExitSelectMode={exitSelectMode}
         onEnterSelectMode={enterSelectMode}
         onExportJournal={(id) => exportJournalsToFile([id])}
-        onExportSelectedNotes={() => exportSpiritsToFile([...selectedIds], journal.name)}
+        onExportSelectedNotes={() => exportSpiritsToFile([...selectedIds], journal?.name || 'Journal')}
         language={language}
       />
 
