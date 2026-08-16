@@ -1,7 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
-import { db } from '@/lib/db';
+import { useState, useCallback, useEffect } from 'react';
 import { Journal } from '@/types/spirit.types';
-import { notifyDataChanged, DATA_CHANGED_EVENT } from '@/lib/sync-events';
+import { db } from '@/lib/db';
+import {
+  notifyDataMutated,
+  DATA_MUTATED_EVENT,
+  REMOTE_SYNC_COMPLETED_EVENT,
+} from '@/lib/sync-events';
 import { recordTombstone, removeTombstone } from '@/lib/sync-tombstones';
 
 export interface JournalWithStats extends Journal {
@@ -74,13 +78,17 @@ export function useJournals() {
     loadJournals();
   }, [loadJournals]);
 
-  // Live reactivity: listen to background sync / import updates
+  // Live reactivity: listen to background sync / import updates / remote sync completions
   useEffect(() => {
     const handleDataChanged = () => {
       loadJournals();
     };
-    window.addEventListener(DATA_CHANGED_EVENT, handleDataChanged);
-    return () => window.removeEventListener(DATA_CHANGED_EVENT, handleDataChanged);
+    window.addEventListener(DATA_MUTATED_EVENT, handleDataChanged);
+    window.addEventListener(REMOTE_SYNC_COMPLETED_EVENT, handleDataChanged);
+    return () => {
+      window.removeEventListener(DATA_MUTATED_EVENT, handleDataChanged);
+      window.removeEventListener(REMOTE_SYNC_COMPLETED_EVENT, handleDataChanged);
+    };
   }, [loadJournals]);
 
   // Create a new journal
@@ -98,7 +106,7 @@ export function useJournals() {
       await db.journals.add(newJournal);
       removeTombstone(newJournal.id);
       await loadJournals();
-      notifyDataChanged();
+      notifyDataMutated();
       return newJournal;
     } catch (err) {
       console.error('Aqua Vitaeum: Failed to create journal.', err);
@@ -117,7 +125,7 @@ export function useJournals() {
       });
       removeTombstone(id);
       await loadJournals();
-      notifyDataChanged();
+      notifyDataMutated();
     } catch (err) {
       console.error('Aqua Vitaeum: Failed to rename journal.', err);
       throw err;
@@ -142,7 +150,7 @@ export function useJournals() {
       await db.spirits.where('journalId').equals(id).delete();
       
       await loadJournals();
-      notifyDataChanged();
+      notifyDataMutated();
     } catch (err) {
       console.error('Aqua Vitaeum: Failed to delete journal.', err);
       throw err;

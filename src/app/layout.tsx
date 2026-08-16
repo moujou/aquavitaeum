@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { LanguageProvider } from '@/context/LanguageContext';
+import { GoogleDriveSyncProvider } from '@/context/GoogleDriveSyncContext';
 
 export const viewport: Viewport = {
   themeColor: '#F4EFE6', // Matches the Warm Vintage Linen canvas
@@ -57,7 +58,9 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
-        <LanguageProvider>{children}</LanguageProvider>
+        <LanguageProvider>
+          <GoogleDriveSyncProvider>{children}</GoogleDriveSyncProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

@@ -75,6 +75,8 @@ export function isTombstoned(id: string, entityUpdatedAt?: string): boolean {
   const deletedTime = new Date(record.deletedAt).getTime();
   const updatedTime = new Date(entityUpdatedAt).getTime();
 
+  if (isNaN(deletedTime) || isNaN(updatedTime)) return true;
+
   return deletedTime >= updatedTime;
 }
 

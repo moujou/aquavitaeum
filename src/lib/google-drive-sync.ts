@@ -2,7 +2,7 @@ import { db } from '@/lib/db';
 import { Journal, Spirit } from '@/types/spirit.types';
 import { isValidSpiritData } from '@/lib/schemas/spirit.schema';
 import { isValidJournalData } from '@/lib/schemas/journal.schema';
-import { notifyDataChanged } from '@/lib/sync-events';
+import { notifyRemoteSyncCompleted } from '@/lib/sync-events';
 import {
   getTombstones,
   isTombstoned,
@@ -88,9 +88,13 @@ export async function loadGoogleGsiScript(): Promise<void> {
 }
 
 /**
- * Requests an OAuth 2.0 access token with drive.file scope using Google Identity Services
+ * Requests an OAuth 2.0 access token with drive.file scope using Google Identity Services.
+ * Supports silent token refresh via prompt: '' or explicit consent via prompt: 'consent'.
  */
-export async function requestGoogleAccessToken(clientId: string): Promise<string> {
+export async function requestGoogleAccessToken(
+  clientId: string,
+  prompt: '' | 'consent' | 'select_account' = ''
+): Promise<string> {
   await loadGoogleGsiScript();
 
   const google = typeof window !== 'undefined' ? window.google : undefined;
@@ -117,7 +121,9 @@ export async function requestGoogleAccessToken(clientId: string): Promise<string
         },
       });
 
-      client.requestAccessToken();
+      (client as unknown as { requestAccessToken: (config?: { prompt?: string }) => void }).requestAccessToken(
+        prompt ? { prompt } : { prompt: '' }
+      );
     } catch (err) {
       reject(err);
     }
@@ -339,10 +345,12 @@ export async function performGoogleDriveSync(token: string): Promise<SyncStats> 
   }
 
   // 3. Purge any locally stored spirits/journals that are tombstoned
+  let deletedLocals = 0;
   const localSpiritsBefore = await db.spirits.toArray();
   for (const s of localSpiritsBefore) {
     if (isTombstoned(s.id, s.updatedAt || s.dateTasted)) {
       await db.spirits.delete(s.id);
+      deletedLocals++;
     }
   }
   const localJournalsBefore = await db.journals.toArray();
@@ -350,6 +358,7 @@ export async function performGoogleDriveSync(token: string): Promise<SyncStats> 
     if (isTombstoned(j.id, j.updatedAt || j.createdAt)) {
       await db.journals.delete(j.id);
       await db.spirits.where('journalId').equals(j.id).delete();
+      deletedLocals++;
     }
   }
 
@@ -571,8 +580,8 @@ export async function performGoogleDriveSync(token: string): Promise<SyncStats> 
     localStorage.setItem('aqua-vitaeum-last-sync-time', nowIso);
   }
 
-  if (pulledSpirits > 0 || pulledJournals > 0 || deletedRemotes > 0) {
-    notifyDataChanged();
+  if (pulledSpirits > 0 || pulledJournals > 0 || deletedRemotes > 0 || deletedLocals > 0) {
+    notifyRemoteSyncCompleted();
   }
 
   return {
