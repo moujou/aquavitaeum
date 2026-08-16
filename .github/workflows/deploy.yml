@@ -40,6 +40,8 @@ jobs:
         run: npm run test
 
       - name: Build static export
+        env:
+          NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID || vars.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
         run: npm run build
 
       - name: Upload Pages artifact
