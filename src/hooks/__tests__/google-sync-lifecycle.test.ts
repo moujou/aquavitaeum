@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useGoogleDriveSync } from '../useGoogleDriveSync';
+import { useGoogleDriveSync, GoogleDriveSyncProvider } from '../useGoogleDriveSync';
 import { notifyDataChanged } from '@/lib/sync-events';
 
 const TOKEN_KEY = 'aqua-vitaeum-google-token';
@@ -36,7 +36,9 @@ describe('Google Drive Sync - Lifecycle & Persistent Session Suite', () => {
     localStorage.setItem(TOKEN_KEY, 'stored-access-token-456');
     localStorage.setItem(ENABLED_KEY, 'true');
 
-    const { result } = renderHook(() => useGoogleDriveSync());
+    const { result } = renderHook(() => useGoogleDriveSync(), {
+      wrapper: GoogleDriveSyncProvider,
+    });
 
     expect(result.current.isEnabled).toBe(true);
     expect(result.current.isConnected).toBe(true);
@@ -44,7 +46,9 @@ describe('Google Drive Sync - Lifecycle & Persistent Session Suite', () => {
 
   it('persists access token and enabled flag to localStorage upon connecting', async () => {
     localStorage.setItem('aqua-vitaeum-google-client-id', 'mock-client-id.apps.googleusercontent.com');
-    const { result } = renderHook(() => useGoogleDriveSync());
+    const { result } = renderHook(() => useGoogleDriveSync(), {
+      wrapper: GoogleDriveSyncProvider,
+    });
 
     let connectSuccess = false;
     await act(async () => {
@@ -61,7 +65,9 @@ describe('Google Drive Sync - Lifecycle & Persistent Session Suite', () => {
     localStorage.setItem(TOKEN_KEY, 'stored-access-token-456');
     localStorage.setItem(ENABLED_KEY, 'true');
 
-    const { result } = renderHook(() => useGoogleDriveSync());
+    const { result } = renderHook(() => useGoogleDriveSync(), {
+      wrapper: GoogleDriveSyncProvider,
+    });
     expect(result.current.isConnected).toBe(true);
 
     act(() => {
@@ -78,7 +84,9 @@ describe('Google Drive Sync - Lifecycle & Persistent Session Suite', () => {
     localStorage.setItem(TOKEN_KEY, 'stored-access-token-456');
     localStorage.setItem(ENABLED_KEY, 'true');
 
-    const { result } = renderHook(() => useGoogleDriveSync());
+    const { result } = renderHook(() => useGoogleDriveSync(), {
+      wrapper: GoogleDriveSyncProvider,
+    });
     expect(result.current.isConnected).toBe(true);
 
     // Trigger local data changed event
