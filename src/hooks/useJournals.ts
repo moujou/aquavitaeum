@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { db } from '@/lib/db';
 import { Journal } from '@/types/spirit.types';
-import { notifyDataChanged } from '@/lib/sync-events';
+import { notifyDataChanged, DATA_CHANGED_EVENT } from '@/lib/sync-events';
 
 export interface JournalWithStats extends Journal {
   bottleCount: number;
@@ -71,6 +71,15 @@ export function useJournals() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     loadJournals();
+  }, [loadJournals]);
+
+  // Live reactivity: listen to background sync / import updates
+  useEffect(() => {
+    const handleDataChanged = () => {
+      loadJournals();
+    };
+    window.addEventListener(DATA_CHANGED_EVENT, handleDataChanged);
+    return () => window.removeEventListener(DATA_CHANGED_EVENT, handleDataChanged);
   }, [loadJournals]);
 
   // Create a new journal

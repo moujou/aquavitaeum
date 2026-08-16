@@ -4,7 +4,9 @@ import { createBlankSpirit } from '@/lib/spirit-utils';
 import { translateColour, translateGlance } from '@/lib/i18n/translations';
 import { db } from '@/lib/db';
 import { MOCK_SPIRITS } from '@/data/mock-spirits';
-import { notifyDataChanged } from '@/lib/sync-events';
+import { notifyDataChanged, DATA_CHANGED_EVENT } from '@/lib/sync-events';
+
+const SEEDED_STORAGE_KEY = 'aqua-vitaeum-seeded';
 
 export function useSpiritCollection(activeJournalId: string | null) {
   const [spirits, setSpirits] = useState<Spirit[]>([]);
@@ -29,91 +31,95 @@ export function useSpiritCollection(activeJournalId: string | null) {
   }, []);
 
   // Fetch spirits for the active journal
-  useEffect(() => {
-    let isMounted = true;
+  const loadSpirits = useCallback(async () => {
     if (!activeJournalId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsLoading(false);
       return;
     }
     const journalId = activeJournalId;
 
-    async function loadSpirits() {
-      setIsLoading(true);
-      let localSpirits: Spirit[] = [];
-      try {
-        localSpirits = await db.spirits.where('journalId').equals(journalId).toArray();
-      } catch (err) {
-        console.warn('Aqua Vitaeum: Failed to load spirits from IndexedDB.', err);
-      }
+    let localSpirits: Spirit[] = [];
+    try {
+      localSpirits = await db.spirits.where('journalId').equals(journalId).toArray();
+    } catch (err) {
+      console.warn('Aqua Vitaeum: Failed to load spirits from IndexedDB.', err);
+    }
 
-      // If local database has no spirits for this journal AND it's the default journal, 
-      // we check the server API endpoint with fallback to MOCK_SPIRITS (for static/offline mobile builds)
-      if (localSpirits.length === 0 && journalId === 'default-compendium') {
-        try {
-          const res = await fetch('/api/spirits');
-          if (res.ok) {
-            const data = await res.json();
-            if (isMounted && Array.isArray(data.spirits) && data.spirits.length > 0) {
-              const seeded = data.spirits.map((s: Spirit) => ({
-                ...s,
-                journalId: 'default-compendium',
-              }));
-              setSpirits(seeded);
-              setSelectedId(seeded[0]?.id ?? null);
-              try {
-                await db.spirits.bulkPut(seeded);
-              } catch (err) {
-                console.warn('Aqua Vitaeum: Could not seed IndexedDB from API.', err);
-              }
-              if (isMounted) setIsLoading(false);
-              return;
-            }
-          }
-        } catch {
-          // Server fetch failed (e.g. static export, GitHub Pages, offline mobile) -> fallback to MOCK_SPIRITS
-          if (MOCK_SPIRITS.length > 0) {
-            const seeded = MOCK_SPIRITS.map((s: Spirit) => ({
+    // If local database has no spirits for this journal AND it's the default journal AND has never seeded before, 
+    // we check the server API endpoint with fallback to MOCK_SPIRITS (for static/offline mobile builds)
+    const isAlreadySeeded = typeof window !== 'undefined' && localStorage.getItem(SEEDED_STORAGE_KEY) === 'true';
+    if (localSpirits.length === 0 && journalId === 'default-compendium' && !isAlreadySeeded) {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(SEEDED_STORAGE_KEY, 'true');
+      }
+      try {
+        const res = await fetch('/api/spirits');
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.spirits) && data.spirits.length > 0) {
+            const seeded = data.spirits.map((s: Spirit) => ({
               ...s,
               journalId: 'default-compendium',
             }));
-            if (isMounted) {
-              setSpirits(seeded);
-              setSelectedId(seeded[0]?.id ?? null);
-              setIsLoading(false);
-            }
+            setSpirits(seeded);
+            setSelectedId(seeded[0]?.id ?? null);
             try {
               await db.spirits.bulkPut(seeded);
             } catch (err) {
-              console.warn('Aqua Vitaeum: Could not seed IndexedDB from MOCK_SPIRITS fallback.', err);
+              console.warn('Aqua Vitaeum: Could not seed IndexedDB from API.', err);
             }
+            setIsLoading(false);
             return;
           }
         }
-      }
-
-      if (isMounted) {
-        // Sort spirits by tasted date (newest first)
-        localSpirits.sort((a, b) => (b.dateTasted || '').localeCompare(a.dateTasted || ''));
-        setSpirits(localSpirits);
-        const targetId = pendingSelectedIdRef.current;
-        if (targetId && localSpirits.some((s) => s.id === targetId)) {
-          setSelectedId(targetId);
-        } else {
-          setSelectedId((prev) =>
-            prev && localSpirits.some((s) => s.id === prev) ? prev : (localSpirits[0]?.id ?? null)
-          );
+      } catch {
+        // Server fetch failed (e.g. static export, GitHub Pages, offline mobile) -> fallback to MOCK_SPIRITS
+        if (MOCK_SPIRITS.length > 0) {
+          const seeded = MOCK_SPIRITS.map((s: Spirit) => ({
+            ...s,
+            journalId: 'default-compendium',
+          }));
+          setSpirits(seeded);
+          setSelectedId(seeded[0]?.id ?? null);
+          setIsLoading(false);
+          try {
+            await db.spirits.bulkPut(seeded);
+          } catch (err) {
+            console.warn('Aqua Vitaeum: Could not seed IndexedDB from MOCK_SPIRITS fallback.', err);
+          }
+          return;
         }
-        pendingSelectedIdRef.current = null;
-        setIsLoading(false);
       }
     }
 
-    loadSpirits();
-    return () => {
-      isMounted = false;
-    };
+    // Sort spirits by tasted date (newest first)
+    localSpirits.sort((a, b) => (b.dateTasted || '').localeCompare(a.dateTasted || ''));
+    setSpirits(localSpirits);
+    const targetId = pendingSelectedIdRef.current;
+    if (targetId && localSpirits.some((s) => s.id === targetId)) {
+      setSelectedId(targetId);
+    } else {
+      setSelectedId((prev) =>
+        prev && localSpirits.some((s) => s.id === prev) ? prev : (localSpirits[0]?.id ?? null)
+      );
+    }
+    pendingSelectedIdRef.current = null;
+    setIsLoading(false);
   }, [activeJournalId]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadSpirits();
+  }, [loadSpirits]);
+
+  // Live reactivity: listen to background sync / import updates
+  useEffect(() => {
+    const handleDataChanged = () => {
+      loadSpirits();
+    };
+    window.addEventListener(DATA_CHANGED_EVENT, handleDataChanged);
+    return () => window.removeEventListener(DATA_CHANGED_EVENT, handleDataChanged);
+  }, [loadSpirits]);
 
   const activeSpirit = useMemo(() => {
     return spirits.find((s) => s.id === selectedId) ?? createBlankSpirit(activeJournalId || undefined);

@@ -2,6 +2,7 @@ import { db } from '@/lib/db';
 import { Journal, Spirit } from '@/types/spirit.types';
 import { isValidSpiritData } from '@/lib/schemas/spirit.schema';
 import { isValidJournalData } from '@/lib/schemas/journal.schema';
+import { notifyDataChanged } from '@/lib/sync-events';
 
 // ─── Constants & Types ────────────────────────────────────────────────────────
 
@@ -446,6 +447,10 @@ export async function performGoogleDriveSync(token: string): Promise<SyncStats> 
   const nowIso = new Date().toISOString();
   if (typeof window !== 'undefined') {
     localStorage.setItem('aqua-vitaeum-last-sync-time', nowIso);
+  }
+
+  if (pulledSpirits > 0 || pulledJournals > 0) {
+    notifyDataChanged();
   }
 
   return {
