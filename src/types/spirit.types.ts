@@ -139,6 +139,8 @@ export interface Spirit {
   addedWater?: boolean;
   onTheRocks?: boolean;
   withChocolate?: boolean;
+  /** Bottle Volume in ml (e.g. 700, 500, 1000, 50) */
+  volumeMl?: number;
   /** Bottle Price & Currency */
   price?: number;
   currency?: Currency;

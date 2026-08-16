@@ -144,6 +144,11 @@ export function useGoogleDriveSync() {
     }
   }, [accessToken, clientId, isEnabled]);
 
+  const syncNowRef = useRef(syncNow);
+  useEffect(() => {
+    syncNowRef.current = syncNow;
+  }, [syncNow]);
+
   // ── Smart Zero-Friction Auto-Sync (Option A) ──────────────────────────────
   // 1. Initial background pull on mount
   // 2. Debounced auto-sync (2.5s) on local data changes (save, edit, delete)
@@ -157,21 +162,21 @@ export function useGoogleDriveSync() {
       if (debounceTimer) clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
         if (!isSyncingRef.current) {
-          syncNow();
+          syncNowRef.current();
         }
       }, 2500);
     };
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden' && !isSyncingRef.current) {
-        syncNow();
+        syncNowRef.current();
       }
     };
 
     // Initial silent pull on mount (non-blocking)
     const initialTimer = setTimeout(() => {
       if (!isSyncingRef.current) {
-        syncNow();
+        syncNowRef.current();
       }
     }, 150);
 
@@ -184,7 +189,7 @@ export function useGoogleDriveSync() {
       window.removeEventListener(DATA_CHANGED_EVENT, handleDataChange);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [isEnabled, accessToken, syncNow]);
+  }, [isEnabled, accessToken]);
 
   return {
     isEnabled,

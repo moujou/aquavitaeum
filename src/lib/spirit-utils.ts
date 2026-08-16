@@ -108,7 +108,7 @@ export function createBlankSpirit(journalId: string = 'default-compendium'): Spi
     starRating: 0,
     colour: 'Clear',
     glance: [],
-    finish: 'Medium',
+    finish: '',
     finishNotes: '',
     noseProfile: { ...DEFAULT_FLAVOR_PROFILE },
     tasteProfile: { ...DEFAULT_FLAVOR_PROFILE },
@@ -124,6 +124,7 @@ export function createBlankSpirit(journalId: string = 'default-compendium'): Spi
     addedWater: false,
     onTheRocks: false,
     withChocolate: false,
+    volumeMl: 700,
     price: undefined,
     currency: '€',
   };

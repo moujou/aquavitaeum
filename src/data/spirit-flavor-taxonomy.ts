@@ -391,3 +391,60 @@ export function translateFlavorTag(tag: string, language: 'EN' | 'DE'): string {
   }
   return tag;
 }
+
+export function getFlavorColor(tagName: string): string {
+  const desc = findFlavorDescriptor(tagName);
+  if (desc && desc.color) {
+    return desc.color;
+  }
+  if (desc && desc.radarDimension && RADAR_DIMENSION_COLORS[desc.radarDimension]) {
+    return RADAR_DIMENSION_COLORS[desc.radarDimension];
+  }
+  let hash = 0;
+  for (let i = 0; i < tagName.length; i++) {
+    hash = tagName.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const h = Math.abs(hash) % 360;
+  return `hsl(${h}, 65%, 45%)`;
+}
+
+export interface ActiveFlavorCategory {
+  id: string;
+  name: { EN: string; DE: string };
+  emoji: string;
+  color: string;
+  count: number;
+}
+
+export function getActiveFlavorCategories(tags?: string[]): ActiveFlavorCategory[] {
+  if (!tags || tags.length === 0) return [];
+  const categoryMap = new Map<string, { category: FlavorCategory; count: number }>();
+
+  for (const tag of tags) {
+    const desc = findFlavorDescriptor(tag);
+    if (!desc) continue;
+
+    const category = SPIRIT_FLAVOR_TAXONOMY.find((cat) =>
+      cat.subcategories.some((sub) =>
+        sub.descriptors.some((d) => d.id === desc.id)
+      )
+    );
+
+    if (category) {
+      const existing = categoryMap.get(category.id);
+      if (existing) {
+        existing.count++;
+      } else {
+        categoryMap.set(category.id, { category, count: 1 });
+      }
+    }
+  }
+
+  return Array.from(categoryMap.values()).map(({ category, count }) => ({
+    id: category.id,
+    name: category.name,
+    emoji: category.emoji,
+    color: RADAR_DIMENSION_COLORS[category.radarDimension] || '#C59B27',
+    count,
+  }));
+}

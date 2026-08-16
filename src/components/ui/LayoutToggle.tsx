@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { AlignJustify, LayoutGrid, Table2 } from 'lucide-react';
+import { AlignJustify, LayoutGrid } from 'lucide-react';
 import { OverviewLayout } from '@/hooks/useLayoutPreference';
 import { cn } from '@/lib/utils';
 
@@ -39,19 +39,6 @@ export function LayoutToggle({ value, onChange, className }: LayoutToggleProps) 
         aria-label="Grid View"
       >
         <LayoutGrid size={16} />
-      </button>
-      <button
-        type="button"
-        onClick={() => onChange('table')}
-        className={cn(
-          'p-2 rounded-md transition-all cursor-pointer',
-          value === 'table'
-            ? 'bg-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs'
-            : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
-        )}
-        aria-label="Table View"
-      >
-        <Table2 size={16} />
       </button>
     </div>
   );

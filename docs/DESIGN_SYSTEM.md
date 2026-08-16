@@ -42,7 +42,7 @@ graph TD
 | Token Name | Hex Value | Role & Surface |
 | :--- | :--- | :--- |
 | `--pub-bg` | `#ECE5D8` | Main app background, scrollable view areas (Warm Vintage Linen). |
-| `--pub-bg-alt` | `#E0D5C1` | Secondary parchment depth, chips, and table headers. |
+| `--pub-bg-alt` | `#E0D5C1` | Secondary parchment depth, chips, and structural headers. |
 | `--pub-bg-panel` | `#F5EFE1` | Elevated cards, dialogs, and tasting card surfaces (Warm Antique Chamois). |
 | `--nav-bg` | `#ECE5D8` | Seamless floating ultra-clean glassmorphism navigation bar surface. |
 | `--nav-active` | `#2E945D` | Signature Irish Clover Green active navigation tab indicator. |
@@ -173,9 +173,8 @@ Used for all text inputs, textareas, and select elements on the parchment ledger
 - **Ergonomic Sizing**: Large `w-16 h-16` circular action triggers with `size={28}` icons for comfortable desktop pointer interaction.
 - **Outer Grid Anchorage**: Anchored directly outside the `max-w-6xl` content column (`right-4 xl:-right-10 2xl:-right-16` / `left-4 xl:-left-10 2xl:-left-16`), keeping CTAs perpetually accessible while maximizing reading canvas width.
 
-### 5.7 Clover Green Header Banners & Table Thead
+### 5.7 Clover Green Header Banners & Card Accents
 - **Journal Cards**: Compact `px-4 py-2.5 sm:py-3` banner in Deep Clover Green (`bg-[var(--wood-dark)]`) with prominent ivory title (`text-lg sm:text-xl font-bold text-[var(--parchment-bg)]`) and tight subtitle spacing (`mt-0.5`).
-- **Matrix Table (`NoteTableView`)**: `<thead>` styled in signature Deep Clover Green (`bg-[var(--wood-dark)] border-b border-[var(--wood-dark)]/80`) with crisp ivory display text.
 - **Card Footers (`SpiritCard`)**: Grounded with solid Clover Green status bar (`bg-[var(--wood-dark)] text-[var(--parchment-bg)]`) for regional provenance and date stamps.
 
 ### 5.8 Screen-Stable Page Actions Dropdown (`PageActionsDropdown`)

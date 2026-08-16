@@ -2,11 +2,13 @@
 'use client';
 
 import React from 'react';
-import { MapPin, Check, Star } from 'lucide-react';
+import { MapPin, Check, Star, Calendar } from 'lucide-react';
 import { Spirit, SPIRIT_COLOUR_HEX, SpiritColour } from '@/types/spirit.types';
 import { WhiskyLogo } from '@/components/ui/WhiskyLogo';
 import { cn } from '@/lib/utils';
 import { getRatingTierStyle } from '@/lib/spirit-utils';
+import { useLanguage } from '@/context/LanguageContext';
+import { translateFlavorTag, getFlavorColor } from '@/data/spirit-flavor-taxonomy';
 
 interface NoteListItemProps {
   spirit: Spirit;
@@ -27,17 +29,62 @@ export function NoteListItem({
   onTouchStart,
   onTouchCancel,
   onTouchMove,
-  onTouchEnd
+  onTouchEnd,
 }: NoteListItemProps) {
+  const { language } = useLanguage();
   const colourHex = SPIRIT_COLOUR_HEX[spirit.colour as SpiritColour] ?? '#FFD700';
   const tierStyle = getRatingTierStyle(spirit.rating100);
-  
+
   const formattedDate = spirit.dateTasted
-    ? new Date(spirit.dateTasted).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+    ? new Date(spirit.dateTasted).toLocaleDateString(language === 'DE' ? 'de-DE' : 'en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      })
     : '';
 
-  // Get top 2 flavor tags for preview (clean text tags, no emoji clutter)
-  const topFlavorTags = (spirit.flavorTags ?? []).slice(0, 2);
+  // Construct Specs Line 1 (Row 4: Years · vol · bottle size)
+  const specsRow4: string[] = [];
+  if (spirit.age) specsRow4.push(`${spirit.age} ${language === 'DE' ? 'Jahre' : 'Years'}`);
+  if (spirit.abv > 0) specsRow4.push(`${spirit.abv}% vol`);
+  if (spirit.volumeMl && spirit.volumeMl > 0) specsRow4.push(`${spirit.volumeMl}ml`);
+
+  // Construct Specs Line 2 (Row 5: Strength · Added Colour · Chill Filtered)
+  const specsRow5: string[] = [];
+  specsRow5.push(
+    spirit.isCaskStrength
+      ? (language === 'DE' ? 'Fassstärke' : 'Cask Strength')
+      : (language === 'DE' ? 'Trinkstärke' : 'Standard')
+  );
+  specsRow5.push(
+    !spirit.addedColour
+      ? (language === 'DE' ? 'Ohne Farbstoff' : 'Natural Colour')
+      : (language === 'DE' ? 'Mit Farbstoff' : 'Added Colour')
+  );
+  specsRow5.push(
+    !spirit.chillFiltered
+      ? (language === 'DE' ? 'Nicht kühlgefiltert' : 'Non-Chill Filtered')
+      : (language === 'DE' ? 'Kühlgefiltert' : 'Chill Filtered')
+  );
+
+  // Construct Specs Line 3 (Row 6: Finish · Cask / Batch No. - conditional)
+  const specsRow6: string[] = [];
+  if (spirit.finish) specsRow6.push(spirit.finish);
+  if (spirit.caskNo) {
+    specsRow6.push(
+      spirit.caskNo.toLowerCase().startsWith('cask') ||
+      spirit.caskNo.toLowerCase().startsWith('batch') ||
+      spirit.caskNo.startsWith('#')
+        ? spirit.caskNo
+        : `Cask #${spirit.caskNo}`
+    );
+  }
+
+  // Get up to 8 flavor tags for rich preview across full width
+  const previewFlavorTags = (spirit.flavorTags ?? []).slice(0, 8);
+
+  // Extract a representative tasting note quote snippet
+  const tastingQuote = spirit.finishNotes || null;
 
   return (
     <button
@@ -47,115 +94,190 @@ export function NoteListItem({
       onTouchCancel={onTouchCancel}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
+      style={{ WebkitTouchCallout: 'none' } as React.CSSProperties}
       className={cn(
-        "w-full flex items-center gap-3 sm:gap-4.5 pl-3.5 sm:pl-4.5 pr-6 sm:pr-8 py-3.5 rounded-xl border transition-all duration-300 cursor-pointer group relative overflow-hidden text-left select-none",
-        "bg-[var(--parchment-bg)] border border-[var(--parchment-border)] shadow-[0_4px_14px_-2px_rgba(35,20,8,0.12),0_1.5px_4px_rgba(35,20,8,0.06)]",
+        'w-full flex flex-col rounded-xl sm:rounded-2xl border transition-all duration-300 cursor-pointer group relative overflow-hidden text-left select-none',
+        'bg-[var(--parchment-bg)] border border-[var(--parchment-border)] shadow-[0_6px_20px_-3px_rgba(35,20,8,0.12),0_2px_6px_rgba(35,20,8,0.06)]',
         isSelectMode
           ? isSelected
-            ? "border-[var(--wood-selection)] ring-2 ring-[var(--wood-selection)]/45 shadow-[0_0_20px_rgba(46,148,93,0.35)] scale-[1.015] opacity-100 bg-[var(--pub-bg-panel)] z-10"
-            : "border-[var(--parchment-border)]/50 opacity-40 scale-[0.98] shadow-xs"
-          : "hover:border-[var(--forest-green)] hover:shadow-[0_10px_24px_-3px_rgba(35,115,71,0.20),inset_4px_0_12px_rgba(35,115,71,0.06)] hover:-translate-y-0.5"
+            ? 'border-[var(--wood-selection)] ring-2 ring-[var(--wood-selection)]/45 shadow-[0_0_28px_rgba(46,148,93,0.35)] scale-[1.01] opacity-100 bg-[var(--pub-bg-panel)] z-10'
+            : 'border-[var(--parchment-border)]/50 opacity-40 scale-[0.99] shadow-xs'
+          : 'hover:border-[var(--forest-green)] hover:shadow-[0_12px_28px_-3px_rgba(35,115,71,0.20),0_4px_12px_rgba(35,20,8,0.08)] hover:-translate-y-0.5'
       )}
     >
-      {/* Signature Animated Liquid Accent Column (Refined Liquid Bar) */}
-      <div
-        className="absolute top-0 right-0 bottom-0 w-2 sm:w-2.5 overflow-hidden shrink-0 pointer-events-none z-10"
-        style={{ backgroundColor: colourHex }}
-      >
-        <div
-          className="absolute inset-0 animate-fluid-flow"
-          style={{
-            backgroundImage: 'linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.08) 30%, rgba(0,0,0,0.2) 70%, rgba(255,255,255,0.3) 100%)',
-            backgroundSize: '100% 200%',
-          }}
-        />
-        <div className="absolute inset-0 shadow-[inset_1px_0_3px_rgba(0,0,0,0.45)] pointer-events-none" />
-      </div>
+      {/* ── 1. Top Section: Prominent Bottle Image (Left) + Structured Continuous Rows (Right) ── */}
+      <div className="w-full flex flex-row items-stretch border-b border-[var(--parchment-divider)]">
+        {/* Generous Flush Bottle Showcase Frame (Top-Left) */}
+        <div className="w-[110px] sm:w-[145px] md:w-[170px] shrink-0 bg-gradient-to-br from-[var(--pub-bg-alt)] via-[var(--parchment-bg)] to-[var(--pub-bg-alt)] border-r border-[var(--parchment-border)] relative flex items-center justify-center p-0 overflow-hidden min-h-[115px] sm:min-h-[140px]">
+          {/* Ambient Radial Liquid Glow */}
+          <div
+            className="absolute inset-0 pointer-events-none opacity-25 z-0"
+            style={{
+              background: `radial-gradient(circle at center, ${colourHex} 0%, transparent 75%)`,
+            }}
+          />
 
-      {/* Ambient Spirit Color Light-Pipe Backglow */}
-      <div
-        className="absolute -left-6 -top-6 w-28 h-28 rounded-full pointer-events-none opacity-25 blur-xl transition-opacity duration-300 group-hover:opacity-45"
-        style={{ background: `radial-gradient(circle, ${colourHex} 0%, transparent 70%)` }}
-      />
+          {spirit.thumbnailImage ? (
+            <img
+              src={spirit.thumbnailImage}
+              alt={spirit.name}
+              className="w-full h-full object-contain p-0 transition-transform duration-500 ease-out group-hover:scale-105 pointer-events-none z-10"
+              draggable={false}
+            />
+          ) : (
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[var(--forest-green)]/10 border border-[var(--forest-green)]/30 flex items-center justify-center text-[var(--forest-green)] shadow-xs transition-transform duration-300 group-hover:scale-110 z-10">
+              <WhiskyLogo size={36} className="text-[var(--forest-green)] sm:size-[48px]" />
+            </div>
+          )}
 
-      {/* Select Mode Checkbox */}
-      {isSelectMode && (
-        <div className={cn(
-          "shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all z-30",
-          isSelected ? "border-[var(--wood-selection)] bg-[var(--wood-selection)] shadow-xs" : "border-[var(--parchment-border)] bg-[var(--pub-bg-panel)]/90 shadow-xs"
-        )}>
-          {isSelected && <Check size={11} strokeWidth={3} className="text-[var(--parchment-bg)]" />}
-        </div>
-      )}
-
-      {/* Thumbnail with Spirit Hue Indicator */}
-      <div className="w-[52px] h-[52px] sm:w-[58px] sm:h-[58px] rounded-lg shrink-0 overflow-hidden bg-gradient-to-br from-[var(--pub-bg-alt)] to-[var(--parchment-bg)] border border-[var(--parchment-border)] relative flex items-center justify-center shadow-xs group-hover:border-[var(--forest-green)]/60 transition-colors z-10">
-        {spirit.thumbnailImage ? (
-          <img src={spirit.thumbnailImage} alt={spirit.name} className="w-full h-full object-cover" />
-        ) : (
-          <div className="flex items-center justify-center text-[var(--forest-green)]">
-            <WhiskyLogo size={26} className="text-[var(--forest-green)]" />
+          {/* Liquid Color Shimmer Ribbon along right paper seam */}
+          <div
+            className="absolute top-0 right-0 bottom-0 w-1.5 overflow-hidden shrink-0 pointer-events-none z-20"
+            style={{ backgroundColor: colourHex }}
+          >
+            <div
+              className="absolute inset-0 animate-fluid-flow"
+              style={{
+                backgroundImage:
+                  'linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 30%, rgba(0,0,0,0.2) 70%, rgba(255,255,255,0.4) 100%)',
+                backgroundSize: '100% 200%',
+              }}
+            />
           </div>
-        )}
-        {/* Ambient Liquid Pip */}
-        <div
-          className="absolute bottom-0.5 right-0.5 w-2.5 h-2.5 rounded-full border border-[var(--parchment-border)] shadow-xs"
-          style={{ backgroundColor: colourHex }}
-          title={`Spirit color: ${spirit.colour ?? 'Natural'}`}
-        />
-      </div>
 
-      {/* Distillery & Name & Flavor Chips */}
-      <div className="flex-1 min-w-0 flex flex-col justify-center z-10">
-        <div className="font-display font-bold text-sm sm:text-base text-[var(--foreground)] group-hover:text-[var(--brass-accent)] transition-colors truncate leading-snug">
-          {spirit.distillery}
-        </div>
-        <div className="font-body text-xs sm:text-[13px] text-[var(--sepia-muted)] truncate mt-0.5 font-medium leading-snug">
-          {spirit.name}
-        </div>
-
-        {/* Top Flavor Tags (Solid readable chips) */}
-        {topFlavorTags.length > 0 && (
-          <div className="hidden sm:flex items-center gap-1.5 mt-1.5 overflow-hidden">
-            {topFlavorTags.map((tag) => (
-              <span
-                key={tag}
-                className="inline-flex items-center text-[10px] font-semibold tracking-wide bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] px-2 py-0.5 rounded text-[var(--sepia-text)] truncate"
+          {/* Select Mode Checkbox (Top-Left) */}
+          {isSelectMode && (
+            <div className="absolute top-2 left-2 z-30">
+              <div
+                className={cn(
+                  'w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all shadow-md',
+                  isSelected
+                    ? 'bg-[var(--wood-selection)] border-[var(--wood-selection)]'
+                    : 'bg-[var(--pub-bg-panel)]/90 border-[var(--parchment-border)] shadow-xs'
+                )}
               >
-                {tag}
-              </span>
+                {isSelected && <Check size={11} strokeWidth={3} className="text-[var(--parchment-bg)]" />}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Editorial Metadata Block (Top-Right: Structured Continuous Rows with Calibrated Responsive Typography) */}
+        <div className="flex-1 min-w-0 p-3 sm:p-4 md:p-4.5 flex flex-col justify-center gap-1 sm:gap-1.5 z-10">
+          {/* Row 1: Name (Distillery) & Rating Medal */}
+          <div className="flex items-start justify-between gap-2.5 min-w-0">
+            <div className="min-w-0 flex-1">
+              <h3 className="font-display font-bold text-base sm:text-xl md:text-2xl text-[var(--foreground)] group-hover:text-[var(--brass-accent)] transition-colors truncate leading-tight tracking-wide">
+                {spirit.distillery}
+              </h3>
+            </div>
+
+            {/* Dynamic Score Medal */}
+            <div
+              className={cn(
+                'shrink-0 flex items-center justify-center gap-1 px-2 sm:px-2.5 py-1 rounded-lg border font-display font-black text-xs sm:text-sm md:text-base shadow-xs select-none',
+                tierStyle.bg,
+                tierStyle.border,
+                tierStyle.text
+              )}
+            >
+              <Star size={12} className={cn('sm:size-[14px] shrink-0 -mt-0.5', tierStyle.starColor)} />
+              <span>{spirit.rating100}</span>
+            </div>
+          </div>
+
+          {/* Row 2: Description (Bottling Name) */}
+          <div className="min-w-0">
+            <p className="font-body text-xs sm:text-sm md:text-base text-[var(--sepia-muted)] truncate font-medium leading-tight">
+              {spirit.name}
+            </p>
+          </div>
+
+          {/* Row 3: Typ des Whiskys */}
+          <div className="font-display text-[10.5px] sm:text-xs md:text-sm uppercase tracking-wider text-[var(--sepia-text)] font-semibold truncate leading-tight">
+            {spirit.spiritType}
+          </div>
+
+          {/* Row 4: Years · vol · bottle size (Continuous Text) */}
+          {specsRow4.length > 0 && (
+            <div className="text-xs sm:text-sm md:text-base font-body text-[var(--sepia-text)] font-medium leading-tight flex items-center gap-1.5 sm:gap-2 flex-wrap">
+              {specsRow4.map((item, idx) => (
+                <React.Fragment key={idx}>
+                  {idx > 0 && <span className="text-[var(--sepia-muted)]/50 select-none">·</span>}
+                  <span>{item}</span>
+                </React.Fragment>
+              ))}
+            </div>
+          )}
+
+          {/* Row 5: Strength · Added Colour · Chill Filtered (Continuous Text) */}
+          <div className="text-[11px] sm:text-xs md:text-sm font-body text-[var(--sepia-muted)] font-medium leading-tight flex items-center gap-1.5 sm:gap-2 flex-wrap">
+            {specsRow5.map((item, idx) => (
+              <React.Fragment key={idx}>
+                {idx > 0 && <span className="text-[var(--sepia-muted)]/50 select-none">·</span>}
+                <span>{item}</span>
+              </React.Fragment>
             ))}
           </div>
+
+          {/* Row 6: Finish · Cask / Batch No. (Continuous Text, conditional) */}
+          {specsRow6.length > 0 && (
+            <div className="text-[11px] sm:text-xs md:text-sm font-body text-[var(--sepia-muted)] font-medium leading-tight flex items-center gap-1.5 sm:gap-2 flex-wrap">
+              {specsRow6.map((item, idx) => (
+                <React.Fragment key={idx}>
+                  {idx > 0 && <span className="text-[var(--sepia-muted)]/50 select-none">·</span>}
+                  <span>{item}</span>
+                </React.Fragment>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── 2. Middle Section: Dedicated Full-Width Sensory Canvas (Flavor Tags & Tasting Notes on Parchment) ── */}
+      <div className="w-full p-3 sm:p-4 md:p-4.5 flex flex-col gap-2 sm:gap-2.5 z-10">
+        {/* Full-Width Solid Color Flavor Tag Pills */}
+        {previewFlavorTags.length > 0 && (
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap overflow-hidden">
+            {previewFlavorTags.map((tag) => {
+              const color = getFlavorColor(tag);
+              return (
+                <span
+                  key={tag}
+                  style={{
+                    backgroundColor: color,
+                    color: '#ffffff',
+                  }}
+                  className="inline-flex items-center text-[10.5px] sm:text-xs md:text-sm font-bold tracking-wide px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full shadow-xs select-none transition-transform hover:scale-105"
+                >
+                  {translateFlavorTag(tag, language)}
+                </span>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Tasting Notes Snippet Quote on Warm Parchment Panel */}
+        {tastingQuote && (
+          <p className="line-clamp-2 sm:line-clamp-3 text-xs sm:text-sm md:text-base text-[var(--sepia-text)]/90 italic font-body leading-relaxed bg-[var(--pub-bg-alt)]/40 border border-[var(--parchment-border)]/50 rounded-lg sm:rounded-xl px-3 py-2 sm:px-3.5 sm:py-2.5">
+            „{tastingQuote}“
+          </p>
         )}
       </div>
 
-      {/* Spirit Type Badge */}
-      <div className="shrink-0 hidden md:block text-[11px] font-semibold tracking-wide bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] px-2.5 py-1 rounded-full text-[var(--sepia-text)] z-10">
-        {spirit.spiritType}
-      </div>
+      {/* ── 3. Signature Clover Green Grounded Footer: Provenance (Left) & Date (Right) ── */}
+      <div className="w-full bg-[var(--wood-dark)] px-3 sm:px-4 py-1.5 sm:py-2 border-t border-[var(--wood-dark)]/80 flex items-center justify-between gap-2 text-[10px] sm:text-xs text-[var(--parchment-bg)] shrink-0">
+        <div className="flex items-center gap-1.5 min-w-0 font-medium">
+          <MapPin size={11} className="sm:size-[13px] text-[var(--brass-light)] shrink-0" />
+          <span className="truncate">{spirit.region || '—'}</span>
+        </div>
 
-      {/* Region */}
-      <div className="shrink-0 hidden lg:flex items-center gap-1.5 text-xs text-[var(--sepia-muted)] font-body min-w-[100px] z-10">
-        <MapPin size={12} className="text-[var(--brass-accent)] shrink-0" />
-        <span className="truncate">{spirit.region || '—'}</span>
-      </div>
-
-      {/* Date */}
-      <div className="shrink-0 hidden xl:block text-xs font-mono text-[var(--sepia-muted)]/70 min-w-[85px] text-right z-10">
-        {formattedDate}
-      </div>
-
-      {/* Dynamic Score-Tier Rating Medal */}
-      <div
-        className={cn(
-          "shrink-0 flex items-center justify-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-lg border font-display font-black text-sm sm:text-base shadow-xs min-w-[50px] sm:min-w-[58px] z-10",
-          tierStyle.bg,
-          tierStyle.border,
-          tierStyle.text
+        {formattedDate && (
+          <div className="flex items-center gap-1 font-mono text-[var(--parchment-bg)]/85 whitespace-nowrap text-right shrink-0">
+            <Calendar size={11} className="sm:size-[12px] text-[var(--brass-light)] shrink-0" />
+            <span>{formattedDate}</span>
+          </div>
         )}
-      >
-        <Star size={13} className={cn("shrink-0 -mt-0.5", tierStyle.starColor)} />
-        <span>{spirit.rating100}</span>
       </div>
     </button>
   );

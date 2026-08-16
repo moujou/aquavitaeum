@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef, useCallback, startTransition } from 'react';
-import { Plus, BookOpen, AlignJustify, LayoutGrid, Table2 } from 'lucide-react';
+import { Plus, BookOpen, AlignJustify, LayoutGrid } from 'lucide-react';
 import { useSpiritCollection } from '@/hooks/useSpiritCollection';
 import { useJournals } from '@/hooks/useJournals';
 import { useLayoutPreference } from '@/hooks/useLayoutPreference';
@@ -224,6 +224,13 @@ export default function Home() {
     }
   };
 
+  const handleNavigateToSpirit = useCallback((spiritId: string, journalId: string) => {
+    setActiveJournalId(journalId);
+    selectSpirit(spiritId);
+    setActiveView('journal-detail');
+    setGlobalSearchQuery('');
+  }, [selectSpirit]);
+
   // Render a minimal centered loader spinner on initial server/client mount to prevent layout flickers
   if (activeView === 'loading') {
     return <AppLoader />;
@@ -279,6 +286,7 @@ export default function Home() {
           globalTypeFilter={globalTypeFilter}
           setGlobalTypeFilter={setGlobalTypeFilter}
           isSelectMode={isSelectModeActive}
+          onNavigateToSpirit={handleNavigateToSpirit}
         />
 
         {/* ── Main Layout View switcher ──────────────────────────────────── */}
@@ -418,7 +426,7 @@ export default function Home() {
 
               {/* Content-Aligned Desktop Action Layer (Detail) */}
               {(() => {
-                const LayoutFabIcon = layout === 'grid' ? LayoutGrid : layout === 'table' ? Table2 : AlignJustify;
+                const LayoutFabIcon = layout === 'grid' ? LayoutGrid : AlignJustify;
                 return (
                   <div className="hidden lg:block absolute inset-0 pointer-events-none z-30">
                     <div className="w-full max-w-6xl mx-auto h-full relative px-4 sm:px-6">

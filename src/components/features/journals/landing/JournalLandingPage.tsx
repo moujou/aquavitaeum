@@ -12,7 +12,6 @@ import { JournalLandingHeader } from './JournalLandingHeader';
 import { NoteEmptyState } from './NoteEmptyState';
 import { NoteListView } from './layouts/NoteListView';
 import { NoteGridView } from './layouts/NoteGridView';
-import { NoteTableView } from './layouts/NoteTableView';
 
 interface JournalLandingPageProps {
   journal: JournalWithStats;
@@ -110,13 +109,6 @@ export function JournalLandingPage({
         )}
         {layout === 'grid' && (
           <NoteGridView
-            spirits={spirits}
-            onSelect={onSelectSpirit}
-            {...selectModeProps}
-          />
-        )}
-        {layout === 'table' && (
-          <NoteTableView
             spirits={spirits}
             onSelect={onSelectSpirit}
             {...selectModeProps}

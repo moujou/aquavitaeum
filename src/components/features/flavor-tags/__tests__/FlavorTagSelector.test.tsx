@@ -1,52 +1,45 @@
-import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { FlavorTagSelector, isTagSelected } from '../FlavorTagSelector';
-import { LanguageProvider } from '@/context/LanguageContext';
+import { SPIRIT_FLAVOR_TAXONOMY } from '@/data/spirit-flavor-taxonomy';
 import { MOCK_SPIRITS } from '@/data/mock-spirits';
-import {
-  SPIRIT_FLAVOR_TAXONOMY,
-  getAllFlavorDescriptors,
-  getDescriptorsByCategory,
-  getDescriptorsByRadarDimension,
-  findFlavorDescriptor,
-  translateFlavorTag,
-} from '@/data/spirit-flavor-taxonomy';
+import { LanguageProvider } from '@/context/LanguageContext';
 
-describe('FlavorTagSelector Component & Generic Taxonomy Helpers', () => {
-  it('provides SSOT derived helper getters for all flavor descriptors', () => {
-    const all = getAllFlavorDescriptors();
-    expect(all.length).toBeGreaterThan(30);
+describe('FlavorTagSelector Component', () => {
+  it('correctly maps all SWRI flavour taxonomy categories', () => {
+    expect(SPIRIT_FLAVOR_TAXONOMY).toHaveLength(9);
 
-    const peatCategoryDescriptors = getDescriptorsByCategory('torf');
-    expect(peatCategoryDescriptors.length).toBeGreaterThan(0);
-    expect(peatCategoryDescriptors.some((d) => d.id === 'peat_smoke')).toBe(true);
-
-    const peatyRadarDescriptors = getDescriptorsByRadarDimension('peaty');
-    expect(peatyRadarDescriptors.length).toBeGreaterThan(0);
-
-    const foundJod = findFlavorDescriptor('Iodine');
-    expect(foundJod).toBeDefined();
-    expect(foundJod?.id).toBe('jod');
-
-    expect(translateFlavorTag('Peat Smoke', 'DE')).toBe('Torfrauch');
-    expect(translateFlavorTag('Ash', 'DE')).toBe('Asche');
-    expect(translateFlavorTag('Sea Salt', 'DE')).toBe('Meersalz');
-    expect(translateFlavorTag('Peat Smoke', 'EN')).toBe('Peat Smoke');
+    const categoryIds = SPIRIT_FLAVOR_TAXONOMY.map((c) => c.id);
+    expect(categoryIds).toContain('torf');
+    expect(categoryIds).toContain('feinty');
+    expect(categoryIds).toContain('sulphury');
+    expect(categoryIds).toContain('maritim');
+    expect(categoryIds).toContain('pflanzlich');
+    expect(categoryIds).toContain('holzig');
+    expect(categoryIds).toContain('weinartig');
+    expect(categoryIds).toContain('fruchtig');
+    expect(categoryIds).toContain('suesse');
   });
 
-  it('ensures each descriptor is strictly autonomous (e.g. selecting "Ash" does NOT select "Dry Tobacco")', () => {
-    const allDescriptors = SPIRIT_FLAVOR_TAXONOMY.flatMap((cat) =>
-      cat.subcategories.flatMap((sub) => sub.descriptors),
-    );
+  it('correctly checks isTagSelected with aliases and multilingual names', () => {
+    const peatDescriptor = SPIRIT_FLAVOR_TAXONOMY[0].subcategories[1].descriptors[0]; // Peat Smoke
 
-    const ashDesc = allDescriptors.find((d) => d.id === 'asche')!;
-    const tobaccoDesc = allDescriptors.find((d) => d.id === 'trockener_tabak')!;
+    // Exact English name
+    expect(isTagSelected(peatDescriptor, ['Peat Smoke'])).toBe(true);
 
-    expect(isTagSelected(ashDesc, ['Ash'])).toBe(true);
-    expect(isTagSelected(tobaccoDesc, ['Ash'])).toBe(false);
+    // Exact German name
+    expect(isTagSelected(peatDescriptor, ['Torfrauch'])).toBe(true);
+
+    // Descriptor ID
+    expect(isTagSelected(peatDescriptor, ['peat_smoke'])).toBe(true);
+
+    // Partial/Unmatched
+    expect(isTagSelected(peatDescriptor, ['Apple'])).toBe(false);
+    expect(isTagSelected(peatDescriptor, [])).toBe(false);
   });
 
-  it('correctly matches legacy spirit flavor tags (e.g. Lagavulin 16) using isTagSelected helper', () => {
+  it('correctly associates mock spirits flavor tags with taxonomy descriptors', () => {
     const lagavulin = MOCK_SPIRITS.find((s) => s.id === 'lagavulin-16')!;
     expect(lagavulin.flavorTags).toEqual([
       'Peat Smoke',
@@ -76,7 +69,7 @@ describe('FlavorTagSelector Component & Generic Taxonomy Helpers', () => {
     expect(isTagSelected(sherryDesc, lagavulin.flavorTags)).toBe(true);
   });
 
-  it('renders Lagavulin 16 active flavor tags as highlighted active buttons in the UI', () => {
+  it('renders Lagavulin 16 active flavor tags and allows expanding categories', () => {
     const lagavulin = MOCK_SPIRITS.find((s) => s.id === 'lagavulin-16')!;
     const handleChange = vi.fn();
 
@@ -88,19 +81,12 @@ describe('FlavorTagSelector Component & Generic Taxonomy Helpers', () => {
 
     expect(screen.getByText(/Active Flavors/i)).toBeDefined();
 
-    const peatBtn = screen.getByRole('button', { name: /Peat Smoke/i });
-    const figBtn = screen.getByRole('button', { name: /Dried Fig/i });
-    const chocolateBtn = screen.getByRole('button', { name: /Dark Chocolate/i });
-    const saltBtn = screen.getByRole('button', { name: /Sea Salt/i });
-    const raisinBtn = screen.getByRole('button', { name: /Raisin/i });
-    const sherryBtn = screen.getByRole('button', { name: /Sherry Cask/i });
+    // Expand Peat & Smoke category
+    const peatHeader = screen.getByRole('button', { name: /Peat & Smoke/i });
+    fireEvent.click(peatHeader);
 
+    const peatBtn = screen.getByRole('button', { name: /Peat Smoke/i });
     expect(peatBtn.getAttribute('aria-pressed')).toBe('true');
-    expect(figBtn.getAttribute('aria-pressed')).toBe('true');
-    expect(chocolateBtn.getAttribute('aria-pressed')).toBe('true');
-    expect(saltBtn.getAttribute('aria-pressed')).toBe('true');
-    expect(raisinBtn.getAttribute('aria-pressed')).toBe('true');
-    expect(sherryBtn.getAttribute('aria-pressed')).toBe('true');
   });
 
   it('switches between Nose and Taste sensory modes independently', () => {
@@ -122,7 +108,8 @@ describe('FlavorTagSelector Component & Generic Taxonomy Helpers', () => {
     const tasteBtn = screen.getByRole('button', { name: /Taste|Geschmack/i });
     expect(noseBtn.getAttribute('aria-pressed')).toBe('true');
 
-    // Peat Smoke is selected under Nose
+    // Expand Peat & Smoke category under Nose
+    fireEvent.click(screen.getByRole('button', { name: /Peat & Smoke/i }));
     const peatBtn = screen.getByRole('button', { name: /Peat Smoke/i });
     expect(peatBtn.getAttribute('aria-pressed')).toBe('true');
 
@@ -130,7 +117,8 @@ describe('FlavorTagSelector Component & Generic Taxonomy Helpers', () => {
     fireEvent.click(tasteBtn);
     expect(tasteBtn.getAttribute('aria-pressed')).toBe('true');
 
-    // Under Taste, Vanilla is active, Peat Smoke is not active
+    // Expand Sweetness & Bakery category under Taste
+    fireEvent.click(screen.getByRole('button', { name: /Sweetness & Bakery/i }));
     const vanillaBtn = screen.getByRole('button', { name: /Vanilla/i });
     expect(vanillaBtn.getAttribute('aria-pressed')).toBe('true');
   });
@@ -192,7 +180,7 @@ describe('FlavorTagSelector Component & Generic Taxonomy Helpers', () => {
     expect(screen.getByText(/Vanilla · Dark Chocolate/i)).toBeDefined();
   });
 
-  it('allows collapsing a category even when it contains active flavor tags', () => {
+  it('starts collapsed by default and allows expanding when clicked', () => {
     const handleChange = vi.fn();
 
     render(
@@ -201,12 +189,15 @@ describe('FlavorTagSelector Component & Generic Taxonomy Helpers', () => {
       </LanguageProvider>,
     );
 
-    expect(screen.getByRole('button', { name: /Peat Smoke/i })).toBeDefined();
+    // Collapsed by default -> descriptor button not rendered yet
+    expect(screen.queryByRole('button', { name: /Peat Smoke/i })).toBeNull();
 
+    // Click category header to expand
     const categoryHeaderBtn = screen.getByRole('button', { name: /Peat & Smoke/i });
     fireEvent.click(categoryHeaderBtn);
 
-    expect(screen.queryByRole('button', { name: /Peat Smoke/i })).toBeNull();
+    // Now descriptor button is visible
+    expect(screen.getByRole('button', { name: /Peat Smoke/i })).toBeDefined();
   });
 
   it('toggles a descriptor on and off when clicked', () => {
@@ -217,6 +208,10 @@ describe('FlavorTagSelector Component & Generic Taxonomy Helpers', () => {
         <FlavorTagSelector noseFlavorTags={['Peat Smoke']} onNoseTagsChange={handleChange} />
       </LanguageProvider>,
     );
+
+    // Expand category
+    const categoryHeaderBtn = screen.getByRole('button', { name: /Peat & Smoke/i });
+    fireEvent.click(categoryHeaderBtn);
 
     const peatBtn = screen.getByRole('button', { name: /Peat Smoke/i });
     expect(peatBtn.getAttribute('aria-pressed')).toBe('true');

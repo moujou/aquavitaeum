@@ -27,10 +27,14 @@ export const TRANSLATIONS = {
     abvPercent: 'ABV %',
     dateTasted: 'Date Tasted',
     finishType: 'Finish',
+    drinkingStrength: 'Standard Strength',
     caskStrength: 'Cask Strength',
+    naturalColour: 'Natural Colour',
     addedColour: 'Added Colour',
+    nonChillFiltered: 'Non-Chill Filtered',
     chillFiltered: 'Chill Filtered',
     bottlePrice: 'Bottle Price',
+    bottleVolume: 'Bottle Size (ml)',
 
     // Tasting Additions
     tastingAdditions: 'Tasting Additions',
@@ -159,7 +163,6 @@ export const TRANSLATIONS = {
     overviewLayoutDesc: 'Display style for tasting notes in journals',
     layoutList: 'List',
     layoutGrid: 'Grid',
-    layoutTable: 'Table',
 
     // Bulk Tasting Note Delete (JournalLandingPage)
     deleteBulkNotesConfirm: 'notes will be permanently deleted. This action cannot be undone.',
@@ -218,10 +221,14 @@ export const TRANSLATIONS = {
     abvPercent: 'Alk. %',
     dateTasted: 'Verkostungsdatum',
     finishType: 'Abgang / Fass-Finish',
+    drinkingStrength: 'Trinkstärke',
     caskStrength: 'Fassstärke',
-    addedColour: 'Farbstoff',
+    naturalColour: 'Ohne Farbstoff',
+    addedColour: 'Mit Farbstoff',
+    nonChillFiltered: 'Nicht kühlgefiltert',
     chillFiltered: 'Kühlgefiltert',
     bottlePrice: 'Flaschenpreis',
+    bottleVolume: 'Füllmenge (ml)',
 
     // Tasting Additions
     tastingAdditions: 'Tasting-Zusätze',
@@ -350,7 +357,6 @@ export const TRANSLATIONS = {
     overviewLayoutDesc: 'Anzeigestil der Notizen im Journal',
     layoutList: 'Liste',
     layoutGrid: 'Raster',
-    layoutTable: 'Tabelle',
 
     // Bulk Tasting Note Delete (JournalLandingPage)
     deleteBulkNotesConfirm: 'Notizen werden unwiderruflich gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.',
