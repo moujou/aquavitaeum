@@ -124,7 +124,7 @@ export function createBlankSpirit(journalId: string = 'default-compendium'): Spi
     addedWater: false,
     onTheRocks: false,
     withChocolate: false,
-    volumeMl: 700,
+    volumeMl: undefined,
     price: undefined,
     currency: '€',
   };

@@ -2,7 +2,7 @@
 'use client';
 
 import React from 'react';
-import { MapPin, Star, CheckCircle2, Calendar } from 'lucide-react';
+import { Star, CheckCircle2, Calendar } from 'lucide-react';
 import { Spirit, SPIRIT_COLOUR_HEX, SpiritColour } from '@/types/spirit.types';
 import { WhiskyLogo } from '@/components/ui/WhiskyLogo';
 import { cn } from '@/lib/utils';
@@ -110,15 +110,7 @@ export function SpiritCard({
       )}
     >
       {/* 1. Generous Bottle Showcase Frame (Edge-to-edge full canvas) */}
-      <div className="relative w-full aspect-[4/5] sm:aspect-[3/4] bg-gradient-to-b from-[var(--pub-bg-alt)] via-[var(--parchment-bg)] to-[var(--pub-bg-alt)] overflow-hidden flex items-center justify-center p-0">
-        {/* Ambient Radial Liquid Glow Behind Bottle */}
-        <div
-          className="absolute inset-0 pointer-events-none opacity-30 group-hover:opacity-45 transition-opacity duration-500"
-          style={{
-            background: `radial-gradient(circle at center, ${colourHex} 0%, transparent 75%)`,
-          }}
-        />
-
+      <div className="relative w-full aspect-[4/5] sm:aspect-[3/4] bg-[var(--pub-bg-alt)]/60 border-b border-[var(--parchment-border)]/50 overflow-hidden flex items-center justify-center p-0">
         {spirit.thumbnailImage ? (
           <img
             src={spirit.thumbnailImage}
@@ -179,23 +171,27 @@ export function SpiritCard({
 
       {/* 3. Editorial Card Body (Structured Continuous Rows + Finish/Cask + Category Icons) */}
       <div className="w-full p-2.5 sm:p-3.5 flex flex-col gap-1 sm:gap-1.5 flex-1 min-w-0 justify-between">
-        {/* Row 1: Name (Distillery) */}
+        {/* Row 1: Name des Whiskys */}
         <div className="min-w-0">
           <h3 className="font-display text-sm sm:text-base md:text-lg font-bold text-[var(--foreground)] group-hover:text-[var(--brass-accent)] transition-colors duration-300 truncate leading-tight tracking-wide">
-            {spirit.distillery}
+            {spirit.name || spirit.distillery}
           </h3>
         </div>
 
-        {/* Row 2: Description (Bottling Name) */}
-        <div className="min-w-0">
-          <p className="text-xs sm:text-[13px] font-body text-[var(--sepia-muted)] leading-tight truncate font-medium">
-            {spirit.name}
-          </p>
-        </div>
-
-        {/* Row 3: Typ des Whiskys */}
+        {/* Row 2: Typ des Whiskys */}
         <div className="font-display text-[10px] sm:text-xs uppercase tracking-wider text-[var(--sepia-text)] font-semibold truncate leading-tight">
           {spirit.spiritType}
+        </div>
+
+        {/* Row 3: Destillerie • Herkunft */}
+        <div className="text-xs sm:text-[13px] font-body text-[var(--sepia-text)] font-semibold truncate leading-tight flex items-center gap-1.5 min-w-0">
+          <span className="truncate">{spirit.distillery}</span>
+          {spirit.region && (
+            <>
+              <span className="text-[var(--sepia-muted)]/50 select-none">·</span>
+              <span className="truncate font-semibold text-[var(--sepia-text)]">{spirit.region}</span>
+            </>
+          )}
         </div>
 
         {/* Row 4: Years · vol · bottle size (Continuous Text) */}
@@ -252,11 +248,14 @@ export function SpiritCard({
         )}
       </div>
 
-      {/* 4. Signature Clover Green Grounded Footer: Provenance (Left) & Date (Right) */}
+      {/* 4. Signature Clover Green Grounded Footer: Date (Right) */}
       <div className="w-full bg-[var(--wood-dark)] px-3 sm:px-3.5 py-1.5 sm:py-2 border-t border-[var(--wood-dark)]/80 flex items-center justify-between gap-1 sm:gap-2 text-[10px] sm:text-xs shrink-0">
-        <div className="flex items-center gap-1.5 min-w-0 text-[var(--parchment-bg)] font-body font-medium">
-          <MapPin size={11} className="sm:size-[12px] text-[var(--brass-light)] shrink-0" />
-          <span className="truncate">{spirit.region || '—'}</span>
+        <div className="flex items-center gap-1.5 min-w-0 text-[var(--parchment-bg)]/80 font-body font-medium">
+          {activeCategories.length > 0 && (
+            <span>
+              {activeCategories.length} {language === 'DE' ? 'Profile' : 'Profiles'}
+            </span>
+          )}
         </div>
 
         {formattedDate && (
