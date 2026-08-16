@@ -375,6 +375,7 @@ export async function performGoogleDriveSync(token: string): Promise<SyncStats> 
 
     let journalId = folder.id; // fallback
     let journalName = folder.name;
+    let journalDescription: string | undefined = undefined;
     let journalCreatedAt = new Date().toISOString();
     let journalUpdatedAt = new Date().toISOString();
     let journalCoverImage: string | undefined = undefined;
@@ -384,6 +385,7 @@ export async function performGoogleDriveSync(token: string): Promise<SyncStats> 
       if (meta && meta.name) {
         journalId = meta.id || journalId;
         journalName = meta.name;
+        journalDescription = meta.description;
         journalCreatedAt = meta.createdAt || journalCreatedAt;
         journalUpdatedAt = meta.updatedAt || journalUpdatedAt;
         journalCoverImage = meta.coverImage;
@@ -406,6 +408,7 @@ export async function performGoogleDriveSync(token: string): Promise<SyncStats> 
       await db.journals.put({
         id: journalId,
         name: journalName,
+        description: journalDescription,
         createdAt: journalCreatedAt,
         updatedAt: journalUpdatedAt,
         coverImage: journalCoverImage,
@@ -413,14 +416,17 @@ export async function performGoogleDriveSync(token: string): Promise<SyncStats> 
       pulledJournals++;
     } else {
       journalId = existingLocalJournal.id;
-      // If remote journal has newer updatedAt, update local
+      // If remote journal has newer updatedAt or local is missing coverImage, update local
       const localDate = new Date(existingLocalJournal.updatedAt || existingLocalJournal.createdAt || 0).getTime();
       const remoteDate = new Date(journalUpdatedAt || journalCreatedAt || 0).getTime();
-      if (remoteDate > localDate) {
+      const shouldAdoptCover = !existingLocalJournal.coverImage && !!journalCoverImage;
+
+      if (remoteDate > localDate || shouldAdoptCover) {
         await db.journals.update(existingLocalJournal.id, {
           name: journalName,
+          description: journalDescription || existingLocalJournal.description,
           updatedAt: journalUpdatedAt,
-          coverImage: journalCoverImage,
+          coverImage: journalCoverImage || existingLocalJournal.coverImage,
         });
         pulledJournals++;
       }
@@ -456,10 +462,19 @@ export async function performGoogleDriveSync(token: string): Promise<SyncStats> 
       } else {
         const localDate = new Date(localSpirit.updatedAt || localSpirit.dateTasted || 0).getTime();
         const remoteDate = new Date(remoteSpirit.updatedAt || remoteSpirit.dateTasted || 0).getTime();
+        const shouldAdoptImage = !localSpirit.thumbnailImage && !!remoteSpirit.thumbnailImage;
 
-        if (remoteDate > localDate) {
-          await db.spirits.put(remoteSpirit);
-          localSpiritMap.set(remoteSpirit.id, remoteSpirit);
+        if (remoteDate > localDate || shouldAdoptImage) {
+          const mergedSpirit: Spirit = {
+            ...remoteSpirit,
+            thumbnailImage: remoteSpirit.thumbnailImage || localSpirit.thumbnailImage,
+            images:
+              remoteSpirit.images && remoteSpirit.images.length > 0
+                ? remoteSpirit.images
+                : localSpirit.images,
+          };
+          await db.spirits.put(mergedSpirit);
+          localSpiritMap.set(remoteSpirit.id, mergedSpirit);
           pulledSpirits++;
         }
       }
@@ -494,6 +509,7 @@ export async function performGoogleDriveSync(token: string): Promise<SyncStats> 
         {
           id: journal.id,
           name: journal.name,
+          description: journal.description,
           createdAt: journal.createdAt,
           updatedAt: journal.updatedAt || new Date().toISOString(),
           coverImage: journal.coverImage,
