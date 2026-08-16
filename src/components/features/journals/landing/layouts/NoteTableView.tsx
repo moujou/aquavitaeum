@@ -35,7 +35,7 @@ export function NoteTableView({
 
   return (
     <div className="py-4 w-full">
-      <div className="overflow-x-auto w-full rounded-xl border border-[var(--parchment-border)] bg-[var(--parchment-bg)] shadow-md">
+      <div className="overflow-x-auto w-full rounded-xl border border-[var(--parchment-border)] bg-[var(--parchment-bg)] shadow-[0_6px_24px_rgba(40,28,15,0.08),0_1.5px_4px_rgba(40,28,15,0.04)]">
         <table className="w-full text-left border-collapse min-w-[900px]">
           {/* Header in Signature Clover Green */}
           <thead className="sticky top-0 z-10 bg-[var(--wood-dark)] border-b border-[var(--wood-dark)]/80 shadow-xs">

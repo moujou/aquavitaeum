@@ -30,7 +30,7 @@ export function ProfileView({
       )}
     >
       {/* Main Profile Card Container */}
-      <div className="w-full rounded-2xl border border-[#237347]/25 bg-[var(--parchment-bg)] p-6 sm:p-10 text-center shadow-[0_4px_24px_rgba(35,115,71,0.08)] relative overflow-hidden">
+      <div className="w-full rounded-2xl border border-[#237347]/25 bg-[var(--parchment-bg)] p-6 sm:p-10 text-center shadow-[0_8px_30px_rgba(40,28,15,0.09),0_2px_8px_rgba(35,115,71,0.08)] relative overflow-hidden">
         {/* Subtle Ambient Glow */}
         <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-56 h-56 rounded-full bg-[var(--forest-green)]/10 blur-3xl pointer-events-none" />
 

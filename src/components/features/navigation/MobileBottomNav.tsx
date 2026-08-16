@@ -40,7 +40,7 @@ export default function MobileBottomNav({
   return (
     <nav
       className={cn(
-        "fixed bottom-0 left-0 right-0 h-16 z-50 bg-[var(--nav-bg)]/85 backdrop-blur-xl border-t border-[var(--parchment-border)]/60 shadow-[0_-1px_4px_rgba(0,0,0,0.03)] flex items-center justify-around px-4 pb-safe lg:hidden transition-all duration-300 ease-in-out",
+        "fixed bottom-0 left-0 right-0 h-16 z-50 bg-[var(--nav-bg)]/90 backdrop-blur-xl border-t border-[var(--forest-green)]/30 shadow-[0_-4px_18px_rgba(46,148,93,0.13)] flex items-center justify-around px-4 pb-safe lg:hidden transition-all duration-300 ease-in-out",
         (isBottomBarVisible || isMobileDrawerOpen || activeView === 'profile')
           ? "translate-y-0 opacity-100"
           : "translate-y-full opacity-0 pointer-events-none"

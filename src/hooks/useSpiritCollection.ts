@@ -3,6 +3,7 @@ import { Spirit, SpiritType } from '@/types/spirit.types';
 import { createBlankSpirit } from '@/lib/spirit-utils';
 import { translateColour, translateGlance } from '@/lib/i18n/translations';
 import { db } from '@/lib/db';
+import { MOCK_SPIRITS } from '@/data/mock-spirits';
 
 export function useSpiritCollection(activeJournalId: string | null) {
   const [spirits, setSpirits] = useState<Spirit[]>([]);
@@ -46,32 +47,23 @@ export function useSpiritCollection(activeJournalId: string | null) {
       }
 
       // If local database has no spirits for this journal AND it's the default journal, 
-      // we check the server API endpoint for fallback/seeding
+      // seed directly from MOCK_SPIRITS
       if (localSpirits.length === 0 && journalId === 'default-compendium') {
-        try {
-          const res = await fetch('/api/spirits');
-          if (res.ok) {
-            const data = await res.json();
-            if (isMounted && Array.isArray(data.spirits) && data.spirits.length > 0) {
-              // Seed spirits to default journal
-              const seeded = data.spirits.map((s: Spirit) => ({
-                ...s,
-                journalId: 'default-compendium'
-              }));
-              setSpirits(seeded);
-              setSelectedId(seeded[0].id);
-              try {
-                await db.spirits.bulkPut(seeded);
-              } catch (err) {
-                console.warn('Aqua Vitaeum: Could not seed IndexedDB from API.', err);
-              }
-              if (isMounted) setIsLoading(false);
-              return;
-            }
-          }
-        } catch (err) {
-          console.warn('Aqua Vitaeum: Server fetch failed, attempting local cache fallback.', err);
+        const seeded = MOCK_SPIRITS.map((s: Spirit) => ({
+          ...s,
+          journalId: 'default-compendium',
+        }));
+        if (isMounted) {
+          setSpirits(seeded);
+          setSelectedId(seeded[0]?.id ?? null);
+          setIsLoading(false);
         }
+        try {
+          await db.spirits.bulkPut(seeded);
+        } catch (err) {
+          console.warn('Aqua Vitaeum: Could not seed IndexedDB from MOCK_SPIRITS.', err);
+        }
+        return;
       }
 
       if (isMounted) {

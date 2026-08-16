@@ -47,7 +47,7 @@ export default function AppHeader({
     <header
       id="app-header"
       className={cn(
-        "flex-shrink-0 h-16 w-full border-b border-[var(--parchment-border)]/60 bg-[var(--nav-bg)]/85 backdrop-blur-xl z-30 shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-all duration-300 ease-in-out",
+        "flex-shrink-0 h-16 w-full border-b border-[var(--forest-green)]/30 bg-[var(--nav-bg)]/90 backdrop-blur-xl z-30 shadow-[0_4px_18px_rgba(46,148,93,0.13)] transition-all duration-300 ease-in-out",
         "max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:right-0",
         (!isBottomBarVisible && activeView !== 'profile')
           ? "max-lg:-translate-y-full max-lg:opacity-0 max-lg:pointer-events-none"
@@ -110,12 +110,29 @@ export default function AppHeader({
         </div>
 
         {/* ── Mobile Layout Header ─────────────────────────────────── */}
-        <div className="flex lg:hidden items-center justify-between w-full">
-          {/* Left Slot: empty spacer (no drawer button — navigation via Bottom Nav) */}
-          <div className="w-8 h-8 flex items-center justify-center flex-shrink-0" />
+        <div className="flex lg:hidden items-center justify-between w-full gap-1.5">
+          {/* Left Slot: Atelier brand logo */}
+          <button
+            type="button"
+            onClick={() => {
+              setActiveJournalId(null);
+              setActiveView('overview');
+            }}
+            className="w-9 h-9 flex items-center justify-center flex-shrink-0 cursor-pointer active:scale-90 transition-transform select-none"
+            title={t('appTitle')}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`${basePath}/whisky-logo-with-circle-v5.svg`}
+              alt="Aqua Vitaeum"
+              className="w-8 h-8 select-none pointer-events-none drop-shadow-xs"
+              width={32}
+              height={32}
+            />
+          </button>
 
           {/* Center Search Bar or Selection Indicator */}
-          <div className="flex-1 flex justify-center px-1.5 min-w-0">
+          <div className="flex-1 flex justify-center min-w-0">
             {isSelectMode ? (
               <div className="flex items-center justify-center h-8 px-4 rounded-full bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] text-[11px] font-display uppercase tracking-wider text-[var(--wood-selection)] font-bold shadow-xs select-none animate-fade-in">
                 <span className="w-1.5 h-1.5 rounded-full bg-[var(--wood-selection)] animate-pulse mr-2" />
@@ -134,9 +151,6 @@ export default function AppHeader({
               />
             )}
           </div>
-
-          {/* Right Slot: Symmetrical balance spacer */}
-          <div className="w-8 h-8 flex-shrink-0" />
         </div>
       </div>
     </header>

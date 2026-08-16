@@ -77,4 +77,32 @@ describe('JournalsOverview Actions & Dropdown', () => {
 
     expect(onSelectModeChange).toHaveBeenCalledWith(true);
   });
+
+  it('renders select mode gear actions when in select mode', () => {
+    render(
+      <LanguageProvider>
+        <JournalsOverview
+          journals={mockJournals}
+          onCreateJournal={vi.fn()}
+          onRenameJournal={vi.fn()}
+          onDeleteJournal={vi.fn()}
+          onSelectJournal={vi.fn()}
+        />
+      </LanguageProvider>
+    );
+
+    // Trigger select mode via dropdown
+    const gearBtn = screen.getByRole('button', { name: /aktionen|actions/i });
+    fireEvent.click(gearBtn);
+    const selectModeItem = screen.getByText(/journale auswählen|select journals/i);
+    fireEvent.click(selectModeItem);
+
+    // In select mode, a gear dropdown for batch actions is available
+    const selectModeGearBtn = screen.getByRole('button', { name: /aktionen|actions/i });
+    expect(selectModeGearBtn).toBeDefined();
+
+    fireEvent.click(selectModeGearBtn);
+    expect(screen.getByText(/bearbeiten|edit/i)).toBeDefined();
+    expect(screen.getByText(/export/i)).toBeDefined();
+  });
 });
