@@ -49,12 +49,12 @@ export function NoteListItem({
       onTouchEnd={onTouchEnd}
       className={cn(
         "w-full flex items-center gap-3 sm:gap-4.5 pl-3.5 sm:pl-4.5 pr-6 sm:pr-8 py-3.5 rounded-xl border transition-all duration-300 cursor-pointer group relative overflow-hidden text-left select-none",
-        "bg-[var(--parchment-bg)] border border-[var(--parchment-border)] shadow-[0_2px_8px_var(--parchment-shadow)]",
+        "bg-[var(--parchment-bg)] border border-[var(--parchment-border)] shadow-[0_4px_14px_-2px_rgba(35,20,8,0.12),0_1.5px_4px_rgba(35,20,8,0.06)]",
         isSelectMode
           ? isSelected
-            ? "border-[var(--wood-selection)] ring-2 ring-[var(--wood-selection)]/45 shadow-[0_0_20px_rgba(179,137,93,0.3)] scale-[1.015] opacity-100 bg-[var(--pub-bg-panel)] z-10"
-            : "border-[var(--parchment-border)]/50 opacity-40 scale-[0.98]"
-          : "hover:border-[var(--forest-green)]/60 hover:shadow-[0_6px_20px_rgba(35,115,71,0.1),inset_4px_0_12px_rgba(35,115,71,0.06)] hover:scale-[1.006]"
+            ? "border-[var(--wood-selection)] ring-2 ring-[var(--wood-selection)]/45 shadow-[0_0_20px_rgba(46,148,93,0.35)] scale-[1.015] opacity-100 bg-[var(--pub-bg-panel)] z-10"
+            : "border-[var(--parchment-border)]/50 opacity-40 scale-[0.98] shadow-xs"
+          : "hover:border-[var(--forest-green)] hover:shadow-[0_10px_24px_-3px_rgba(35,115,71,0.20),inset_4px_0_12px_rgba(35,115,71,0.06)] hover:-translate-y-0.5"
       )}
     >
       {/* Signature Animated Liquid Accent Column (Refined Liquid Bar) */}

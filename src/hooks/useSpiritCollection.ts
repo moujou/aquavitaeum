@@ -3,6 +3,8 @@ import { Spirit, SpiritType } from '@/types/spirit.types';
 import { createBlankSpirit } from '@/lib/spirit-utils';
 import { translateColour, translateGlance } from '@/lib/i18n/translations';
 import { db } from '@/lib/db';
+import { MOCK_SPIRITS } from '@/data/mock-spirits';
+import { notifyDataChanged } from '@/lib/sync-events';
 
 export function useSpiritCollection(activeJournalId: string | null) {
   const [spirits, setSpirits] = useState<Spirit[]>([]);
@@ -46,20 +48,19 @@ export function useSpiritCollection(activeJournalId: string | null) {
       }
 
       // If local database has no spirits for this journal AND it's the default journal, 
-      // we check the server API endpoint for fallback/seeding
+      // we check the server API endpoint with fallback to MOCK_SPIRITS (for static/offline mobile builds)
       if (localSpirits.length === 0 && journalId === 'default-compendium') {
         try {
           const res = await fetch('/api/spirits');
           if (res.ok) {
             const data = await res.json();
             if (isMounted && Array.isArray(data.spirits) && data.spirits.length > 0) {
-              // Seed spirits to default journal
               const seeded = data.spirits.map((s: Spirit) => ({
                 ...s,
-                journalId: 'default-compendium'
+                journalId: 'default-compendium',
               }));
               setSpirits(seeded);
-              setSelectedId(seeded[0].id);
+              setSelectedId(seeded[0]?.id ?? null);
               try {
                 await db.spirits.bulkPut(seeded);
               } catch (err) {
@@ -69,8 +70,25 @@ export function useSpiritCollection(activeJournalId: string | null) {
               return;
             }
           }
-        } catch (err) {
-          console.warn('Aqua Vitaeum: Server fetch failed, attempting local cache fallback.', err);
+        } catch {
+          // Server fetch failed (e.g. static export, GitHub Pages, offline mobile) -> fallback to MOCK_SPIRITS
+          if (MOCK_SPIRITS.length > 0) {
+            const seeded = MOCK_SPIRITS.map((s: Spirit) => ({
+              ...s,
+              journalId: 'default-compendium',
+            }));
+            if (isMounted) {
+              setSpirits(seeded);
+              setSelectedId(seeded[0]?.id ?? null);
+              setIsLoading(false);
+            }
+            try {
+              await db.spirits.bulkPut(seeded);
+            } catch (err) {
+              console.warn('Aqua Vitaeum: Could not seed IndexedDB from MOCK_SPIRITS fallback.', err);
+            }
+            return;
+          }
         }
       }
 
@@ -148,6 +166,7 @@ export function useSpiritCollection(activeJournalId: string | null) {
       setSpirits((prev) => [blank, ...prev]);
       setSelectedId(blank.id);
       await syncWithServer();
+      notifyDataChanged();
     } catch (err) {
       console.error('Aqua Vitaeum: Failed to create new note.', err);
     }
@@ -164,6 +183,7 @@ export function useSpiritCollection(activeJournalId: string | null) {
         );
         setSelectedId(updated.id);
         await syncWithServer();
+        notifyDataChanged();
       } catch (err) {
         console.error('Aqua Vitaeum: Failed to save note.', err);
       }
@@ -186,6 +206,7 @@ export function useSpiritCollection(activeJournalId: string | null) {
           return next;
         });
         await syncWithServer();
+        notifyDataChanged();
       } catch (err) {
         console.error('Aqua Vitaeum: Failed to delete note.', err);
       }

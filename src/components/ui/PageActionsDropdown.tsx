@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Settings } from 'lucide-react';
+import { MoreHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface DropdownActionItem {
@@ -17,12 +17,14 @@ interface PageActionsDropdownProps {
   items: DropdownActionItem[];
   className?: string;
   title?: string;
+  variant?: 'default' | 'on-dark-banner';
 }
 
 export function PageActionsDropdown({
   items,
   className,
   title = 'Aktionen',
+  variant = 'default',
 }: PageActionsDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -68,16 +70,24 @@ export function PageActionsDropdown({
         aria-haspopup="true"
         title={title}
         className={cn(
-          'w-9 h-9 rounded-lg border border-[var(--parchment-border)] bg-[var(--pub-bg-panel)] hover:bg-[var(--pub-bg-alt)] text-[var(--sepia-text)] hover:text-[var(--foreground)] flex items-center justify-center transition-all shadow-xs active:scale-95 cursor-pointer',
-          isOpen && 'bg-[var(--pub-bg-alt)] border-[var(--forest-green)]/40 text-[var(--forest-green)] ring-2 ring-[var(--forest-green)]/20'
+          variant === 'on-dark-banner'
+            ? cn(
+                'w-9 h-9 rounded-lg border border-[var(--parchment-border)] bg-[var(--pub-bg-panel)] text-[var(--forest-green)] shadow-xs flex items-center justify-center transition-all cursor-pointer active:scale-95',
+                'hover:bg-[#164d2d] hover:border-[#F5CE68] hover:text-[#F5CE68] hover:shadow-md',
+                isOpen && 'bg-[#164d2d] border-[#F5CE68] text-[#F5CE68] ring-2 ring-[#F5CE68]/35 shadow-sm'
+              )
+            : cn(
+                'w-9 h-9 rounded-lg border border-[var(--forest-green)]/35 bg-[var(--pub-bg-panel)] hover:bg-[var(--forest-green)]/10 text-[var(--forest-green)] hover:border-[var(--forest-green)] flex items-center justify-center transition-all shadow-xs active:scale-95 cursor-pointer',
+                isOpen && 'bg-[var(--forest-green)]/15 border-[var(--forest-green)] text-[var(--forest-green)] ring-2 ring-[var(--forest-green)]/25 shadow-sm'
+              )
         )}
       >
-        <Settings size={18} className={cn('transition-transform duration-300', isOpen && 'rotate-90 text-[var(--forest-green)]')} />
+        <MoreHorizontal size={18} className={cn('transition-transform duration-200', isOpen && 'scale-110')} />
       </button>
 
       {/* Floating Parchment Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-56 bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] shadow-xl rounded-xl p-1.5 z-50 animate-fade-in flex flex-col gap-0.5 select-none">
+        <div className="absolute right-0 top-full mt-2 w-56 bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] shadow-[0_12px_32px_rgba(40,28,15,0.18)] rounded-xl p-1.5 z-50 animate-fade-in flex flex-col gap-0.5 select-none">
           {items.map((item) => (
             <button
               key={item.id}
@@ -91,7 +101,7 @@ export function PageActionsDropdown({
                 'flex items-center gap-2.5 w-full px-3 py-2 text-xs font-display font-semibold rounded-lg transition-colors text-left cursor-pointer active:scale-[0.99]',
                 item.destructive
                   ? 'text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-800'
-                  : 'text-[var(--foreground)] hover:bg-[var(--pub-bg-alt)] hover:text-[var(--forest-green)]',
+                  : 'text-[var(--foreground)] hover:bg-[var(--forest-green)]/10 hover:text-[var(--forest-green)]',
                 item.disabled && 'opacity-40 cursor-not-allowed hover:bg-transparent hover:text-inherit'
               )}
             >

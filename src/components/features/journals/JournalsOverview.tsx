@@ -181,55 +181,36 @@ export function JournalsOverview({
           </div>
 
           {isSelectMode ? (
-            /* Select mode action buttons */
+            /* Select mode action buttons: Gear Dropdown (Bearbeiten, Exportieren, Löschen) + Done button */
             <div className="flex items-center gap-2 shrink-0">
-              {/* Edit — amber, only active for single selection */}
-              <button
-                onClick={handleEditFromSelectMode}
-                disabled={!canEdit}
-                title={language === 'DE' ? 'Bearbeiten' : 'Edit'}
-                className={cn(
-                  'px-3 py-1.5 rounded-lg border transition-all flex items-center gap-1.5 text-xs font-display font-bold uppercase tracking-wider select-none shadow-xs',
-                  canEdit
-                    ? 'bg-[var(--brass-accent)]/15 border-[var(--brass-accent)]/50 text-[var(--brass-accent)] hover:bg-[var(--brass-accent)]/25 active:scale-95 cursor-pointer'
-                    : 'bg-transparent border-transparent text-[var(--sepia-muted)]/30 cursor-not-allowed'
-                )}
-              >
-                <Edit3 className="w-3.5 h-3.5 shrink-0" />
-                <span className="hidden sm:inline">{language === 'DE' ? 'Bearbeiten' : 'Edit'}</span>
-              </button>
-
-              {/* Export — emerald, active for any selection */}
-              <button
-                onClick={() => exportJournalsToFile([...selectedIds])}
-                disabled={selectedIds.size === 0}
-                title={t('exportJournals')}
-                className={cn(
-                  'px-3 py-1.5 rounded-lg border transition-all flex items-center gap-1.5 text-xs font-display font-bold uppercase tracking-wider select-none shadow-xs',
-                  selectedIds.size > 0
-                    ? 'bg-[var(--pub-bg-panel)] hover:bg-[var(--wood-selection)] hover:text-[var(--parchment-bg)] hover:border-[var(--wood-selection)] border-[var(--parchment-border)] text-[var(--foreground)] active:scale-95 cursor-pointer'
-                    : 'bg-transparent border-transparent text-[var(--sepia-muted)]/30 cursor-not-allowed'
-                )}
-              >
-                <Download className="w-3.5 h-3.5 shrink-0" />
-                <span>{t('exportJournals')}{selectedIds.size > 0 ? ` (${selectedIds.size})` : ''}</span>
-              </button>
-
-              {/* Delete — prominent red button with counter */}
-              <button
-                onClick={() => canDelete && setConfirmBulkDelete(true)}
-                disabled={!canDelete}
-                title={language === 'DE' ? 'Löschen' : 'Delete'}
-                className={cn(
-                  'px-3 py-1.5 rounded-lg border transition-all flex items-center gap-1.5 text-xs font-display font-bold uppercase tracking-wider select-none shadow-xs',
-                  canDelete
-                    ? 'bg-red-600 hover:bg-red-700 text-white border-red-700 shadow-md active:scale-95 cursor-pointer'
-                    : 'bg-red-100/70 border-red-200/60 text-red-400/50 cursor-not-allowed'
-                )}
-              >
-                <Trash2 className="w-3.5 h-3.5 shrink-0" />
-                <span>{language === 'DE' ? 'Löschen' : 'Delete'}{deletableSelected.length > 0 ? ` (${deletableSelected.length})` : ''}</span>
-              </button>
+              {/* Gear Dropdown with Edit, Export & Bulk Delete */}
+              <PageActionsDropdown
+                title={language === 'DE' ? 'Aktionen' : 'Actions'}
+                items={[
+                  {
+                    id: 'edit-selected',
+                    label: language === 'DE' ? 'Bearbeiten' : 'Edit',
+                    icon: <Edit3 size={16} />,
+                    onClick: handleEditFromSelectMode,
+                    disabled: !canEdit,
+                  },
+                  {
+                    id: 'export-selected',
+                    label: `${t('exportJournals')}${selectedIds.size > 0 ? ` (${selectedIds.size})` : ''}`,
+                    icon: <Download size={16} />,
+                    onClick: () => exportJournalsToFile([...selectedIds]),
+                    disabled: selectedIds.size === 0,
+                  },
+                  {
+                    id: 'delete-selected',
+                    label: `${language === 'DE' ? 'Löschen' : 'Delete'}${deletableSelected.length > 0 ? ` (${deletableSelected.length})` : ''}`,
+                    icon: <Trash2 size={16} />,
+                    onClick: () => canDelete && setConfirmBulkDelete(true),
+                    disabled: !canDelete,
+                    destructive: true,
+                  },
+                ]}
+              />
 
               {/* Done / Cancel */}
               <button
@@ -285,8 +266,8 @@ export function JournalsOverview({
           </div>
         )}
 
-        {/* Specular Gradient Hairline Divider */}
-        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-[var(--brass-accent)]/30 to-transparent mt-4" />
+        {/* Specular Clover Green Gradient Divider */}
+        <div className="divider-clover-glow mt-4" />
       </div>
 
       {/* Bookshelf Grid */}
@@ -308,12 +289,12 @@ export function JournalsOverview({
               }}
               className={[
                 'group relative flex flex-col justify-between h-auto min-h-[280px] rounded-2xl transition-all duration-300 transform overflow-hidden cursor-pointer select-none',
-                'bg-[var(--parchment-bg)] border border-[var(--parchment-border)] shadow-[0_4px_16px_var(--parchment-shadow)]',
+                'bg-[var(--parchment-bg)] border border-[var(--parchment-border)] shadow-[0_8px_24px_-3px_rgba(35,20,8,0.14),0_2px_6px_rgba(35,20,8,0.06)]',
                 isSelected
-                  ? 'border-[var(--wood-selection)] ring-2 ring-[var(--wood-selection)]/45 shadow-[0_0_25px_rgba(179,137,93,0.3)] scale-[1.02] opacity-100 bg-[var(--pub-bg-panel)] z-10'
+                  ? 'border-[var(--wood-selection)] ring-2 ring-[var(--wood-selection)]/45 shadow-[0_0_25px_rgba(46,148,93,0.35)] scale-[1.02] opacity-100 bg-[var(--pub-bg-panel)] z-10'
                   : isSelectMode
-                    ? 'border-[var(--parchment-border)]/50 scale-[0.98] opacity-40'
-                    : 'hover:border-[var(--forest-green)]/60 hover:shadow-[0_12px_28px_rgba(35,115,71,0.12)] hover:scale-[1.015]',
+                    ? 'border-[var(--parchment-border)]/50 scale-[0.98] opacity-40 shadow-xs'
+                    : 'hover:border-[var(--forest-green)] hover:shadow-[0_16px_36px_-4px_rgba(35,115,71,0.22),0_4px_12px_rgba(35,20,8,0.08)] hover:-translate-y-0.5',
               ].join(' ')}
             >
               {/* Signature Clover Green Top Header Banner with Journal Name & Description */}

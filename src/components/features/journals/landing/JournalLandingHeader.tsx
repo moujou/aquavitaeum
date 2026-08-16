@@ -4,7 +4,6 @@ import React from 'react';
 import { Trash2, X, Download, CheckSquare } from 'lucide-react';
 import { JournalWithStats } from '@/hooks/useJournals';
 import { PageActionsDropdown } from '@/components/ui/PageActionsDropdown';
-import { cn } from '@/lib/utils';
 
 interface JournalLandingHeaderProps {
   journal: JournalWithStats;
@@ -17,6 +16,7 @@ interface JournalLandingHeaderProps {
   onExitSelectMode?: () => void;
   onEnterSelectMode?: () => void;
   onExportJournal?: (id: string) => void;
+  onExportSelectedNotes?: () => void;
   language?: string;
 }
 
@@ -30,6 +30,7 @@ export function JournalLandingHeader({
   onExitSelectMode,
   onEnterSelectMode,
   onExportJournal,
+  onExportSelectedNotes,
   language = 'EN',
 }: JournalLandingHeaderProps) {
   return (
@@ -55,22 +56,27 @@ export function JournalLandingHeader({
         {/* Right: Select mode action buttons OR Normal mode Actions Dropdown */}
         {isSelectMode ? (
           <div className="flex items-center gap-2 shrink-0">
-            {/* Delete — prominent red button with counter */}
-            <button
-              type="button"
-              onClick={onConfirmDelete}
-              disabled={!canDelete}
-              title={language === 'DE' ? 'Löschen' : 'Delete'}
-              className={cn(
-                'px-3 py-1.5 rounded-lg border transition-all flex items-center gap-1.5 text-xs font-display font-bold uppercase tracking-wider select-none shadow-xs',
-                canDelete
-                  ? 'bg-red-600 hover:bg-red-700 text-white border-red-700 shadow-md active:scale-95 cursor-pointer'
-                  : 'bg-red-100/70 border-red-200/60 text-red-400/50 cursor-not-allowed'
-              )}
-            >
-              <Trash2 className="w-3.5 h-3.5 shrink-0" />
-              <span>{language === 'DE' ? 'Löschen' : 'Delete'}{selectedCount > 0 ? ` (${selectedCount})` : ''}</span>
-            </button>
+            {/* Gear Dropdown with Export Notes & Delete Note actions */}
+            <PageActionsDropdown
+              title={language === 'DE' ? 'Aktionen' : 'Actions'}
+              items={[
+                {
+                  id: 'export-selected-notes',
+                  label: `${language === 'DE' ? 'Notizen exportieren' : 'Export Notes'}${selectedCount > 0 ? ` (${selectedCount})` : ''}`,
+                  icon: <Download size={16} />,
+                  onClick: () => onExportSelectedNotes?.(),
+                  disabled: selectedCount === 0,
+                },
+                {
+                  id: 'delete-selected-notes',
+                  label: `${language === 'DE' ? 'Notizen löschen' : 'Delete Notes'}${selectedCount > 0 ? ` (${selectedCount})` : ''}`,
+                  icon: <Trash2 size={16} />,
+                  onClick: () => onConfirmDelete?.(),
+                  disabled: !canDelete,
+                  destructive: true,
+                },
+              ]}
+            />
             {/* Done / Cancel button */}
             <button
               type="button"
@@ -111,8 +117,8 @@ export function JournalLandingHeader({
         </p>
       )}
 
-      {/* Modern Specular Gradient Hairline Divider */}
-      <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-[var(--brass-accent)]/30 to-transparent mt-4" />
+      {/* Modern Specular Clover Green Gradient Divider */}
+      <div className="divider-clover-glow mt-4" />
     </div>
   );
 }

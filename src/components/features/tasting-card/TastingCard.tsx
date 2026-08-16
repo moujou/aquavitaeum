@@ -27,8 +27,6 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
     spirit,
     showDeleteModal,
     setShowDeleteModal,
-    isEditingTitle,
-    setIsEditingTitle,
     stars,
     displayName,
     subtitleLocation,
@@ -47,9 +45,6 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
         spirit={spirit}
         displayName={displayName}
         subtitleLocation={subtitleLocation}
-        isEditingTitle={isEditingTitle}
-        setIsEditingTitle={setIsEditingTitle}
-        update={update}
         onDelete={onDelete ? () => setShowDeleteModal(true) : undefined}
         onImportSpirit={importSpirit}
         t={t}
@@ -93,6 +88,9 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
 
         </div>
 
+        {/* Specular Clover Green Divider */}
+        <div className="divider-clover-glow my-1" />
+
         {/* Full-Width Section 4: Interactive Finish Curve Diagram & Notes */}
         <TastingFinishSection
           spirit={spirit}
@@ -101,6 +99,9 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
           update={update}
           t={t}
         />
+
+        {/* Specular Clover Green Divider */}
+        <div className="divider-clover-glow my-1" />
 
         {/* Full-Width Section 5: Score & Star Ratings */}
         <TastingRatingSection
