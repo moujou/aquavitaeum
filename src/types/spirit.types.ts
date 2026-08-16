@@ -142,4 +142,7 @@ export interface Spirit {
   /** Bottle Price & Currency */
   price?: number;
   currency?: Currency;
+  /** Optional sync & audit timestamps */
+  createdAt?: string;
+  updatedAt?: string;
 }

@@ -120,4 +120,43 @@ describe('useTastingCardForm Hook', () => {
 
     expect(onDeleteMock).toHaveBeenCalledWith(MOCK_SPIRITS[0].id);
   });
+
+  it('imports a spirit and safely preserves current card ID and journal ID', () => {
+    const onSaveMock = vi.fn();
+    const currentCard = MOCK_SPIRITS[0];
+    const { result } = renderHook(() =>
+      useTastingCardForm(currentCard, onSaveMock),
+    );
+
+    const importedForeignSpirit = {
+      id: 'foreign-id-999',
+      journalId: 'foreign-journal-888',
+      spiritType: 'Bourbon',
+      name: 'Pappy Van Winkle 15',
+      distillery: 'Old Rip Van Winkle',
+      region: 'Kentucky',
+      abv: 53.5,
+      dateTasted: '2026-08-16',
+      rating100: 98,
+      starRating: 5,
+      colour: 'Deep Amber',
+      finishNotes: 'Infinite rich oak and leather',
+      flavorTags: ['Vanilla Oak', 'Caramel'],
+      noseProfile: { fruity: 3, floral: 0, spicy: 6, cereal: 1, peaty: 0, sulphury: 0, feinty: 1, nutty: 4, woody: 8, winey: 2, chocolate: 4 },
+      tasteProfile: { fruity: 4, floral: 0, spicy: 7, cereal: 1, peaty: 0, sulphury: 0, feinty: 1, nutty: 5, woody: 9, winey: 2, chocolate: 5 },
+    };
+
+    act(() => {
+      result.current.importSpirit(importedForeignSpirit as never);
+    });
+
+    // Form updated with imported data
+    expect(result.current.spirit.name).toBe('Pappy Van Winkle 15');
+    expect(result.current.spirit.distillery).toBe('Old Rip Van Winkle');
+    expect(result.current.spirit.rating100).toBe(98);
+    // Preserved active card ID and journal ID
+    expect(result.current.spirit.id).toBe(currentCard.id);
+    expect(result.current.spirit.journalId).toBe(currentCard.journalId);
+    expect(onSaveMock).toHaveBeenCalled();
+  });
 });

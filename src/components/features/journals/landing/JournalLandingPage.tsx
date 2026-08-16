@@ -7,6 +7,7 @@ import { JournalWithStats } from '@/hooks/useJournals';
 import { Spirit } from '@/types/spirit.types';
 import { OverviewLayout } from '@/hooks/useLayoutPreference';
 import { useMultiSelect } from '@/hooks/useMultiSelect';
+import { exportJournalsToFile } from '@/lib/google-drive-sync';
 import { JournalLandingHeader } from './JournalLandingHeader';
 import { NoteEmptyState } from './NoteEmptyState';
 import { NoteListView } from './layouts/NoteListView';
@@ -21,6 +22,7 @@ interface JournalLandingPageProps {
   onSelectSpirit: (id: string) => void;
   onNewNote: () => void;
   onDeleteSpirit: (id: string) => Promise<void>;
+  onSelectModeChange?: (active: boolean) => void;
 }
 
 export function JournalLandingPage({
@@ -31,6 +33,7 @@ export function JournalLandingPage({
   onSelectSpirit,
   onNewNote,
   onDeleteSpirit,
+  onSelectModeChange,
 }: JournalLandingPageProps) {
   // ── Language ──────────────────────────────────────────────────────────────
   const { t, language } = useLanguage();
@@ -41,13 +44,14 @@ export function JournalLandingPage({
     selectedIds,
     confirmBulkDelete,
     setConfirmBulkDelete,
+    enterSelectMode,
     exitSelectMode,
     toggleSelection,
     handleTouchStart,
     cancelLongPress,
     handleTouchEnd,
     handleBulkDelete,
-  } = useMultiSelect();
+  } = useMultiSelect(onSelectModeChange);
 
   const canDelete = selectedIds.size > 0;
 
@@ -78,7 +82,7 @@ export function JournalLandingPage({
 
   // ── Main ──────────────────────────────────────────────────────────────────
   return (
-    <div className="flex flex-col min-h-full max-w-6xl mx-auto w-full">
+    <div className="flex flex-col min-h-full max-w-6xl mx-auto w-full px-4 sm:px-6 pt-8 pb-8">
 
       {/* ── Header — always shown; select mode props toggle inline Trash+X ────── */}
       <JournalLandingHeader
@@ -89,13 +93,10 @@ export function JournalLandingPage({
         canDelete={canDelete}
         onConfirmDelete={() => setConfirmBulkDelete(true)}
         onExitSelectMode={exitSelectMode}
+        onEnterSelectMode={enterSelectMode}
+        onExportJournal={(id) => exportJournalsToFile([id])}
         language={language}
       />
-
-      {/* ── Global dim overlay in select mode (pointer-events-none — items remain interactive) */}
-      {isSelectMode && (
-        <div className="fixed inset-0 z-10 bg-black/25 pointer-events-none transition-opacity duration-300 animate-fade-in" />
-      )}
 
       {/* ── Layout content */}
       <div className="flex-1">

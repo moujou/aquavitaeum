@@ -1,0 +1,153 @@
+'use client';
+
+import { useState, useCallback } from 'react';
+import {
+  requestGoogleAccessToken,
+  performGoogleDriveSync,
+  downloadLocalBackupFile,
+  importLocalBackupFile,
+  SyncStats,
+} from '@/lib/google-drive-sync';
+
+const TOKEN_STORAGE_KEY = 'aqua-vitaeum-google-token';
+const CLIENT_ID_STORAGE_KEY = 'aqua-vitaeum-google-client-id';
+const ENABLED_STORAGE_KEY = 'aqua-vitaeum-google-sync-enabled';
+const LAST_SYNC_KEY = 'aqua-vitaeum-last-sync-time';
+
+export function useGoogleDriveSync() {
+  const [isEnabled, setIsEnabled] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem(ENABLED_STORAGE_KEY) === 'true';
+  });
+
+  const [accessToken, setAccessToken] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    return sessionStorage.getItem(TOKEN_STORAGE_KEY);
+  });
+
+  const [clientId, setClientId] = useState<string>(() => {
+    const envClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
+    if (typeof window === 'undefined') return envClientId;
+    return localStorage.getItem(CLIENT_ID_STORAGE_KEY) || envClientId;
+  });
+
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
+  const [lastSyncTime, setLastSyncTime] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem(LAST_SYNC_KEY);
+  });
+  const [syncError, setSyncError] = useState<string | null>(null);
+  const [syncStats, setSyncStats] = useState<SyncStats | null>(null);
+
+  const saveClientId = useCallback((newId: string) => {
+    setClientId(newId);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(CLIENT_ID_STORAGE_KEY, newId);
+    }
+  }, []);
+
+  const connect = useCallback(async (): Promise<boolean> => {
+    const idToUse = clientId || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    if (!idToUse) {
+      setSyncError('Google Drive Client-ID ist nicht hinterlegt.');
+      return false;
+    }
+
+    setIsSyncing(true);
+    setSyncError(null);
+
+    try {
+      const token = await requestGoogleAccessToken(idToUse);
+      setAccessToken(token);
+      setIsEnabled(true);
+
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem(TOKEN_STORAGE_KEY, token);
+        localStorage.setItem(ENABLED_STORAGE_KEY, 'true');
+      }
+
+      // Initial sync immediately after connecting
+      const stats = await performGoogleDriveSync(token);
+      setSyncStats(stats);
+      setLastSyncTime(stats.lastSyncedAt);
+      setIsSyncing(false);
+      return true;
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error('[Google Drive Connect Error]', err);
+      setSyncError(message);
+      setIsSyncing(false);
+      return false;
+    }
+  }, [clientId]);
+
+  const disconnect = useCallback(() => {
+    setAccessToken(null);
+    setIsEnabled(false);
+    setSyncError(null);
+    setSyncStats(null);
+
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem(TOKEN_STORAGE_KEY);
+      localStorage.setItem(ENABLED_STORAGE_KEY, 'false');
+    }
+  }, []);
+
+  const syncNow = useCallback(async (): Promise<SyncStats | null> => {
+    let token = accessToken;
+
+    if (!token) {
+      // If token expired in session, request a new one
+      const idToUse = clientId || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+      if (!idToUse) {
+        setSyncError('Google Client ID is missing.');
+        return null;
+      }
+
+      try {
+        token = await requestGoogleAccessToken(idToUse);
+        setAccessToken(token);
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem(TOKEN_STORAGE_KEY, token);
+        }
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        setSyncError(message);
+        return null;
+      }
+    }
+
+    setIsSyncing(true);
+    setSyncError(null);
+
+    try {
+      const stats = await performGoogleDriveSync(token);
+      setSyncStats(stats);
+      setLastSyncTime(stats.lastSyncedAt);
+      setIsSyncing(false);
+      return stats;
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error('[Google Drive Sync Error]', err);
+      setSyncError(message);
+      setIsSyncing(false);
+      return null;
+    }
+  }, [accessToken, clientId]);
+
+  return {
+    isEnabled,
+    isConnected: !!accessToken,
+    isSyncing,
+    lastSyncTime,
+    syncError,
+    syncStats,
+    clientId,
+    saveClientId,
+    connect,
+    disconnect,
+    syncNow,
+    exportLocalBackup: downloadLocalBackupFile,
+    importLocalBackup: importLocalBackupFile,
+  };
+}

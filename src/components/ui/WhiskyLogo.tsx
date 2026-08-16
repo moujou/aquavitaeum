@@ -36,12 +36,12 @@ export function WhiskyLogo({ size = 24, className, hasCircle = false, ...props }
                C 186 215, 213 175, 220 140 Z"
           />
 
-          {/* Wavy Fill Line */}
+          {/* Dynamic Highland Swirl Meniscus Wave */}
           <path
-            strokeWidth={6}
-            d="M 194 263 
-               C 210 251, 240 277, 280 262 
-               C 300 255, 310 258, 318 264"
+            strokeWidth={7}
+            d="M 186 246 
+               C 210 262, 240 262, 268 252 
+               C 296 242, 316 236, 326 244"
           />
 
           {/* Compact Curved Base/Pedestal */}
@@ -90,12 +90,12 @@ export function WhiskyLogo({ size = 24, className, hasCircle = false, ...props }
              C 186 215, 213 175, 220 140 Z"
         />
 
-        {/* Wavy Fill Line */}
+        {/* Dynamic Highland Swirl Meniscus Wave */}
         <path
-          strokeWidth={9}
-          d="M 194 263 
-             C 210 251, 240 277, 280 262 
-             C 300 255, 310 258, 318 264"
+          strokeWidth={10}
+          d="M 186 246 
+             C 210 262, 240 262, 268 252 
+             C 296 242, 316 236, 326 244"
         />
 
         {/* Compact Curved Base/Pedestal */}

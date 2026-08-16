@@ -63,10 +63,12 @@ Aqua Vitaeum is configured for **Static HTML Export Mode** (`output: "export"` i
 Aqua Vitaeum is configured as a fully installable PWA for mobile and desktop systems:
 
 - **Web App Manifest (`src/app/manifest.ts`)**: A dynamic manifest configures standalone orientation, theme/background colors (`#311e15` and `#0c1a0e`), app naming, and references scalable vector and maskable SVG icons.
-- **Offline Capabilities (`public/sw.js`)**: A custom network-first Service Worker script caches primary shell assets (`/`, `whisky-logo-with-circle-v4.svg`, `whisky-logo-maskable-v4.svg`) and caches fetched pages/bundles dynamically to enable full offline use.
+- **Offline Capabilities (`public/sw.js`)**: A custom network-first Service Worker script caches primary shell assets (`/`, `whisky-logo-with-circle-v5.svg`, `whisky-logo-maskable-v5.svg`) and caches fetched pages/bundles dynamically to enable full offline use.
 - **iOS/Safari High-Fidelity**: Apple mobile-web-app-capable and status-bar-style metadata tags are injected automatically via Next.js metadata layout headers to ensure a clean browser-less look on iOS devices.
-- **Mobile Usability & Tab Navigation (`src/app/page.tsx`)**:
-  - **Bottom Navigation Bar**: Displays a flush 56px (`h-14`) bar at `z-50` with a rich dark walnut wood grain texture (`.bg-wood border-t border-[var(--brass-accent)]/25`). Provides contained in-line buttons for Bookshelf (Exit), Collection (Toggle), and a circular in-line Ivory/Brass CTA trigger. Active tabs display a glowing top brass indicator line (`border-t-4 border-[var(--brass-accent)]`).
+- **Mobile Usability & Desktop Ergonomics (`src/app/page.tsx`, `AppHeader.tsx`)**:
+  - **Centered Desktop Architecture**: Both the top header and content viewports are centered in a synchronized `max-w-6xl mx-auto` layout container, guaranteeing identical horizontal gutters on ultra-wide screens.
+  - **Content-Aligned 64px Desktop FABs**: Floating action buttons (`w-16 h-16`, `size={28}`) on desktop are anchored along the outer edge of the `max-w-6xl` content grid (`right-4 xl:-right-10 2xl:-right-16` / `left-4 xl:-left-10 2xl:-left-16`), keeping primary CTAs accessible without cluttering the main content canvas.
+  - **Bottom Navigation Bar (Mobile)**: Displays a flush 56px (`h-14`) bar at `z-50` with a rich dark walnut wood grain texture (`.bg-wood border-t border-[var(--brass-accent)]/25`). Provides contained in-line buttons for Bookshelf (Exit), Collection (Toggle), and a circular in-line Ivory/Brass CTA trigger. Active tabs display a glowing top brass indicator line (`border-t-4 border-[var(--brass-accent)]`).
   - **Off-Canvas Sidebar Drawer**: Toggling the Collection drawer opens an overlay drawer (`fixed top-0 left-0 bottom-0 w-[85%] max-w-[320px] h-full`) positioned above the bottom bar with safe-area padding offsets. Closes via backdrop click or the Escape key.
   - **Responsive Spacing**: Page switcher views utilize static padding top `pt-17 sm:pt-20 lg:pt-0` layout heights, allowing the mobile scroll-hide header transitions to execute cleanly without dynamic padding shifting or scroll jitter loops.
   - **Persistent Welcome state**: Onboarding visibility checks compare both `localStorage` welcome keys and session markers, bypassing the launch screen for returning users.
@@ -74,6 +76,42 @@ Aqua Vitaeum is configured as a fully installable PWA for mobile and desktop sys
   - **Swipe-Back Gesture (`src/hooks/useSwipeBack.ts`)**: A passive `touchstart` / `touchend` listener registered on `document` detects a right-edge → left swipe. Detection parameters: start zone within the last `44px` of screen width, minimum horizontal displacement `60px` leftward, maximum vertical drift `80px`. When all conditions are met, an `onBack` callback owned by `page.tsx` fires and performs the appropriate view transition. The browser/OS native left-edge swipe is preserved alongside it. The hook is zero-coupling: it knows nothing about view state — navigation semantics live entirely in the caller.
   - **Long-Press Select Mode** (`JournalsOverview.tsx`, `SpiritCollectionGrid.tsx`): A 500 ms `setTimeout` ref (`longPressTimer`) starts on `onTouchStart`. If it fires before being cancelled, `longPressActive.current` is set to `true` and `enterSelectMode(id)` is called with haptic feedback (`navigator.vibrate(40)`). On `onTouchEnd`, the timer is cancelled if still pending; if `longPressActive.current` is `true`, `e.preventDefault()` suppresses the synthetic click and the ref resets to `false`. Subsequent taps in select mode call `toggleSelection(id)` via `onClick` — the ref guard is always `false` in select mode, so clicks pass through cleanly. `SpiritCollectionGrid` accepts an optional `isVisible` prop; a `useEffect` auto-exits select mode when `isVisible` becomes `false` (e.g. mobile drawer closes), preventing stale selection state on re-open. The full-screen `bg-black/25` scrim and per-card scale transitions (`scale-[1.02]` selected / `scale-[0.97]` unselected) are driven by `isSelectMode` state.
 
+
+---
+
+## ☁️ Google Drive Cloud Sync & Local-First Architecture
+
+Aqua Vitaeum features a **100% serverless, privacy-friendly Google Drive Cloud Sync** mechanism:
+
+- **Zero Server Footprint**: The application operates directly between the user's browser (`IndexedDB / Dexie.js`) and their private Google Drive. No developer or third-party servers store user tasting notes, photos, or journals.
+- **Transparent Drive Folder Hierarchy**:
+  ```
+  Google Drive /
+  └── Aqua Vitaeum/
+      ├── Islay Single Malts/
+      │   ├── _journal.json                 (ID, Name, Color, CreatedAt, UpdatedAt)
+      │   ├── Ardbeg 10 Years Old.json      (Full Spirit Record)
+      │   └── Laphroaig Cask Strength.json  (Full Spirit Record)
+      └── Speyside Collection/
+          ├── _journal.json
+          └── Macallan 12 Sherry Oak.json
+  ```
+- **Rogue-File Guard & Schema Validation**:
+  - All files in the Drive folder are strictly validated against domain business rules via `validateSpirit()`.
+  - Non-JSON files or foreign format documents placed manually in the folder by users are safely ignored and skipped without crashing the application.
+- **Conflict Resolution**:
+  - Two-way sync compares `updatedAt` timestamps between local IndexedDB records and Drive files; newer modifications take precedence.
+- **Offline Data Sovereignty & Multi-Level Export/Import**:
+  - **Full Vault Backup**: Users can export or import a single offline `.json` backup file (`aqua-vitaeum-backup-[Date].json`) without requiring a Google account.
+  - **Single Journal Export/Import**: Individual journals can be exported as standalone `.json` files or imported with collision prevention (`importJournalFile`).
+  - **Single Note Export/Import**: Tasting notes can be exported as individual `.json` records (`exportSingleSpiritFile`) or imported into existing journals (`parseSingleSpiritFile`).
+- **Unified Action Architecture (`PageActionsDropdown`)**:
+  - Replaces loose floating header buttons with a discrete, screen-stable parchment gear menu (`[ ⚙️ ]`) providing contextual actions (Select Mode, Export, Import, Delete) across Bookshelf, Journal, and Detail views.
+- **Responsive Layout Geometry**:
+  - **Smartphone (`< 640px`)**: Strict 2-column card grid (`grid-cols-2`).
+  - **Desktop (`>= 1024px`)**: Bounded 4-column card grid (`lg:grid-cols-4`) aligned seamlessly with the top navigation bar logo and user action boundaries.
+- **Permanent Onboarding**:
+  - Launch onboarding runs once on fresh installs via `localStorage.getItem('aqua-vitaeum-welcome-completed')`, directly launching returning users into the collection overview.
 
 ---
 

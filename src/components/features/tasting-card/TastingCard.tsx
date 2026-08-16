@@ -33,6 +33,7 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
     displayName,
     subtitleLocation,
     update,
+    importSpirit,
     confirmDelete,
   } = useTastingCardForm(initialSpirit, onSave, onDelete);
 
@@ -41,7 +42,7 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
   return (
     <div className={cn('parchment rounded-lg overflow-hidden animate-fade-in', className)}>
       
-      {/* Section 1: Dynamic Banner Header */}
+      {/* Section 1: Dynamic Banner Header with Gear Page Actions Dropdown */}
       <TastingHeaderSection
         spirit={spirit}
         displayName={displayName}
@@ -49,6 +50,10 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
         isEditingTitle={isEditingTitle}
         setIsEditingTitle={setIsEditingTitle}
         update={update}
+        onDelete={onDelete ? () => setShowDeleteModal(true) : undefined}
+        onImportSpirit={importSpirit}
+        t={t}
+        language={language}
       />
 
       <div className="p-6 flex flex-col gap-6">
@@ -97,13 +102,11 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
           t={t}
         />
 
-        {/* Full-Width Section 5: Score, Star Ratings & Action Buttons */}
+        {/* Full-Width Section 5: Score & Star Ratings */}
         <TastingRatingSection
           spirit={spirit}
           stars={stars}
           update={update}
-          onDelete={onDelete}
-          setShowDeleteModal={setShowDeleteModal}
           t={t}
         />
 
@@ -117,7 +120,7 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
         message={
           <>
             {t('deleteModalMessage')}{' '}
-            <strong className="font-semibold text-white">{displayName}</strong>?
+            <strong className="font-semibold text-[var(--foreground)]">{displayName}</strong>?
           </>
         }
         confirmLabel={t('yesDeleteNote')}

@@ -79,8 +79,8 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
     expect(screen.getByText('Your Fine Spirits Tasting Journal')).toBeDefined();
   });
 
-  it('navigates to bookshelf overview when session is started', async () => {
-    sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
+  it('navigates to bookshelf overview when welcome onboarding is completed', async () => {
+    localStorage.setItem('aqua-vitaeum-welcome-completed', 'true');
 
     render(
       <LanguageProvider>
@@ -96,7 +96,7 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
   });
 
   it('renders the empty cellar state UI when the active journal has 0 spirits', async () => {
-    sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
+    localStorage.setItem('aqua-vitaeum-welcome-completed', 'true');
 
     render(
       <LanguageProvider>
@@ -114,7 +114,7 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
   });
 
   it('renders New Note desktop FAB in journal-landing view', async () => {
-    sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
+    localStorage.setItem('aqua-vitaeum-welcome-completed', 'true');
 
     render(
       <LanguageProvider>
@@ -129,11 +129,11 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
     // Desktop New Note FAB must be present on landing page (hidden on mobile via CSS)
     const newNoteFab = screen.getByTitle('New Note');
     expect(newNoteFab).toBeDefined();
-    expect(newNoteFab.className).toContain('absolute bottom-6 right-6');
+    expect(newNoteFab.className).toContain('w-16 h-16 rounded-full bg-[var(--fab-bg)]');
   });
 
   it('renders floating Plus button in Bookshelf Overview view', async () => {
-    sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
+    localStorage.setItem('aqua-vitaeum-welcome-completed', 'true');
 
     render(
       <LanguageProvider>
@@ -144,11 +144,11 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
     // Verify presence of creation FAB on bookshelf overview
     const createBtn = screen.getByTitle(/Create Journal/i);
     expect(createBtn).toBeDefined();
-    expect(createBtn.className).toContain('absolute bottom-6 right-6');
+    expect(createBtn.className).toContain('w-16 h-16 rounded-full bg-[var(--fab-bg)]');
   });
 
   it('redirects from Profile view back to journals overview when tapping Journals in bottom navigation', async () => {
-    sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
+    localStorage.setItem('aqua-vitaeum-welcome-completed', 'true');
 
     render(
       <LanguageProvider>
@@ -177,7 +177,7 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
   });
 
   it('returns to journal-landing (not journal-detail) when toggling Profile tab off', async () => {
-    sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
+    localStorage.setItem('aqua-vitaeum-welcome-completed', 'true');
 
     render(
       <LanguageProvider>

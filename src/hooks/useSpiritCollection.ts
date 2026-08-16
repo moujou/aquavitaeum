@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { Spirit, SpiritType } from '@/types/spirit.types';
 import { createBlankSpirit } from '@/lib/spirit-utils';
 import { translateColour, translateGlance } from '@/lib/i18n/translations';
@@ -7,6 +7,7 @@ import { db } from '@/lib/db';
 export function useSpiritCollection(activeJournalId: string | null) {
   const [spirits, setSpirits] = useState<Spirit[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const pendingSelectedIdRef = useRef<string | null>(null);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<SpiritType | 'All'>('All');
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -77,9 +78,15 @@ export function useSpiritCollection(activeJournalId: string | null) {
         // Sort spirits by tasted date (newest first)
         localSpirits.sort((a, b) => (b.dateTasted || '').localeCompare(a.dateTasted || ''));
         setSpirits(localSpirits);
-        setSelectedId((prev) =>
-          prev && localSpirits.some((s) => s.id === prev) ? prev : (localSpirits[0]?.id ?? null)
-        );
+        const targetId = pendingSelectedIdRef.current;
+        if (targetId && localSpirits.some((s) => s.id === targetId)) {
+          setSelectedId(targetId);
+        } else {
+          setSelectedId((prev) =>
+            prev && localSpirits.some((s) => s.id === prev) ? prev : (localSpirits[0]?.id ?? null)
+          );
+        }
+        pendingSelectedIdRef.current = null;
         setIsLoading(false);
       }
     }
@@ -129,6 +136,7 @@ export function useSpiritCollection(activeJournalId: string | null) {
   }, [spirits, search, typeFilter]);
 
   const selectSpirit = useCallback((id: string) => {
+    pendingSelectedIdRef.current = id;
     setSelectedId(id);
   }, []);
 

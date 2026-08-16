@@ -4,6 +4,7 @@
 import React from 'react';
 import { MapPin, Check, Star } from 'lucide-react';
 import { Spirit, SPIRIT_COLOUR_HEX, SpiritColour } from '@/types/spirit.types';
+import { WhiskyLogo } from '@/components/ui/WhiskyLogo';
 import { cn } from '@/lib/utils';
 import { getRatingTierStyle } from '@/lib/spirit-utils';
 
@@ -47,13 +48,13 @@ export function NoteListItem({
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
       className={cn(
-        "w-full flex items-center gap-3 sm:gap-4.5 pl-3.5 sm:pl-4.5 pr-6 sm:pr-8 py-3.5 rounded-xl border transition-all duration-300 cursor-pointer group relative overflow-hidden text-left",
-        "bg-gradient-to-r from-[#18241D]/90 via-[#131D16]/95 to-[#0E1510] backdrop-blur-md shadow-md",
+        "w-full flex items-center gap-3 sm:gap-4.5 pl-3.5 sm:pl-4.5 pr-6 sm:pr-8 py-3.5 rounded-xl border transition-all duration-300 cursor-pointer group relative overflow-hidden text-left select-none",
+        "bg-[var(--parchment-bg)] border border-[var(--parchment-border)] shadow-[0_2px_8px_var(--parchment-shadow)]",
         isSelectMode
           ? isSelected
-            ? "border-[var(--brass-accent)] ring-1 ring-[var(--brass-accent)]/50 shadow-[0_0_16px_rgba(197,155,39,0.22)] scale-[1.01]"
-            : "border-white/8 opacity-50 hover:opacity-80"
-          : "border-t-white/18 border-x-white/10 border-b-black/50 hover:border-[var(--brass-accent)]/60 hover:shadow-[0_8px_25px_rgba(0,0,0,0.45),inset_4px_0_12px_rgba(197,155,39,0.15)] hover:scale-[1.008]"
+            ? "border-[var(--wood-selection)] ring-2 ring-[var(--wood-selection)]/45 shadow-[0_0_20px_rgba(179,137,93,0.3)] scale-[1.015] opacity-100 bg-[var(--pub-bg-panel)] z-10"
+            : "border-[var(--parchment-border)]/50 opacity-40 scale-[0.98]"
+          : "hover:border-[var(--forest-green)]/60 hover:shadow-[0_6px_20px_rgba(35,115,71,0.1),inset_4px_0_12px_rgba(35,115,71,0.06)] hover:scale-[1.006]"
       )}
     >
       {/* Signature Animated Liquid Accent Column (Refined Liquid Bar) */}
@@ -77,36 +78,28 @@ export function NoteListItem({
         style={{ background: `radial-gradient(circle, ${colourHex} 0%, transparent 70%)` }}
       />
 
-      {/* Per-item dim scrim for unselected items in select mode */}
-      {isSelectMode && !isSelected && (
-        <div className="absolute inset-0 rounded-xl bg-black/40 pointer-events-none z-20" />
-      )}
-
       {/* Select Mode Checkbox */}
       {isSelectMode && (
         <div className={cn(
           "shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all z-30",
-          isSelected ? "border-[var(--brass-accent)] bg-[var(--brass-accent)]" : "border-white/40 bg-black/40"
+          isSelected ? "border-[var(--wood-selection)] bg-[var(--wood-selection)] shadow-xs" : "border-[var(--parchment-border)] bg-[var(--pub-bg-panel)]/90 shadow-xs"
         )}>
-          {isSelected && <Check size={11} strokeWidth={3} className="text-[var(--wood-dark)]" />}
+          {isSelected && <Check size={11} strokeWidth={3} className="text-[var(--parchment-bg)]" />}
         </div>
       )}
 
       {/* Thumbnail with Spirit Hue Indicator */}
-      <div className="w-[52px] h-[52px] sm:w-[58px] sm:h-[58px] rounded-lg shrink-0 overflow-hidden bg-gradient-to-br from-[#1C130D] to-[#0A0704] border border-white/12 relative flex items-center justify-center shadow-xs group-hover:border-[var(--brass-accent)]/50 transition-colors z-10">
+      <div className="w-[52px] h-[52px] sm:w-[58px] sm:h-[58px] rounded-lg shrink-0 overflow-hidden bg-gradient-to-br from-[var(--pub-bg-alt)] to-[var(--parchment-bg)] border border-[var(--parchment-border)] relative flex items-center justify-center shadow-xs group-hover:border-[var(--forest-green)]/60 transition-colors z-10">
         {spirit.thumbnailImage ? (
           <img src={spirit.thumbnailImage} alt={spirit.name} className="w-full h-full object-cover" />
         ) : (
-          <div
-            className="w-full h-full"
-            style={{
-              background: `radial-gradient(circle at center, ${colourHex}60 0%, #1A130E 75%, #0A0704 100%)`,
-            }}
-          />
+          <div className="flex items-center justify-center text-[var(--forest-green)]">
+            <WhiskyLogo size={26} className="text-[var(--forest-green)]" />
+          </div>
         )}
         {/* Ambient Liquid Pip */}
         <div
-          className="absolute bottom-0.5 right-0.5 w-2 h-2 rounded-full border border-black/50 shadow-xs"
+          className="absolute bottom-0.5 right-0.5 w-2.5 h-2.5 rounded-full border border-[var(--parchment-border)] shadow-xs"
           style={{ backgroundColor: colourHex }}
           title={`Spirit color: ${spirit.colour ?? 'Natural'}`}
         />
@@ -117,7 +110,7 @@ export function NoteListItem({
         <div className="font-display font-bold text-sm sm:text-base text-[var(--foreground)] group-hover:text-[var(--brass-accent)] transition-colors truncate leading-snug">
           {spirit.distillery}
         </div>
-        <div className="font-body text-xs sm:text-[13px] text-white/85 truncate mt-0.5 font-medium leading-snug">
+        <div className="font-body text-xs sm:text-[13px] text-[var(--sepia-muted)] truncate mt-0.5 font-medium leading-snug">
           {spirit.name}
         </div>
 
@@ -127,7 +120,7 @@ export function NoteListItem({
             {topFlavorTags.map((tag) => (
               <span
                 key={tag}
-                className="inline-flex items-center text-[10px] font-semibold tracking-wide bg-white/8 border border-white/15 px-2 py-0.5 rounded text-white/80 truncate"
+                className="inline-flex items-center text-[10px] font-semibold tracking-wide bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] px-2 py-0.5 rounded text-[var(--sepia-text)] truncate"
               >
                 {tag}
               </span>
@@ -137,18 +130,18 @@ export function NoteListItem({
       </div>
 
       {/* Spirit Type Badge */}
-      <div className="shrink-0 hidden md:block text-[11px] font-semibold tracking-wide bg-white/6 border border-white/15 px-2.5 py-1 rounded-full text-white/85 z-10">
+      <div className="shrink-0 hidden md:block text-[11px] font-semibold tracking-wide bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] px-2.5 py-1 rounded-full text-[var(--sepia-text)] z-10">
         {spirit.spiritType}
       </div>
 
       {/* Region */}
-      <div className="shrink-0 hidden lg:flex items-center gap-1.5 text-xs text-white/70 font-body min-w-[100px] z-10">
+      <div className="shrink-0 hidden lg:flex items-center gap-1.5 text-xs text-[var(--sepia-muted)] font-body min-w-[100px] z-10">
         <MapPin size={12} className="text-[var(--brass-accent)] shrink-0" />
         <span className="truncate">{spirit.region || '—'}</span>
       </div>
 
       {/* Date */}
-      <div className="shrink-0 hidden xl:block text-xs font-mono text-white/50 min-w-[85px] text-right z-10">
+      <div className="shrink-0 hidden xl:block text-xs font-mono text-[var(--sepia-muted)]/70 min-w-[85px] text-right z-10">
         {formattedDate}
       </div>
 

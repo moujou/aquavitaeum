@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="cloverShield" x1="15%" y1="10%" x2="85%" y2="90%">
+      <stop offset="0%" stop-color="#38AB6D" />
+      <stop offset="40%" stop-color="#2E945D" />
+      <stop offset="75%" stop-color="#237347" />
+      <stop offset="100%" stop-color="#1B5E38" />
+    </linearGradient>
+
+    <radialGradient id="ambientGoldBacklight" cx="48%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#FFD166" stop-opacity="0.28" />
+      <stop offset="50%" stop-color="#E59632" stop-opacity="0.10" />
+      <stop offset="100%" stop-color="#C97A1E" stop-opacity="0" />
+    </radialGradient>
+
+    <linearGradient id="highlandAmberFill" x1="20%" y1="10%" x2="80%" y2="95%">
+      <stop offset="0%" stop-color="#FFE599" />
+      <stop offset="18%" stop-color="#FFB82E" />
+      <stop offset="48%" stop-color="#E67E22" />
+      <stop offset="80%" stop-color="#BA5812" />
+      <stop offset="100%" stop-color="#7A2D04" />
+    </linearGradient>
+
+    <linearGradient id="meniscusWarmGold" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#FFD269" stop-opacity="0.30" />
+      <stop offset="25%" stop-color="#FFE89E" stop-opacity="0.95" />
+      <stop offset="60%" stop-color="#FFB82E" stop-opacity="0.95" />
+      <stop offset="85%" stop-color="#FFE082" stop-opacity="0.90" />
+      <stop offset="100%" stop-color="#FFD269" stop-opacity="0.30" />
+    </linearGradient>
+
+    <clipPath id="glassInnerClip">
+      <path d="M 220 140 H 292 C 299 175, 326 215, 326 244 C 326 292, 294 322, 256 322 C 218 322, 186 292, 186 244 C 186 215, 213 175, 220 140 Z" />
+    </clipPath>
+  </defs>
+
+  <rect width="512" height="512" fill="url(#cloverShield)" />
+  <circle cx="256" cy="256" r="220" fill="url(#ambientGoldBacklight)" />
+
+  <g transform="translate(256, 256) scale(1.18) translate(-256, -256)">
+    <g transform="translate(256, 244) scale(0.905) translate(-256, -244)">
+      <g clip-path="url(#glassInnerClip)">
+        <path d="M 186 246 C 210 262, 240 262, 268 252 C 296 242, 316 236, 326 244 V 340 H 186 Z" fill="url(#highlandAmberFill)" opacity="0.96" />
+        <path d="M 186 246 C 210 262, 240 262, 268 252 C 296 242, 316 236, 326 244" stroke="url(#meniscusWarmGold)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+      </g>
+    </g>
+
+    <g stroke="#FDFBF7" stroke-linecap="round" stroke-linejoin="round">
+      <path fill="none" d="M 220 140 H 292 C 299 175, 326 215, 326 244 C 326 292, 294 322, 256 322 C 218 322, 186 292, 186 244 C 186 215, 213 175, 220 140 Z" stroke-width="7.5" />
+      <path fill="#FDFBF7" d="M 230 320 C 230 340 212 344 198 368 H 314 C 300 344 282 340 282 320 C 270 322, 242 322, 230 320 Z" stroke-width="7.5" />
+    </g>
+  </g>
+</svg>

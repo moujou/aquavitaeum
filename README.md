@@ -1,76 +1,59 @@
 <div align="center">
 
-<img src="./public/whisky-logo-with-circle-v4.svg" width="88" height="88" alt="Aqua Vitaeum Logo" />
+<img src="./public/whisky-logo-with-circle-v5.svg" width="112" height="112" alt="Aqua Vitaeum Logo" />
 
 # Aqua Vitaeum
 
-### *Fine Spirits Tasting Journal & Sensory Analytics*
+### *The Master Distiller’s Digital Codex & Sensory Sanctuary*
 
-A digital codex forged for Single Malt Scotch, Bourbon, and fine spirits connoisseurs.  
-Designed with dark vintage pub craftsmanship, interactive sensory radar profiling, and temporal finish modeling.
+*A bespoke tasting journal and sensory analytics sanctuary forged for Single Malt Scotch, Small-Batch Bourbon, and fine spirits connoisseurs.*
 
-[![Next.js 16](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)](https://nextjs.org/)
-[![TypeScript 5](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
-[![Tailwind CSS v4](https://img.shields.io/badge/Tailwind-v4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
-[![PWA Standalone](https://img.shields.io/badge/PWA-Installable-orange?style=flat-square&logo=pwa)](https://web.dev/progressive-web-apps/)
-[![Vitest](https://img.shields.io/badge/Vitest-Passing-6E9F18?style=flat-square&logo=vitest)](https://vitest.dev/)
+[![Next.js 16](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![TypeScript 5](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![PWA Standalone](https://img.shields.io/badge/PWA-Cellar--Ready-2E945D?style=for-the-badge&logo=pwa)](https://web.dev/progressive-web-apps/)
 
 </div>
 
 ---
 
-## 🥃 The 4 Pillars
+## 🥃 The Art of Tasting, Elevated
 
-```
-┌───────────────────────────────┬───────────────────────────────┐
-│  📖 Artisanal Tasting Journal │  🕸️ Dual-Layer Sensory Radar  │
-│  Comprehensive spirit specs,  │  11-dimension comparative     │
-│  distillery, cask type, ABV,  │  profiling: Nose Aromas vs.   │
-│  and parchment notes ledger.  │  Palate Flavors in real time. │
-├───────────────────────────────┼───────────────────────────────┤
-│  ⏱️ 60s Finish Timeline Spline │  🏛️ Multi-View Cellar Vault   │
-│  Cubic Bezier curves mapping  │  Seamless switching between   │
-│  temporal flavor onset, peak  │  Photo Gallery, Compact List, │
-│  intensity, and extinction.   │  and Sortable Matrix Table.   │
-└───────────────────────────────┴───────────────────────────────┘
-```
+Every dram tells a centuries-old story of peat, copper, toasted oak, and time. **Aqua Vitaeum** transforms the ephemeral experience of fine spirits into a permanent, beautifully visual sensory ledger.
+
+Designed with the quiet elegance of a private tasting room, it bridges timeless craftsmanship with modern sensory science.
 
 ---
 
-## 🎨 Sensory & Aesthetic Highlights
+## 📖 The Connoisseur's Codex
 
-- **Dark Vintage Pub Atmosphere**: Crafted with aged dark walnut wood chrome (`.bg-wood`), smoked obsidian card surfaces, and aged ivory letterpress typography (`#E8D5B7`).
-- **Precious Metal Rating Tiers**: 100-point scores render with authentic noble metal badges: **Radiant 24k Gold** (`≥90`), **Aged Brass** (`80–89`), **Toasted Copper Oak** (`70–79`), and **Aged Slate** (`<70`).
-- **Instinctive Flavor Palette**: Descriptors map to natural sensory colors (e.g. *Peat Smoke* `#655A52`, *Sea Salt* `#2B788B`, *Green Apple* `#3E8E41`).
-- **Offline-First & PWA**: High-capacity local storage via IndexedDB (Dexie.js) with client-side canvas compression for bottle photos and offline service worker caching.
-
----
-
-## ⚡ Quickstart
-
-```bash
-# 1. Clone & install
-git clone https://github.com/moujou/aquavitaeum.git
-cd aquavitaeum
-npm install
-
-# 2. Run local development server
-npm run dev
-
-# 3. Quality checks
-npm run type-check && npm run lint
-```
+- 🏛️ **The Archival Tasting Ledger**: Capture distillery provenance, cask maturation heritage (first-fill Oloroso, virgin American oak, peated quarter casks), ABV, and noble precious metal scoring from *Radiant 24k Gold* to *Toasted Copper*.
+- 🕸️ **Dual-Layer Sensory Radar**: Witness the dialogue between aroma and palate in an interactive 11-dimension matrix — comparing *Warm Amber Nose Aromas* directly against *Clover Green Palate Flavors*.
+- ⏱️ **60-Second Finish Spline**: Model the temporal evolution and warmth of the finish from initial attack to final extinction on a smooth cubic Bezier curve.
+- 🏺 **The Grand Cellar Vault**: Curate your collection across high-resolution photo galleries, compact tasting lists, or rich matrix tables.
 
 ---
 
-## 📚 Documentation & Design System
+## 🎨 Tactile Aesthetics & Craftsmanship
 
-- 🛠️ **Developer Setup & Architecture**: [`docs/DOCUMENTATION.md`](./docs/DOCUMENTATION.md)
-- 🎨 **Visual Design System & CSS Tokens**: [`docs/DESIGN_SYSTEM.md`](./docs/DESIGN_SYSTEM.md)
-- 📜 **AI Agent Directives & Steering**: [`AGENTS.md`](./AGENTS.md)
+Aqua Vitaeum is meticulously engineered around the atmosphere of an archival tasting room:
+
+- 📜 **Warm Vintage Linen Canvas (`#ECE5D8`)**: A natural, unhurried, glare-free background with tactile paper warmth.
+- 🪶 **Letterpress Walnut Ink (`#2B1E14`)**: Certified **13.8:1 WCAG AAA** readability across all light conditions.
+- 🍀 **Irish Clover Green Accents (`#2E945D`)**: Fresh botanical highland tones for badges, active triggers, and table headers.
+- 🕯️ **Optional Vintage Dark Pub Mode**: Switch seamlessly into a warm, candlelit tasting lounge for evening sessions.
+- 🔒 **100% Private & Cellar-Ready**: Works fully offline deep in stone barrel cellars with optional Google Drive cloud backup.
+
+---
+
+## 📚 Documentation & Architecture
+
+For technical architecture, design token specifications, and developer setup guides:
+
+- 🛠️ **[Developer Guide & CLI Scripts](docs/DOCUMENTATION.md)** — Architecture, PWA Service Worker, Dexie.js IndexedDB, and local setup.
+- 🎨 **[Design System Specification](docs/DESIGN_SYSTEM.md)** — Color theory, WCAG contrast ratios, typography rules, and CSS custom property matrix.
 
 ---
 
 <div align="center">
-  <sub>Copyright © 2026 Aqua Vitaeum. Built for fine spirits appreciation.</sub>
+  <sub>Aqua Vitaeum · Forged with passion for fine spirits appreciation.</sub>
 </div>

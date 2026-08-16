@@ -12,7 +12,7 @@ export interface MultiSelectReturn {
   selectedIds: Set<string>;
   confirmBulkDelete: boolean;
   setConfirmBulkDelete: (v: boolean) => void;
-  enterSelectMode: (id: string) => void;
+  enterSelectMode: (id?: string) => void;
   exitSelectMode: () => void;
   toggleSelection: (id: string) => void;
   handleTouchStart: (e: React.TouchEvent, id: string) => void;
@@ -22,27 +22,29 @@ export interface MultiSelectReturn {
   handleBulkDelete: (onDelete: (id: string) => Promise<void>) => Promise<void>;
 }
 
-export function useMultiSelect(): MultiSelectReturn {
+export function useMultiSelect(onSelectModeChange?: (active: boolean) => void): MultiSelectReturn {
   const [isSelectMode, setIsSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const longPressActive = useRef(false);
 
-  const enterSelectMode = useCallback((id: string) => {
+  const enterSelectMode = useCallback((id?: string) => {
     if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
       navigator.vibrate(40);
     }
     setIsSelectMode(true);
-    setSelectedIds(new Set([id]));
-  }, []);
+    setSelectedIds(new Set(id ? [id] : []));
+    onSelectModeChange?.(true);
+  }, [onSelectModeChange]);
 
   const exitSelectMode = useCallback(() => {
     setIsSelectMode(false);
     setSelectedIds(new Set());
     setConfirmBulkDelete(false);
     longPressActive.current = false;
-  }, []);
+    onSelectModeChange?.(false);
+  }, [onSelectModeChange]);
 
   const toggleSelection = useCallback((id: string) => {
     setSelectedIds((prev) => {

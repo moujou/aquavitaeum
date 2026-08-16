@@ -28,7 +28,7 @@ export function ToggleButton({
       aria-pressed={active}
       aria-label={ariaLabel || label}
       className={cn(
-        'px-3.5 py-2 sm:px-3 sm:py-1.5 text-sm sm:text-xs font-body font-semibold rounded-xs border transition-all duration-300 ease-out cursor-pointer min-h-[38px] sm:min-h-0',
+        'px-3.5 py-2 sm:px-3 sm:py-2 text-xs sm:text-sm font-body font-semibold rounded-xs border transition-all duration-300 ease-out cursor-pointer min-h-[38px] sm:min-h-0',
         active
           ? 'bg-[var(--wood-selection)] border-[var(--brass-accent)] text-[var(--parchment-bg)] shadow-xs'
           : 'border-[var(--parchment-border)]/60 bg-[var(--sepia-text)]/5 text-[var(--sepia-muted)] hover:bg-[var(--sepia-text)]/12 hover:border-[var(--parchment-border)]',

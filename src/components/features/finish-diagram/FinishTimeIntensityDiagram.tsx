@@ -155,9 +155,9 @@ export function FinishTimeIntensityDiagram({
             type="button"
             onClick={() => onViewModeChange('simple')}
             className={cn(
-              'px-3 py-1.5 text-xs font-body font-bold rounded-xs transition-all cursor-pointer',
+              'px-3 py-1.5 text-xs sm:text-sm font-body font-bold rounded-xs transition-all cursor-pointer',
               viewMode === 'simple'
-                ? 'bg-[var(--brass-accent)] text-[var(--sepia-text)] shadow-xs'
+                ? 'bg-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs'
                 : 'text-[var(--sepia-muted)] hover:text-[var(--sepia-text)]'
             )}
             aria-pressed={viewMode === 'simple'}
@@ -169,9 +169,9 @@ export function FinishTimeIntensityDiagram({
             type="button"
             onClick={() => onViewModeChange('advanced')}
             className={cn(
-              'px-3 py-1.5 text-xs font-body font-bold rounded-xs transition-all cursor-pointer',
+              'px-3 py-1.5 text-xs sm:text-sm font-body font-bold rounded-xs transition-all cursor-pointer',
               viewMode === 'advanced'
-                ? 'bg-[var(--brass-accent)] text-[var(--sepia-text)] shadow-xs'
+                ? 'bg-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs'
                 : 'text-[var(--sepia-muted)] hover:text-[var(--sepia-text)]'
             )}
             aria-pressed={viewMode === 'advanced'}
@@ -196,8 +196,8 @@ export function FinishTimeIntensityDiagram({
             className={cn(
               'px-3 py-2.5 rounded-md border text-xs sm:text-sm font-body font-semibold transition-all text-center cursor-pointer',
               selectedFinish === key
-                ? 'bg-[var(--wood-selection)] border-[var(--brass-accent)] text-[var(--parchment-bg)] shadow-sm'
-                : 'border-[var(--parchment-border)]/60 bg-[var(--sepia-text)]/5 text-[var(--sepia-muted)] hover:bg-[var(--sepia-text)]/12'
+                ? 'bg-[var(--wood-selection)] border-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs'
+                : 'border-[var(--parchment-border)]/60 bg-[var(--pub-bg-alt)] text-[var(--sepia-muted)] hover:bg-[var(--pub-bg-alt)]/80 hover:text-[var(--sepia-text)]'
             )}
             aria-pressed={selectedFinish === key}
           >
