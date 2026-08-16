@@ -13,15 +13,15 @@ interface LayoutToggleProps {
 
 export function LayoutToggle({ value, onChange, className }: LayoutToggleProps) {
   return (
-    <div className={cn('bg-white/5 border border-white/10 rounded-lg p-0.5 flex gap-0.5', className)}>
+    <div className={cn('bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] rounded-lg p-0.5 flex gap-0.5', className)}>
       <button
         type="button"
         onClick={() => onChange('list')}
         className={cn(
           'p-2 rounded-md transition-all cursor-pointer',
           value === 'list'
-            ? 'bg-[var(--brass-accent)] text-[var(--wood-dark)]'
-            : 'text-white/40 hover:text-white/70 hover:bg-white/5'
+            ? 'bg-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs'
+            : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
         )}
         aria-label="List View"
       >
@@ -33,8 +33,8 @@ export function LayoutToggle({ value, onChange, className }: LayoutToggleProps) 
         className={cn(
           'p-2 rounded-md transition-all cursor-pointer',
           value === 'grid'
-            ? 'bg-[var(--brass-accent)] text-[var(--wood-dark)]'
-            : 'text-white/40 hover:text-white/70 hover:bg-white/5'
+            ? 'bg-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs'
+            : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
         )}
         aria-label="Grid View"
       >
@@ -46,8 +46,8 @@ export function LayoutToggle({ value, onChange, className }: LayoutToggleProps) 
         className={cn(
           'p-2 rounded-md transition-all cursor-pointer',
           value === 'table'
-            ? 'bg-[var(--brass-accent)] text-[var(--wood-dark)]'
-            : 'text-white/40 hover:text-white/70 hover:bg-white/5'
+            ? 'bg-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs'
+            : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
         )}
         aria-label="Table View"
       >

@@ -163,6 +163,22 @@ export function useTastingCardForm(
     pendingSpiritRef.current = null;
   }, [spirit.id, onDelete]);
 
+  const importSpirit = useCallback((imported: Spirit) => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+    const merged: Spirit = {
+      ...imported,
+      id: spirit.id, // Preserve current card ID
+      journalId: spirit.journalId, // Preserve current journal ID
+      updatedAt: new Date().toISOString(),
+    };
+    setSpirit(merged);
+    onSave?.(merged);
+    setSaved(true);
+    pendingSpiritRef.current = null;
+  }, [spirit.id, spirit.journalId, onSave]);
+
   const stars = scoreToStars(spirit.rating100);
   const displayName = spirit.name.trim() || 'Untitled Spirit Note';
   const subtitleLocation =
@@ -180,6 +196,7 @@ export function useTastingCardForm(
     subtitleLocation,
     update,
     updateProfile,
+    importSpirit,
     handleSave,
     handleReset,
     confirmDelete,

@@ -3,7 +3,7 @@ import './globals.css';
 import { LanguageProvider } from '@/context/LanguageContext';
 
 export const viewport: Viewport = {
-  themeColor: '#311e15', // Matches the refined wood-accent brown
+  themeColor: '#F4EFE6', // Matches the Warm Vintage Linen canvas
 };
 
 export const metadata: Metadata = {
@@ -12,10 +12,10 @@ export const metadata: Metadata = {
     'A premium fine spirits tasting journal. Record and explore tasting notes for Single Malt Scotch, Bourbon, Rum, Gin, Tequila, and more.',
   icons: {
     icon: [
-      { url: '/whisky-logo-with-circle-v4.svg', type: 'image/svg+xml' },
+      { url: '/whisky-logo-with-circle-v5.svg', type: 'image/svg+xml' },
     ],
-    shortcut: '/whisky-logo-with-circle-v4.svg',
-    apple: '/whisky-logo-maskable-v4.svg',
+    shortcut: '/whisky-logo-with-circle-v5.svg',
+    apple: '/whisky-logo-maskable-v5.svg',
   },
   appleWebApp: {
     capable: true,
@@ -28,7 +28,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" data-theme="pub-dark" className="h-full antialiased">
+    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -51,7 +51,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <LanguageProvider>{children}</LanguageProvider>
       </body>
     </html>

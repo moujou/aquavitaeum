@@ -146,17 +146,17 @@ export function FlavorRadarChart({
             <Radar
               name={noseLegend}
               dataKey="Nose"
-              stroke="var(--brass-accent)"
-              fill="var(--brass-accent)"
+              stroke="var(--sensory-nose)"
+              fill="var(--sensory-nose)"
               fillOpacity={0.25}
               strokeWidth={2}
             />
             <Radar
               name={tasteLegend}
               dataKey="Taste"
-              stroke="var(--forest-green)"
-              fill="var(--forest-green)"
-              fillOpacity={0.2}
+              stroke="var(--sensory-taste)"
+              fill="var(--sensory-taste)"
+              fillOpacity={0.22}
               strokeWidth={2}
             />
             <Legend
@@ -176,7 +176,7 @@ export function FlavorRadarChart({
                       <div className="flex flex-col gap-0.5 text-[var(--sepia-light)]">
                         <div className="flex items-center justify-between font-semibold">
                           <span>{noseLegend}:</span>
-                          <span className="font-bold text-[var(--brass-accent)]">{data.Nose} / 10</span>
+                          <span className="font-bold text-[var(--sensory-nose)]">{data.Nose} / 10</span>
                         </div>
                         {data.activeNoseTags.length > 0 && (
                           <p className="text-[11px] text-[var(--sepia-text)] italic leading-tight pl-2">
@@ -188,7 +188,7 @@ export function FlavorRadarChart({
                       <div className="flex flex-col gap-0.5 text-[var(--sepia-light)] border-t border-[var(--parchment-border)]/40 pt-1.5">
                         <div className="flex items-center justify-between font-semibold">
                           <span>{tasteLegend}:</span>
-                          <span className="font-bold text-[var(--forest-green)]">{data.Taste} / 10</span>
+                          <span className="font-bold text-[var(--sensory-taste)]">{data.Taste} / 10</span>
                         </div>
                         {data.activeTasteTags.length > 0 && (
                           <p className="text-[11px] text-[var(--sepia-text)] italic leading-tight pl-2">
@@ -220,8 +220,8 @@ export function DynamicProfileSliders({
 }: DynamicProfileSlidersProps) {
   const { language } = useLanguage();
   const isNose = type === 'nose';
-  const accentClass = isNose ? 'accent-[var(--brass-accent)]' : 'accent-[var(--forest-green)]';
-  const valueColorClass = isNose ? 'text-amber-900 font-bold' : 'text-green-950 font-bold';
+  const accentClass = isNose ? 'accent-[var(--sensory-nose)]' : 'accent-[var(--sensory-taste)]';
+  const valueColorClass = isNose ? 'text-[var(--sensory-nose)] font-bold' : 'text-[var(--sensory-taste)] font-bold';
 
   if (activeTags.length === 0) {
     return (
@@ -291,8 +291,8 @@ export function SingleProfileSliders({
 }: SingleProfileSlidersProps) {
   const { language } = useLanguage();
   const isNose = type === 'nose';
-  const accentClass = isNose ? 'accent-[var(--brass-accent)]' : 'accent-[var(--forest-green)]';
-  const valueColorClass = isNose ? 'text-amber-900 font-bold' : 'text-green-950 font-bold';
+  const accentClass = isNose ? 'accent-[var(--sensory-nose)]' : 'accent-[var(--sensory-taste)]';
+  const valueColorClass = isNose ? 'text-[var(--sensory-nose)] font-bold' : 'text-[var(--sensory-taste)] font-bold';
 
   return (
     <div className={cn('flex flex-col gap-2 w-full', className)}>

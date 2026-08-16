@@ -133,9 +133,9 @@ export function FlavorTagSelector({
               type="button"
               onClick={() => setActiveSensoryMode('nose')}
               className={cn(
-                'px-3 py-1.5 text-xs font-body font-bold rounded-xs transition-all flex items-center gap-1.5 cursor-pointer',
+                'px-3 py-1.5 text-xs sm:text-sm font-body font-bold rounded-xs transition-all flex items-center gap-1.5 cursor-pointer',
                 activeSensoryMode === 'nose'
-                  ? 'bg-[var(--brass-accent)] text-[var(--sepia-text)] shadow-xs'
+                  ? 'bg-[var(--sensory-nose)] text-[var(--parchment-bg)] shadow-xs'
                   : 'text-[var(--sepia-muted)] hover:text-[var(--sepia-text)]',
               )}
               aria-pressed={activeSensoryMode === 'nose'}
@@ -146,8 +146,8 @@ export function FlavorTagSelector({
                   className={cn(
                     'px-1.5 py-0.2 text-[10px] font-extrabold rounded-full',
                     activeSensoryMode === 'nose'
-                      ? 'bg-[var(--sepia-text)]/20 text-[var(--sepia-text)]'
-                      : 'bg-[var(--brass-accent)] text-[var(--sepia-text)]',
+                      ? 'bg-white/20 text-white'
+                      : 'bg-[var(--sensory-nose)] text-[var(--parchment-bg)]',
                   )}
                 >
                   {noseFlavorTags.length}
@@ -158,9 +158,9 @@ export function FlavorTagSelector({
               type="button"
               onClick={() => setActiveSensoryMode('taste')}
               className={cn(
-                'px-3 py-1.5 text-xs font-body font-bold rounded-xs transition-all flex items-center gap-1.5 cursor-pointer',
+                'px-3 py-1.5 text-xs sm:text-sm font-body font-bold rounded-xs transition-all flex items-center gap-1.5 cursor-pointer',
                 activeSensoryMode === 'taste'
-                  ? 'bg-[var(--forest-green)] text-white shadow-xs'
+                  ? 'bg-[var(--sensory-taste)] text-[var(--parchment-bg)] shadow-xs'
                   : 'text-[var(--sepia-muted)] hover:text-[var(--sepia-text)]',
               )}
               aria-pressed={activeSensoryMode === 'taste'}
@@ -172,7 +172,7 @@ export function FlavorTagSelector({
                     'px-1.5 py-0.2 text-[10px] font-extrabold rounded-full',
                     activeSensoryMode === 'taste'
                       ? 'bg-white/20 text-white'
-                      : 'bg-[var(--forest-green)] text-white',
+                      : 'bg-[var(--sensory-taste)] text-[var(--parchment-bg)]',
                   )}
                 >
                   {tasteFlavorTags.length}
@@ -259,7 +259,14 @@ export function FlavorTagSelector({
                     {categoryName}
                   </span>
                   {activeCountInCat > 0 && (
-                    <span className="px-1.5 py-0.2 text-[11px] font-bold rounded-full bg-[var(--wood-selection)] text-[var(--parchment-bg)]">
+                    <span
+                      className={cn(
+                        'px-1.5 py-0.2 text-[11px] font-bold rounded-full text-[var(--parchment-bg)]',
+                        activeSensoryMode === 'nose'
+                          ? 'bg-[var(--sensory-nose)]'
+                          : 'bg-[var(--sensory-taste)]',
+                      )}
+                    >
                       {activeCountInCat}
                     </span>
                   )}
@@ -298,15 +305,15 @@ export function FlavorTagSelector({
                                 type="button"
                                 onClick={() => handleDescriptorClick(desc)}
                                 className={cn(
-                                  'px-3 py-2 sm:py-1.5 rounded-sm border text-sm sm:text-xs font-medium font-body transition-all duration-150 cursor-pointer select-none min-h-[36px] sm:min-h-0',
+                                  'px-3 py-2 sm:px-3 sm:py-1.5 rounded-sm border text-xs sm:text-sm font-medium font-body transition-all duration-150 cursor-pointer select-none min-h-[36px]',
                                   selectedInCurrent
                                     ? activeSensoryMode === 'nose' && !isLegacyMode
-                                      ? 'bg-[var(--wood-selection)] border-[var(--brass-accent)] text-[var(--parchment-bg)] shadow-xs font-semibold'
-                                      : 'bg-[var(--forest-green)] border-[var(--forest-green)] text-[var(--parchment-bg)] shadow-xs font-semibold'
+                                      ? 'bg-[var(--sensory-nose)] border-[var(--sensory-nose)] text-[var(--parchment-bg)] shadow-xs font-semibold'
+                                      : 'bg-[var(--sensory-taste)] border-[var(--sensory-taste)] text-[var(--parchment-bg)] shadow-xs font-semibold'
                                     : selectedInOther
                                     ? activeSensoryMode === 'nose'
-                                      ? 'bg-[var(--forest-green)]/15 border-[var(--forest-green)]/60 text-[var(--forest-green)] font-semibold'
-                                      : 'bg-[var(--brass-accent)]/20 border-[var(--brass-accent)]/80 text-[var(--wood-selection)] font-semibold'
+                                      ? 'bg-[var(--sensory-taste)]/15 border-[var(--sensory-taste)]/60 text-[var(--sensory-taste)] font-semibold'
+                                      : 'bg-[var(--sensory-nose)]/15 border-[var(--sensory-nose)]/60 text-[var(--sensory-nose)] font-semibold'
                                     : 'bg-transparent border-[var(--parchment-border)]/60 text-[var(--sepia-muted)] hover:bg-[var(--sepia-text)]/10 hover:border-[var(--brass-accent)]',
                                 )}
                                 aria-pressed={selectedInCurrent}
@@ -328,34 +335,34 @@ export function FlavorTagSelector({
 
       {/* Active Flavors Summary */}
       {totalActiveCount > 0 && (
-        <div className="mt-1 pt-3 border-t border-[var(--parchment-border)] flex flex-col gap-2">
+        <div className="mt-2 p-3.5 sm:p-4 rounded-lg bg-[var(--pub-bg-alt)]/40 border border-[var(--parchment-border)]/80 flex flex-col gap-2.5 animate-fade-in">
           <SectionHeader>
             {language === 'DE' ? 'Aktive Aromen' : 'Active Flavors'} ({totalActiveCount})
           </SectionHeader>
 
           {isLegacyMode ? (
-            <p className="text-xs sm:text-sm text-[var(--sepia-text)] font-body italic leading-relaxed">
+            <p className="text-sm sm:text-base text-[var(--sepia-text)] font-serif italic leading-relaxed">
               {selectedTags.map((tag) => translateFlavorTag(tag, language)).join(' · ')}
             </p>
           ) : (
-            <div className="flex flex-col gap-1.5 text-xs sm:text-sm font-body">
+            <div className="flex flex-col gap-2">
               {noseFlavorTags.length > 0 && (
-                <div className="flex flex-wrap items-baseline gap-1.5">
-                  <span className="font-bold text-[var(--sepia-light)] uppercase tracking-wider text-[11px]">
+                <div className="flex flex-wrap items-baseline gap-2">
+                  <span className="font-display font-bold text-[var(--sensory-nose)] uppercase tracking-wider text-xs sm:text-sm shrink-0">
                     {language === 'DE' ? 'Nase:' : 'Nose Flavors:'}
                   </span>
-                  <span className="text-[var(--sepia-text)] italic">
+                  <span className="text-sm sm:text-base text-[var(--sepia-text)] font-serif italic leading-relaxed">
                     {noseFlavorTags.map((tag) => translateFlavorTag(tag, language)).join(' · ')}
                   </span>
                 </div>
               )}
 
               {tasteFlavorTags.length > 0 && (
-                <div className="flex flex-wrap items-baseline gap-1.5">
-                  <span className="font-bold text-[var(--forest-green)] uppercase tracking-wider text-[11px]">
+                <div className="flex flex-wrap items-baseline gap-2">
+                  <span className="font-display font-bold text-[var(--sensory-taste)] uppercase tracking-wider text-xs sm:text-sm shrink-0">
                     {language === 'DE' ? 'Geschmack:' : 'Taste Flavors:'}
                   </span>
-                  <span className="text-[var(--sepia-text)] italic">
+                  <span className="text-sm sm:text-base text-[var(--sepia-text)] font-serif italic leading-relaxed">
                     {tasteFlavorTags.map((tag) => translateFlavorTag(tag, language)).join(' · ')}
                   </span>
                 </div>

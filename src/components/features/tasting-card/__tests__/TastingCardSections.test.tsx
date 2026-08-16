@@ -13,9 +13,11 @@ describe('Modular OO Tasting Card Sections', () => {
   const sampleSpirit = MOCK_SPIRITS[0];
 
   describe('TastingHeaderSection', () => {
-    it('renders distillery badge, title, subtitle and spirit type', () => {
+    it('renders distillery badge, title, subtitle and spirit type with gear actions menu', () => {
       const updateFn = vi.fn();
       const setEditingFn = vi.fn();
+      const deleteFn = vi.fn();
+      const mockT = (key: string) => key;
 
       render(
         <TastingHeaderSection
@@ -25,12 +27,18 @@ describe('Modular OO Tasting Card Sections', () => {
           isEditingTitle={false}
           setIsEditingTitle={setEditingFn}
           update={updateFn}
+          onDelete={deleteFn}
+          t={mockT}
         />
       );
 
       expect(screen.getByText('Single Malt Scotch')).toBeDefined();
       expect(screen.getByText('Laphroaig 10')).toBeDefined();
       expect(screen.getByText('Islay, Scotland')).toBeDefined();
+
+      // Check gear menu button
+      const gearBtn = screen.getByRole('button', { name: /card actions|karten-aktionen/i });
+      expect(gearBtn).toBeDefined();
     });
   });
 
@@ -105,10 +113,8 @@ describe('Modular OO Tasting Card Sections', () => {
   });
 
   describe('TastingRatingSection', () => {
-    it('renders simplified Rating title, 100-point score badge, stars and slider without redundant sub-headers', () => {
+    it('renders clean Rating score badge, stars and slider without redundant buttons', () => {
       const updateFn = vi.fn();
-      const deleteFn = vi.fn();
-      const modalFn = vi.fn();
       const mockT = (key: string) => key;
 
       render(
@@ -116,8 +122,6 @@ describe('Modular OO Tasting Card Sections', () => {
           spirit={sampleSpirit}
           stars={4.5}
           update={updateFn}
-          onDelete={deleteFn}
-          setShowDeleteModal={modalFn}
           t={mockT}
         />,
       );

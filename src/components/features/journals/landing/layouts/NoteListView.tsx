@@ -26,7 +26,7 @@ export function NoteListView({
   onTouchEnd
 }: NoteListViewProps) {
   return (
-    <div className="flex flex-col gap-2.5 sm:gap-3 p-2 sm:px-4 py-4 w-full">
+    <div className="flex flex-col gap-2.5 sm:gap-3 py-4 w-full">
       {spirits.map((spirit) => (
         <NoteListItem
           key={spirit.id}

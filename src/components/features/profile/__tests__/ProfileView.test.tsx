@@ -27,8 +27,8 @@ describe('ProfileView Component', () => {
 
     // Verify settings rows
     expect(screen.getByText('Language')).toBeDefined();
-    expect(screen.getByText('Google Sync')).toBeDefined();
-    expect(screen.getByText('App Version')).toBeDefined();
-    expect(screen.getByText('Beta v0.1.0')).toBeDefined();
+    expect(screen.getByText('Google Drive Sync')).toBeDefined();
+    expect(screen.getByText('Tasting Notes Layout')).toBeDefined();
+    expect(screen.getByText(/Aqua Vitaeum · Beta v0.1.0/i)).toBeDefined();
   });
 });

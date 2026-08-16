@@ -43,3 +43,14 @@ yarn-error.log*
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# AI Agents, Tools & Private Steering Directives
+AGENTS.md
+docs/AUDIT_AGENTS.md
+.gemini/
+.antigravity/
+.cursor/
+.claude/
+.windsurf/
+*.agent
+

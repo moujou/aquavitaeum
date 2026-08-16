@@ -14,22 +14,22 @@ export function NoteEmptyState({ onNewNote }: NoteEmptyStateProps) {
   return (
     // Centering wrapper — works in both journal-landing scroll container and detail flex section
     <div className="flex items-center justify-center w-full p-6 py-12">
-      <div className="w-full max-w-xl flex flex-col items-center justify-center min-h-[380px] rounded-xl border border-[var(--brass-accent)]/30 bg-black/45 backdrop-blur-md p-8 sm:p-12 text-center shadow-[0_15px_35px_rgba(0,0,0,0.6)] border-t-[var(--brass-accent)]/50 border-l-[var(--brass-accent)]/50 animate-fade-in">
-        <div className="w-20 h-20 rounded-full border-2 border-[var(--brass-accent)]/40 flex items-center justify-center bg-[var(--brass-accent)]/10 mb-6 shadow-[0_0_35px_rgba(197,155,39,0.25)] animate-fade-in-up">
-          <WhiskyLogo size={38} className="text-[var(--brass-accent)]" />
+      <div className="w-full max-w-xl flex flex-col items-center justify-center min-h-[380px] rounded-2xl border border-[var(--parchment-border)] bg-[var(--parchment-bg)] p-8 sm:p-12 text-center shadow-[0_4px_24px_var(--parchment-shadow)] animate-fade-in">
+        <div className="w-20 h-20 rounded-full border-2 border-[var(--forest-green)]/40 flex items-center justify-center bg-[var(--wood-dark)]/10 mb-6 shadow-[0_0_24px_rgba(35,115,71,0.15)] animate-fade-in-up">
+          <WhiskyLogo size={38} className="text-[var(--forest-green)]" />
         </div>
-        <h2 className="font-display text-xl sm:text-2xl font-bold text-[var(--brass-accent)] tracking-wide mb-3">
+        <h2 className="font-display text-xl sm:text-2xl font-bold text-[var(--foreground)] tracking-wide mb-3">
           {t('cellarEmptyTitle')}
         </h2>
-        <p className="font-body text-xs sm:text-sm text-white/50 max-w-md leading-relaxed mb-8">
+        <p className="font-body text-xs sm:text-sm text-[var(--sepia-muted)] max-w-md leading-relaxed mb-8">
           {t('cellarEmptySubtitle')}
         </p>
         <button
           type="button"
           onClick={onNewNote}
-          className="flex items-center gap-2 px-5 py-2.5 rounded text-xs sm:text-sm font-display uppercase tracking-wider font-bold border shrink-0 bg-[var(--fab-bg)] text-[var(--fab-text)] border-[var(--brass-accent)]/40 hover:bg-[var(--fab-bg-hover)] hover:text-[var(--wood-dark)] transition-all duration-250 cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.3)] hover:scale-[1.02]"
+          className="flex items-center gap-2 px-6 py-3 rounded-lg text-xs sm:text-sm font-display uppercase tracking-wider font-bold border shrink-0 bg-[var(--fab-bg)] text-[var(--fab-text)] border-[var(--fab-border)] hover:bg-[var(--fab-bg-hover)] transition-all duration-250 cursor-pointer shadow-md hover:scale-[1.02] active:scale-[0.98]"
         >
-          <Plus size={14} />
+          <Plus size={16} />
           {t('newNote')}
         </button>
       </div>

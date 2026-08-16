@@ -28,38 +28,38 @@ export interface RatingTierStyle {
  */
 export function getRatingTierStyle(score: number): RatingTierStyle {
   if (score >= 90) {
-    // Masterpiece / Exceptional: Radiant 24k Gold with Solid Dark Obsidian Backing
+    // Masterpiece / Exceptional: Radiant 24k Gold
     return {
-      bg: 'bg-[#14120A]',
-      border: 'border-amber-400/90',
-      text: 'text-amber-300',
-      starColor: 'fill-amber-400 text-amber-400',
+      bg: 'bg-[var(--pub-bg-panel)]',
+      border: 'border-[var(--parchment-border)]',
+      text: 'text-amber-600 dark:text-amber-400 font-black',
+      starColor: 'fill-amber-500 text-amber-500',
     };
   }
   if (score >= 80) {
-    // Distinguished / Very Good: Warm Aged Brass with Solid Dark Backing
+    // Distinguished / Very Good: Warm Distiller's Amber Gold
     return {
-      bg: 'bg-[#13120C]',
-      border: 'border-[var(--brass-accent)]',
-      text: 'text-[var(--foreground)]',
+      bg: 'bg-[var(--pub-bg-panel)]',
+      border: 'border-[var(--parchment-border)]',
+      text: 'text-[var(--brass-accent)] font-black',
       starColor: 'fill-[var(--brass-accent)] text-[var(--brass-accent)]',
     };
   }
   if (score >= 70) {
-    // Pleasant / Good: Toasted Copper Oak with Solid Dark Backing
+    // Pleasant / Good: Toasted Amber-Copper
     return {
-      bg: 'bg-[#150F0B]',
-      border: 'border-amber-700/90',
-      text: 'text-amber-200',
-      starColor: 'fill-amber-600 text-amber-600',
+      bg: 'bg-[var(--pub-bg-panel)]',
+      border: 'border-[var(--parchment-border)]',
+      text: 'text-amber-800 dark:text-amber-500 font-bold',
+      starColor: 'fill-amber-700 text-amber-700',
     };
   }
-  // Standard / Developing: Aged Slate & Parchment with Solid Dark Backing
+  // Standard / Developing: Muted Slate-Sepia
   return {
-    bg: 'bg-[#111412]',
-    border: 'border-white/35',
-    text: 'text-white/90',
-    starColor: 'fill-white/70 text-white/70',
+    bg: 'bg-[var(--pub-bg-panel)]',
+    border: 'border-[var(--parchment-border)]',
+    text: 'text-[var(--sepia-muted)] font-semibold',
+    starColor: 'fill-[var(--sepia-muted)] text-[var(--sepia-muted)]',
   };
 }
 

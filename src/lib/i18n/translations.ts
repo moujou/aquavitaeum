@@ -155,8 +155,8 @@ export const TRANSLATIONS = {
     profileLanguage: 'Language',
 
     // Overview Layout Preference
-    overviewLayout: 'Overview Layout',
-    overviewLayoutDesc: 'Journal notes display style',
+    overviewLayout: 'Tasting Notes Layout',
+    overviewLayoutDesc: 'Display style for tasting notes in journals',
     layoutList: 'List',
     layoutGrid: 'Grid',
     layoutTable: 'Table',
@@ -164,6 +164,34 @@ export const TRANSLATIONS = {
     // Bulk Tasting Note Delete (JournalLandingPage)
     deleteBulkNotesConfirm: 'notes will be permanently deleted. This action cannot be undone.',
     confirmDelete: 'Confirm Delete',
+
+    // Google Drive Sync & Backup
+    googleSyncTitle: 'Google Drive Sync',
+    googleSyncDesc: 'Sync journals & tasting notes with your Google Drive (Aqua Vitaeum/ folder)',
+    googleSyncOffline: 'Local Only (Offline)',
+    googleSyncConnected: 'Connected to Drive',
+    googleSyncConnect: 'Sync with Google Drive',
+    googleSyncDisconnect: 'Disconnect Drive',
+    googleSyncNow: 'Sync Now',
+    googleSyncing: 'Syncing with Drive…',
+    googleSyncSuccess: 'Sync completed successfully',
+    googleSyncError: 'Sync failed. Please try again.',
+    googleSyncLastSynced: 'Last synced',
+    googleSyncLocalContinue: 'Start Offline & Local',
+    googleSyncWelcomeOr: 'or',
+    welcomePrivacyHint: '100% Private: Your tasting notes stay locally on your device or in your personal Google Drive.',
+    exportLocalJson: 'Export JSON Backup',
+    importLocalJson: 'Import JSON Backup',
+    exportSingleNote: 'Export',
+    importSingleNote: 'Import',
+    exportJournal: 'Export Journal',
+    exportJournals: 'Export',
+    importJournal: 'Import Journal',
+    journalImportSuccess: 'Journal imported successfully',
+    journalImportError: 'Invalid or corrupt journal file',
+    noteImportSuccess: 'Tasting note imported successfully',
+    noteImportError: 'Invalid or corrupt tasting note file',
+    privacyNoteGoogle: '100% Private: Your tasting notes and journals are saved directly to your personal Google Drive. No developer or third-party servers are used.',
   },
   DE: {
     // Header & Brand
@@ -318,8 +346,8 @@ export const TRANSLATIONS = {
     profileLanguage: 'Sprache',
 
     // Overview Layout Preference
-    overviewLayout: 'Übersicht-Layout',
-    overviewLayoutDesc: 'Anzeigestil der Journal-Notizen',
+    overviewLayout: 'Tasting-Karten Layout',
+    overviewLayoutDesc: 'Anzeigestil der Notizen im Journal',
     layoutList: 'Liste',
     layoutGrid: 'Raster',
     layoutTable: 'Tabelle',
@@ -327,6 +355,34 @@ export const TRANSLATIONS = {
     // Bulk Tasting Note Delete (JournalLandingPage)
     deleteBulkNotesConfirm: 'Notizen werden unwiderruflich gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.',
     confirmDelete: 'Löschen bestätigen',
+
+    // Google Drive Sync & Backup
+    googleSyncTitle: 'Google Drive Synchronisation',
+    googleSyncDesc: 'Synchronisiere Journals & Tasting-Karten mit deinem Google Drive (Ordner Aqua Vitaeum/)',
+    googleSyncOffline: 'Nur Lokal (Offline)',
+    googleSyncConnected: 'Mit Google Drive synchronisiert',
+    googleSyncConnect: 'Google Drive Sync aktivieren',
+    googleSyncDisconnect: 'Drive trennen',
+    googleSyncNow: 'Jetzt synchronisieren',
+    googleSyncing: 'Synchronisiere mit Drive…',
+    googleSyncSuccess: 'Synchronisation erfolgreich abgeschlossen',
+    googleSyncError: 'Synchronisation fehlgeschlagen. Bitte erneut versuchen.',
+    googleSyncLastSynced: 'Zuletzt synchronisiert',
+    googleSyncLocalContinue: 'Lokal & Offline starten',
+    googleSyncWelcomeOr: 'oder',
+    welcomePrivacyHint: '100% Privat: Deine Notizen bleiben lokal auf deinem Gerät oder in deinem persönlichen Google Drive.',
+    exportLocalJson: 'JSON-Backup exportieren',
+    importLocalJson: 'JSON-Backup importieren',
+    exportSingleNote: 'Export',
+    importSingleNote: 'Import',
+    exportJournal: 'Journal exportieren',
+    exportJournals: 'Export',
+    importJournal: 'Journal importieren',
+    journalImportSuccess: 'Journal erfolgreich importiert',
+    journalImportError: 'Ungültige oder beschädigte Journal-Datei',
+    noteImportSuccess: 'Verkostungsnotiz erfolgreich importiert',
+    noteImportError: 'Ungültige oder beschädigte Notiz-Datei',
+    privacyNoteGoogle: '100% Privat: Deine Verkostungsnotizen und Journals werden direkt in deinem persönlichen Google Drive gespeichert. Es werden keine Server von Drittanbietern oder Entwicklern verwendet.',
   },
 } as const;
 

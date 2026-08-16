@@ -4,10 +4,13 @@
 import React, { useState, useCallback } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { JournalWithStats } from '@/hooks/useJournals';
-import { Trash2, Edit3, Star, X, FileText, Calendar, CheckCircle2, BookOpen } from 'lucide-react';
+import { Trash2, Edit3, Star, X, FileText, Calendar, CheckCircle2, BookOpen, Download, Upload, AlertCircle, CheckSquare } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { PageActionsDropdown } from '@/components/ui/PageActionsDropdown';
 import { JournalCoverPicker } from './JournalCoverPicker';
 import { useMultiSelect } from '@/hooks/useMultiSelect';
+import { exportJournalsToFile, importJournalFile } from '@/lib/google-drive-sync';
+import { cn } from '@/lib/utils';
 
 interface JournalsOverviewProps {
   journals: JournalWithStats[];
@@ -17,6 +20,7 @@ interface JournalsOverviewProps {
   onSelectJournal: (id: string) => void;
   isCreateOpen?: boolean;
   onCloseCreate?: () => void;
+  onSelectModeChange?: (active: boolean) => void;
 }
 
 export function JournalsOverview({
@@ -27,6 +31,7 @@ export function JournalsOverview({
   onSelectJournal,
   isCreateOpen,
   onCloseCreate,
+  onSelectModeChange,
 }: JournalsOverviewProps) {
   const { t, language } = useLanguage();
 
@@ -45,6 +50,35 @@ export function JournalsOverview({
   const [editCoverImage, setEditCoverImage] = useState<string | undefined>(undefined);
 
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [importStatus, setImportStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const journalFileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleImportJournal = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setImportStatus(null);
+      const result = await importJournalFile(file);
+      setImportStatus({
+        type: 'success',
+        message: `${result.journalCount} Journal(e) & ${result.spiritCount} Notiz(en) importiert!`,
+      });
+      setTimeout(() => {
+        setImportStatus(null);
+        window.location.reload();
+      }, 1500);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : t('journalImportError');
+      setImportStatus({
+        type: 'error',
+        message,
+      });
+      setTimeout(() => setImportStatus(null), 4000);
+    } finally {
+      if (journalFileInputRef.current) journalFileInputRef.current.value = '';
+    }
+  };
 
   // ── Long-press Select Mode (shared logic from useMultiSelect) ───────────────
   const {
@@ -52,13 +86,14 @@ export function JournalsOverview({
     selectedIds,
     confirmBulkDelete,
     setConfirmBulkDelete,
+    enterSelectMode,
     exitSelectMode,
     toggleSelection,
     handleTouchStart,
     cancelLongPress,
     handleTouchEnd,
     handleBulkDelete: execBulkDelete,
-  } = useMultiSelect();
+  } = useMultiSelect(onSelectModeChange);
 
   const handleCardClick = useCallback(
     (journalId: string, isEditing: boolean) => {
@@ -129,10 +164,10 @@ export function JournalsOverview({
   const canEdit = selectedIds.size === 1;
 
   return (
-    <div className="flex-1 w-full max-w-6xl mx-auto px-4 py-8 animate-fade-in">
+    <div className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 pt-8 pb-8 animate-fade-in">
       {/* Shelf Header — doubles as action bar in select mode */}
       <div className="pb-2 mb-8 flex flex-col">
-        <div className="flex items-center justify-between gap-3 min-w-0">
+        <div className="flex items-center justify-between gap-3 min-w-0 min-h-[36px]">
           <div className="flex items-center gap-3 min-w-0 flex-1">
             <h2 className="font-display text-2xl sm:text-3xl font-bold text-[var(--foreground)] tracking-wide truncate min-w-0">
               {t('journalsTitle')}
@@ -146,58 +181,113 @@ export function JournalsOverview({
           </div>
 
           {isSelectMode ? (
-            /* Select mode action icons */
-            <div className="flex items-center gap-1.5 shrink-0">
+            /* Select mode action buttons */
+            <div className="flex items-center gap-2 shrink-0">
               {/* Edit — amber, only active for single selection */}
               <button
                 onClick={handleEditFromSelectMode}
                 disabled={!canEdit}
                 title={language === 'DE' ? 'Bearbeiten' : 'Edit'}
-                className={[
-                  'p-2 rounded-lg border transition-all cursor-pointer',
+                className={cn(
+                  'px-3 py-1.5 rounded-lg border transition-all flex items-center gap-1.5 text-xs font-display font-bold uppercase tracking-wider select-none shadow-xs',
                   canEdit
-                    ? 'bg-[var(--brass-accent)]/15 border-[var(--brass-accent)]/40 text-[var(--brass-accent)] hover:bg-[var(--brass-accent)]/25'
-                    : 'bg-transparent border-transparent text-white/15 cursor-not-allowed',
-                ].join(' ')}
+                    ? 'bg-[var(--brass-accent)]/15 border-[var(--brass-accent)]/50 text-[var(--brass-accent)] hover:bg-[var(--brass-accent)]/25 active:scale-95 cursor-pointer'
+                    : 'bg-transparent border-transparent text-[var(--sepia-muted)]/30 cursor-not-allowed'
+                )}
               >
-                <Edit3 className="w-4 h-4" />
+                <Edit3 className="w-3.5 h-3.5 shrink-0" />
+                <span className="hidden sm:inline">{language === 'DE' ? 'Bearbeiten' : 'Edit'}</span>
               </button>
 
-              {/* Delete — red, active when ≥1 deletable selected */}
+              {/* Export — emerald, active for any selection */}
+              <button
+                onClick={() => exportJournalsToFile([...selectedIds])}
+                disabled={selectedIds.size === 0}
+                title={t('exportJournals')}
+                className={cn(
+                  'px-3 py-1.5 rounded-lg border transition-all flex items-center gap-1.5 text-xs font-display font-bold uppercase tracking-wider select-none shadow-xs',
+                  selectedIds.size > 0
+                    ? 'bg-[var(--pub-bg-panel)] hover:bg-[var(--wood-selection)] hover:text-[var(--parchment-bg)] hover:border-[var(--wood-selection)] border-[var(--parchment-border)] text-[var(--foreground)] active:scale-95 cursor-pointer'
+                    : 'bg-transparent border-transparent text-[var(--sepia-muted)]/30 cursor-not-allowed'
+                )}
+              >
+                <Download className="w-3.5 h-3.5 shrink-0" />
+                <span>{t('exportJournals')}{selectedIds.size > 0 ? ` (${selectedIds.size})` : ''}</span>
+              </button>
+
+              {/* Delete — prominent red button with counter */}
               <button
                 onClick={() => canDelete && setConfirmBulkDelete(true)}
                 disabled={!canDelete}
                 title={language === 'DE' ? 'Löschen' : 'Delete'}
-                className={[
-                  'p-2 rounded-lg border transition-all cursor-pointer',
+                className={cn(
+                  'px-3 py-1.5 rounded-lg border transition-all flex items-center gap-1.5 text-xs font-display font-bold uppercase tracking-wider select-none shadow-xs',
                   canDelete
-                    ? 'bg-red-950/40 border-red-500/40 text-red-400 hover:bg-red-900/50 shadow-xs'
-                    : 'bg-transparent border-transparent text-white/15 cursor-not-allowed',
-                ].join(' ')}
+                    ? 'bg-red-600 hover:bg-red-700 text-white border-red-700 shadow-md active:scale-95 cursor-pointer'
+                    : 'bg-red-100/70 border-red-200/60 text-red-400/50 cursor-not-allowed'
+                )}
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-3.5 h-3.5 shrink-0" />
+                <span>{language === 'DE' ? 'Löschen' : 'Delete'}{deletableSelected.length > 0 ? ` (${deletableSelected.length})` : ''}</span>
               </button>
 
-              {/* Cancel */}
+              {/* Done / Cancel */}
               <button
                 onClick={exitSelectMode}
-                title={language === 'DE' ? 'Abbrechen' : 'Cancel'}
-                className="p-2 rounded-lg border border-white/10 text-gray-400 hover:text-white hover:border-white/25 transition-all cursor-pointer"
+                title={language === 'DE' ? 'Fertig' : 'Done'}
+                className="px-2.5 sm:px-3 py-1.5 rounded-lg border border-[var(--parchment-border)] bg-[var(--pub-bg-panel)] hover:bg-[var(--pub-bg-alt)] text-[var(--foreground)] transition-all flex items-center gap-1 text-xs font-display font-bold uppercase tracking-wider shadow-xs active:scale-95 cursor-pointer select-none"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5 shrink-0" />
+                <span className="hidden sm:inline">{language === 'DE' ? 'Fertig' : 'Done'}</span>
               </button>
             </div>
-          ) : null}
+          ) : (
+            <div className="flex items-center gap-2 shrink-0">
+              <PageActionsDropdown
+                title={language === 'DE' ? 'Aktionen' : 'Actions'}
+                items={[
+                  {
+                    id: 'select-mode',
+                    label: language === 'DE' ? 'Journale auswählen' : 'Select Journals',
+                    icon: <CheckSquare size={16} />,
+                    onClick: () => enterSelectMode(),
+                  },
+                  {
+                    id: 'import-journal',
+                    label: t('importJournal'),
+                    icon: <Upload size={16} />,
+                    onClick: () => journalFileInputRef.current?.click(),
+                  },
+                ]}
+              />
+              <input
+                type="file"
+                ref={journalFileInputRef}
+                onChange={handleImportJournal}
+                accept=".json,application/json"
+                className="hidden"
+              />
+            </div>
+          )}
         </div>
+
+        {importStatus && (
+          <div
+            className={cn(
+              'mt-3 flex items-center gap-2 text-xs px-3 py-2 rounded-md border animate-fade-in font-medium',
+              importStatus.type === 'success'
+                ? 'bg-[var(--forest-green)]/10 text-[var(--forest-green)] border-[var(--forest-green)]/30'
+                : 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950/40 dark:border-red-900'
+            )}
+          >
+            {importStatus.type === 'success' ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />}
+            <span>{importStatus.message}</span>
+          </div>
+        )}
 
         {/* Specular Gradient Hairline Divider */}
         <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-[var(--brass-accent)]/30 to-transparent mt-4" />
       </div>
-
-      {/* Full-screen dim overlay in select mode */}
-      {isSelectMode && (
-        <div className="fixed inset-0 z-10 bg-black/25 pointer-events-none transition-opacity duration-300 animate-fade-in" />
-      )}
 
       {/* Bookshelf Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -217,17 +307,29 @@ export function JournalsOverview({
                 if (!isSelectMode) e.preventDefault();
               }}
               className={[
-                'group relative flex flex-col justify-between h-auto min-h-[260px] rounded-2xl transition-all duration-300 transform overflow-hidden cursor-pointer',
-                'bg-gradient-to-b from-[#18241D]/95 via-[#131D16]/98 to-[#0E1510] backdrop-blur-xl border border-t-white/18 border-x-white/10 border-b-black/50 shadow-xl',
+                'group relative flex flex-col justify-between h-auto min-h-[280px] rounded-2xl transition-all duration-300 transform overflow-hidden cursor-pointer select-none',
+                'bg-[var(--parchment-bg)] border border-[var(--parchment-border)] shadow-[0_4px_16px_var(--parchment-shadow)]',
                 isSelected
-                  ? 'border-[var(--brass-accent)] ring-2 ring-[var(--brass-accent)]/50 shadow-[0_0_25px_rgba(197,155,39,0.3)] scale-[1.02]'
+                  ? 'border-[var(--wood-selection)] ring-2 ring-[var(--wood-selection)]/45 shadow-[0_0_25px_rgba(179,137,93,0.3)] scale-[1.02] opacity-100 bg-[var(--pub-bg-panel)] z-10'
                   : isSelectMode
-                    ? 'border-white/8 scale-[0.97] opacity-60'
-                    : 'hover:border-[var(--brass-accent)]/60 hover:shadow-[0_15px_35px_rgba(0,0,0,0.6),0_0_20px_rgba(197,155,39,0.18)] hover:scale-[1.015]',
+                    ? 'border-[var(--parchment-border)]/50 scale-[0.98] opacity-40'
+                    : 'hover:border-[var(--forest-green)]/60 hover:shadow-[0_12px_28px_rgba(35,115,71,0.12)] hover:scale-[1.015]',
               ].join(' ')}
             >
+              {/* Signature Clover Green Top Header Banner with Journal Name & Description */}
+              <div className="w-full bg-[var(--wood-dark)] px-4 py-2.5 sm:py-3 border-b border-[var(--wood-dark)]/80 flex flex-col justify-center z-10 shrink-0">
+                <h3 className="font-display text-lg sm:text-xl font-bold text-[var(--parchment-bg)] group-hover:text-[var(--brass-light)] transition-colors leading-tight truncate tracking-wide">
+                  {journal.name}
+                </h3>
+                {journal.description && (
+                  <p className="font-body text-xs sm:text-[13px] text-[var(--parchment-bg)]/85 italic line-clamp-1 mt-0.5 leading-snug font-normal">
+                    {journal.description}
+                  </p>
+                )}
+              </div>
+
               {/* Cover Image Container */}
-              <div className="relative w-full h-36 sm:h-40 overflow-hidden bg-gradient-to-br from-[#1C130D] to-[#0A0704] border-b border-white/8 shrink-0">
+              <div className="relative w-full h-36 sm:h-44 overflow-hidden bg-gradient-to-br from-[var(--wood-dark)]/10 via-[var(--pub-bg-alt)] to-[var(--parchment-bg)] border-b border-[var(--parchment-border)] flex-1 min-h-[140px]">
                 {!isEditing && journal.coverImage ? (
                   <img
                     src={journal.coverImage}
@@ -235,20 +337,11 @@ export function JournalsOverview({
                     className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
                   />
                 ) : (
-                  <div
-                    className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden"
-                    style={{
-                      background: 'radial-gradient(circle at center, rgba(197,155,39,0.18) 0%, #1A130E 70%, #0D0906 100%)',
-                    }}
-                  >
-                    <BookOpen className="w-8 h-8 text-[var(--brass-accent)]/60 stroke-[1.4]" />
-                    <div className="absolute inset-0 opacity-[0.04] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]" />
+                  <div className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden bg-gradient-to-br from-[var(--wood-dark)]/15 via-[var(--pub-bg-alt)] to-[var(--parchment-bg)]">
+                    <div className="w-14 h-14 rounded-full bg-[var(--forest-green)]/15 border border-[var(--forest-green)]/35 flex items-center justify-center text-[var(--forest-green)] shadow-xs transition-transform duration-300 group-hover:scale-110">
+                      <BookOpen className="w-7 h-7 text-[var(--forest-green)] stroke-[1.75]" />
+                    </div>
                   </div>
-                )}
-
-                {/* Dark scrim overlay for unselected cards in select mode */}
-                {isSelectMode && !isSelected && !isEditing && (
-                  <div className="absolute inset-0 z-20 bg-black/40 transition-opacity duration-200 pointer-events-none rounded-2xl" />
                 )}
 
                 {/* Select mode: circular checkbox (top-right) */}
@@ -258,11 +351,11 @@ export function JournalsOverview({
                       className={[
                         'w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 shadow-md',
                         isSelected
-                          ? 'bg-[var(--brass-accent)] border-[var(--brass-accent)]'
-                          : 'bg-black/60 border-white/40',
+                          ? 'bg-[var(--wood-selection)] border-[var(--wood-selection)]'
+                          : 'bg-[var(--pub-bg-panel)]/90 border-[var(--parchment-border)] shadow-xs',
                       ].join(' ')}
                     >
-                      {isSelected && <CheckCircle2 className="w-4 h-4 text-[var(--wood-dark)]" />}
+                      {isSelected && <CheckCircle2 className="w-4 h-4 text-[var(--parchment-bg)]" />}
                     </div>
                   </div>
                 )}
@@ -278,7 +371,7 @@ export function JournalsOverview({
                         setEditDescription(journal.description || '');
                         setEditCoverImage(journal.coverImage);
                       }}
-                      className="p-1.5 rounded-md bg-black/70 hover:bg-[var(--fab-bg)] border border-white/10 hover:border-[var(--brass-accent)]/40 text-gray-300 hover:text-[var(--fab-text)] transition-all cursor-pointer shadow-xs"
+                      className="p-1.5 rounded-md bg-[var(--pub-bg-panel)]/90 hover:bg-[var(--fab-bg)] border border-[var(--parchment-border)] hover:border-[var(--brass-accent)] text-[var(--sepia-text)] hover:text-[var(--fab-text)] transition-all cursor-pointer shadow-xs"
                       title="Rename"
                     >
                       <Edit3 className="w-3.5 h-3.5" />
@@ -289,7 +382,7 @@ export function JournalsOverview({
                           e.stopPropagation();
                           setConfirmDeleteId(journal.id);
                         }}
-                        className="p-1.5 rounded-md bg-black/70 hover:bg-red-950/70 border border-white/10 hover:border-red-500/50 text-gray-300 hover:text-red-400 transition-all cursor-pointer shadow-xs"
+                        className="p-1.5 rounded-md bg-[var(--pub-bg-panel)]/90 hover:bg-red-950/70 border border-[var(--parchment-border)] hover:border-red-500/50 text-[var(--sepia-text)] hover:text-red-400 transition-all cursor-pointer shadow-xs"
                         title="Delete"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -299,102 +392,83 @@ export function JournalsOverview({
                 )}
               </div>
 
-              {/* Middle & Bottom Details Container */}
-              <div className="w-full pt-4 pb-0 flex flex-col gap-2 flex-1 min-w-0">
-                {isEditing ? (
-                  <form
-                    onSubmit={(e) => handleRename(e, journal.id)}
-                    onClick={(e) => e.stopPropagation()}
-                    className="flex flex-col gap-3 w-full p-4 z-10"
-                  >
-                    <div className="flex flex-col gap-1">
-                      <label className="text-[10px] font-body text-gray-400 tracking-wider">Name</label>
-                      <input
-                        type="text"
-                        required
-                        maxLength={40}
-                        value={editName}
-                        onChange={(e) => setEditName(e.target.value)}
-                        className="w-full h-8 px-2.5 rounded-md bg-[var(--pub-bg)] border border-[var(--brass-accent)]/40 text-gray-100 font-body text-xs focus:outline-none focus:border-[var(--brass-accent)]"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <label className="text-[10px] font-body text-gray-400 tracking-wider">Description</label>
-                      <input
-                        type="text"
-                        maxLength={120}
-                        placeholder="Description (optional)"
-                        value={editDescription}
-                        onChange={(e) => setEditDescription(e.target.value)}
-                        className="w-full h-8 px-2.5 rounded-md bg-[var(--pub-bg)] border border-[var(--brass-accent)]/40 text-gray-100 font-body text-xs focus:outline-none focus:border-[var(--brass-accent)]"
-                      />
-                    </div>
-                    <div onClick={(e) => e.stopPropagation()}>
-                      <JournalCoverPicker
-                        currentCoverImage={editCoverImage}
-                        onChange={setEditCoverImage}
-                      />
-                    </div>
-                    <div className="flex justify-end gap-1.5 mt-1">
-                      <button
-                        type="submit"
-                        className="h-7 px-3 rounded bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--brass-accent)]/40 text-[var(--fab-text)] text-xs font-bold transition-all cursor-pointer"
-                      >
-                        Save
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setEditingId(null)}
-                        className="p-1.5 rounded bg-white/5 hover:bg-white/10 text-gray-400 cursor-pointer"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </form>
-                ) : (
-                  <div className="flex-1 min-w-0 flex flex-col justify-between h-full">
-                    <div className="min-w-0 text-center w-full px-4 pt-1 pb-3">
-                      <h3 className="font-display text-lg sm:text-xl font-bold text-[var(--foreground)] group-hover:text-[var(--brass-accent)] transition-colors leading-snug truncate text-center tracking-wide">
-                        {journal.name}
-                      </h3>
-                      {journal.description ? (
-                        <p className="font-body text-xs sm:text-[13px] text-white/80 line-clamp-2 mt-1 leading-relaxed text-center font-normal">
-                          {journal.description}
-                        </p>
-                      ) : (
-                        <p className="font-body text-xs text-white/45 italic mt-1 leading-relaxed text-center">
-                          Archival spirit ledger
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Frosted Glass Stats Shelf */}
-                    <div className="w-full bg-white/6 border-t border-white/10 px-4 py-3 grid grid-cols-3 gap-2 mt-auto text-left">
-                      <div className="flex flex-col">
-                        <span className="text-[10px] text-white/50 uppercase tracking-wider font-bold">{language === 'DE' ? 'Notizen' : 'Notes'}</span>
-                        <span className="font-bold text-white text-xs mt-0.5 flex items-center gap-1">
-                          <FileText className="w-3.5 h-3.5 text-[var(--brass-accent)] shrink-0" />
-                          {journal.bottleCount}
-                        </span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <span className="text-[10px] text-white/50 uppercase tracking-wider font-bold">{language === 'DE' ? 'Ø Score' : 'Avg Score'}</span>
-                        <span className="font-bold text-white text-xs mt-0.5 flex items-center gap-1">
-                          <Star className="w-3.5 h-3.5 text-[var(--brass-accent)] fill-[var(--brass-accent)] -mt-0.5" />
-                          {journal.averageRating > 0 ? journal.averageRating : '—'}
-                        </span>
-                      </div>
-                      <div className="flex flex-col items-end">
-                        <span className="text-[10px] text-white/50 uppercase tracking-wider font-bold">{t('statsLatest')}</span>
-                        <span className="font-bold text-white text-xs mt-0.5 flex items-center gap-1 truncate max-w-full">
-                          <Calendar className="w-3.5 h-3.5 text-[var(--brass-accent)] shrink-0" />
-                          {journal.latestTastedDate ? new Date(journal.latestTastedDate).toLocaleDateString(language === 'DE' ? 'de-DE' : 'en-US', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '—'}
-                        </span>
-                      </div>
-                    </div>
+              {/* Edit Form or Stats Shelf Container */}
+              {isEditing ? (
+                <form
+                  onSubmit={(e) => handleRename(e, journal.id)}
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex flex-col gap-3 w-full p-4 z-10 bg-[var(--pub-bg-panel)]"
+                >
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] font-body text-[var(--sepia-muted)] tracking-wider">Name</label>
+                    <input
+                      type="text"
+                      required
+                      maxLength={40}
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      className="w-full h-8 px-2.5 rounded-md bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/60 font-body text-xs focus:outline-none focus:border-[var(--brass-accent)]"
+                    />
                   </div>
-                )}
-              </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] font-body text-[var(--sepia-muted)] tracking-wider">Description</label>
+                    <input
+                      type="text"
+                      maxLength={120}
+                      placeholder="Description (optional)"
+                      value={editDescription}
+                      onChange={(e) => setEditDescription(e.target.value)}
+                      className="w-full h-8 px-2.5 rounded-md bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/60 font-body text-xs focus:outline-none focus:border-[var(--brass-accent)]"
+                    />
+                  </div>
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <JournalCoverPicker
+                      currentCoverImage={editCoverImage}
+                      onChange={setEditCoverImage}
+                    />
+                  </div>
+                  <div className="flex justify-end gap-1.5 mt-1">
+                    <button
+                      type="submit"
+                      className="h-7 px-3 rounded bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] text-[var(--fab-text)] text-xs font-bold transition-all cursor-pointer"
+                    >
+                      Save
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditingId(null)}
+                      className="p-1.5 rounded bg-[var(--pub-bg-alt)] hover:bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] text-[var(--sepia-muted)] hover:text-[var(--foreground)] cursor-pointer"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                /* Stats Shelf */
+                <div className="w-full bg-[var(--pub-bg-alt)]/60 border-t border-[var(--parchment-border)]/60 px-4 py-3 grid grid-cols-3 gap-2 mt-auto text-left">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] text-[var(--sepia-muted)] uppercase tracking-wider font-bold">{language === 'DE' ? 'Notizen' : 'Notes'}</span>
+                    <span className="font-bold text-[var(--foreground)] text-xs mt-0.5 flex items-center gap-1">
+                      <FileText className="w-3.5 h-3.5 text-[var(--brass-accent)] shrink-0" />
+                      {journal.bottleCount}
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <span className="text-[10px] text-[var(--sepia-muted)] uppercase tracking-wider font-bold">{language === 'DE' ? 'Ø Score' : 'Avg Score'}</span>
+                    <span className="font-bold text-[var(--foreground)] text-xs mt-0.5 flex items-center gap-1">
+                      <Star className="w-3.5 h-3.5 text-[var(--brass-accent)] fill-[var(--brass-accent)] -mt-0.5" />
+                      {journal.averageRating > 0 ? journal.averageRating : '—'}
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <span className="text-[10px] text-[var(--sepia-muted)] uppercase tracking-wider font-bold">{t('statsLatest')}</span>
+                    <span className="font-bold text-[var(--foreground)] text-xs mt-0.5 flex items-center gap-1 truncate max-w-full">
+                      <Calendar className="w-3.5 h-3.5 text-[var(--brass-accent)] shrink-0" />
+                      {journal.latestTastedDate ? new Date(journal.latestTastedDate).toLocaleDateString(language === 'DE' ? 'de-DE' : 'en-US', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '—'}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           );
         })}
@@ -418,11 +492,12 @@ export function JournalsOverview({
       />
 
       {/* Creation Modal / Dialog Overlay */}
+      {/* Create Journal Modal */}
       {isCreateVisible && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in p-4">
-          <div className="w-full max-w-md bg-[var(--pub-bg-panel)] border border-[var(--brass-accent)]/30 rounded-xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-[var(--brass-accent)]/20 pb-3 mb-4">
-              <h3 className="font-display text-lg font-bold text-[var(--brass-accent)] uppercase tracking-wider">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fade-in p-4">
+          <div className="w-full max-w-md bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] rounded-xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-[var(--parchment-border)]/60 pb-3 mb-4">
+              <h3 className="font-display text-lg font-bold text-[var(--foreground)] uppercase tracking-wider">
                 {t('createJournalBtn')}
               </h3>
               <button
@@ -432,14 +507,14 @@ export function JournalsOverview({
                   setNewJournalDescription('');
                   setNewJournalCoverImage(undefined);
                 }}
-                className="p-1 rounded hover:bg-white/5 text-gray-400 hover:text-white transition-colors cursor-pointer"
+                className="p-1 rounded hover:bg-black/5 text-[var(--sepia-muted)] hover:text-[var(--foreground)] transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
-                <label className="block text-xs font-body text-gray-400 mb-1.5 tracking-wider">
+                <label className="block text-xs font-body text-[var(--sepia-muted)] mb-1.5 tracking-wider">
                   Journal Name
                 </label>
                 <input
@@ -450,11 +525,11 @@ export function JournalsOverview({
                   placeholder={t('journalNamePlaceholder')}
                   value={newJournalName}
                   onChange={(e) => setNewJournalName(e.target.value)}
-                  className="w-full h-11 px-3 rounded bg-[var(--pub-bg)] border border-white/10 text-gray-100 placeholder-gray-500 font-body text-sm focus:outline-none focus:border-[var(--brass-accent)] mb-4"
+                  className="w-full h-11 px-3 rounded bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/60 font-body text-sm focus:outline-none focus:border-[var(--brass-accent)] mb-4"
                 />
               </div>
               <div>
-                <label className="block text-xs font-body text-gray-400 mb-1.5 tracking-wider">
+                <label className="block text-xs font-body text-[var(--sepia-muted)] mb-1.5 tracking-wider">
                   Description (Optional)
                 </label>
                 <input
@@ -463,7 +538,7 @@ export function JournalsOverview({
                   placeholder="e.g. Peated single malts from Islay..."
                   value={newJournalDescription}
                   onChange={(e) => setNewJournalDescription(e.target.value)}
-                  className="w-full h-11 px-3 rounded bg-[var(--pub-bg)] border border-white/10 text-gray-100 placeholder-gray-500 font-body text-sm focus:outline-none focus:border-[var(--brass-accent)]"
+                  className="w-full h-11 px-3 rounded bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/60 font-body text-sm focus:outline-none focus:border-[var(--brass-accent)]"
                 />
               </div>
               <JournalCoverPicker
@@ -479,13 +554,13 @@ export function JournalsOverview({
                     setNewJournalDescription('');
                     setNewJournalCoverImage(undefined);
                   }}
-                  className="h-10 px-4 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 text-sm font-semibold transition-colors cursor-pointer"
+                  className="h-10 px-4 rounded-lg bg-[var(--pub-bg-alt)] hover:bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] text-[var(--sepia-muted)] hover:text-[var(--foreground)] text-sm font-semibold transition-colors cursor-pointer"
                 >
                   {t('cancel')}
                 </button>
                 <button
                   type="submit"
-                  className="h-10 px-5 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--brass-accent)]/40 text-[var(--fab-text)] font-bold text-sm transition-all cursor-pointer shadow-lg"
+                  className="h-10 px-5 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] text-[var(--fab-text)] font-bold text-sm transition-all cursor-pointer shadow-md"
                 >
                   {t('createJournalBtn')}
                 </button>
