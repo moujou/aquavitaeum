@@ -115,9 +115,9 @@ export default function GlobalSearch({
 
   return (
     <div ref={searchRef} className="relative w-full z-40">
-      {/* Modern Pill Search Input Bar */}
-      <div className="relative flex items-center bg-[var(--pub-bg-panel)]/95 hover:bg-[var(--pub-bg-panel)] focus-within:bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] focus-within:border-[var(--brass-accent)] rounded-full px-4 h-11 transition-all duration-200 shadow-xs focus-within:shadow-[0_2px_12px_rgba(201,122,30,0.12)]">
-        <Search size={17} className="text-[var(--sepia-muted)] mr-3 flex-shrink-0" />
+      {/* Modern Pill Search Input Bar with Clover Green Accents */}
+      <div className="relative flex items-center bg-[var(--pub-bg-panel)]/95 hover:bg-[var(--pub-bg-panel)] focus-within:bg-[var(--pub-bg-panel)] border-[1.5px] border-[var(--forest-green)]/45 focus-within:border-[var(--forest-green)] rounded-full px-4 h-11 transition-all duration-200 shadow-xs focus-within:shadow-[0_2px_14px_rgba(46,148,93,0.20)]">
+        <Search size={17} className="text-[var(--forest-green)] mr-3 flex-shrink-0" />
         <input
           type="text"
           value={globalSearchQuery}
@@ -132,12 +132,12 @@ export default function GlobalSearch({
             type="button"
             onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
             className={cn(
-              "h-8 w-8 rounded-full flex items-center justify-center border border-transparent transition-all cursor-pointer",
+              "h-8 w-8 rounded-full flex items-center justify-center border transition-all cursor-pointer",
               isFilterDropdownOpen
-                ? "bg-[var(--brass-accent)]/20 border-[var(--brass-accent)]/40 text-[var(--brass-accent)]"
+                ? "bg-[var(--forest-green)]/20 border-[var(--forest-green)]/40 text-[var(--forest-green)] shadow-xs"
                 : globalTypeFilter !== 'All'
-                  ? "bg-[var(--brass-accent)]/15 border-[var(--brass-accent)] text-[var(--brass-accent)]"
-                  : "text-[var(--sepia-muted)] hover:text-[var(--brass-accent)] hover:bg-[var(--brass-accent)]/10"
+                  ? "bg-[var(--forest-green)]/15 border-[var(--forest-green)] text-[var(--forest-green)] shadow-xs"
+                  : "border-transparent text-[var(--forest-green)] hover:bg-[var(--forest-green)]/15 hover:border-[var(--forest-green)]/30"
             )}
             title="Filter by Spirit Type"
           >
@@ -146,7 +146,7 @@ export default function GlobalSearch({
 
           {/* Active filter badge dot */}
           {globalTypeFilter !== 'All' && (
-            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[var(--brass-accent)] ring-2 ring-[var(--pub-bg-panel)]" />
+            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[var(--forest-green)] ring-2 ring-[var(--pub-bg-panel)]" />
           )}
         </div>
       </div>
@@ -154,7 +154,7 @@ export default function GlobalSearch({
       {/* Filter Dropdown Popover */}
       {isFilterDropdownOpen && (
         <div className="absolute top-13 right-0 bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] rounded-2xl shadow-xl z-50 p-1.5 w-52 max-h-[280px] overflow-y-auto divide-y divide-[var(--parchment-divider)]/50 scrollbar-thin animate-fade-in">
-          <div className="px-3 py-1.5 text-[10px] uppercase font-bold text-[var(--sepia-muted)] tracking-wider">
+          <div className="px-3 py-1.5 text-[10px] uppercase font-bold text-[var(--forest-green)] tracking-wider">
             Filter by Type
           </div>
           <button
@@ -163,7 +163,7 @@ export default function GlobalSearch({
             className={cn(
               "w-full text-left text-xs px-3.5 py-2 rounded-lg flex items-center transition-colors cursor-pointer",
               globalTypeFilter === 'All'
-                ? "text-[var(--brass-accent)] font-semibold bg-[var(--brass-accent)]/10 border-l-2 border-[var(--brass-accent)] pl-3"
+                ? "text-[var(--forest-green)] font-semibold bg-[var(--forest-green)]/10 border-l-2 border-[var(--forest-green)] pl-3"
                 : "text-[var(--foreground)] hover:bg-black/5"
             )}
           >
@@ -177,7 +177,7 @@ export default function GlobalSearch({
               className={cn(
                 "w-full text-left text-xs px-3.5 py-2 rounded-lg flex items-center transition-colors cursor-pointer",
                 globalTypeFilter === type
-                  ? "text-[var(--brass-accent)] font-semibold bg-[var(--brass-accent)]/10 border-l-2 border-[var(--brass-accent)] pl-3"
+                  ? "text-[var(--forest-green)] font-semibold bg-[var(--forest-green)]/10 border-l-2 border-[var(--forest-green)] pl-3"
                   : "text-[var(--foreground)] hover:bg-black/5"
               )}
             >

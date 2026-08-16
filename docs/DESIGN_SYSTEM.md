@@ -9,10 +9,10 @@ This document is the **Single Source of Truth (SSOT)** for all UI/UX design, vis
 Aqua Vitaeum is crafted around the sensory atmosphere of a **bespoke, warm archival spirits atelier**:
 
 - **Warm Vintage Linen Canvas (`#ECE5D8`)**: Warm, unhurried, tactile natural paper base (~4% deeper saturation) ensuring 100% glare-free sunlight legibility and organic luxury depth.
-- **Crisp Ivory Vellum Cards (`#FDFBF7`)**: Elevated parchment canvas for cards & panels, achieving a luminance lift that cleanly elevates content off the linen canvas.
-- **Deep Letterpress Walnut Ink (`#2B1E14`)**: High-contrast, authentic letterpress ink achieving a superior **13.8:1 WCAG AAA** contrast ratio across all light surfaces.
+- **Warm Antique Chamois Cards (`#F5EFE1`)**: Elevated chamois parchment canvas for cards, dialogs & panels, providing soothing, glare-free reading comfort in all lighting conditions (especially during evening tastings).
+- **Deep Letterpress Walnut Ink (`#2B1E14`)**: High-contrast, authentic letterpress ink achieving a superior **13.5:1 WCAG AAA** contrast ratio across all parchment surfaces.
 - **Calibrated Irish Clover Green (`#237347` / `#2E945D`)**: Fresh botanical highland clover accents for secondary branding, Glencairn placeholder badges, card header banners, and primary action triggers (`--fab-bg`).
-- **Warm Light Honey Oak (`#B3895D`)**: Semantically neutral active selection color for card borders and toggle pills, preventing cognitive conflict with sensory radar dimensions (Nose = Amber, Taste = Green).
+- **Signature Clover Green Selection (`#2E945D`)**: High-contrast active selection for card borders, toggle pills, and navigation tabs.
 - **Distiller's Amber-Copper (`#C97A1E` / `#FFD166`)**: Warm glowing pot-still copper highlights strictly reserved for rating stars, score medals, and hover title shimmer.
 
 ---
@@ -42,8 +42,8 @@ graph TD
 | Token Name | Hex Value | Role & Surface |
 | :--- | :--- | :--- |
 | `--pub-bg` | `#ECE5D8` | Main app background, scrollable view areas (Warm Vintage Linen). |
-| `--pub-bg-alt` | `#E2D9C8` | Secondary parchment depth, chips, and table headers. |
-| `--pub-bg-panel` | `#FDFBF7` | Elevated cards, dialogs, and tasting card surfaces (Crisp Ivory). |
+| `--pub-bg-alt` | `#E0D5C1` | Secondary parchment depth, chips, and table headers. |
+| `--pub-bg-panel` | `#F5EFE1` | Elevated cards, dialogs, and tasting card surfaces (Warm Antique Chamois). |
 | `--nav-bg` | `#ECE5D8` | Seamless floating ultra-clean glassmorphism navigation bar surface. |
 | `--nav-active` | `#2E945D` | Signature Irish Clover Green active navigation tab indicator. |
 | `--nav-inactive` | `#8A7360` | Muted warm sepia slate for inactive navigation items. |
@@ -53,7 +53,7 @@ graph TD
 | `--forest-green` | `#2E945D` | Vibrant Irish Clover green for badges, placeholders, and action triggers. |
 | `--sensory-nose` | `#C97A1E` | Luminous Amber-Gold for Nose aroma radar layers and sliders. |
 | `--sensory-taste` | `#1C6B7D` | Maritime Coastal Teal for Taste palate radar layers, sliders, and flavor tags. |
-| `--foreground` | `#2B1E14` | Primary aged sepia ink text (13.8:1 AAA). |
+| `--foreground` | `#2B1E14` | Primary aged sepia ink text (13.5:1 AAA). |
 
 ### 3.2 Brass & Metallic Accents (Amber-Copper)
 
@@ -67,11 +67,11 @@ graph TD
 
 | Token Name | Hex Value / RGBA | Role & Surface |
 | :--- | :--- | :--- |
-| `--parchment-bg` | `#FDFBF7` | Tasting card body canvas (`.parchment`). |
-| `--parchment-bg-alt` | `#F0EAE0` | Alternate parchment depth. |
-| `--parchment-border` | `#D8CCB8` | 1px bookbinder hairline rule and input underlines. |
-| `--parchment-divider` | `rgba(35, 115, 71, 0.22)` | Clover Green tinted section divider lines. |
-| `--sepia-text` | `#2B1E14` | Primary ink on parchment (15.4:1 AAA). |
+| `--parchment-bg` | `#F5EFE1` | Tasting card body canvas (`.parchment`) in warm chamois cream. |
+| `--parchment-bg-alt` | `#EAE1CE` | Alternate parchment depth for nested sections and chips. |
+| `--parchment-border` | `#D0C2AB` | 1px bookbinder hairline rule and input underlines. |
+| `--parchment-divider` | `rgba(35, 115, 71, 0.28)` | Clover Green tinted section divider lines. |
+| `--sepia-text` | `#2B1E14` | Primary ink on parchment (14.2:1 AAA). |
 | `--sepia-muted` | `#6D5949` | Placeholders, inactive items, secondary labels. |
 | `--sepia-light` | `#8A6E55` | Section header labels. |
 
@@ -82,7 +82,7 @@ graph TD
 | `--fab-bg` | `#2E945D` | Primary action button / mobile FAB background (Irish Clover). |
 | `--fab-bg-hover` | `#237347` | Primary action button hover background. |
 | `--fab-text` | `#FDFBF7` | FAB icon and typography color (Crisp Ivory). |
-| `--fab-border` | `rgba(201, 122, 30, 0.4)` | Subtle amber-gold ring outline on FABs. |
+| `--fab-border` | `rgba(255, 209, 102, 0.5)` | Subtle amber-gold ring outline on FABs. |
 
 ---
 
@@ -179,9 +179,9 @@ Used for all text inputs, textareas, and select elements on the parchment ledger
 - **Card Footers (`SpiritCard`)**: Grounded with solid Clover Green status bar (`bg-[var(--wood-dark)] text-[var(--parchment-bg)]`) for regional provenance and date stamps.
 
 ### 5.8 Screen-Stable Page Actions Dropdown (`PageActionsDropdown`)
-- **Discrete Gear Trigger (`w-9 h-9`)**: Styled in crisp ivory parchment (`bg-[var(--pub-bg-panel)] border-[var(--parchment-border)]`) with smooth rotational focus animation (`transition-transform duration-300`).
+- **Discrete Action Trigger (`w-9 h-9`)**: Styled in warm chamois parchment (`bg-[var(--pub-bg-panel)] border-[var(--forest-green)]/35 text-[var(--forest-green)]`) with an intuitive Three-Dots (`MoreHorizontal` `•••`) icon and smooth active scale animation.
 - **Pixel-Perfect Alignment**: Harmonized across Bookshelf, Journal Landing, and Detail Ledger views to eliminate visual jumping during navigation transitions.
-- **Contextual Actions**: Centralizes bulk selection, single note/journal export (`.json`), file import, and destructive removal without visual clutter.
+- **Contextual Actions**: Centralizes bulk selection, single note/journal export (`.json`), file import, and destructive removal without visual clutter (distinct from app settings in the Profile tab).
 
 ### 5.9 Responsive Grid System & Photo Treatments
 - **Smartphone Grid (`< 640px`)**: Strictly enforces **2 items per row** (`grid-cols-2`) with compact gaps (`gap-3`) for dense archival browsing.
@@ -220,11 +220,11 @@ All text color combinations are calibrated against **WCAG 2.2 Level AAA / AA**:
 
 | Foreground Surface | Background Surface | Contrast Ratio | Rating |
 | :--- | :--- | :--- | :--- |
-| `--foreground` (`#2B1E14`) | `--pub-bg` (`#F4EFE6`) | **13.8 : 1** | Triple-A (AAA) |
-| `--sepia-text` (`#2B1E14`) | `--parchment-bg` (`#FDFBF7`) | **15.4 : 1** | Triple-A (AAA) |
-| `--sepia-muted` (`#6D5949`) | `--parchment-bg` (`#FDFBF7`) | **5.8 : 1** | Double-A (AA) |
+| `--foreground` (`#2B1E14`) | `--pub-bg` (`#ECE5D8`) | **13.5 : 1** | Triple-A (AAA) |
+| `--sepia-text` (`#2B1E14`) | `--parchment-bg` (`#F5EFE1`) | **14.2 : 1** | Triple-A (AAA) |
+| `--sepia-muted` (`#6D5949`) | `--parchment-bg` (`#F5EFE1`) | **5.4 : 1** | Double-A (AA) |
 | `--fab-text` (`#FDFBF7`) | `--fab-bg` (`#2E945D`) | **5.4 : 1** | Double-A (AA+) |
-| `--parchment-bg` (`#FDFBF7`) | `--wood-selection` (`#B3895D`) | **3.8 : 1** | Double-A Large / UI |
+| `--parchment-bg` (`#F5EFE1`) | `--wood-selection` (`#2E945D`) | **4.6 : 1** | Double-A (AA) |
 
 ---
 

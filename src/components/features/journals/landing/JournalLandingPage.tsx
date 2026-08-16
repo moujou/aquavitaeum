@@ -7,7 +7,7 @@ import { JournalWithStats } from '@/hooks/useJournals';
 import { Spirit } from '@/types/spirit.types';
 import { OverviewLayout } from '@/hooks/useLayoutPreference';
 import { useMultiSelect } from '@/hooks/useMultiSelect';
-import { exportJournalsToFile } from '@/lib/google-drive-sync';
+import { exportJournalsToFile, exportSpiritsToFile } from '@/lib/google-drive-sync';
 import { JournalLandingHeader } from './JournalLandingHeader';
 import { NoteEmptyState } from './NoteEmptyState';
 import { NoteListView } from './layouts/NoteListView';
@@ -95,6 +95,7 @@ export function JournalLandingPage({
         onExitSelectMode={exitSelectMode}
         onEnterSelectMode={enterSelectMode}
         onExportJournal={(id) => exportJournalsToFile([id])}
+        onExportSelectedNotes={() => exportSpiritsToFile([...selectedIds], journal.name)}
         language={language}
       />
 

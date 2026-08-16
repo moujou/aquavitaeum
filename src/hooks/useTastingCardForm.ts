@@ -10,7 +10,6 @@ export function useTastingCardForm(
   const [spirit, setSpirit] = useState<Spirit>(initialSpirit ?? createBlankSpirit());
   const [saved, setSaved] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
   
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const pendingSpiritRef = useRef<Spirit | null>(null);
@@ -150,7 +149,6 @@ export function useTastingCardForm(
     }
     setSpirit(initialSpirit ?? createBlankSpirit());
     setSaved(true);
-    setIsEditingTitle(false);
     pendingSpiritRef.current = null;
   }, [initialSpirit]);
 
@@ -189,8 +187,6 @@ export function useTastingCardForm(
     saved,
     showDeleteModal,
     setShowDeleteModal,
-    isEditingTitle,
-    setIsEditingTitle,
     stars,
     displayName,
     subtitleLocation,

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import {
   requestGoogleAccessToken,
   performGoogleDriveSync,
@@ -8,6 +8,7 @@ import {
   importLocalBackupFile,
   SyncStats,
 } from '@/lib/google-drive-sync';
+import { DATA_CHANGED_EVENT } from '@/lib/sync-events';
 
 const TOKEN_STORAGE_KEY = 'aqua-vitaeum-google-token';
 const CLIENT_ID_STORAGE_KEY = 'aqua-vitaeum-google-client-id';
@@ -32,6 +33,12 @@ export function useGoogleDriveSync() {
   });
 
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
+  const isSyncingRef = useRef(isSyncing);
+
+  useEffect(() => {
+    isSyncingRef.current = isSyncing;
+  }, [isSyncing]);
+
   const [lastSyncTime, setLastSyncTime] = useState<string | null>(() => {
     if (typeof window === 'undefined') return null;
     return localStorage.getItem(LAST_SYNC_KEY);
@@ -94,6 +101,8 @@ export function useGoogleDriveSync() {
   }, []);
 
   const syncNow = useCallback(async (): Promise<SyncStats | null> => {
+    if (!isEnabled) return null;
+
     let token = accessToken;
 
     if (!token) {
@@ -133,7 +142,49 @@ export function useGoogleDriveSync() {
       setIsSyncing(false);
       return null;
     }
-  }, [accessToken, clientId]);
+  }, [accessToken, clientId, isEnabled]);
+
+  // ── Smart Zero-Friction Auto-Sync (Option A) ──────────────────────────────
+  // 1. Initial background pull on mount
+  // 2. Debounced auto-sync (2.5s) on local data changes (save, edit, delete)
+  // 3. Immediate background sync when leaving / minimizing the app (visibilitychange: hidden)
+  useEffect(() => {
+    if (!isEnabled || !accessToken) return;
+
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const handleDataChange = () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        if (!isSyncingRef.current) {
+          syncNow();
+        }
+      }, 2500);
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden' && !isSyncingRef.current) {
+        syncNow();
+      }
+    };
+
+    // Initial silent pull on mount (non-blocking)
+    const initialTimer = setTimeout(() => {
+      if (!isSyncingRef.current) {
+        syncNow();
+      }
+    }, 150);
+
+    window.addEventListener(DATA_CHANGED_EVENT, handleDataChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearTimeout(initialTimer);
+      if (debounceTimer) clearTimeout(debounceTimer);
+      window.removeEventListener(DATA_CHANGED_EVENT, handleDataChange);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isEnabled, accessToken, syncNow]);
 
   return {
     isEnabled,

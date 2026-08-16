@@ -38,6 +38,17 @@ export class AquaVitaeumDatabase extends Dexie {
       spirits: 'id, journalId, spiritType, distillery, name, rating100',
       journals: 'id, name, createdAt',
     });
+
+    // Populate on fresh database creation
+    this.on('populate', (tx) => {
+      const defaultId = 'default-compendium';
+      tx.table('journals').add({
+        id: defaultId,
+        name: 'My Journal',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+    });
   }
 }
 

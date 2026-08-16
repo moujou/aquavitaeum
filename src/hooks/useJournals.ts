@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { db } from '@/lib/db';
 import { Journal } from '@/types/spirit.types';
+import { notifyDataChanged } from '@/lib/sync-events';
 
 export interface JournalWithStats extends Journal {
   bottleCount: number;
@@ -86,6 +87,7 @@ export function useJournals() {
     try {
       await db.journals.add(newJournal);
       await loadJournals();
+      notifyDataChanged();
       return newJournal;
     } catch (err) {
       console.error('Aqua Vitaeum: Failed to create journal.', err);
@@ -103,6 +105,7 @@ export function useJournals() {
         updatedAt: new Date().toISOString(),
       });
       await loadJournals();
+      notifyDataChanged();
     } catch (err) {
       console.error('Aqua Vitaeum: Failed to rename journal.', err);
       throw err;
@@ -119,6 +122,7 @@ export function useJournals() {
       await db.spirits.where('journalId').equals(id).delete();
       
       await loadJournals();
+      notifyDataChanged();
     } catch (err) {
       console.error('Aqua Vitaeum: Failed to delete journal.', err);
       throw err;

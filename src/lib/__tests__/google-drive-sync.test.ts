@@ -200,6 +200,38 @@ describe('Google Drive Sync Engine & Rogue-File Guards', () => {
       expect(result.spiritCount).toBe(1);
     });
 
+    it('successfully parses and imports spirits-only export payloads', async () => {
+      const spiritsPayload = {
+        version: '1.0',
+        exportedAt: '2026-08-16T00:00:00.000Z',
+        type: 'spirits-export',
+        journalName: 'Islay Malts',
+        spirits: [
+          {
+            id: 's-test-2',
+            journalId: 'j-test-1',
+            spiritType: 'Single Malt Scotch',
+            name: 'Bowmore 15',
+            distillery: 'Bowmore',
+            region: 'Islay',
+            abv: 43,
+            dateTasted: '2026-08-16',
+            rating100: 88,
+            starRating: 4,
+            colour: 'Amber',
+            flavorTags: ['Dark Chocolate'],
+            noseProfile: { fruity: 2, floral: 0, spicy: 2, cereal: 1, peaty: 6, sulphury: 0, feinty: 1, nutty: 3, woody: 4, winey: 5, chocolate: 6 },
+            tasteProfile: { fruity: 2, floral: 0, spicy: 3, cereal: 1, peaty: 5, sulphury: 0, feinty: 1, nutty: 3, woody: 5, winey: 6, chocolate: 7 },
+          },
+        ],
+      };
+
+      const file = createMockFile(JSON.stringify(spiritsPayload), 'Notes - Islay Malts-1-2026-08-16.json');
+      const result = await importJournalFile(file);
+      expect(result.journalCount).toBe(0);
+      expect(result.spiritCount).toBe(1);
+    });
+
     it('rejects completely invalid journal files', async () => {
       const invalidFile = createMockFile('{"something": "wrong"}', 'Invalid.json');
       await expect(importJournalFile(invalidFile)).rejects.toThrow();
