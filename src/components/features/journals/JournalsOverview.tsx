@@ -289,12 +289,12 @@ export function JournalsOverview({
               }}
               className={[
                 'group relative flex flex-col justify-between h-auto min-h-[280px] rounded-2xl transition-all duration-300 transform overflow-hidden cursor-pointer select-none',
-                'bg-[var(--parchment-bg)] border border-[var(--parchment-border)] shadow-[0_6px_22px_rgba(30,20,10,0.12),0_2px_6px_rgba(30,20,10,0.06)]',
+                'bg-[var(--parchment-bg)] border border-[var(--parchment-border)] shadow-[0_8px_24px_-3px_rgba(35,20,8,0.14),0_2px_6px_rgba(35,20,8,0.06)]',
                 isSelected
                   ? 'border-[var(--wood-selection)] ring-2 ring-[var(--wood-selection)]/45 shadow-[0_0_25px_rgba(46,148,93,0.35)] scale-[1.02] opacity-100 bg-[var(--pub-bg-panel)] z-10'
                   : isSelectMode
                     ? 'border-[var(--parchment-border)]/50 scale-[0.98] opacity-40 shadow-xs'
-                    : 'hover:border-[var(--forest-green)] hover:shadow-[0_16px_36px_rgba(35,115,71,0.22),0_4px_12px_rgba(30,20,10,0.08)] hover:scale-[1.015]',
+                    : 'hover:border-[var(--forest-green)] hover:shadow-[0_16px_36px_-4px_rgba(35,115,71,0.22),0_4px_12px_rgba(35,20,8,0.08)] hover:-translate-y-0.5',
               ].join(' ')}
             >
               {/* Signature Clover Green Top Header Banner with Journal Name & Description */}

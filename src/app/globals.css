@@ -5,8 +5,8 @@
 :root {
   /* ── Canvas & Surfaces (2026 Unified Editorial Atelier) ──────────────── */
   --pub-bg:          #ECE5D8;   /* Warm Vintage Linen (~4% tiefere Leinen-Atmosphäre) */
-  --pub-bg-alt:      #E2D9C8;   /* Zarte Shelf-Tiefe / Sekundär-Flächen */
-  --pub-bg-panel:    #FDFBF7;   /* Helles Elfenbein für Karten & Dialoge */
+  --pub-bg-alt:      #E0D5C1;   /* Zarte Shelf-Tiefe / Sekundär-Flächen */
+  --pub-bg-panel:    #F5EFE1;   /* Samtiges Chamois-Creme für Karten, Profil & Dialoge */
   --nav-bg:          #ECE5D8;   /* Nahtlose schwebende Navigation */
 
   /* ── Structural Secondary & Accent Color (Irish Clover Green) ────────── */
@@ -27,12 +27,12 @@
   --brass-muted:     #A66519;   /* Sekundäres Antik-Kupfer */
   --brass-light:     #E59632;   /* Hover-Glanz */
 
-  /* ── Parchment Surface (Tasting Card & Notizen) ───────────────────────── */
-  --parchment-bg:      #FDFBF7; /* Helles Elfenbein */
-  --parchment-bg-alt:  #F0EAE0; /* Hover-Tiefe */
-  --parchment-border:  #D8CCB8; /* 1px präzise Buchbinder-Haarlinie */
+  /* ── Parchment Surface (Tasting Card, Profil & Notizen) ───────────────── */
+  --parchment-bg:      #F5EFE1; /* Warmes Antik-Creme-Pergament (augenfreundlich, ~6% satter) */
+  --parchment-bg-alt:  #EAE1CE; /* Samtige Chamois-Tiefe für Untersektionen & Inputs */
+  --parchment-border:  #D0C2AB; /* 1px präzise Buchbinder-Haarlinie */
   --parchment-divider: rgba(35, 115, 71, 0.28); /* Klee-Grün getönte Trennlinie */
-  --parchment-shadow:  rgba(35, 22, 10, 0.11);
+  --parchment-shadow:  rgba(35, 20, 8, 0.14);
 
   /* ── Aged Ink (Typography) ───────────────────────────────────────────── */
   --sepia-text:  #2B1E14;   /* Warmes Buchbinder-Nussbaum-Sepia (13.8:1 AAA) */
@@ -152,9 +152,10 @@ body {
   color: var(--sepia-text);
   border: 1px solid var(--parchment-border);
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.9) inset,
-    0 4px 16px rgba(35, 22, 10, 0.11),
-    0 16px 36px rgba(35, 22, 10, 0.10);
+    0 1px 0 rgba(255, 255, 255, 0.8) inset,
+    0 2px 5px rgba(35, 20, 8, 0.06),
+    0 10px 24px -3px rgba(35, 20, 8, 0.13),
+    0 20px 40px -6px rgba(35, 20, 8, 0.08);
 }
 
 /* ─── Irish Clover Green Specular Gradient Divider ───────────────────────── */

@@ -14,7 +14,6 @@ describe('Modular OO Tasting Card Sections', () => {
 
   describe('TastingHeaderSection', () => {
     it('renders distillery badge, title, subtitle and spirit type with gear actions menu', () => {
-      const updateFn = vi.fn();
       const deleteFn = vi.fn();
       const mockT = (key: string) => key;
 
@@ -23,7 +22,6 @@ describe('Modular OO Tasting Card Sections', () => {
           spirit={sampleSpirit}
           displayName="Laphroaig 10"
           subtitleLocation="Islay, Scotland"
-          update={updateFn}
           onDelete={deleteFn}
           t={mockT}
         />

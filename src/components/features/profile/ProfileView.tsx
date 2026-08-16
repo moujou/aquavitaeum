@@ -25,12 +25,12 @@ export function ProfileView({
   return (
     <div
       className={cn(
-        'w-full max-w-2xl mx-auto flex flex-col justify-center items-center p-4 sm:p-6 my-auto min-h-[380px] animate-fade-in',
+        'w-full max-w-xl sm:max-w-2xl md:max-w-3xl mx-auto flex flex-col justify-center items-center px-3 sm:px-6 py-6 my-auto min-h-[380px] animate-fade-in',
         className
       )}
     >
       {/* Main Profile Card Container */}
-      <div className="w-full rounded-2xl border border-[#237347]/25 bg-[var(--parchment-bg)] p-6 sm:p-10 text-center shadow-[0_8px_30px_rgba(40,28,15,0.09),0_2px_8px_rgba(35,115,71,0.08)] relative overflow-hidden">
+      <div className="w-full rounded-2xl border border-[#237347]/25 bg-[var(--parchment-bg)] p-4 sm:p-8 md:p-10 text-center shadow-[0_10px_32px_-4px_rgba(35,20,8,0.13),0_2px_8px_rgba(35,115,71,0.08)] relative overflow-hidden">
         {/* Subtle Ambient Glow */}
         <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-56 h-56 rounded-full bg-[var(--forest-green)]/10 blur-3xl pointer-events-none" />
 
@@ -47,17 +47,17 @@ export function ProfileView({
         {/* Settings Box */}
         <div className="w-full bg-[var(--pub-bg-panel)] border border-[#237347]/20 rounded-xl divide-y divide-[var(--parchment-divider)] text-left overflow-hidden shadow-xs relative z-10">
           {/* Row 1: Language */}
-          <div className="flex items-center justify-between p-4 sm:p-5 hover:bg-black/[0.02] transition-colors">
-            <div className="flex items-center gap-3.5 sm:gap-4">
+          <div className="flex items-center justify-between gap-3 p-3.5 sm:p-5 hover:bg-black/[0.02] transition-colors">
+            <div className="flex items-center gap-3 sm:gap-4 min-w-0 pr-2">
               <div className="w-9 h-9 rounded-lg bg-[var(--forest-green)]/10 border border-[var(--forest-green)]/30 flex items-center justify-center text-[var(--forest-green)] shrink-0">
                 <Globe size={18} />
               </div>
-              <div>
-                <p className="font-display text-sm sm:text-base font-semibold text-[var(--foreground)]">
+              <div className="min-w-0">
+                <p className="font-display text-sm sm:text-base font-semibold text-[var(--foreground)] truncate">
                   {t('profileLanguage')}
                 </p>
-                <p className="font-body text-xs text-[var(--sepia-muted)] mt-0.5">
-                  Select interface language
+                <p className="font-body text-xs text-[var(--sepia-muted)] mt-0.5 truncate">
+                  Sprache / Language
                 </p>
               </div>
             </div>
@@ -65,21 +65,21 @@ export function ProfileView({
           </div>
 
           {/* Row 2: Tasting Cards Overview Layout */}
-          <div className="flex items-center justify-between p-4 sm:p-5 hover:bg-black/[0.02] transition-colors">
-            <div className="flex items-center gap-3.5 sm:gap-4">
+          <div className="flex items-center justify-between gap-3 p-3.5 sm:p-5 hover:bg-black/[0.02] transition-colors">
+            <div className="flex items-center gap-3 sm:gap-4 min-w-0 pr-2">
               <div className="w-9 h-9 rounded-lg bg-[var(--forest-green)]/10 border border-[var(--forest-green)]/30 flex items-center justify-center text-[var(--forest-green)] shrink-0">
                 <LayoutGrid size={18} />
               </div>
-              <div>
-                <p className="font-display text-sm sm:text-base font-semibold text-[var(--foreground)]">
+              <div className="min-w-0">
+                <p className="font-display text-sm sm:text-base font-semibold text-[var(--foreground)] truncate">
                   {t('overviewLayout')}
                 </p>
-                <p className="font-body text-xs text-[var(--sepia-muted)] mt-0.5">
+                <p className="font-body text-xs text-[var(--sepia-muted)] mt-0.5 truncate">
                   {t('overviewLayoutDesc')}
                 </p>
               </div>
             </div>
-            <LayoutToggle value={layout} onChange={onLayoutChange} />
+            <LayoutToggle value={layout} onChange={onLayoutChange} className="shrink-0" />
           </div>
 
           {/* Row 3: Google Drive Cloud Sync & Backup */}

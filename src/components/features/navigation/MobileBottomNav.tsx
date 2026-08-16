@@ -59,21 +59,21 @@ export default function MobileBottomNav({
           if (setIsMobileDrawerOpen) setIsMobileDrawerOpen(false);
         }}
         className={cn(
-          "flex flex-col items-center justify-center w-[72px] h-full transition-all cursor-pointer relative group rounded-xl",
+          "flex flex-col items-center justify-center w-[68px] h-12 transition-all cursor-pointer relative group rounded-xl my-auto",
           isBookshelfActive
-            ? "text-[var(--nav-active)]"
+            ? "bg-[var(--forest-green)]/15 border border-[var(--forest-green)]/35 text-[var(--nav-active)] shadow-[0_2px_12px_rgba(46,148,93,0.22)]"
             : "text-[var(--nav-inactive)] hover:text-[var(--forest-green)] hover:bg-[var(--forest-green)]/10 active:scale-95"
         )}
         title={t('journalsTitle')}
       >
         <BookOpen
-          size={24}
+          size={23}
           strokeWidth={isBookshelfActive ? 2.2 : 1.75}
           className="transition-transform group-hover:scale-110 duration-200"
         />
         {/* Active High-Contrast Indicator */}
         {isBookshelfActive && (
-          <div className="absolute bottom-1.5 w-6 h-0.5 rounded-full bg-[var(--nav-active)] shadow-[0_0_8px_rgba(46,148,93,0.4)]" />
+          <div className="absolute bottom-1 w-5 h-0.5 rounded-full bg-[var(--nav-active)] shadow-[0_0_8px_rgba(46,148,93,0.5)]" />
         )}
       </button>
 
@@ -121,21 +121,21 @@ export default function MobileBottomNav({
           if (setIsMobileDrawerOpen) setIsMobileDrawerOpen(false);
         }}
         className={cn(
-          "flex flex-col items-center justify-center w-[72px] h-full transition-all cursor-pointer relative group rounded-xl",
+          "flex flex-col items-center justify-center w-[68px] h-12 transition-all cursor-pointer relative group rounded-xl my-auto",
           isProfileActive
-            ? "text-[var(--nav-active)]"
+            ? "bg-[var(--forest-green)]/15 border border-[var(--forest-green)]/35 text-[var(--nav-active)] shadow-[0_2px_12px_rgba(46,148,93,0.22)]"
             : "text-[var(--nav-inactive)] hover:text-[var(--forest-green)] hover:bg-[var(--forest-green)]/10 active:scale-95"
         )}
         title={t('profileTab')}
       >
         <User
-          size={24}
+          size={23}
           strokeWidth={isProfileActive ? 2.2 : 1.75}
           className="transition-transform group-hover:scale-110 duration-200"
         />
         {/* Active High-Contrast Indicator */}
         {isProfileActive && (
-          <div className="absolute bottom-1.5 w-6 h-0.5 rounded-full bg-[var(--nav-active)] shadow-[0_0_8px_rgba(46,148,93,0.4)]" />
+          <div className="absolute bottom-1 w-5 h-0.5 rounded-full bg-[var(--nav-active)] shadow-[0_0_8px_rgba(46,148,93,0.5)]" />
         )}
       </button>
     </nav>

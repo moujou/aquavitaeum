@@ -45,7 +45,6 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
         spirit={spirit}
         displayName={displayName}
         subtitleLocation={subtitleLocation}
-        update={update}
         onDelete={onDelete ? () => setShowDeleteModal(true) : undefined}
         onImportSpirit={importSpirit}
         t={t}

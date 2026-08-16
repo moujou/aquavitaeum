@@ -12,7 +12,6 @@ interface TastingHeaderSectionProps {
   spirit: Spirit;
   displayName: string;
   subtitleLocation: string;
-  update: <K extends keyof Spirit>(key: K, value: Spirit[K]) => void;
   onDelete?: () => void;
   onImportSpirit?: (imported: Spirit) => void;
   t: (key: TranslationKey) => string;
@@ -23,7 +22,6 @@ export function TastingHeaderSection({
   spirit,
   displayName,
   subtitleLocation,
-  update,
   onDelete,
   onImportSpirit,
   t,
@@ -59,9 +57,10 @@ export function TastingHeaderSection({
 
   return (
     <div className="relative bg-[var(--wood-dark)] text-center py-5 px-6 border-b border-[var(--wood-dark)]/80 flex flex-col items-center justify-center gap-1.5 shadow-[inset_0_-10px_20px_-10px_rgba(0,0,0,0.25)]">
-      {/* Top Right Gear Action Menu */}
+      {/* Top Right Page Action Menu with radiant gold on dark banner */}
       <div className="absolute top-3 right-3 sm:top-3.5 sm:right-4 z-20">
         <PageActionsDropdown
+          variant="on-dark-banner"
           title={language === 'DE' ? 'Karten-Aktionen' : 'Card Actions'}
           items={[
             {

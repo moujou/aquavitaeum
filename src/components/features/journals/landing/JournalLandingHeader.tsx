@@ -4,7 +4,6 @@ import React from 'react';
 import { Trash2, X, Download, CheckSquare } from 'lucide-react';
 import { JournalWithStats } from '@/hooks/useJournals';
 import { PageActionsDropdown } from '@/components/ui/PageActionsDropdown';
-import { cn } from '@/lib/utils';
 
 interface JournalLandingHeaderProps {
   journal: JournalWithStats;
@@ -17,6 +16,7 @@ interface JournalLandingHeaderProps {
   onExitSelectMode?: () => void;
   onEnterSelectMode?: () => void;
   onExportJournal?: (id: string) => void;
+  onExportSelectedNotes?: () => void;
   language?: string;
 }
 
@@ -30,6 +30,7 @@ export function JournalLandingHeader({
   onExitSelectMode,
   onEnterSelectMode,
   onExportJournal,
+  onExportSelectedNotes,
   language = 'EN',
 }: JournalLandingHeaderProps) {
   return (
@@ -55,15 +56,22 @@ export function JournalLandingHeader({
         {/* Right: Select mode action buttons OR Normal mode Actions Dropdown */}
         {isSelectMode ? (
           <div className="flex items-center gap-2 shrink-0">
-            {/* Gear Dropdown with Delete Note action */}
+            {/* Gear Dropdown with Export Notes & Delete Note actions */}
             <PageActionsDropdown
               title={language === 'DE' ? 'Aktionen' : 'Actions'}
               items={[
                 {
+                  id: 'export-selected-notes',
+                  label: `${language === 'DE' ? 'Notizen exportieren' : 'Export Notes'}${selectedCount > 0 ? ` (${selectedCount})` : ''}`,
+                  icon: <Download size={16} />,
+                  onClick: () => onExportSelectedNotes?.(),
+                  disabled: selectedCount === 0,
+                },
+                {
                   id: 'delete-selected-notes',
                   label: `${language === 'DE' ? 'Notizen löschen' : 'Delete Notes'}${selectedCount > 0 ? ` (${selectedCount})` : ''}`,
                   icon: <Trash2 size={16} />,
-                  onClick: onConfirmDelete,
+                  onClick: () => onConfirmDelete?.(),
                   disabled: !canDelete,
                   destructive: true,
                 },

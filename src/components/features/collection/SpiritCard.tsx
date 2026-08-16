@@ -53,13 +53,13 @@ export function SpiritCard({
       style={{ WebkitTouchCallout: 'none' } as React.CSSProperties}
       className={cn(
         'w-full flex flex-col text-left rounded-xl sm:rounded-2xl border transition-all duration-300 ease-out group overflow-hidden cursor-pointer relative shrink-0 select-none',
-        'bg-[var(--parchment-bg)] border border-[var(--parchment-border)] shadow-[0_6px_22px_rgba(30,20,10,0.12),0_2px_6px_rgba(30,20,10,0.06)]',
+        'bg-[var(--parchment-bg)] border border-[var(--parchment-border)] shadow-[0_8px_24px_-3px_rgba(35,20,8,0.14),0_2px_6px_rgba(35,20,8,0.06)]',
         isSelectMode
           ? isSelectChecked
             ? 'border-[var(--wood-selection)] ring-2 ring-[var(--wood-selection)]/45 shadow-[0_0_25px_rgba(46,148,93,0.35)] scale-[1.02] opacity-100 z-10 bg-[var(--pub-bg-panel)]'
             : 'border-[var(--parchment-border)]/50 opacity-40 scale-[0.98] shadow-xs'
           : [
-              'hover:border-[var(--forest-green)] hover:shadow-[0_16px_36px_rgba(35,115,71,0.22),0_4px_12px_rgba(30,20,10,0.08)] hover:scale-[1.015]',
+              'hover:border-[var(--forest-green)] hover:shadow-[0_16px_36px_-4px_rgba(35,115,71,0.22),0_4px_12px_rgba(35,20,8,0.08)] hover:-translate-y-0.5',
               isSelected
                 ? 'border-[var(--wood-selection)] ring-2 ring-[var(--wood-selection)]/45 shadow-[0_0_20px_rgba(46,148,93,0.30)]'
                 : '',

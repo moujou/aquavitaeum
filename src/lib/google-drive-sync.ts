@@ -604,6 +604,42 @@ export async function exportJournalsToFile(journalIds: string[]): Promise<void> 
 }
 
 /**
+ * Exports one or more selected spirit notes to a JSON file
+ */
+export async function exportSpiritsToFile(spiritIds: string[], journalName?: string): Promise<void> {
+  if (spiritIds.length === 0) return;
+
+  const spirits = await db.spirits.where('id').anyOf(spiritIds).toArray();
+  if (spirits.length === 0) return;
+
+  if (spirits.length === 1) {
+    exportSingleSpiritFile(spirits[0]);
+    return;
+  }
+
+  const exportPayload = {
+    version: '1.0',
+    exportedAt: new Date().toISOString(),
+    type: 'spirits-export',
+    journalName: journalName || 'Compendium',
+    spirits,
+  };
+
+  const prefix = journalName ? `Notes - ${sanitizeFileName(journalName)}` : 'aqua-vitaeum-notes';
+  const fileName = `${prefix}-${spirits.length}-${new Date().toISOString().split('T')[0]}.json`;
+
+  const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/**
  * Imports a journal export file (or single journal JSON) into IndexedDB
  */
 export async function importJournalFile(file: File): Promise<{ journalCount: number; spiritCount: number }> {
@@ -635,6 +671,17 @@ export async function importJournalFile(file: File): Promise<{ journalCount: num
     await db.journals.put(parsed as never);
     journalCount++;
     return { journalCount, spiritCount: 0 };
+  }
+
+  // Case 3: Direct spirits export payload (spirits array)
+  if (Array.isArray(parsed.spirits)) {
+    for (const s of parsed.spirits) {
+      if (isValidSpiritData(s)) {
+        await db.spirits.put(s);
+        spiritCount++;
+      }
+    }
+    return { journalCount: 0, spiritCount };
   }
 
   throw new Error('Invalid or corrupt journal JSON file.');
