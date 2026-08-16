@@ -220,10 +220,11 @@ export function GoogleDriveSyncProvider({ children }: { children: React.ReactNod
   }, [syncNow]);
 
   // ── Smart 24/7 Background Auto-Sync Engine ────────────────────────────────
-  // 1. Initial background pull on mount
-  // 2. Fast debounced auto-sync (1.0s) on local data changes (save, edit, delete, photo added)
-  // 3. Immediate background pull when opening / focusing the app (window focus & visibilitychange)
-  // 4. Periodic background sync every 5 minutes
+  // 1. Initial background pull immediately on mount
+  // 2. Fast debounced auto-sync (1.0s) on local user data changes (save, edit, delete, photo added)
+  // 3. Immediate 0s background pull when opening / focusing the app (window focus & visibilitychange)
+  // 4. Ultra-fast 8s heartbeat poll when app is active in the foreground (live 2-device sync!)
+  // 5. Battery-friendly 3min heartbeat poll when app is minimized / in background
   useEffect(() => {
     if (!isEnabled) return;
 
@@ -239,7 +240,7 @@ export function GoogleDriveSyncProvider({ children }: { children: React.ReactNod
     };
 
     const handleVisibilityOrFocus = () => {
-      if (!isSyncingRef.current) {
+      if (document.visibilityState === 'visible' && !isSyncingRef.current) {
         syncNowRef.current();
       }
     };
@@ -251,12 +252,19 @@ export function GoogleDriveSyncProvider({ children }: { children: React.ReactNod
       }
     }, 150);
 
-    // Periodic sync every 5 minutes
-    const periodicInterval = setInterval(() => {
-      if (!isSyncingRef.current) {
+    // Foreground 8s heartbeat poll
+    const foregroundInterval = setInterval(() => {
+      if (document.visibilityState === 'visible' && !isSyncingRef.current) {
         syncNowRef.current();
       }
-    }, 5 * 60 * 1000);
+    }, 8 * 1000);
+
+    // Background 3min heartbeat poll
+    const backgroundInterval = setInterval(() => {
+      if (document.visibilityState !== 'visible' && !isSyncingRef.current) {
+        syncNowRef.current();
+      }
+    }, 3 * 60 * 1000);
 
     window.addEventListener(DATA_MUTATED_EVENT, handleDataChange);
     window.addEventListener('focus', handleVisibilityOrFocus);
@@ -264,7 +272,8 @@ export function GoogleDriveSyncProvider({ children }: { children: React.ReactNod
 
     return () => {
       clearTimeout(initialTimer);
-      clearInterval(periodicInterval);
+      clearInterval(foregroundInterval);
+      clearInterval(backgroundInterval);
       if (debounceTimer) clearTimeout(debounceTimer);
       window.removeEventListener(DATA_MUTATED_EVENT, handleDataChange);
       window.removeEventListener('focus', handleVisibilityOrFocus);

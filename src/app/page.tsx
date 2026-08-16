@@ -160,18 +160,52 @@ export default function Home() {
     };
   }, [isMobileDrawerOpen]);
 
-  // Show welcome screen on initial onboarding (only on first launch until completed)
+  // Show welcome screen on initial onboarding, or restore saved view on F5 / reload
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const welcomeCompleted = localStorage.getItem('aqua-vitaeum-welcome-completed');
       if (welcomeCompleted === 'true') {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setActiveView('overview');
+        const savedView = sessionStorage.getItem('aqua-vitaeum-active-view') as
+          | 'overview'
+          | 'journal-landing'
+          | 'journal-detail'
+          | 'profile'
+          | null;
+        const savedJournalId = sessionStorage.getItem('aqua-vitaeum-active-journal-id');
+
+        if (savedJournalId) {
+          // eslint-disable-next-line react-hooks/set-state-in-effect
+          setActiveJournalId(savedJournalId);
+        }
+
+        if (savedView && ['overview', 'journal-landing', 'journal-detail', 'profile'].includes(savedView)) {
+          setActiveView(savedView);
+        } else {
+          setActiveView('overview');
+        }
       } else {
         setActiveView('welcome');
       }
     }
   }, []);
+
+  // Persist active view to sessionStorage across F5 / page reloads
+  useEffect(() => {
+    if (typeof window !== 'undefined' && activeView !== 'loading' && activeView !== 'welcome') {
+      sessionStorage.setItem('aqua-vitaeum-active-view', activeView);
+    }
+  }, [activeView]);
+
+  // Persist active journal ID to sessionStorage across F5 / page reloads
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (activeJournalId) {
+        sessionStorage.setItem('aqua-vitaeum-active-journal-id', activeJournalId);
+      } else {
+        sessionStorage.removeItem('aqua-vitaeum-active-journal-id');
+      }
+    }
+  }, [activeJournalId]);
 
   // Find currently active journal object for header meta info
   const activeJournal = useMemo(() => {
