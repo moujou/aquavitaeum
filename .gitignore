@@ -46,11 +46,15 @@ next-env.d.ts
 
 # AI Agents, Tools & Private Steering Directives
 AGENTS.md
+AGENTS_GUIDE.md
+docs/AGENTS_GUIDE.md
 docs/AUDIT_AGENTS.md
+*AGENTS_GUIDE*
 .gemini/
 .antigravity/
 .cursor/
 .claude/
 .windsurf/
 *.agent
+
 
