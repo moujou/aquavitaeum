@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { db } from '@/lib/db';
 import { Journal } from '@/types/spirit.types';
 import { notifyDataChanged, DATA_CHANGED_EVENT } from '@/lib/sync-events';
+import { recordTombstone, removeTombstone } from '@/lib/sync-tombstones';
 
 export interface JournalWithStats extends Journal {
   bottleCount: number;
@@ -95,6 +96,7 @@ export function useJournals() {
 
     try {
       await db.journals.add(newJournal);
+      removeTombstone(newJournal.id);
       await loadJournals();
       notifyDataChanged();
       return newJournal;
@@ -113,6 +115,7 @@ export function useJournals() {
         ...(newCoverImage !== undefined && { coverImage: newCoverImage }),
         updatedAt: new Date().toISOString(),
       });
+      removeTombstone(id);
       await loadJournals();
       notifyDataChanged();
     } catch (err) {
@@ -124,6 +127,14 @@ export function useJournals() {
   // Delete an existing journal and cascade delete all its spirits
   const deleteJournal = useCallback(async (id: string) => {
     try {
+      recordTombstone(id, 'journal');
+      
+      // Cascade record tombstones and delete all spirits in this journal
+      const spiritsToDelete = await db.spirits.where('journalId').equals(id).toArray();
+      for (const s of spiritsToDelete) {
+        recordTombstone(s.id, 'spirit');
+      }
+
       // 1. Delete journal metadata
       await db.journals.delete(id);
       

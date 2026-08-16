@@ -8,6 +8,8 @@ import { notifyDataChanged, DATA_CHANGED_EVENT } from '@/lib/sync-events';
 
 const SEEDED_STORAGE_KEY = 'aqua-vitaeum-seeded';
 
+import { recordTombstone, removeTombstone } from '@/lib/sync-tombstones';
+
 export function useSpiritCollection(activeJournalId: string | null) {
   const [spirits, setSpirits] = useState<Spirit[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -181,13 +183,18 @@ export function useSpiritCollection(activeJournalId: string | null) {
   const handleSave = useCallback(
     async (updated: Spirit) => {
       try {
-        await db.spirits.put(updated);
+        const spiritToSave: Spirit = {
+          ...updated,
+          updatedAt: new Date().toISOString(),
+        };
+        await db.spirits.put(spiritToSave);
+        removeTombstone(spiritToSave.id);
         setSpirits((prev) =>
-          prev.some((s) => s.id === updated.id)
-            ? prev.map((s) => (s.id === updated.id ? updated : s))
-            : [updated, ...prev]
+          prev.some((s) => s.id === spiritToSave.id)
+            ? prev.map((s) => (s.id === spiritToSave.id ? spiritToSave : s))
+            : [spiritToSave, ...prev]
         );
-        setSelectedId(updated.id);
+        setSelectedId(spiritToSave.id);
         await syncWithServer();
         notifyDataChanged();
       } catch (err) {
@@ -200,6 +207,7 @@ export function useSpiritCollection(activeJournalId: string | null) {
   const handleDelete = useCallback(
     async (id: string) => {
       try {
+        recordTombstone(id, 'spirit');
         await db.spirits.delete(id);
         setSpirits((prev) => {
           const next = prev.filter((s) => s.id !== id);
