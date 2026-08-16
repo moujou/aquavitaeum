@@ -15,6 +15,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { WhiskyLogo } from '@/components/ui/WhiskyLogo';
 import { cn } from '@/lib/utils';
 import { SpiritType } from '@/types/spirit.types';
+import { useGoogleDriveSync } from '@/hooks/useGoogleDriveSync';
 import AppLoader from '@/components/ui/AppLoader';
 import AppHeader from '@/components/features/navigation/AppHeader';
 import MobileBottomNav from '@/components/features/navigation/MobileBottomNav';
@@ -24,6 +25,9 @@ import { NoteEmptyState } from '@/components/features/journals/landing/NoteEmpty
 export default function Home() {
   const { t } = useLanguage();
   const basePath = process.env.NODE_ENV === 'production' ? '/aquavitaeum' : '';
+
+  // Global Google Drive background sync engine (runs continuously across all views)
+  useGoogleDriveSync();
   
   // Navigation View State: loading | welcome (onboarding) | overview (bookshelf) | journal-landing (note list) | journal-detail (tasting ledger) | profile
   const [activeView, setActiveView] = useState<'loading' | 'welcome' | 'overview' | 'journal-landing' | 'journal-detail' | 'profile'>('loading');

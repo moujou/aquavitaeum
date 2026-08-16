@@ -2,7 +2,7 @@
 'use client';
 
 import React from 'react';
-import { MapPin, Check, Star, Calendar } from 'lucide-react';
+import { Check, Star, Calendar } from 'lucide-react';
 import { Spirit, SPIRIT_COLOUR_HEX, SpiritColour } from '@/types/spirit.types';
 import { WhiskyLogo } from '@/components/ui/WhiskyLogo';
 import { cn } from '@/lib/utils';
@@ -108,15 +108,7 @@ export function NoteListItem({
       {/* ── 1. Top Section: Prominent Bottle Image (Left) + Structured Continuous Rows (Right) ── */}
       <div className="w-full flex flex-row items-stretch border-b border-[var(--parchment-divider)]">
         {/* Generous Flush Bottle Showcase Frame (Top-Left) */}
-        <div className="w-[110px] sm:w-[145px] md:w-[170px] shrink-0 bg-gradient-to-br from-[var(--pub-bg-alt)] via-[var(--parchment-bg)] to-[var(--pub-bg-alt)] border-r border-[var(--parchment-border)] relative flex items-center justify-center p-0 overflow-hidden min-h-[115px] sm:min-h-[140px]">
-          {/* Ambient Radial Liquid Glow */}
-          <div
-            className="absolute inset-0 pointer-events-none opacity-25 z-0"
-            style={{
-              background: `radial-gradient(circle at center, ${colourHex} 0%, transparent 75%)`,
-            }}
-          />
-
+        <div className="w-[110px] sm:w-[145px] md:w-[170px] shrink-0 bg-[var(--pub-bg-alt)]/60 border-r border-[var(--parchment-border)] relative flex items-center justify-center p-0 overflow-hidden min-h-[115px] sm:min-h-[140px]">
           {spirit.thumbnailImage ? (
             <img
               src={spirit.thumbnailImage}
@@ -164,11 +156,11 @@ export function NoteListItem({
 
         {/* Editorial Metadata Block (Top-Right: Structured Continuous Rows with Calibrated Responsive Typography) */}
         <div className="flex-1 min-w-0 p-3 sm:p-4 md:p-4.5 flex flex-col justify-center gap-1 sm:gap-1.5 z-10">
-          {/* Row 1: Name (Distillery) & Rating Medal */}
+          {/* Row 1: Name des Whiskys & Rating Medal */}
           <div className="flex items-start justify-between gap-2.5 min-w-0">
             <div className="min-w-0 flex-1">
               <h3 className="font-display font-bold text-base sm:text-xl md:text-2xl text-[var(--foreground)] group-hover:text-[var(--brass-accent)] transition-colors truncate leading-tight tracking-wide">
-                {spirit.distillery}
+                {spirit.name || spirit.distillery}
               </h3>
             </div>
 
@@ -186,16 +178,20 @@ export function NoteListItem({
             </div>
           </div>
 
-          {/* Row 2: Description (Bottling Name) */}
-          <div className="min-w-0">
-            <p className="font-body text-xs sm:text-sm md:text-base text-[var(--sepia-muted)] truncate font-medium leading-tight">
-              {spirit.name}
-            </p>
-          </div>
-
-          {/* Row 3: Typ des Whiskys */}
+          {/* Row 2: Typ des Whiskys */}
           <div className="font-display text-[10.5px] sm:text-xs md:text-sm uppercase tracking-wider text-[var(--sepia-text)] font-semibold truncate leading-tight">
             {spirit.spiritType}
+          </div>
+
+          {/* Row 3: Destillerie • Herkunft */}
+          <div className="text-xs sm:text-sm md:text-base font-body text-[var(--sepia-text)] font-semibold truncate leading-tight flex items-center gap-1.5 min-w-0">
+            <span className="truncate">{spirit.distillery}</span>
+            {spirit.region && (
+              <>
+                <span className="text-[var(--sepia-muted)]/50 select-none">·</span>
+                <span className="truncate font-semibold text-[var(--sepia-text)]">{spirit.region}</span>
+              </>
+            )}
           </div>
 
           {/* Row 4: Years · vol · bottle size (Continuous Text) */}
@@ -236,7 +232,7 @@ export function NoteListItem({
 
       {/* ── 2. Middle Section: Dedicated Full-Width Sensory Canvas (Flavor Tags & Tasting Notes on Parchment) ── */}
       <div className="w-full p-3 sm:p-4 md:p-4.5 flex flex-col gap-2 sm:gap-2.5 z-10">
-        {/* Full-Width Solid Color Flavor Tag Pills */}
+        {/* Full-Width Soft Opacity Color Flavor Tag Pills */}
         {previewFlavorTags.length > 0 && (
           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap overflow-hidden">
             {previewFlavorTags.map((tag) => {
@@ -248,7 +244,7 @@ export function NoteListItem({
                     backgroundColor: color,
                     color: '#ffffff',
                   }}
-                  className="inline-flex items-center text-[10.5px] sm:text-xs md:text-sm font-bold tracking-wide px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full shadow-xs select-none transition-transform hover:scale-105"
+                  className="inline-flex items-center text-[10.5px] sm:text-xs md:text-sm font-semibold tracking-wide px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full shadow-2xs select-none opacity-80 transition-all hover:opacity-100 hover:scale-105"
                 >
                   {translateFlavorTag(tag, language)}
                 </span>
@@ -265,11 +261,14 @@ export function NoteListItem({
         )}
       </div>
 
-      {/* ── 3. Signature Clover Green Grounded Footer: Provenance (Left) & Date (Right) ── */}
+      {/* ── 3. Signature Clover Green Grounded Footer: Date & Flavor Count ── */}
       <div className="w-full bg-[var(--wood-dark)] px-3 sm:px-4 py-1.5 sm:py-2 border-t border-[var(--wood-dark)]/80 flex items-center justify-between gap-2 text-[10px] sm:text-xs text-[var(--parchment-bg)] shrink-0">
-        <div className="flex items-center gap-1.5 min-w-0 font-medium">
-          <MapPin size={11} className="sm:size-[13px] text-[var(--brass-light)] shrink-0" />
-          <span className="truncate">{spirit.region || '—'}</span>
+        <div className="flex items-center gap-1.5 min-w-0 font-medium text-[var(--parchment-bg)]/80">
+          {previewFlavorTags.length > 0 && (
+            <span>
+              {previewFlavorTags.length} {language === 'DE' ? 'Aromen erfasst' : 'Aromas captured'}
+            </span>
+          )}
         </div>
 
         {formattedDate && (

@@ -23,7 +23,7 @@ export function useGoogleDriveSync() {
 
   const [accessToken, setAccessToken] = useState<string | null>(() => {
     if (typeof window === 'undefined') return null;
-    return sessionStorage.getItem(TOKEN_STORAGE_KEY);
+    return localStorage.getItem(TOKEN_STORAGE_KEY);
   });
 
   const [clientId, setClientId] = useState<string>(() => {
@@ -69,7 +69,7 @@ export function useGoogleDriveSync() {
       setIsEnabled(true);
 
       if (typeof window !== 'undefined') {
-        sessionStorage.setItem(TOKEN_STORAGE_KEY, token);
+        localStorage.setItem(TOKEN_STORAGE_KEY, token);
         localStorage.setItem(ENABLED_STORAGE_KEY, 'true');
       }
 
@@ -95,7 +95,7 @@ export function useGoogleDriveSync() {
     setSyncStats(null);
 
     if (typeof window !== 'undefined') {
-      sessionStorage.removeItem(TOKEN_STORAGE_KEY);
+      localStorage.removeItem(TOKEN_STORAGE_KEY);
       localStorage.setItem(ENABLED_STORAGE_KEY, 'false');
     }
   }, []);
@@ -106,7 +106,7 @@ export function useGoogleDriveSync() {
     let token = accessToken;
 
     if (!token) {
-      // If token expired in session, request a new one
+      // If token expired, request a new one
       const idToUse = clientId || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
       if (!idToUse) {
         setSyncError('Google Client ID is missing.');
@@ -117,7 +117,7 @@ export function useGoogleDriveSync() {
         token = await requestGoogleAccessToken(idToUse);
         setAccessToken(token);
         if (typeof window !== 'undefined') {
-          sessionStorage.setItem(TOKEN_STORAGE_KEY, token);
+          localStorage.setItem(TOKEN_STORAGE_KEY, token);
         }
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
@@ -138,6 +138,15 @@ export function useGoogleDriveSync() {
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       console.error('[Google Drive Sync Error]', err);
+      
+      // If token expired (401), clear invalid token from localStorage
+      if (message.includes('401') || message.toLowerCase().includes('unauthorized')) {
+        setAccessToken(null);
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem(TOKEN_STORAGE_KEY);
+        }
+      }
+      
       setSyncError(message);
       setIsSyncing(false);
       return null;
@@ -153,6 +162,7 @@ export function useGoogleDriveSync() {
   // 1. Initial background pull on mount
   // 2. Debounced auto-sync (2.5s) on local data changes (save, edit, delete)
   // 3. Immediate background sync when leaving / minimizing the app (visibilitychange: hidden)
+  // 4. Periodic background sync every 5 minutes
   useEffect(() => {
     if (!isEnabled || !accessToken) return;
 
@@ -180,11 +190,19 @@ export function useGoogleDriveSync() {
       }
     }, 150);
 
+    // Periodic sync every 5 minutes
+    const periodicInterval = setInterval(() => {
+      if (!isSyncingRef.current) {
+        syncNowRef.current();
+      }
+    }, 5 * 60 * 1000);
+
     window.addEventListener(DATA_CHANGED_EVENT, handleDataChange);
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
       clearTimeout(initialTimer);
+      clearInterval(periodicInterval);
       if (debounceTimer) clearTimeout(debounceTimer);
       window.removeEventListener(DATA_CHANGED_EVENT, handleDataChange);
       document.removeEventListener('visibilitychange', handleVisibilityChange);

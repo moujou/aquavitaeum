@@ -50,6 +50,8 @@ vi.mock('@/lib/db', () => {
 
 describe('useSpiritCollection Hook', () => {
   beforeEach(() => {
+    localStorage.clear();
+    localStorage.setItem('aqua-vitaeum-seeded', 'true');
     mockDatabaseStore = [...MOCK_SPIRITS];
     vi.stubGlobal(
       'fetch',

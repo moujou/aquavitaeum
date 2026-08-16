@@ -36,7 +36,9 @@ export const TRANSLATIONS = {
     bottlePrice: 'Bottle Price',
     bottleVolume: 'Bottle Size (ml)',
 
-    // Tasting Additions
+    // Tasting Additions & Characteristics
+    characteristics: 'Characteristics',
+    characteristicsAndServe: 'Characteristics & Serve',
     tastingAdditions: 'Tasting Additions',
     addedWaterBtn: 'Water',
     onTheRocksBtn: 'On the Rocks',
@@ -230,7 +232,9 @@ export const TRANSLATIONS = {
     bottlePrice: 'Flaschenpreis',
     bottleVolume: 'Füllmenge (ml)',
 
-    // Tasting Additions
+    // Tasting Additions & Characteristics
+    characteristics: 'Eigenschaften',
+    characteristicsAndServe: 'Eigenschaften & Servieren',
     tastingAdditions: 'Tasting-Zusätze',
     addedWaterBtn: 'Wasser',
     onTheRocksBtn: 'Auf Eis',
