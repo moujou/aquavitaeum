@@ -8,9 +8,10 @@ import {
   importLocalBackupFile,
   SyncStats,
 } from '@/lib/google-drive-sync';
-import { DATA_CHANGED_EVENT } from '@/lib/sync-events';
+import { DATA_MUTATED_EVENT } from '@/lib/sync-events';
 
 const TOKEN_STORAGE_KEY = 'aqua-vitaeum-google-token';
+const TOKEN_EXPIRES_KEY = 'aqua-vitaeum-google-token-expires-at';
 const CLIENT_ID_STORAGE_KEY = 'aqua-vitaeum-google-client-id';
 const ENABLED_STORAGE_KEY = 'aqua-vitaeum-google-sync-enabled';
 const LAST_SYNC_KEY = 'aqua-vitaeum-last-sync-time';
@@ -82,12 +83,14 @@ export function GoogleDriveSyncProvider({ children }: { children: React.ReactNod
     setSyncError(null);
 
     try {
-      const token = await requestGoogleAccessToken(idToUse);
+      const token = await requestGoogleAccessToken(idToUse, 'consent');
       setAccessToken(token);
       setIsEnabled(true);
+      const expiresAt = Date.now() + 3500 * 1000;
 
       if (typeof window !== 'undefined') {
         localStorage.setItem(TOKEN_STORAGE_KEY, token);
+        localStorage.setItem(TOKEN_EXPIRES_KEY, String(expiresAt));
         localStorage.setItem(ENABLED_STORAGE_KEY, 'true');
       }
 
@@ -114,6 +117,7 @@ export function GoogleDriveSyncProvider({ children }: { children: React.ReactNod
 
     if (typeof window !== 'undefined') {
       localStorage.removeItem(TOKEN_STORAGE_KEY);
+      localStorage.removeItem(TOKEN_EXPIRES_KEY);
       localStorage.setItem(ENABLED_STORAGE_KEY, 'false');
     }
   }, []);
@@ -121,25 +125,45 @@ export function GoogleDriveSyncProvider({ children }: { children: React.ReactNod
   const syncNow = useCallback(async (): Promise<SyncStats | null> => {
     if (!isEnabled) return null;
 
+    const idToUse = clientId || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    const tokenExpiresAt =
+      typeof window !== 'undefined' ? Number(localStorage.getItem(TOKEN_EXPIRES_KEY) || '0') : 0;
+    const isExpired = !accessToken || (tokenExpiresAt > 0 && Date.now() >= tokenExpiresAt);
+
     let token = accessToken;
 
-    if (!token) {
-      const idToUse = clientId || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    // If token is missing or expired, attempt a silent background refresh
+    if (!token || isExpired) {
       if (!idToUse) {
         setSyncError('Google Client ID is missing.');
         return null;
       }
 
       try {
-        token = await requestGoogleAccessToken(idToUse);
+        token = await requestGoogleAccessToken(idToUse, '');
         setAccessToken(token);
+        const expiresAt = Date.now() + 3500 * 1000;
         if (typeof window !== 'undefined') {
           localStorage.setItem(TOKEN_STORAGE_KEY, token);
+          localStorage.setItem(TOKEN_EXPIRES_KEY, String(expiresAt));
         }
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        setSyncError(message);
-        return null;
+      } catch (refreshErr) {
+        console.warn('[Aqua Vitaeum] Silent token refresh failed, using existing token if present:', refreshErr);
+        if (!token) {
+          try {
+            token = await requestGoogleAccessToken(idToUse, 'consent');
+            setAccessToken(token);
+            const expiresAt = Date.now() + 3500 * 1000;
+            if (typeof window !== 'undefined') {
+              localStorage.setItem(TOKEN_STORAGE_KEY, token);
+              localStorage.setItem(TOKEN_EXPIRES_KEY, String(expiresAt));
+            }
+          } catch (consentErr) {
+            const msg = consentErr instanceof Error ? consentErr.message : String(consentErr);
+            setSyncError(msg);
+            return null;
+          }
+        }
       }
     }
 
@@ -156,11 +180,31 @@ export function GoogleDriveSyncProvider({ children }: { children: React.ReactNod
       const message = err instanceof Error ? err.message : String(err);
       console.error('[Google Drive Sync Error]', err);
 
-      // If token expired (401), clear invalid token from localStorage
-      if (message.includes('401') || message.toLowerCase().includes('unauthorized')) {
-        setAccessToken(null);
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem(TOKEN_STORAGE_KEY);
+      // If 401 Unauthorized, retry ONCE with silent re-auth
+      if (
+        (message.includes('401') || message.toLowerCase().includes('unauthorized')) &&
+        idToUse
+      ) {
+        try {
+          const freshToken = await requestGoogleAccessToken(idToUse, '');
+          setAccessToken(freshToken);
+          const expiresAt = Date.now() + 3500 * 1000;
+          if (typeof window !== 'undefined') {
+            localStorage.setItem(TOKEN_STORAGE_KEY, freshToken);
+            localStorage.setItem(TOKEN_EXPIRES_KEY, String(expiresAt));
+          }
+          const retryStats = await performGoogleDriveSync(freshToken);
+          setSyncStats(retryStats);
+          setLastSyncTime(retryStats.lastSyncedAt);
+          setIsSyncing(false);
+          return retryStats;
+        } catch {
+          // Token refresh failed completely
+          setAccessToken(null);
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem(TOKEN_STORAGE_KEY);
+            localStorage.removeItem(TOKEN_EXPIRES_KEY);
+          }
         }
       }
 
@@ -181,7 +225,7 @@ export function GoogleDriveSyncProvider({ children }: { children: React.ReactNod
   // 3. Immediate background pull when opening / focusing the app (window focus & visibilitychange)
   // 4. Periodic background sync every 5 minutes
   useEffect(() => {
-    if (!isEnabled || !accessToken) return;
+    if (!isEnabled) return;
 
     let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -214,7 +258,7 @@ export function GoogleDriveSyncProvider({ children }: { children: React.ReactNod
       }
     }, 5 * 60 * 1000);
 
-    window.addEventListener(DATA_CHANGED_EVENT, handleDataChange);
+    window.addEventListener(DATA_MUTATED_EVENT, handleDataChange);
     window.addEventListener('focus', handleVisibilityOrFocus);
     document.addEventListener('visibilitychange', handleVisibilityOrFocus);
 
@@ -222,11 +266,11 @@ export function GoogleDriveSyncProvider({ children }: { children: React.ReactNod
       clearTimeout(initialTimer);
       clearInterval(periodicInterval);
       if (debounceTimer) clearTimeout(debounceTimer);
-      window.removeEventListener(DATA_CHANGED_EVENT, handleDataChange);
+      window.removeEventListener(DATA_MUTATED_EVENT, handleDataChange);
       window.removeEventListener('focus', handleVisibilityOrFocus);
       document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
     };
-  }, [isEnabled, accessToken]);
+  }, [isEnabled]);
 
   const value: GoogleDriveSyncContextValue = {
     isEnabled,

@@ -15,14 +15,13 @@ import { useLanguage } from '@/context/LanguageContext';
 import { WhiskyLogo } from '@/components/ui/WhiskyLogo';
 import { cn } from '@/lib/utils';
 import { SpiritType } from '@/types/spirit.types';
-import { GoogleDriveSyncProvider } from '@/context/GoogleDriveSyncContext';
 import AppLoader from '@/components/ui/AppLoader';
 import AppHeader from '@/components/features/navigation/AppHeader';
 import MobileBottomNav from '@/components/features/navigation/MobileBottomNav';
 import { useSwipeBack } from '@/hooks/useSwipeBack';
 import { NoteEmptyState } from '@/components/features/journals/landing/NoteEmptyState';
 
-function HomeContent() {
+export default function Home() {
   const { t } = useLanguage();
   const basePath = process.env.NODE_ENV === 'production' ? '/aquavitaeum' : '';
   
@@ -134,6 +133,20 @@ function HomeContent() {
   useEffect(() => {
     refreshJournals();
   }, [spirits, refreshJournals]);
+
+  // If activeJournalId was deleted on another device during sync, gracefully return to overview
+  useEffect(() => {
+    if (activeJournalId && !isLoadingJournals && journals.length > 0) {
+      const exists = journals.some((j) => j.id === activeJournalId);
+      if (!exists) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setActiveJournalId(null);
+        if (activeView === 'journal-landing' || activeView === 'journal-detail') {
+          setActiveView('overview');
+        }
+      }
+    }
+  }, [journals, activeJournalId, isLoadingJournals, activeView]);
 
   // Lock body scroll when mobile drawer is open to prevent background scroll chaining
   useEffect(() => {
@@ -471,13 +484,5 @@ function HomeContent() {
         />
       </main>
     </>
-  );
-}
-
-export default function Home() {
-  return (
-    <GoogleDriveSyncProvider>
-      <HomeContent />
-    </GoogleDriveSyncProvider>
   );
 }

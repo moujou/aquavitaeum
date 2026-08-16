@@ -4,7 +4,11 @@ import { createBlankSpirit } from '@/lib/spirit-utils';
 import { translateColour, translateGlance } from '@/lib/i18n/translations';
 import { db } from '@/lib/db';
 import { MOCK_SPIRITS } from '@/data/mock-spirits';
-import { notifyDataChanged, DATA_CHANGED_EVENT } from '@/lib/sync-events';
+import {
+  notifyDataMutated,
+  DATA_MUTATED_EVENT,
+  REMOTE_SYNC_COMPLETED_EVENT,
+} from '@/lib/sync-events';
 
 const SEEDED_STORAGE_KEY = 'aqua-vitaeum-seeded';
 
@@ -114,13 +118,17 @@ export function useSpiritCollection(activeJournalId: string | null) {
     loadSpirits();
   }, [loadSpirits]);
 
-  // Live reactivity: listen to background sync / import updates
+  // Live reactivity: listen to background sync / import updates / remote sync completions
   useEffect(() => {
     const handleDataChanged = () => {
       loadSpirits();
     };
-    window.addEventListener(DATA_CHANGED_EVENT, handleDataChanged);
-    return () => window.removeEventListener(DATA_CHANGED_EVENT, handleDataChanged);
+    window.addEventListener(DATA_MUTATED_EVENT, handleDataChanged);
+    window.addEventListener(REMOTE_SYNC_COMPLETED_EVENT, handleDataChanged);
+    return () => {
+      window.removeEventListener(DATA_MUTATED_EVENT, handleDataChanged);
+      window.removeEventListener(REMOTE_SYNC_COMPLETED_EVENT, handleDataChanged);
+    };
   }, [loadSpirits]);
 
   const activeSpirit = useMemo(() => {
@@ -174,7 +182,7 @@ export function useSpiritCollection(activeJournalId: string | null) {
       setSpirits((prev) => [blank, ...prev]);
       setSelectedId(blank.id);
       await syncWithServer();
-      notifyDataChanged();
+      notifyDataMutated();
     } catch (err) {
       console.error('Aqua Vitaeum: Failed to create new note.', err);
     }
@@ -196,9 +204,10 @@ export function useSpiritCollection(activeJournalId: string | null) {
         );
         setSelectedId(spiritToSave.id);
         await syncWithServer();
-        notifyDataChanged();
+        notifyDataMutated();
       } catch (err) {
-        console.error('Aqua Vitaeum: Failed to save note.', err);
+        console.error('Aqua Vitaeum: Failed to save spirit locally.', err);
+        throw err;
       }
     },
     [syncWithServer]
@@ -209,23 +218,18 @@ export function useSpiritCollection(activeJournalId: string | null) {
       try {
         recordTombstone(id, 'spirit');
         await db.spirits.delete(id);
-        setSpirits((prev) => {
-          const next = prev.filter((s) => s.id !== id);
-          setSelectedId((currentId) => {
-            if (currentId === id) {
-              return next[0]?.id ?? null;
-            }
-            return currentId;
-          });
-          return next;
-        });
+        setSpirits((prev) => prev.filter((s) => s.id !== id));
+        if (selectedId === id) {
+          setSelectedId(null);
+        }
         await syncWithServer();
-        notifyDataChanged();
+        notifyDataMutated();
       } catch (err) {
-        console.error('Aqua Vitaeum: Failed to delete note.', err);
+        console.error('Aqua Vitaeum: Failed to delete spirit locally.', err);
+        throw err;
       }
     },
-    [syncWithServer]
+    [selectedId, syncWithServer]
   );
 
   return {
