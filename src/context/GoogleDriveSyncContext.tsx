@@ -72,6 +72,8 @@ export function GoogleDriveSyncProvider({ children }: { children: React.ReactNod
     }
   }, []);
 
+  const isRequestingAuthRef = useRef(false);
+
   const connect = useCallback(async (): Promise<boolean> => {
     const idToUse = clientId || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
     if (!idToUse) {
@@ -79,6 +81,11 @@ export function GoogleDriveSyncProvider({ children }: { children: React.ReactNod
       return false;
     }
 
+    if (isRequestingAuthRef.current) {
+      return false;
+    }
+
+    isRequestingAuthRef.current = true;
     setIsSyncing(true);
     setSyncError(null);
 
@@ -106,6 +113,8 @@ export function GoogleDriveSyncProvider({ children }: { children: React.ReactNod
       setSyncError(message);
       setIsSyncing(false);
       return false;
+    } finally {
+      isRequestingAuthRef.current = false;
     }
   }, [clientId]);
 
@@ -132,7 +141,7 @@ export function GoogleDriveSyncProvider({ children }: { children: React.ReactNod
 
     let token = accessToken;
 
-    // If token is missing or expired, attempt a silent background refresh
+    // If token is missing or expired, attempt ONLY silent background refresh
     if (!token || isExpired) {
       if (!idToUse) {
         setSyncError('Google Client ID is missing.');
@@ -148,22 +157,10 @@ export function GoogleDriveSyncProvider({ children }: { children: React.ReactNod
           localStorage.setItem(TOKEN_EXPIRES_KEY, String(expiresAt));
         }
       } catch (refreshErr) {
-        console.warn('[Aqua Vitaeum] Silent token refresh failed, using existing token if present:', refreshErr);
-        if (!token) {
-          try {
-            token = await requestGoogleAccessToken(idToUse, 'consent');
-            setAccessToken(token);
-            const expiresAt = Date.now() + 3500 * 1000;
-            if (typeof window !== 'undefined') {
-              localStorage.setItem(TOKEN_STORAGE_KEY, token);
-              localStorage.setItem(TOKEN_EXPIRES_KEY, String(expiresAt));
-            }
-          } catch (consentErr) {
-            const msg = consentErr instanceof Error ? consentErr.message : String(consentErr);
-            setSyncError(msg);
-            return null;
-          }
-        }
+        // Silent refresh failed (e.g. user logged out of Google).
+        // Never trigger interactive popups in background sync!
+        console.warn('[Aqua Vitaeum] Silent background token refresh failed:', refreshErr);
+        return null;
       }
     }
 
@@ -199,7 +196,7 @@ export function GoogleDriveSyncProvider({ children }: { children: React.ReactNod
           setIsSyncing(false);
           return retryStats;
         } catch {
-          // Token refresh failed completely
+          // Token refresh failed completely -> clear token without opening popup
           setAccessToken(null);
           if (typeof window !== 'undefined') {
             localStorage.removeItem(TOKEN_STORAGE_KEY);
