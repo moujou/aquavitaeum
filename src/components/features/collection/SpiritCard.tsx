@@ -94,7 +94,7 @@ export function SpiritCard({
         )}
 
         {/* Subtle Bottom Vignette for seamless blend */}
-        <div className="absolute inset-x-0 bottom-0 h-8 sm:h-10 bg-gradient-to-t from-black/60 to-transparent pointer-events-none z-15" />
+        <div className="absolute inset-x-0 bottom-0 h-5 sm:h-6 bg-gradient-to-t from-black/20 to-transparent pointer-events-none z-15" />
 
         {/* Prominent Floating Score Medal (Top-Right - 100% Opaque & High-Contrast Against Any Photo) */}
         <div

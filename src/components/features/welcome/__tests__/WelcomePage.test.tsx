@@ -74,7 +74,7 @@ describe('WelcomePage Onboarding & Launch Screen', () => {
     );
 
     // Verify open button is visible
-    const button = screen.getByRole('button', { name: /Open Tasting Journal/i });
+    const button = screen.getByRole('button', { name: /Start Offline & Local/i });
     expect(button).toBeDefined();
 
     // Click button to enter

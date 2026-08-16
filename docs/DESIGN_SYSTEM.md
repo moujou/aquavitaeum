@@ -45,7 +45,7 @@ graph TD
 | `--pub-bg-alt` | `#E2D9C8` | Secondary parchment depth, chips, and table headers. |
 | `--pub-bg-panel` | `#FDFBF7` | Elevated cards, dialogs, and tasting card surfaces (Crisp Ivory). |
 | `--nav-bg` | `#ECE5D8` | Seamless floating ultra-clean glassmorphism navigation bar surface. |
-| `--nav-active` | `#C97A1E` | Warm Distiller's Amber-Gold active navigation tab indicator. |
+| `--nav-active` | `#2E945D` | Signature Irish Clover Green active navigation tab indicator. |
 | `--nav-inactive` | `#8A7360` | Muted warm sepia slate for inactive navigation items. |
 | `--wood-accent` | `#2E945D` | Clover green primary secondary and structural accent. |
 | `--wood-dark` | `#237347` | Deep clover green tone. |
@@ -178,7 +178,17 @@ Used for all text inputs, textareas, and select elements on the parchment ledger
 - **Matrix Table (`NoteTableView`)**: `<thead>` styled in signature Deep Clover Green (`bg-[var(--wood-dark)] border-b border-[var(--wood-dark)]/80`) with crisp ivory display text.
 - **Card Footers (`SpiritCard`)**: Grounded with solid Clover Green status bar (`bg-[var(--wood-dark)] text-[var(--parchment-bg)]`) for regional provenance and date stamps.
 
-### 5.8 Glencairn Single-Mesh 3D Inset Logo
+### 5.8 Screen-Stable Page Actions Dropdown (`PageActionsDropdown`)
+- **Discrete Gear Trigger (`w-9 h-9`)**: Styled in crisp ivory parchment (`bg-[var(--pub-bg-panel)] border-[var(--parchment-border)]`) with smooth rotational focus animation (`transition-transform duration-300`).
+- **Pixel-Perfect Alignment**: Harmonized across Bookshelf, Journal Landing, and Detail Ledger views to eliminate visual jumping during navigation transitions.
+- **Contextual Actions**: Centralizes bulk selection, single note/journal export (`.json`), file import, and destructive removal without visual clutter.
+
+### 5.9 Responsive Grid System & Photo Treatments
+- **Smartphone Grid (`< 640px`)**: Strictly enforces **2 items per row** (`grid-cols-2`) with compact gaps (`gap-3`) for dense archival browsing.
+- **Desktop Grid (`>= 1024px`)**: Capped at **4 columns** (`lg:grid-cols-4`) perfectly flush with the top AppHeader logo and user boundaries.
+- **Subtle Image Vignette**: Replaced heavy dark shadows with an ultra-subtle, airy gradient (`from-black/20 to-transparent`, `h-5 sm:h-6`) preserving pristine glass clarity.
+
+### 5.10 Glencairn Single-Mesh 3D Inset Logo
 - **Crystal Wall Inset**: Scale factor `0.905` creating an authentic ~8px optical light gap between amber liquid and ivory glass contours.
 - **Pure Vector Compliance**: 100% comment-free XML markup with explicit `width="512" height="512"` and standard XML prolog.
 

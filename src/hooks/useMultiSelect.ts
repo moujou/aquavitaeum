@@ -12,7 +12,7 @@ export interface MultiSelectReturn {
   selectedIds: Set<string>;
   confirmBulkDelete: boolean;
   setConfirmBulkDelete: (v: boolean) => void;
-  enterSelectMode: (id: string) => void;
+  enterSelectMode: (id?: string) => void;
   exitSelectMode: () => void;
   toggleSelection: (id: string) => void;
   handleTouchStart: (e: React.TouchEvent, id: string) => void;
@@ -29,12 +29,12 @@ export function useMultiSelect(onSelectModeChange?: (active: boolean) => void): 
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const longPressActive = useRef(false);
 
-  const enterSelectMode = useCallback((id: string) => {
+  const enterSelectMode = useCallback((id?: string) => {
     if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
       navigator.vibrate(40);
     }
     setIsSelectMode(true);
-    setSelectedIds(new Set([id]));
+    setSelectedIds(new Set(id ? [id] : []));
     onSelectModeChange?.(true);
   }, [onSelectModeChange]);
 

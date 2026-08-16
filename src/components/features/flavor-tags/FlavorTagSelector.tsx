@@ -335,34 +335,34 @@ export function FlavorTagSelector({
 
       {/* Active Flavors Summary */}
       {totalActiveCount > 0 && (
-        <div className="mt-1 pt-3 border-t border-[var(--parchment-border)] flex flex-col gap-2">
+        <div className="mt-2 p-3.5 sm:p-4 rounded-lg bg-[var(--pub-bg-alt)]/40 border border-[var(--parchment-border)]/80 flex flex-col gap-2.5 animate-fade-in">
           <SectionHeader>
             {language === 'DE' ? 'Aktive Aromen' : 'Active Flavors'} ({totalActiveCount})
           </SectionHeader>
 
           {isLegacyMode ? (
-            <p className="text-xs sm:text-sm text-[var(--sepia-text)] font-body italic leading-relaxed">
+            <p className="text-sm sm:text-base text-[var(--sepia-text)] font-serif italic leading-relaxed">
               {selectedTags.map((tag) => translateFlavorTag(tag, language)).join(' · ')}
             </p>
           ) : (
-            <div className="flex flex-col gap-1.5 text-xs sm:text-sm font-body">
+            <div className="flex flex-col gap-2">
               {noseFlavorTags.length > 0 && (
-                <div className="flex flex-wrap items-baseline gap-1.5">
-                  <span className="font-bold text-[var(--sensory-nose)] uppercase tracking-wider text-[11px]">
+                <div className="flex flex-wrap items-baseline gap-2">
+                  <span className="font-display font-bold text-[var(--sensory-nose)] uppercase tracking-wider text-xs sm:text-sm shrink-0">
                     {language === 'DE' ? 'Nase:' : 'Nose Flavors:'}
                   </span>
-                  <span className="text-[var(--sepia-text)] italic">
+                  <span className="text-sm sm:text-base text-[var(--sepia-text)] font-serif italic leading-relaxed">
                     {noseFlavorTags.map((tag) => translateFlavorTag(tag, language)).join(' · ')}
                   </span>
                 </div>
               )}
 
               {tasteFlavorTags.length > 0 && (
-                <div className="flex flex-wrap items-baseline gap-1.5">
-                  <span className="font-bold text-[var(--sensory-taste)] uppercase tracking-wider text-[11px]">
+                <div className="flex flex-wrap items-baseline gap-2">
+                  <span className="font-display font-bold text-[var(--sensory-taste)] uppercase tracking-wider text-xs sm:text-sm shrink-0">
                     {language === 'DE' ? 'Geschmack:' : 'Taste Flavors:'}
                   </span>
-                  <span className="text-[var(--sepia-text)] italic">
+                  <span className="text-sm sm:text-base text-[var(--sepia-text)] font-serif italic leading-relaxed">
                     {tasteFlavorTags.map((tag) => translateFlavorTag(tag, language)).join(' · ')}
                   </span>
                 </div>

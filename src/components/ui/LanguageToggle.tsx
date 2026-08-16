@@ -26,7 +26,7 @@ export function LanguageToggle({ className }: LanguageToggleProps) {
         className={cn(
           'px-2.5 py-1 min-w-[34px] flex items-center justify-center rounded-md font-display font-bold text-xs transition-all duration-150 cursor-pointer',
           language === 'DE'
-            ? 'bg-[var(--brass-accent)] text-[var(--parchment-bg)] font-bold shadow-xs'
+            ? 'bg-[var(--wood-selection)] text-[var(--parchment-bg)] font-bold shadow-xs'
             : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5',
         )}
         aria-pressed={language === 'DE'}
@@ -40,7 +40,7 @@ export function LanguageToggle({ className }: LanguageToggleProps) {
         className={cn(
           'px-2.5 py-1 min-w-[34px] flex items-center justify-center rounded-md font-display font-bold text-xs transition-all duration-150 cursor-pointer',
           language === 'EN'
-            ? 'bg-[var(--brass-accent)] text-[var(--parchment-bg)] font-bold shadow-xs'
+            ? 'bg-[var(--wood-selection)] text-[var(--parchment-bg)] font-bold shadow-xs'
             : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5',
         )}
         aria-pressed={language === 'EN'}

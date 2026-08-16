@@ -61,8 +61,6 @@ export default function Home() {
     handleDelete,
   } = useSpiritCollection(activeJournalId);
 
-
-
   // Only these scrollable containers should trigger the bottom-bar hide/show.
   const SCROLL_TRACKED_IDS = [
     'journal-overview-scroll',
@@ -148,11 +146,11 @@ export default function Home() {
     };
   }, [isMobileDrawerOpen]);
 
-  // Show welcome screen on initial session start (every time a new session starts)
+  // Show welcome screen on initial onboarding (only on first launch until completed)
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const sessionStarted = sessionStorage.getItem('aqua-vitaeum-session-started');
-      if (sessionStarted === 'true') {
+      const welcomeCompleted = localStorage.getItem('aqua-vitaeum-welcome-completed');
+      if (welcomeCompleted === 'true') {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setActiveView('overview');
       } else {
@@ -211,7 +209,7 @@ export default function Home() {
   const handleWelcomeComplete = async (firstJournalName: string, description?: string) => {
     try {
       if (typeof window !== 'undefined') {
-        sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
+        localStorage.setItem('aqua-vitaeum-welcome-completed', 'true');
       }
       const created = await createJournal(firstJournalName, description);
       if (created && typeof created === 'object' && 'id' in created) {
@@ -391,7 +389,7 @@ export default function Home() {
             <div className="flex-1 h-full relative overflow-hidden flex flex-col">
               <section
                 id="tasting-card-section"
-                className="flex-1 h-full overflow-y-auto overflow-x-hidden px-3 pt-18 pb-16 sm:px-6 sm:pt-22 sm:pb-18 lg:pt-6 lg:pb-6 flex justify-center items-center"
+                className="flex-1 h-full overflow-y-auto overflow-x-hidden px-3 pt-18 pb-16 sm:px-6 sm:pt-22 sm:pb-18 lg:pt-8 lg:pb-8 flex justify-center items-start"
               >
                 {isLoadingSpirits ? (
                   <div className="flex flex-col items-center justify-center text-center p-6 select-none animate-pulse">
@@ -405,7 +403,7 @@ export default function Home() {
                 ) : spirits.length === 0 ? (
                   <NoteEmptyState onNewNote={handleNewNote} />
                 ) : (
-                  <div className="w-full max-w-5xl self-start">
+                  <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 self-start">
                     <ErrorBoundary>
                       <TastingCard
                         key={activeSpirit.id}

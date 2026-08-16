@@ -79,8 +79,8 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
     expect(screen.getByText('Your Fine Spirits Tasting Journal')).toBeDefined();
   });
 
-  it('navigates to bookshelf overview when session is started', async () => {
-    sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
+  it('navigates to bookshelf overview when welcome onboarding is completed', async () => {
+    localStorage.setItem('aqua-vitaeum-welcome-completed', 'true');
 
     render(
       <LanguageProvider>
@@ -96,7 +96,7 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
   });
 
   it('renders the empty cellar state UI when the active journal has 0 spirits', async () => {
-    sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
+    localStorage.setItem('aqua-vitaeum-welcome-completed', 'true');
 
     render(
       <LanguageProvider>
@@ -114,7 +114,7 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
   });
 
   it('renders New Note desktop FAB in journal-landing view', async () => {
-    sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
+    localStorage.setItem('aqua-vitaeum-welcome-completed', 'true');
 
     render(
       <LanguageProvider>
@@ -133,7 +133,7 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
   });
 
   it('renders floating Plus button in Bookshelf Overview view', async () => {
-    sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
+    localStorage.setItem('aqua-vitaeum-welcome-completed', 'true');
 
     render(
       <LanguageProvider>
@@ -148,7 +148,7 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
   });
 
   it('redirects from Profile view back to journals overview when tapping Journals in bottom navigation', async () => {
-    sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
+    localStorage.setItem('aqua-vitaeum-welcome-completed', 'true');
 
     render(
       <LanguageProvider>
@@ -177,7 +177,7 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
   });
 
   it('returns to journal-landing (not journal-detail) when toggling Profile tab off', async () => {
-    sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
+    localStorage.setItem('aqua-vitaeum-welcome-completed', 'true');
 
     render(
       <LanguageProvider>

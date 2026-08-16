@@ -7,6 +7,7 @@ import { JournalWithStats } from '@/hooks/useJournals';
 import { Spirit } from '@/types/spirit.types';
 import { OverviewLayout } from '@/hooks/useLayoutPreference';
 import { useMultiSelect } from '@/hooks/useMultiSelect';
+import { exportJournalsToFile } from '@/lib/google-drive-sync';
 import { JournalLandingHeader } from './JournalLandingHeader';
 import { NoteEmptyState } from './NoteEmptyState';
 import { NoteListView } from './layouts/NoteListView';
@@ -43,6 +44,7 @@ export function JournalLandingPage({
     selectedIds,
     confirmBulkDelete,
     setConfirmBulkDelete,
+    enterSelectMode,
     exitSelectMode,
     toggleSelection,
     handleTouchStart,
@@ -80,7 +82,7 @@ export function JournalLandingPage({
 
   // ── Main ──────────────────────────────────────────────────────────────────
   return (
-    <div className="flex flex-col min-h-full max-w-6xl mx-auto w-full">
+    <div className="flex flex-col min-h-full max-w-6xl mx-auto w-full px-4 sm:px-6 pt-8 pb-8">
 
       {/* ── Header — always shown; select mode props toggle inline Trash+X ────── */}
       <JournalLandingHeader
@@ -91,6 +93,8 @@ export function JournalLandingPage({
         canDelete={canDelete}
         onConfirmDelete={() => setConfirmBulkDelete(true)}
         onExitSelectMode={exitSelectMode}
+        onEnterSelectMode={enterSelectMode}
+        onExportJournal={(id) => exportJournalsToFile([id])}
         language={language}
       />
 

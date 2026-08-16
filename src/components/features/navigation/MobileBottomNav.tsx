@@ -73,7 +73,7 @@ export default function MobileBottomNav({
         />
         {/* Active High-Contrast Indicator */}
         {isBookshelfActive && (
-          <div className="absolute bottom-1.5 w-6 h-0.5 rounded-full bg-[var(--nav-active)] shadow-[0_0_8px_rgba(201,122,30,0.4)]" />
+          <div className="absolute bottom-1.5 w-6 h-0.5 rounded-full bg-[var(--nav-active)] shadow-[0_0_8px_rgba(46,148,93,0.4)]" />
         )}
       </button>
 
@@ -135,7 +135,7 @@ export default function MobileBottomNav({
         />
         {/* Active High-Contrast Indicator */}
         {isProfileActive && (
-          <div className="absolute bottom-1.5 w-6 h-0.5 rounded-full bg-[var(--nav-active)] shadow-[0_0_8px_rgba(201,122,30,0.4)]" />
+          <div className="absolute bottom-1.5 w-6 h-0.5 rounded-full bg-[var(--nav-active)] shadow-[0_0_8px_rgba(46,148,93,0.4)]" />
         )}
       </button>
     </nav>

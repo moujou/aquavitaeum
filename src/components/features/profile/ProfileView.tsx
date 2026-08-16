@@ -4,7 +4,8 @@ import React from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { LanguageToggle } from '@/components/ui/LanguageToggle';
 import { LayoutToggle } from '@/components/ui/LayoutToggle';
-import { User, Database, Globe, LayoutGrid } from 'lucide-react';
+import { GoogleDriveSyncSection } from '@/components/features/profile/GoogleDriveSyncSection';
+import { User, Globe, LayoutGrid } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { OverviewLayout } from '@/hooks/useLayoutPreference';
 
@@ -81,25 +82,8 @@ export function ProfileView({
             <LayoutToggle value={layout} onChange={onLayoutChange} />
           </div>
 
-          {/* Row 3: Cloud Sync (Coming Soon) */}
-          <div className="flex items-center justify-between p-4 sm:p-5 hover:bg-black/[0.02] transition-colors opacity-80">
-            <div className="flex items-center gap-3.5 sm:gap-4">
-              <div className="w-9 h-9 rounded-lg bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] flex items-center justify-center text-[var(--sepia-muted)] shrink-0">
-                <Database size={18} />
-              </div>
-              <div>
-                <p className="font-display text-sm sm:text-base font-semibold text-[var(--foreground)]">
-                  Google Sync
-                </p>
-                <p className="font-body text-xs text-[var(--sepia-muted)] mt-0.5">
-                  Sync journals with Google Account
-                </p>
-              </div>
-            </div>
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[var(--pub-bg-alt)] text-[var(--sepia-muted)] border border-[var(--parchment-border)] shrink-0">
-              Offline
-            </span>
-          </div>
+          {/* Row 3: Google Drive Cloud Sync & Backup */}
+          <GoogleDriveSyncSection />
         </div>
 
         {/* Discrete App Version Footer */}

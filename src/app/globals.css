@@ -14,7 +14,7 @@
   --wood-light:      #3AB472;   /* Helleres Klee-Grün */
   --wood-dark:       #237347;   /* Tiefes Klee-Grün */
   --wood-selection:  #2E945D;   /* Signature Clover Green für aktive Toggles & Auswahlen */
-  --nav-active:      #C97A1E;   /* Leuchtendes Bernstein-Gold für aktive Navigation */
+  --nav-active:      #2E945D;   /* Signature Clover Green für aktive Navigation */
   --nav-inactive:    #8A7360;   /* Muted Warm Sepia Slate */
 
   /* ── Sensory Profiling Radar Palette ─────────────────────────────────── */
@@ -65,7 +65,7 @@
   --wood-light:      #442a1e;   /* Lighter wood trim */
   --wood-dark:       #311e15;   /* Dark mahogany */
   --wood-selection:  #2E945D;   /* Active/selected state bg on parchment cards */
-  --nav-active:      #C59B27;   /* Luminous Gold on dark */
+  --nav-active:      #2E945D;   /* Signature Clover Green on dark */
   --nav-inactive:    rgba(232, 213, 183, 0.6);
 
   /* ── Sensory Profiling Radar Palette ─────────────────────────────────── */

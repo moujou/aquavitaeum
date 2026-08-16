@@ -79,6 +79,42 @@ Aqua Vitaeum is configured as a fully installable PWA for mobile and desktop sys
 
 ---
 
+## ☁️ Google Drive Cloud Sync & Local-First Architecture
+
+Aqua Vitaeum features a **100% serverless, privacy-friendly Google Drive Cloud Sync** mechanism:
+
+- **Zero Server Footprint**: The application operates directly between the user's browser (`IndexedDB / Dexie.js`) and their private Google Drive. No developer or third-party servers store user tasting notes, photos, or journals.
+- **Transparent Drive Folder Hierarchy**:
+  ```
+  Google Drive /
+  └── Aqua Vitaeum/
+      ├── Islay Single Malts/
+      │   ├── _journal.json                 (ID, Name, Color, CreatedAt, UpdatedAt)
+      │   ├── Ardbeg 10 Years Old.json      (Full Spirit Record)
+      │   └── Laphroaig Cask Strength.json  (Full Spirit Record)
+      └── Speyside Collection/
+          ├── _journal.json
+          └── Macallan 12 Sherry Oak.json
+  ```
+- **Rogue-File Guard & Schema Validation**:
+  - All files in the Drive folder are strictly validated against domain business rules via `validateSpirit()`.
+  - Non-JSON files or foreign format documents placed manually in the folder by users are safely ignored and skipped without crashing the application.
+- **Conflict Resolution**:
+  - Two-way sync compares `updatedAt` timestamps between local IndexedDB records and Drive files; newer modifications take precedence.
+- **Offline Data Sovereignty & Multi-Level Export/Import**:
+  - **Full Vault Backup**: Users can export or import a single offline `.json` backup file (`aqua-vitaeum-backup-[Date].json`) without requiring a Google account.
+  - **Single Journal Export/Import**: Individual journals can be exported as standalone `.json` files or imported with collision prevention (`importJournalFile`).
+  - **Single Note Export/Import**: Tasting notes can be exported as individual `.json` records (`exportSingleSpiritFile`) or imported into existing journals (`parseSingleSpiritFile`).
+- **Unified Action Architecture (`PageActionsDropdown`)**:
+  - Replaces loose floating header buttons with a discrete, screen-stable parchment gear menu (`[ ⚙️ ]`) providing contextual actions (Select Mode, Export, Import, Delete) across Bookshelf, Journal, and Detail views.
+- **Responsive Layout Geometry**:
+  - **Smartphone (`< 640px`)**: Strict 2-column card grid (`grid-cols-2`).
+  - **Desktop (`>= 1024px`)**: Bounded 4-column card grid (`lg:grid-cols-4`) aligned seamlessly with the top navigation bar logo and user action boundaries.
+- **Permanent Onboarding**:
+  - Launch onboarding runs once on fresh installs via `localStorage.getItem('aqua-vitaeum-welcome-completed')`, directly launching returning users into the collection overview.
+
+---
+
 ## 🔒 File Storage Safety & Windows Support
 
 For local Node.js development servers, file system operations in `src/lib/server-storage.ts` and `src/lib/settings-storage.ts` use atomic file writes (`settings.json.tmp` -> `settings.json`).

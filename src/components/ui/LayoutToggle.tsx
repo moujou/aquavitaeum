@@ -20,7 +20,7 @@ export function LayoutToggle({ value, onChange, className }: LayoutToggleProps) 
         className={cn(
           'p-2 rounded-md transition-all cursor-pointer',
           value === 'list'
-            ? 'bg-[var(--brass-accent)] text-[var(--parchment-bg)] shadow-xs'
+            ? 'bg-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs'
             : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
         )}
         aria-label="List View"
@@ -33,7 +33,7 @@ export function LayoutToggle({ value, onChange, className }: LayoutToggleProps) 
         className={cn(
           'p-2 rounded-md transition-all cursor-pointer',
           value === 'grid'
-            ? 'bg-[var(--brass-accent)] text-[var(--parchment-bg)] shadow-xs'
+            ? 'bg-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs'
             : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
         )}
         aria-label="Grid View"
@@ -46,7 +46,7 @@ export function LayoutToggle({ value, onChange, className }: LayoutToggleProps) 
         className={cn(
           'p-2 rounded-md transition-all cursor-pointer',
           value === 'table'
-            ? 'bg-[var(--brass-accent)] text-[var(--parchment-bg)] shadow-xs'
+            ? 'bg-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs'
             : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
         )}
         aria-label="Table View"

@@ -34,7 +34,7 @@ export function NoteTableView({
   const { language } = useLanguage();
 
   return (
-    <div className="px-2 sm:px-4 py-4 w-full">
+    <div className="py-4 w-full">
       <div className="overflow-x-auto w-full rounded-xl border border-[var(--parchment-border)] bg-[var(--parchment-bg)] shadow-md">
         <table className="w-full text-left border-collapse min-w-[900px]">
           {/* Header in Signature Clover Green */}

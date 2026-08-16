@@ -1,8 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Trash2, X } from 'lucide-react';
+import { Trash2, X, Download, CheckSquare } from 'lucide-react';
 import { JournalWithStats } from '@/hooks/useJournals';
+import { PageActionsDropdown } from '@/components/ui/PageActionsDropdown';
 import { cn } from '@/lib/utils';
 
 interface JournalLandingHeaderProps {
@@ -14,6 +15,8 @@ interface JournalLandingHeaderProps {
   canDelete?: boolean;
   onConfirmDelete?: () => void;
   onExitSelectMode?: () => void;
+  onEnterSelectMode?: () => void;
+  onExportJournal?: (id: string) => void;
   language?: string;
 }
 
@@ -25,11 +28,13 @@ export function JournalLandingHeader({
   canDelete = false,
   onConfirmDelete,
   onExitSelectMode,
+  onEnterSelectMode,
+  onExportJournal,
   language = 'EN',
 }: JournalLandingHeaderProps) {
   return (
-    <div className="px-4 sm:px-6 pt-6 pb-2 w-full">
-      <div className="flex items-center justify-between gap-3 min-w-0">
+    <div className="pb-2 w-full">
+      <div className="flex items-center justify-between gap-3 min-w-0 min-h-[36px]">
         {/* Left: Journal name + count/selection badge */}
         <div className="flex items-center gap-3 min-w-0 flex-1">
           <h1 className="font-display text-2xl sm:text-3xl font-bold text-[var(--foreground)] tracking-wide truncate">
@@ -47,8 +52,8 @@ export function JournalLandingHeader({
           )}
         </div>
 
-        {/* Right: Select mode action buttons */}
-        {isSelectMode && (
+        {/* Right: Select mode action buttons OR Normal mode Actions Dropdown */}
+        {isSelectMode ? (
           <div className="flex items-center gap-2 shrink-0">
             {/* Delete — prominent red button with counter */}
             <button
@@ -76,6 +81,26 @@ export function JournalLandingHeader({
               <X className="w-3.5 h-3.5 shrink-0" />
               <span className="hidden sm:inline">{language === 'DE' ? 'Fertig' : 'Done'}</span>
             </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 shrink-0">
+            <PageActionsDropdown
+              title={language === 'DE' ? 'Aktionen' : 'Actions'}
+              items={[
+                {
+                  id: 'select-notes',
+                  label: language === 'DE' ? 'Notizen auswählen' : 'Select Notes',
+                  icon: <CheckSquare size={16} />,
+                  onClick: () => onEnterSelectMode?.(),
+                },
+                {
+                  id: 'export-journal',
+                  label: language === 'DE' ? 'Journal exportieren' : 'Export Journal',
+                  icon: <Download size={16} />,
+                  onClick: () => onExportJournal?.(journal.id),
+                },
+              ]}
+            />
           </div>
         )}
       </div>

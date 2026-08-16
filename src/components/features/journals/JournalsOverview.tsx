@@ -4,10 +4,12 @@
 import React, { useState, useCallback } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { JournalWithStats } from '@/hooks/useJournals';
-import { Trash2, Edit3, Star, X, FileText, Calendar, CheckCircle2, BookOpen } from 'lucide-react';
+import { Trash2, Edit3, Star, X, FileText, Calendar, CheckCircle2, BookOpen, Download, Upload, AlertCircle, CheckSquare } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { PageActionsDropdown } from '@/components/ui/PageActionsDropdown';
 import { JournalCoverPicker } from './JournalCoverPicker';
 import { useMultiSelect } from '@/hooks/useMultiSelect';
+import { exportJournalsToFile, importJournalFile } from '@/lib/google-drive-sync';
 import { cn } from '@/lib/utils';
 
 interface JournalsOverviewProps {
@@ -48,6 +50,35 @@ export function JournalsOverview({
   const [editCoverImage, setEditCoverImage] = useState<string | undefined>(undefined);
 
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [importStatus, setImportStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const journalFileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleImportJournal = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setImportStatus(null);
+      const result = await importJournalFile(file);
+      setImportStatus({
+        type: 'success',
+        message: `${result.journalCount} Journal(e) & ${result.spiritCount} Notiz(en) importiert!`,
+      });
+      setTimeout(() => {
+        setImportStatus(null);
+        window.location.reload();
+      }, 1500);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : t('journalImportError');
+      setImportStatus({
+        type: 'error',
+        message,
+      });
+      setTimeout(() => setImportStatus(null), 4000);
+    } finally {
+      if (journalFileInputRef.current) journalFileInputRef.current.value = '';
+    }
+  };
 
   // ── Long-press Select Mode (shared logic from useMultiSelect) ───────────────
   const {
@@ -55,6 +86,7 @@ export function JournalsOverview({
     selectedIds,
     confirmBulkDelete,
     setConfirmBulkDelete,
+    enterSelectMode,
     exitSelectMode,
     toggleSelection,
     handleTouchStart,
@@ -132,10 +164,10 @@ export function JournalsOverview({
   const canEdit = selectedIds.size === 1;
 
   return (
-    <div className="flex-1 w-full max-w-6xl mx-auto px-4 py-8 animate-fade-in">
+    <div className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 pt-8 pb-8 animate-fade-in">
       {/* Shelf Header — doubles as action bar in select mode */}
       <div className="pb-2 mb-8 flex flex-col">
-        <div className="flex items-center justify-between gap-3 min-w-0">
+        <div className="flex items-center justify-between gap-3 min-w-0 min-h-[36px]">
           <div className="flex items-center gap-3 min-w-0 flex-1">
             <h2 className="font-display text-2xl sm:text-3xl font-bold text-[var(--foreground)] tracking-wide truncate min-w-0">
               {t('journalsTitle')}
@@ -167,6 +199,22 @@ export function JournalsOverview({
                 <span className="hidden sm:inline">{language === 'DE' ? 'Bearbeiten' : 'Edit'}</span>
               </button>
 
+              {/* Export — emerald, active for any selection */}
+              <button
+                onClick={() => exportJournalsToFile([...selectedIds])}
+                disabled={selectedIds.size === 0}
+                title={t('exportJournals')}
+                className={cn(
+                  'px-3 py-1.5 rounded-lg border transition-all flex items-center gap-1.5 text-xs font-display font-bold uppercase tracking-wider select-none shadow-xs',
+                  selectedIds.size > 0
+                    ? 'bg-[var(--pub-bg-panel)] hover:bg-[var(--wood-selection)] hover:text-[var(--parchment-bg)] hover:border-[var(--wood-selection)] border-[var(--parchment-border)] text-[var(--foreground)] active:scale-95 cursor-pointer'
+                    : 'bg-transparent border-transparent text-[var(--sepia-muted)]/30 cursor-not-allowed'
+                )}
+              >
+                <Download className="w-3.5 h-3.5 shrink-0" />
+                <span>{t('exportJournals')}{selectedIds.size > 0 ? ` (${selectedIds.size})` : ''}</span>
+              </button>
+
               {/* Delete — prominent red button with counter */}
               <button
                 onClick={() => canDelete && setConfirmBulkDelete(true)}
@@ -193,8 +241,49 @@ export function JournalsOverview({
                 <span className="hidden sm:inline">{language === 'DE' ? 'Fertig' : 'Done'}</span>
               </button>
             </div>
-          ) : null}
+          ) : (
+            <div className="flex items-center gap-2 shrink-0">
+              <PageActionsDropdown
+                title={language === 'DE' ? 'Aktionen' : 'Actions'}
+                items={[
+                  {
+                    id: 'select-mode',
+                    label: language === 'DE' ? 'Journale auswählen' : 'Select Journals',
+                    icon: <CheckSquare size={16} />,
+                    onClick: () => enterSelectMode(),
+                  },
+                  {
+                    id: 'import-journal',
+                    label: t('importJournal'),
+                    icon: <Upload size={16} />,
+                    onClick: () => journalFileInputRef.current?.click(),
+                  },
+                ]}
+              />
+              <input
+                type="file"
+                ref={journalFileInputRef}
+                onChange={handleImportJournal}
+                accept=".json,application/json"
+                className="hidden"
+              />
+            </div>
+          )}
         </div>
+
+        {importStatus && (
+          <div
+            className={cn(
+              'mt-3 flex items-center gap-2 text-xs px-3 py-2 rounded-md border animate-fade-in font-medium',
+              importStatus.type === 'success'
+                ? 'bg-[var(--forest-green)]/10 text-[var(--forest-green)] border-[var(--forest-green)]/30'
+                : 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950/40 dark:border-red-900'
+            )}
+          >
+            {importStatus.type === 'success' ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />}
+            <span>{importStatus.message}</span>
+          </div>
+        )}
 
         {/* Specular Gradient Hairline Divider */}
         <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-[var(--brass-accent)]/30 to-transparent mt-4" />
