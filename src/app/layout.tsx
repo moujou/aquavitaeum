@@ -6,16 +6,18 @@ export const viewport: Viewport = {
   themeColor: '#F4EFE6', // Matches the Warm Vintage Linen canvas
 };
 
+const basePath = process.env.NODE_ENV === 'production' ? '/aquavitaeum' : '';
+
 export const metadata: Metadata = {
   title: 'Aqua Vitaeum · Fine Spirits Journal',
   description:
     'A premium fine spirits tasting journal. Record and explore tasting notes for Single Malt Scotch, Bourbon, Rum, Gin, Tequila, and more.',
   icons: {
     icon: [
-      { url: '/whisky-logo-with-circle-v5.svg', type: 'image/svg+xml' },
+      { url: `${basePath}/whisky-logo-with-circle-v5.svg`, type: 'image/svg+xml' },
     ],
-    shortcut: '/whisky-logo-with-circle-v5.svg',
-    apple: '/whisky-logo-maskable-v5.svg',
+    shortcut: `${basePath}/whisky-logo-with-circle-v5.svg`,
+    apple: `${basePath}/whisky-logo-maskable-v5.svg`,
   },
   appleWebApp: {
     capable: true,
@@ -30,6 +32,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <head>
+        <link rel="icon" type="image/svg+xml" href={`${basePath}/whisky-logo-with-circle-v5.svg`} />
+        <link rel="shortcut icon" href={`${basePath}/whisky-logo-with-circle-v5.svg`} />
+        <link rel="apple-touch-icon" href={`${basePath}/whisky-logo-maskable-v5.svg`} />
         <script
           dangerouslySetInnerHTML={{
             __html: `
