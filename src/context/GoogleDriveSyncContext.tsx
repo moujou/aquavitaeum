@@ -132,37 +132,10 @@ export function GoogleDriveSyncProvider({ children }: { children: React.ReactNod
   }, []);
 
   const syncNow = useCallback(async (): Promise<SyncStats | null> => {
-    if (!isEnabled) return null;
+    if (!isEnabled || !accessToken) return null;
+    if (typeof navigator !== 'undefined' && !navigator.onLine) return null;
 
-    const idToUse = clientId || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-    const tokenExpiresAt =
-      typeof window !== 'undefined' ? Number(localStorage.getItem(TOKEN_EXPIRES_KEY) || '0') : 0;
-    const isExpired = !accessToken || (tokenExpiresAt > 0 && Date.now() >= tokenExpiresAt);
-
-    let token = accessToken;
-
-    // If token is missing or expired, attempt ONLY silent background refresh
-    if (!token || isExpired) {
-      if (!idToUse) {
-        setSyncError('Google Client ID is missing.');
-        return null;
-      }
-
-      try {
-        token = await requestGoogleAccessToken(idToUse, '');
-        setAccessToken(token);
-        const expiresAt = Date.now() + 3500 * 1000;
-        if (typeof window !== 'undefined') {
-          localStorage.setItem(TOKEN_STORAGE_KEY, token);
-          localStorage.setItem(TOKEN_EXPIRES_KEY, String(expiresAt));
-        }
-      } catch (refreshErr) {
-        // Silent refresh failed (e.g. user logged out of Google).
-        // Never trigger interactive popups in background sync!
-        console.warn('[Aqua Vitaeum] Silent background token refresh failed:', refreshErr);
-        return null;
-      }
-    }
+    const token = accessToken;
 
     setIsSyncing(true);
     setSyncError(null);
@@ -177,31 +150,12 @@ export function GoogleDriveSyncProvider({ children }: { children: React.ReactNod
       const message = err instanceof Error ? err.message : String(err);
       console.error('[Google Drive Sync Error]', err);
 
-      // If 401 Unauthorized, retry ONCE with silent re-auth
-      if (
-        (message.includes('401') || message.toLowerCase().includes('unauthorized')) &&
-        idToUse
-      ) {
-        try {
-          const freshToken = await requestGoogleAccessToken(idToUse, '');
-          setAccessToken(freshToken);
-          const expiresAt = Date.now() + 3500 * 1000;
-          if (typeof window !== 'undefined') {
-            localStorage.setItem(TOKEN_STORAGE_KEY, freshToken);
-            localStorage.setItem(TOKEN_EXPIRES_KEY, String(expiresAt));
-          }
-          const retryStats = await performGoogleDriveSync(freshToken);
-          setSyncStats(retryStats);
-          setLastSyncTime(retryStats.lastSyncedAt);
-          setIsSyncing(false);
-          return retryStats;
-        } catch {
-          // Token refresh failed completely -> clear token without opening popup
-          setAccessToken(null);
-          if (typeof window !== 'undefined') {
-            localStorage.removeItem(TOKEN_STORAGE_KEY);
-            localStorage.removeItem(TOKEN_EXPIRES_KEY);
-          }
+      // If 401 Unauthorized, clear invalid token and go dormant without opening popup
+      if (message.includes('401') || message.toLowerCase().includes('unauthorized')) {
+        setAccessToken(null);
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem(TOKEN_STORAGE_KEY);
+          localStorage.removeItem(TOKEN_EXPIRES_KEY);
         }
       }
 
@@ -209,7 +163,7 @@ export function GoogleDriveSyncProvider({ children }: { children: React.ReactNod
       setIsSyncing(false);
       return null;
     }
-  }, [accessToken, clientId, isEnabled]);
+  }, [accessToken, isEnabled]);
 
   const syncNowRef = useRef(syncNow);
   useEffect(() => {
@@ -217,13 +171,10 @@ export function GoogleDriveSyncProvider({ children }: { children: React.ReactNod
   }, [syncNow]);
 
   // ── Smart 24/7 Background Auto-Sync Engine ────────────────────────────────
-  // 1. Initial background pull immediately on mount
-  // 2. Fast debounced auto-sync (1.0s) on local user data changes (save, edit, delete, photo added)
-  // 3. Immediate 0s background pull when opening / focusing the app (window focus & visibilitychange)
-  // 4. Ultra-fast 8s heartbeat poll when app is active in the foreground (live 2-device sync!)
-  // 5. Battery-friendly 3min heartbeat poll when app is minimized / in background
+  // Runs ONLY when user is authenticated (isEnabled && accessToken).
+  // When in local mode or offline, 0 intervals, 0 requests, and 0 popups occur!
   useEffect(() => {
-    if (!isEnabled) return;
+    if (!isEnabled || !accessToken) return;
 
     let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -276,7 +227,7 @@ export function GoogleDriveSyncProvider({ children }: { children: React.ReactNod
       window.removeEventListener('focus', handleVisibilityOrFocus);
       document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
     };
-  }, [isEnabled]);
+  }, [isEnabled, accessToken]);
 
   const value: GoogleDriveSyncContextValue = {
     isEnabled,
