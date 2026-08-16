@@ -61,11 +61,18 @@ export function GoogleDriveSyncSection() {
 
   return (
     <>
-      {/* ── Main Settings Row 3: Google Drive Sync ─────────────────────── */}
+      {/* ── Main Settings Row 3: Google Drive Sync (Unified Single-Row) ── */}
       <div className="flex items-center justify-between p-4 sm:p-5 hover:bg-black/[0.02] transition-colors">
         <div className="flex items-center gap-3.5 sm:gap-4 min-w-0 pr-2">
           {/* Official Google G Logo Badge */}
-          <div className="w-9 h-9 rounded-lg bg-[var(--forest-green)]/10 border border-[var(--forest-green)]/30 flex items-center justify-center text-[var(--forest-green)] shrink-0">
+          <div
+            className={cn(
+              'w-9 h-9 rounded-lg border flex items-center justify-center shrink-0 transition-colors',
+              isEnabled && isConnected
+                ? 'bg-[var(--forest-green)]/15 border-[var(--forest-green)]/40 text-[var(--forest-green)]'
+                : 'bg-[var(--forest-green)]/10 border border-[var(--forest-green)]/30 text-[var(--forest-green)]'
+            )}
+          >
             <svg className="w-4 h-4 fill-current shrink-0" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
               <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
@@ -78,15 +85,32 @@ export function GoogleDriveSyncSection() {
               {t('googleSyncTitle')}
             </p>
             <p className="font-body text-xs text-[var(--sepia-muted)] mt-0.5 truncate">
-              {isSyncing ? (
+              {syncError ? (
+                <span className="text-red-600 dark:text-red-400 font-medium inline-flex items-center gap-1">
+                  <AlertCircle size={11} className="shrink-0" />
+                  <span className="truncate">{syncError}</span>
+                </span>
+              ) : isSyncing ? (
                 <span className="inline-flex items-center gap-1.5 text-[var(--forest-green)] font-medium">
                   <RefreshCw size={11} className="animate-spin shrink-0" />
                   <span>{t('googleSyncing')}</span>
                 </span>
               ) : isEnabled && isConnected ? (
-                formattedLastSync
-                  ? `${t('googleSyncLastSynced')}: ${formattedLastSync}`
-                  : t('googleSyncConnected')
+                <span
+                  title={
+                    syncStats
+                      ? `${syncStats.pushedSpirits} hochgeladen, ${syncStats.pulledSpirits} geladen${syncStats.deletedRemotes ? `, ${syncStats.deletedRemotes} gelöscht` : ''}`
+                      : 'Automatische Synchronisation aktiv'
+                  }
+                  className="cursor-help text-[var(--forest-green)] font-medium inline-flex items-center gap-1"
+                >
+                  <CheckCircle2 size={11} className="shrink-0" />
+                  <span>
+                    {formattedLastSync
+                      ? `Synchronisiert (${formattedLastSync})`
+                      : 'Automatisch synchronisiert'}
+                  </span>
+                </span>
               ) : (
                 t('googleSyncOffline')
               )}
@@ -94,18 +118,33 @@ export function GoogleDriveSyncSection() {
           </div>
         </div>
 
-        {/* Minimalist Cloud / CloudOff Icon Toggle — Always accessible so user can de-sync at any time */}
-        <div className="flex items-center gap-1.5 shrink-0">
+        {/* Action Buttons Group (Sync Now & Connect/Disconnect) */}
+        <div className="flex items-center gap-1.5 shrink-0 select-none">
           {isEnabled && isConnected ? (
-            <button
-              type="button"
-              onClick={disconnect}
-              className="w-9 h-9 rounded-lg bg-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs flex items-center justify-center transition-all cursor-pointer hover:bg-[var(--wood-dark)] active:scale-95"
-              title={`${t('googleSyncConnected')} · ${t('googleSyncDisconnect')}`}
-              aria-label={t('googleSyncConnected')}
-            >
-              <Cloud size={18} />
-            </button>
+            <>
+              {/* Instant Manual Sync Trigger Button */}
+              <button
+                type="button"
+                disabled={isSyncing}
+                onClick={() => syncNow()}
+                className="w-9 h-9 rounded-lg bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] text-[var(--sepia-text)] hover:text-[var(--forest-green)] hover:bg-black/5 shadow-xs flex items-center justify-center transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+                title={t('googleSyncNow')}
+                aria-label={t('googleSyncNow')}
+              >
+                <RefreshCw size={15} className={cn(isSyncing && 'animate-spin text-[var(--forest-green)]')} />
+              </button>
+
+              {/* Connected Cloud Button (Click to disconnect) */}
+              <button
+                type="button"
+                onClick={disconnect}
+                className="w-9 h-9 rounded-lg bg-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs flex items-center justify-center transition-all cursor-pointer hover:bg-[var(--wood-dark)] active:scale-95"
+                title={`${t('googleSyncConnected')} · ${t('googleSyncDisconnect')}`}
+                aria-label={t('googleSyncConnected')}
+              >
+                <Cloud size={17} />
+              </button>
+            </>
           ) : (
             <button
               type="button"
@@ -114,44 +153,11 @@ export function GoogleDriveSyncSection() {
               title={t('googleSyncConnect')}
               aria-label={t('googleSyncConnect')}
             >
-              <CloudOff size={18} />
+              <CloudOff size={17} />
             </button>
           )}
         </div>
       </div>
-
-      {/* Connected Sync Status Sub-Bar */}
-      {isEnabled && isConnected && (
-        <div className="p-3.5 bg-[var(--pub-bg)]/60 border-t border-[var(--parchment-divider)] flex items-center justify-between gap-2 animate-fade-in">
-          <div className="flex items-center gap-2 min-w-0">
-            <CheckCircle2 size={15} className="text-[var(--forest-green)] shrink-0" />
-            <span className="text-xs font-body text-[var(--sepia-muted)] truncate">
-              {syncStats
-                ? `${syncStats.pushedSpirits} hochgeladen, ${syncStats.pulledSpirits} geladen`
-                : 'Automatische Synchronisation aktiv'}
-            </span>
-          </div>
-
-          <button
-            type="button"
-            disabled={isSyncing}
-            onClick={() => syncNow()}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-[var(--forest-green)] hover:bg-[var(--wood-dark)] text-[var(--parchment-bg)] font-display text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95 disabled:opacity-50 shrink-0"
-            title={t('googleSyncNow')}
-          >
-            <RefreshCw size={12} className={cn(isSyncing && 'animate-spin')} />
-            <span>{isSyncing ? t('googleSyncing') : t('googleSyncNow')}</span>
-          </button>
-        </div>
-      )}
-
-      {/* Error Message Toast */}
-      {syncError && (
-        <div className="m-3 p-2.5 flex items-center gap-2 text-xs text-red-700 bg-red-50 dark:bg-red-950/40 rounded-lg border border-red-200 dark:border-red-900 animate-fade-in">
-          <AlertCircle size={15} className="shrink-0" />
-          <span className="truncate">{syncError}</span>
-        </div>
-      )}
 
       {/* ── Main Settings Row 4: Offline JSON Backup ─────────────────────── */}
       <div className="flex items-center justify-between p-4 sm:p-5 hover:bg-black/[0.02] transition-colors border-t border-[var(--parchment-divider)]">

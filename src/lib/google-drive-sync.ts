@@ -3,18 +3,25 @@ import { Journal, Spirit } from '@/types/spirit.types';
 import { isValidSpiritData } from '@/lib/schemas/spirit.schema';
 import { isValidJournalData } from '@/lib/schemas/journal.schema';
 import { notifyDataChanged } from '@/lib/sync-events';
+import {
+  getTombstones,
+  isTombstoned,
+  mergeRemoteTombstones,
+} from '@/lib/sync-tombstones';
 
 // ─── Constants & Types ────────────────────────────────────────────────────────
 
 export const GOOGLE_DRIVE_ROOT_FOLDER = 'Aqua Vitaeum';
 export const GOOGLE_DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 export const JOURNAL_METADATA_FILE = '_journal.json';
+export const DELETIONS_MANIFEST_FILE = '_deletions.json';
 
 export interface SyncStats {
   pushedSpirits: number;
   pulledSpirits: number;
   pushedJournals: number;
   pulledJournals: number;
+  deletedRemotes: number;
   skippedInvalidFiles: number;
   lastSyncedAt: string;
 }
@@ -201,6 +208,17 @@ export async function listDriveFiles(
 }
 
 /**
+ * Deletes a file or folder from Google Drive
+ */
+export async function deleteDriveFile(token: string, fileId: string): Promise<void> {
+  try {
+    await driveApiFetch(`files/${fileId}`, token, { method: 'DELETE' });
+  } catch (err) {
+    console.warn(`[Aqua Vitaeum Sync] Failed to delete file ${fileId} in Drive:`, err);
+  }
+}
+
+/**
  * Reads and parses a JSON file from Google Drive
  */
 export async function readDriveJsonFile<T>(
@@ -302,24 +320,56 @@ export async function performGoogleDriveSync(token: string): Promise<SyncStats> 
   let pulledSpirits = 0;
   let pushedJournals = 0;
   let pulledJournals = 0;
+  let deletedRemotes = 0;
   let skippedInvalidFiles = 0;
 
   // 1. Ensure Root "Aqua Vitaeum" folder exists in Drive
   const rootFolderId = await findOrCreateDriveFolder(token, GOOGLE_DRIVE_ROOT_FOLDER);
+  const rootFiles = await listDriveFiles(token, rootFolderId);
 
-  // 2. Load all local records from Dexie IndexedDB
-  const localJournals = await db.journals.toArray();
-  const localSpirits = await db.spirits.toArray();
-
-  // 3. Scan remote Google Drive folder structure
-  const remoteJournalFolders = await listDriveSubfolders(token, rootFolderId);
-  const remoteJournalFolderMap = new Map<string, GoogleDriveFile>();
-  for (const f of remoteJournalFolders) {
-    remoteJournalFolderMap.set(f.name.toLowerCase(), f);
+  // 2. Sync Deletions Manifest (_deletions.json in Root folder)
+  const remoteDeletionsFile = rootFiles.find((f) => f.name === DELETIONS_MANIFEST_FILE);
+  if (remoteDeletionsFile) {
+    const remoteDeletions = await readDriveJsonFile<{
+      deletions?: Record<string, { type?: 'spirit' | 'journal'; deletedAt: string }>;
+    }>(token, remoteDeletionsFile.id);
+    if (remoteDeletions?.deletions) {
+      mergeRemoteTombstones(remoteDeletions.deletions);
+    }
   }
 
-  // 4. Process Remote Journals & Tasting Cards -> Pull into local IndexedDB
+  // 3. Purge any locally stored spirits/journals that are tombstoned
+  const localSpiritsBefore = await db.spirits.toArray();
+  for (const s of localSpiritsBefore) {
+    if (isTombstoned(s.id, s.updatedAt || s.dateTasted)) {
+      await db.spirits.delete(s.id);
+    }
+  }
+  const localJournalsBefore = await db.journals.toArray();
+  for (const j of localJournalsBefore) {
+    if (isTombstoned(j.id, j.updatedAt || j.createdAt)) {
+      await db.journals.delete(j.id);
+      await db.spirits.where('journalId').equals(j.id).delete();
+    }
+  }
+
+  // 4. Load all active local records from Dexie IndexedDB
+  const localJournals = await db.journals.toArray();
+  const localSpirits = await db.spirits.toArray();
+  const localSpiritMap = new Map<string, Spirit>(localSpirits.map((s) => [s.id, s]));
+
+  // 5. Scan remote Google Drive folder structure
+  const remoteJournalFolders = await listDriveSubfolders(token, rootFolderId);
+
+  // 6. Process Remote Journals & Tasting Cards -> Pull into local IndexedDB with Delta optimization
   for (const folder of remoteJournalFolders) {
+    // Check if this folder is tombstoned
+    if (isTombstoned(folder.id) || isTombstoned(folder.name)) {
+      await deleteDriveFile(token, folder.id);
+      deletedRemotes++;
+      continue;
+    }
+
     const folderFiles = await listDriveFiles(token, folder.id);
     const journalMetaFile = folderFiles.find((f) => f.name === JOURNAL_METADATA_FILE);
 
@@ -340,6 +390,13 @@ export async function performGoogleDriveSync(token: string): Promise<SyncStats> 
       }
     }
 
+    // Check if the parsed journal ID is tombstoned
+    if (isTombstoned(journalId, journalUpdatedAt)) {
+      await deleteDriveFile(token, folder.id);
+      deletedRemotes++;
+      continue;
+    }
+
     // Check if local journal exists by ID or by Name
     const existingLocalJournal = localJournals.find(
       (j) => j.id === journalId || j.name.toLowerCase() === journalName.toLowerCase()
@@ -355,20 +412,26 @@ export async function performGoogleDriveSync(token: string): Promise<SyncStats> 
       });
       pulledJournals++;
     } else {
-      // Use existing local journal ID for spirit mapping
       journalId = existingLocalJournal.id;
+      // If remote journal has newer updatedAt, update local
+      const localDate = new Date(existingLocalJournal.updatedAt || existingLocalJournal.createdAt || 0).getTime();
+      const remoteDate = new Date(journalUpdatedAt || journalCreatedAt || 0).getTime();
+      if (remoteDate > localDate) {
+        await db.journals.update(existingLocalJournal.id, {
+          name: journalName,
+          updatedAt: journalUpdatedAt,
+          coverImage: journalCoverImage,
+        });
+        pulledJournals++;
+      }
     }
 
-    // Read all spirit JSON files in this folder
-    for (const file of folderFiles) {
-      if (file.name === JOURNAL_METADATA_FILE || !file.name.endsWith('.json')) {
-        // Skip metadata file or non-json files
-        if (!file.name.endsWith('.json')) {
-          skippedInvalidFiles++;
-        }
-        continue;
-      }
+    // Read and sync spirit JSON files in this folder
+    const spiritFilesToPull = folderFiles.filter(
+      (f) => f.name !== JOURNAL_METADATA_FILE && f.name.endsWith('.json')
+    );
 
+    for (const file of spiritFilesToPull) {
       const parsedData = await readDriveJsonFile<unknown>(token, file.id);
       if (!isValidSpiritData(parsedData)) {
         console.warn(`[Aqua Vitaeum Sync] Skipping invalid rogue file in Drive: ${file.name}`);
@@ -377,71 +440,114 @@ export async function performGoogleDriveSync(token: string): Promise<SyncStats> 
       }
 
       const remoteSpirit = parsedData as Spirit;
-      remoteSpirit.journalId = journalId; // Link to this journal folder
+      remoteSpirit.journalId = journalId;
 
-      const localSpirit = localSpirits.find((s) => s.id === remoteSpirit.id);
+      if (isTombstoned(remoteSpirit.id, remoteSpirit.updatedAt || remoteSpirit.dateTasted)) {
+        await deleteDriveFile(token, file.id);
+        deletedRemotes++;
+        continue;
+      }
+
+      const localSpirit = localSpiritMap.get(remoteSpirit.id);
       if (!localSpirit) {
         await db.spirits.put(remoteSpirit);
+        localSpiritMap.set(remoteSpirit.id, remoteSpirit);
         pulledSpirits++;
       } else {
-        // Conflict resolution: compare updatedAt timestamps
         const localDate = new Date(localSpirit.updatedAt || localSpirit.dateTasted || 0).getTime();
         const remoteDate = new Date(remoteSpirit.updatedAt || remoteSpirit.dateTasted || 0).getTime();
 
         if (remoteDate > localDate) {
           await db.spirits.put(remoteSpirit);
+          localSpiritMap.set(remoteSpirit.id, remoteSpirit);
           pulledSpirits++;
         }
       }
     }
   }
 
-  // Reload local state after pull
+  // 7. Reload local state after pull
   const refreshedLocalJournals = await db.journals.toArray();
   const refreshedLocalSpirits = await db.spirits.toArray();
 
-  // 5. Push Local Journals & Spirits to Google Drive
+  // 8. Push Local Journals & Spirits to Google Drive (Delta-only push)
   for (const journal of refreshedLocalJournals) {
+    if (isTombstoned(journal.id)) continue;
+
     const folderName = sanitizeFileName(journal.name);
     const journalFolderId = await findOrCreateDriveFolder(token, folderName, rootFolderId);
 
     const folderFiles = await listDriveFiles(token, journalFolderId);
     const existingMetaFile = folderFiles.find((f) => f.name === JOURNAL_METADATA_FILE);
 
-    // Write / update _journal.json
-    await writeDriveJsonFile(
-      token,
-      journalFolderId,
-      JOURNAL_METADATA_FILE,
-      {
-        id: journal.id,
-        name: journal.name,
-        createdAt: journal.createdAt,
-        updatedAt: journal.updatedAt || new Date().toISOString(),
-        coverImage: journal.coverImage,
-      },
-      existingMetaFile?.id
-    );
-    pushedJournals++;
+    // Delta check for journal metadata
+    const localJournalTime = new Date(journal.updatedAt || journal.createdAt || 0).getTime();
+    const remoteMetaTime = existingMetaFile?.modifiedTime
+      ? new Date(existingMetaFile.modifiedTime).getTime()
+      : 0;
+
+    if (!existingMetaFile || localJournalTime > remoteMetaTime) {
+      await writeDriveJsonFile(
+        token,
+        journalFolderId,
+        JOURNAL_METADATA_FILE,
+        {
+          id: journal.id,
+          name: journal.name,
+          createdAt: journal.createdAt,
+          updatedAt: journal.updatedAt || new Date().toISOString(),
+          coverImage: journal.coverImage,
+        },
+        existingMetaFile?.id
+      );
+      pushedJournals++;
+    }
 
     // Push all spirits belonging to this journal
     const journalSpirits = refreshedLocalSpirits.filter((s) => s.journalId === journal.id);
 
     for (const spirit of journalSpirits) {
+      if (isTombstoned(spirit.id)) continue;
+
       const spiritFileName = `${sanitizeFileName(spirit.distillery || 'Spirit')} - ${sanitizeFileName(spirit.name || 'Note')}.json`;
       const existingSpiritFile = folderFiles.find(
         (f) => f.name === spiritFileName || (f.name.endsWith('.json') && f.name.includes(spirit.id))
       );
 
-      await writeDriveJsonFile(
-        token,
-        journalFolderId,
-        spiritFileName,
-        spirit,
-        existingSpiritFile?.id
-      );
-      pushedSpirits++;
+      const localSpiritTime = new Date(spirit.updatedAt || spirit.dateTasted || 0).getTime();
+      const remoteFileTime = existingSpiritFile?.modifiedTime
+        ? new Date(existingSpiritFile.modifiedTime).getTime()
+        : 0;
+
+      // DELTA OPTIMIZATION: Only upload if spirit is new in Drive OR has been edited locally after remote file
+      if (!existingSpiritFile || localSpiritTime > remoteFileTime) {
+        await writeDriveJsonFile(
+          token,
+          journalFolderId,
+          spiritFileName,
+          spirit,
+          existingSpiritFile?.id
+        );
+        pushedSpirits++;
+      }
     }
+  }
+
+  // 9. Upload updated _deletions.json manifest to Google Drive Root Folder
+  const tombstones = getTombstones();
+  if (Object.keys(tombstones).length > 0) {
+    const existingDeletionsFile = rootFiles.find((f) => f.name === DELETIONS_MANIFEST_FILE);
+    await writeDriveJsonFile(
+      token,
+      rootFolderId,
+      DELETIONS_MANIFEST_FILE,
+      {
+        version: 1,
+        updatedAt: new Date().toISOString(),
+        deletions: tombstones,
+      },
+      existingDeletionsFile?.id
+    );
   }
 
   const nowIso = new Date().toISOString();
@@ -449,7 +555,7 @@ export async function performGoogleDriveSync(token: string): Promise<SyncStats> 
     localStorage.setItem('aqua-vitaeum-last-sync-time', nowIso);
   }
 
-  if (pulledSpirits > 0 || pulledJournals > 0) {
+  if (pulledSpirits > 0 || pulledJournals > 0 || deletedRemotes > 0) {
     notifyDataChanged();
   }
 
@@ -458,6 +564,7 @@ export async function performGoogleDriveSync(token: string): Promise<SyncStats> 
     pulledSpirits,
     pushedJournals,
     pulledJournals,
+    deletedRemotes,
     skippedInvalidFiles,
     lastSyncedAt: nowIso,
   };

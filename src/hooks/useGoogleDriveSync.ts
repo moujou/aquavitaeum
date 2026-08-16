@@ -158,11 +158,12 @@ export function useGoogleDriveSync() {
     syncNowRef.current = syncNow;
   }, [syncNow]);
 
-  // ── Smart Zero-Friction Auto-Sync (Option A) ──────────────────────────────
+  // ── Smart Zero-Friction Auto-Sync ──────────────────────────────────────────
   // 1. Initial background pull on mount
-  // 2. Debounced auto-sync (2.5s) on local data changes (save, edit, delete)
-  // 3. Immediate background sync when leaving / minimizing the app (visibilitychange: hidden)
-  // 4. Periodic background sync every 5 minutes
+  // 2. Debounced fast auto-sync (1.0s) on local data changes (save, edit, delete)
+  // 3. Immediate background pull when opening / focusing the app (window focus & visibilitychange: visible)
+  // 4. Immediate background push when leaving / minimizing the app (visibilitychange: hidden)
+  // 5. Periodic background sync every 5 minutes
   useEffect(() => {
     if (!isEnabled || !accessToken) return;
 
@@ -174,11 +175,11 @@ export function useGoogleDriveSync() {
         if (!isSyncingRef.current) {
           syncNowRef.current();
         }
-      }, 2500);
+      }, 1000);
     };
 
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden' && !isSyncingRef.current) {
+    const handleVisibilityOrFocus = () => {
+      if (!isSyncingRef.current) {
         syncNowRef.current();
       }
     };
@@ -198,14 +199,16 @@ export function useGoogleDriveSync() {
     }, 5 * 60 * 1000);
 
     window.addEventListener(DATA_CHANGED_EVENT, handleDataChange);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleVisibilityOrFocus);
+    document.addEventListener('visibilitychange', handleVisibilityOrFocus);
 
     return () => {
       clearTimeout(initialTimer);
       clearInterval(periodicInterval);
       if (debounceTimer) clearTimeout(debounceTimer);
       window.removeEventListener(DATA_CHANGED_EVENT, handleDataChange);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleVisibilityOrFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
     };
   }, [isEnabled, accessToken]);
 
