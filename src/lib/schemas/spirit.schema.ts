@@ -4,6 +4,7 @@ import {
   SPIRIT_COLOURS,
   SPIRIT_GLANCES,
   SUPPORTED_CURRENCIES,
+  FlavorProfile,
 } from '@/types/spirit.types';
 import { isValidAbv } from '@/lib/spirit-utils';
 
@@ -11,6 +12,20 @@ export interface ValidationResult {
   valid: boolean;
   errors: Record<string, string>;
 }
+
+const RADAR_DIMENSIONS: (keyof FlavorProfile)[] = [
+  'fruity',
+  'floral',
+  'spicy',
+  'cereal',
+  'peaty',
+  'sulphury',
+  'feinty',
+  'nutty',
+  'woody',
+  'winey',
+  'chocolate',
+];
 
 /**
  * Validates a Spirit object against domain business rules.
@@ -91,12 +106,97 @@ export function validateSpirit(spirit: Partial<Spirit>): ValidationResult {
     errors.caskNo = 'Cask number cannot exceed 100 characters.';
   }
 
+  if (spirit.finish && spirit.finish.length > 200) {
+    errors.finish = 'Finish cannot exceed 200 characters.';
+  }
+
   if (spirit.finishNotes && spirit.finishNotes.length > 2000) {
     errors.finishNotes = 'Finish notes cannot exceed 2000 characters.';
+  }
+
+  if (spirit.volumeMl !== undefined && (spirit.volumeMl < 0 || spirit.volumeMl > 5000)) {
+    errors.volumeMl = 'Volume must be between 0 and 5000 ml.';
+  }
+
+  // Boolean attributes validation
+  if (spirit.isCaskStrength !== undefined && typeof spirit.isCaskStrength !== 'boolean') {
+    errors.isCaskStrength = 'isCaskStrength must be a boolean.';
+  }
+  if (spirit.addedColour !== undefined && typeof spirit.addedColour !== 'boolean') {
+    errors.addedColour = 'addedColour must be a boolean.';
+  }
+  if (spirit.chillFiltered !== undefined && typeof spirit.chillFiltered !== 'boolean') {
+    errors.chillFiltered = 'chillFiltered must be a boolean.';
+  }
+  if (spirit.addedWater !== undefined && typeof spirit.addedWater !== 'boolean') {
+    errors.addedWater = 'addedWater must be a boolean.';
+  }
+  if (spirit.onTheRocks !== undefined && typeof spirit.onTheRocks !== 'boolean') {
+    errors.onTheRocks = 'onTheRocks must be a boolean.';
+  }
+  if (spirit.withChocolate !== undefined && typeof spirit.withChocolate !== 'boolean') {
+    errors.withChocolate = 'withChocolate must be a boolean.';
+  }
+
+  // Array attributes validation
+  if (spirit.flavorTags !== undefined && (!Array.isArray(spirit.flavorTags) || spirit.flavorTags.some(t => typeof t !== 'string'))) {
+    errors.flavorTags = 'flavorTags must be an array of strings.';
+  }
+  if (spirit.noseFlavorTags !== undefined && (!Array.isArray(spirit.noseFlavorTags) || spirit.noseFlavorTags.some(t => typeof t !== 'string'))) {
+    errors.noseFlavorTags = 'noseFlavorTags must be an array of strings.';
+  }
+  if (spirit.tasteFlavorTags !== undefined && (!Array.isArray(spirit.tasteFlavorTags) || spirit.tasteFlavorTags.some(t => typeof t !== 'string'))) {
+    errors.tasteFlavorTags = 'tasteFlavorTags must be an array of strings.';
+  }
+  if (spirit.images !== undefined && (!Array.isArray(spirit.images) || spirit.images.some(i => typeof i !== 'string'))) {
+    errors.images = 'images must be an array of strings.';
+  }
+
+  // Radar profiles validation
+  if (spirit.noseProfile !== undefined) {
+    if (typeof spirit.noseProfile !== 'object' || spirit.noseProfile === null) {
+      errors.noseProfile = 'noseProfile must be an object.';
+    } else {
+      for (const dim of RADAR_DIMENSIONS) {
+        const val = spirit.noseProfile[dim];
+        if (val !== undefined && (typeof val !== 'number' || val < 0 || val > 10)) {
+          errors.noseProfile = `Invalid noseProfile value for ${dim}. Must be a number between 0 and 10.`;
+          break;
+        }
+      }
+    }
+  }
+
+  if (spirit.tasteProfile !== undefined) {
+    if (typeof spirit.tasteProfile !== 'object' || spirit.tasteProfile === null) {
+      errors.tasteProfile = 'tasteProfile must be an object.';
+    } else {
+      for (const dim of RADAR_DIMENSIONS) {
+        const val = spirit.tasteProfile[dim];
+        if (val !== undefined && (typeof val !== 'number' || val < 0 || val > 10)) {
+          errors.tasteProfile = `Invalid tasteProfile value for ${dim}. Must be a number between 0 and 10.`;
+          break;
+        }
+      }
+    }
   }
 
   return {
     valid: Object.keys(errors).length === 0,
     errors,
   };
+}
+
+/**
+ * Type-guard verifying that raw data is a valid Spirit record.
+ */
+export function isValidSpiritData(data: unknown): data is Spirit {
+  if (!data || typeof data !== 'object') return false;
+  const spirit = data as Partial<Spirit>;
+  if (!spirit.id || typeof spirit.id !== 'string') return false;
+  if (!spirit.name || typeof spirit.name !== 'string') return false;
+  if (!spirit.spiritType || typeof spirit.spiritType !== 'string') return false;
+
+  const validation = validateSpirit(spirit);
+  return validation.valid;
 }

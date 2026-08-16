@@ -236,7 +236,7 @@ export function FlavorTagSelector({
           }
 
           const userSetState = openCategories[category.id];
-          const isOpen = isSearching || (userSetState !== undefined ? userSetState : activeCountInCat > 0);
+          const isOpen = isSearching || (userSetState !== undefined ? userSetState : false);
 
           const subcategoriesToDisplay = isSearching
             ? matchingSubcategories

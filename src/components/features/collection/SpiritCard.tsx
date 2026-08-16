@@ -2,11 +2,13 @@
 'use client';
 
 import React from 'react';
-import { MapPin, Star, CheckCircle2 } from 'lucide-react';
+import { MapPin, Star, CheckCircle2, Calendar } from 'lucide-react';
 import { Spirit, SPIRIT_COLOUR_HEX, SpiritColour } from '@/types/spirit.types';
 import { WhiskyLogo } from '@/components/ui/WhiskyLogo';
 import { cn } from '@/lib/utils';
 import { getRatingTierStyle } from '@/lib/spirit-utils';
+import { useLanguage } from '@/context/LanguageContext';
+import { getActiveFlavorCategories } from '@/data/spirit-flavor-taxonomy';
 
 interface SpiritCardProps {
   spirit: Spirit;
@@ -34,12 +36,56 @@ export function SpiritCard({
   onTouchCancel,
   onTouchMove,
 }: SpiritCardProps) {
+  const { language } = useLanguage();
   const colourHex = SPIRIT_COLOUR_HEX[spirit.colour as SpiritColour] ?? '#FFD700';
   const tierStyle = getRatingTierStyle(spirit.rating100);
 
   const formattedDate = spirit.dateTasted
-    ? new Date(spirit.dateTasted).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+    ? new Date(spirit.dateTasted).toLocaleDateString(language === 'DE' ? 'de-DE' : 'en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
     : '';
+
+  // Extract high-level active flavor categories for circular icon badges
+  const activeCategories = React.useMemo(
+    () => getActiveFlavorCategories(spirit.flavorTags),
+    [spirit.flavorTags]
+  );
+
+  // Construct Specs Line 1 (Row 4: Years · vol · bottle size)
+  const specsRow4: string[] = [];
+  if (spirit.age) specsRow4.push(`${spirit.age} ${language === 'DE' ? 'Jahre' : 'Years'}`);
+  if (spirit.abv > 0) specsRow4.push(`${spirit.abv}% vol`);
+  if (spirit.volumeMl && spirit.volumeMl > 0) specsRow4.push(`${spirit.volumeMl}ml`);
+
+  // Construct Specs Line 2 (Row 5: Strength · Added Colour · Chill Filtered)
+  const specsRow5: string[] = [];
+  specsRow5.push(
+    spirit.isCaskStrength
+      ? (language === 'DE' ? 'Fassstärke' : 'Cask Strength')
+      : (language === 'DE' ? 'Trinkstärke' : 'Standard')
+  );
+  specsRow5.push(
+    !spirit.addedColour
+      ? (language === 'DE' ? 'Ohne Farbstoff' : 'Natural Colour')
+      : (language === 'DE' ? 'Mit Farbstoff' : 'Added Colour')
+  );
+  specsRow5.push(
+    !spirit.chillFiltered
+      ? (language === 'DE' ? 'Nicht kühlgefiltert' : 'Non-Chill Filtered')
+      : (language === 'DE' ? 'Kühlgefiltert' : 'Chill Filtered')
+  );
+
+  // Construct Specs Line 3 (Row 6: Finish · Cask / Batch No. - conditional)
+  const specsRow6: string[] = [];
+  if (spirit.finish) specsRow6.push(spirit.finish);
+  if (spirit.caskNo) {
+    specsRow6.push(
+      spirit.caskNo.toLowerCase().startsWith('cask') ||
+      spirit.caskNo.toLowerCase().startsWith('batch') ||
+      spirit.caskNo.startsWith('#')
+        ? spirit.caskNo
+        : `Cask #${spirit.caskNo}`
+    );
+  }
 
   return (
     <button
@@ -53,25 +99,21 @@ export function SpiritCard({
       style={{ WebkitTouchCallout: 'none' } as React.CSSProperties}
       className={cn(
         'w-full flex flex-col text-left rounded-xl sm:rounded-2xl border transition-all duration-300 ease-out group overflow-hidden cursor-pointer relative shrink-0 select-none',
-        'bg-[var(--parchment-bg)] border border-[var(--parchment-border)] shadow-[0_8px_24px_-3px_rgba(35,20,8,0.14),0_2px_6px_rgba(35,20,8,0.06)]',
+        'bg-[var(--parchment-bg)] border border-[var(--parchment-border)] shadow-[0_6px_20px_-3px_rgba(35,20,8,0.12),0_2px_6px_rgba(35,20,8,0.06)]',
         isSelectMode
           ? isSelectChecked
-            ? 'border-[var(--wood-selection)] ring-2 ring-[var(--wood-selection)]/45 shadow-[0_0_25px_rgba(46,148,93,0.35)] scale-[1.02] opacity-100 z-10 bg-[var(--pub-bg-panel)]'
-            : 'border-[var(--parchment-border)]/50 opacity-40 scale-[0.98] shadow-xs'
-          : [
-              'hover:border-[var(--forest-green)] hover:shadow-[0_16px_36px_-4px_rgba(35,115,71,0.22),0_4px_12px_rgba(35,20,8,0.08)] hover:-translate-y-0.5',
-              isSelected
-                ? 'border-[var(--wood-selection)] ring-2 ring-[var(--wood-selection)]/45 shadow-[0_0_20px_rgba(46,148,93,0.30)]'
-                : '',
-            ].join(' '),
+            ? 'border-[var(--wood-selection)] ring-2 ring-[var(--wood-selection)]/45 shadow-[0_0_25px_rgba(46,148,93,0.35)] scale-[1.01] opacity-100 bg-[var(--pub-bg-panel)] z-10'
+            : 'border-[var(--parchment-border)]/50 opacity-40 scale-[0.99] shadow-xs'
+          : isSelected
+          ? 'border-[var(--wood-selection)] ring-2 ring-[var(--wood-selection)]/35 shadow-[0_12px_28px_-3px_rgba(46,148,93,0.22)] -translate-y-0.5'
+          : 'hover:border-[var(--forest-green)] hover:shadow-[0_12px_28px_-3px_rgba(35,115,71,0.20),0_4px_12px_rgba(35,20,8,0.08)] hover:-translate-y-0.5',
       )}
-      aria-pressed={isSelected}
     >
-      {/* 1. Seamless Edge-to-Edge Bottle Photo (Tall Portrait Showcase) */}
-      <div className="relative w-full aspect-[4/5] sm:aspect-[3/4] overflow-hidden bg-gradient-to-br from-[var(--pub-bg-alt)] via-[var(--parchment-bg)] to-[var(--pub-bg-alt)] flex items-center justify-center shrink-0">
-        {/* Ambient Liquid Color Backglow */}
+      {/* 1. Generous Bottle Showcase Frame (Edge-to-edge full canvas) */}
+      <div className="relative w-full aspect-[4/5] sm:aspect-[3/4] bg-gradient-to-b from-[var(--pub-bg-alt)] via-[var(--parchment-bg)] to-[var(--pub-bg-alt)] overflow-hidden flex items-center justify-center p-0">
+        {/* Ambient Radial Liquid Glow Behind Bottle */}
         <div
-          className="absolute inset-0 pointer-events-none opacity-20 z-0"
+          className="absolute inset-0 pointer-events-none opacity-30 group-hover:opacity-45 transition-opacity duration-500"
           style={{
             background: `radial-gradient(circle at center, ${colourHex} 0%, transparent 75%)`,
           }}
@@ -81,40 +123,34 @@ export function SpiritCard({
           <img
             src={spirit.thumbnailImage}
             alt={spirit.name}
-            className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 pointer-events-none z-10"
+            className="w-full h-full object-contain p-0 transition-transform duration-500 ease-out group-hover:scale-105 pointer-events-none"
             draggable={false}
           />
         ) : (
-          /* Classic Archival Glass Atelier Placeholder (Clover Green) */
-          <div className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden z-10">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[var(--forest-green)]/10 border border-[var(--forest-green)]/30 flex items-center justify-center text-[var(--forest-green)] shadow-xs transition-transform duration-300 group-hover:scale-110">
-              <WhiskyLogo size={36} className="text-[var(--forest-green)] sm:size-[44px]" />
-            </div>
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-[var(--forest-green)]/10 border border-[var(--forest-green)]/30 flex items-center justify-center text-[var(--forest-green)] shadow-xs transition-transform duration-300 group-hover:scale-110">
+            <WhiskyLogo size={44} className="text-[var(--forest-green)] sm:size-[52px]" />
           </div>
         )}
 
-        {/* Subtle Bottom Vignette for seamless blend */}
-        <div className="absolute inset-x-0 bottom-0 h-5 sm:h-6 bg-gradient-to-t from-black/20 to-transparent pointer-events-none z-15" />
-
-        {/* Prominent Floating Score Medal (Top-Right - 100% Opaque & High-Contrast Against Any Photo) */}
+        {/* Dynamic Score Medal (Top-Right of photo) */}
         <div
           className={cn(
-            'absolute top-2 right-2 sm:top-3 sm:right-3 z-20 h-7 sm:h-8 px-2 sm:px-3 rounded-lg border font-display font-black text-xs sm:text-sm flex items-center gap-1 shadow-[0_4px_16px_rgba(0,0,0,0.9)] select-none',
+            'absolute top-2 right-2 sm:top-2.5 sm:right-2.5 flex items-center gap-0.5 sm:gap-1 px-2 sm:px-2.5 py-1 rounded-lg border font-display font-black text-xs sm:text-sm shadow-md select-none z-10',
             tierStyle.bg,
             tierStyle.border,
-            tierStyle.text
+            tierStyle.text,
           )}
         >
-          <Star size={13} className={cn('sm:size-[14px] shrink-0 -mt-0.5', tierStyle.starColor)} />
+          <Star size={11} className={cn('sm:size-[13px] shrink-0 -mt-0.5', tierStyle.starColor)} />
           <span>{spirit.rating100}</span>
         </div>
 
-        {/* Select Mode Checkbox (Top-Left) */}
+        {/* Multi-Select Circle Checkbox Overlay (Top-Left of photo) */}
         {isSelectMode && (
-          <div className="absolute top-2 left-2 sm:top-3 sm:left-3 z-20">
+          <div className="absolute top-2 left-2 z-10">
             <div
               className={cn(
-                'w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 shadow-md',
+                'w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all shadow-md',
                 isSelectChecked
                   ? 'bg-[var(--wood-selection)] border-[var(--wood-selection)]'
                   : 'bg-[var(--pub-bg-panel)]/90 border-[var(--parchment-border)] shadow-xs',
@@ -141,50 +177,93 @@ export function SpiritCard({
         <div className="absolute inset-0 shadow-[inset_0_1px_2px_rgba(0,0,0,0.6)] pointer-events-none" />
       </div>
 
-      {/* 3. Editorial Card Body (Calibrated for 2-column mobile and multi-column desktop) */}
-      <div className="w-full p-2.5 sm:p-4 flex flex-col gap-1.5 sm:gap-2 flex-1 min-w-0 justify-between">
-        {/* Identity */}
+      {/* 3. Editorial Card Body (Structured Continuous Rows + Finish/Cask + Category Icons) */}
+      <div className="w-full p-2.5 sm:p-3.5 flex flex-col gap-1 sm:gap-1.5 flex-1 min-w-0 justify-between">
+        {/* Row 1: Name (Distillery) */}
         <div className="min-w-0">
-          <h3 className="font-display text-xs sm:text-base lg:text-lg font-bold text-[var(--foreground)] group-hover:text-[var(--brass-accent)] transition-colors duration-300 truncate leading-snug tracking-wide">
+          <h3 className="font-display text-sm sm:text-base md:text-lg font-bold text-[var(--foreground)] group-hover:text-[var(--brass-accent)] transition-colors duration-300 truncate leading-tight tracking-wide">
             {spirit.distillery}
           </h3>
-          <p className="text-[11px] sm:text-xs lg:text-[13px] font-body text-[var(--sepia-muted)] leading-snug truncate mt-0.5 font-medium">
+        </div>
+
+        {/* Row 2: Description (Bottling Name) */}
+        <div className="min-w-0">
+          <p className="text-xs sm:text-[13px] font-body text-[var(--sepia-muted)] leading-tight truncate font-medium">
             {spirit.name}
           </p>
         </div>
 
-        {/* Classification & Specs Track */}
-        <div className="flex flex-col gap-1 sm:gap-1.5 min-w-0">
-          <div className="min-w-0">
-            <span className="inline-flex items-center text-[8.5px] sm:text-[10px] font-bold uppercase tracking-wider bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] px-1.5 sm:px-2 py-0.5 rounded text-[var(--sepia-text)] truncate max-w-full">
-              {spirit.spiritType}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap min-w-0">
-            {spirit.age && (
-              <span className="h-5 sm:h-6 px-1.5 sm:px-2 rounded-md bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] text-[10px] sm:text-xs font-mono font-bold text-[var(--sepia-text)] flex items-center shrink-0">
-                {spirit.age}yr
-              </span>
-            )}
-            <span className="h-5 sm:h-6 px-1.5 sm:px-2 rounded-md bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] text-[10px] sm:text-xs font-mono font-bold text-[var(--sepia-text)] flex items-center shrink-0">
-              {spirit.abv}%
-            </span>
-          </div>
+        {/* Row 3: Typ des Whiskys */}
+        <div className="font-display text-[10px] sm:text-xs uppercase tracking-wider text-[var(--sepia-text)] font-semibold truncate leading-tight">
+          {spirit.spiritType}
         </div>
+
+        {/* Row 4: Years · vol · bottle size (Continuous Text) */}
+        {specsRow4.length > 0 && (
+          <div className="text-[11px] sm:text-xs font-body text-[var(--sepia-text)] font-medium leading-tight flex items-center gap-1.5 flex-wrap min-w-0">
+            {specsRow4.map((item, idx) => (
+              <React.Fragment key={idx}>
+                {idx > 0 && <span className="text-[var(--sepia-muted)]/50 select-none">·</span>}
+                <span className="truncate">{item}</span>
+              </React.Fragment>
+            ))}
+          </div>
+        )}
+
+        {/* Row 5: Strength · Added Colour · Chill Filtered (Continuous Text) */}
+        <div className="text-[10.5px] sm:text-xs font-body text-[var(--sepia-muted)] font-medium leading-tight flex items-center gap-1.5 flex-wrap min-w-0">
+          {specsRow5.map((item, idx) => (
+            <React.Fragment key={idx}>
+              {idx > 0 && <span className="text-[var(--sepia-muted)]/50 select-none">·</span>}
+              <span className="truncate">{item}</span>
+            </React.Fragment>
+          ))}
+        </div>
+
+        {/* Row 6: Finish · Cask / Batch No. (Continuous Text, conditional) */}
+        {specsRow6.length > 0 && (
+          <div className="text-[10.5px] sm:text-xs font-body text-[var(--sepia-muted)] font-medium leading-tight flex items-center gap-1.5 flex-wrap min-w-0">
+            {specsRow6.map((item, idx) => (
+              <React.Fragment key={idx}>
+                {idx > 0 && <span className="text-[var(--sepia-muted)]/50 select-none">·</span>}
+                <span className="truncate">{item}</span>
+              </React.Fragment>
+            ))}
+          </div>
+        )}
+
+        {/* Row 7: Active Flavor Category Badges (Circular Mini Category Icons) */}
+        {activeCategories.length > 0 && (
+          <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap min-w-0 pt-0.5">
+            {activeCategories.slice(0, 6).map((cat) => (
+              <span
+                key={cat.id}
+                title={`${cat.name[language] ?? cat.name.EN} (${cat.count})`}
+                style={{
+                  backgroundColor: `${cat.color}20`,
+                  borderColor: `${cat.color}50`,
+                }}
+                className="w-5.5 h-5.5 sm:w-6 sm:h-6 rounded-full border flex items-center justify-center text-[10.5px] sm:text-xs shadow-2xs shrink-0 select-none cursor-default transition-transform hover:scale-110"
+              >
+                <span>{cat.emoji}</span>
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* 4. Signature Clover Green Grounded Footer: Provenance & Date */}
-      <div className="w-full bg-[var(--wood-dark)] px-2.5 sm:px-4 py-2 border-t border-[var(--wood-dark)]/80 flex items-center justify-between gap-1 sm:gap-2 text-[10px] sm:text-xs shrink-0">
+      {/* 4. Signature Clover Green Grounded Footer: Provenance (Left) & Date (Right) */}
+      <div className="w-full bg-[var(--wood-dark)] px-3 sm:px-3.5 py-1.5 sm:py-2 border-t border-[var(--wood-dark)]/80 flex items-center justify-between gap-1 sm:gap-2 text-[10px] sm:text-xs shrink-0">
         <div className="flex items-center gap-1.5 min-w-0 text-[var(--parchment-bg)] font-body font-medium">
-          <MapPin size={11} className="sm:size-[13px] text-[var(--brass-light)] shrink-0" />
+          <MapPin size={11} className="sm:size-[12px] text-[var(--brass-light)] shrink-0" />
           <span className="truncate">{spirit.region || '—'}</span>
         </div>
 
         {formattedDate && (
-          <span className="font-mono text-[var(--parchment-bg)]/80 whitespace-nowrap text-right shrink-0 hidden xs:inline sm:inline">
-            {formattedDate}
-          </span>
+          <div className="flex items-center gap-1 font-mono text-[var(--parchment-bg)]/85 whitespace-nowrap text-right shrink-0">
+            <Calendar size={11} className="sm:size-[12px] text-[var(--brass-light)] shrink-0" />
+            <span>{formattedDate}</span>
+          </div>
         )}
       </div>
     </button>

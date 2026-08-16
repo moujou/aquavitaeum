@@ -78,25 +78,25 @@ export function GoogleDriveSyncSection() {
               {t('googleSyncTitle')}
             </p>
             <p className="font-body text-xs text-[var(--sepia-muted)] mt-0.5 truncate">
-              {isEnabled && isConnected
-                ? formattedLastSync
+              {isSyncing ? (
+                <span className="inline-flex items-center gap-1.5 text-[var(--forest-green)] font-medium">
+                  <RefreshCw size={11} className="animate-spin shrink-0" />
+                  <span>{t('googleSyncing')}</span>
+                </span>
+              ) : isEnabled && isConnected ? (
+                formattedLastSync
                   ? `${t('googleSyncLastSynced')}: ${formattedLastSync}`
                   : t('googleSyncConnected')
-                : t('googleSyncOffline')}
+              ) : (
+                t('googleSyncOffline')
+              )}
             </p>
           </div>
         </div>
 
-        {/* Minimalist Cloud / CloudOff Icon Toggle */}
+        {/* Minimalist Cloud / CloudOff Icon Toggle — Always accessible so user can de-sync at any time */}
         <div className="flex items-center gap-1.5 shrink-0">
-          {isSyncing ? (
-            <div
-              className="w-9 h-9 rounded-lg bg-[var(--forest-green)]/15 text-[var(--forest-green)] flex items-center justify-center shadow-xs select-none"
-              title={t('googleSyncing')}
-            >
-              <RefreshCw size={18} className="animate-spin" />
-            </div>
-          ) : isEnabled && isConnected ? (
+          {isEnabled && isConnected ? (
             <button
               type="button"
               onClick={disconnect}

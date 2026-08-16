@@ -54,6 +54,56 @@ function TextInput({
   );
 }
 
+function SegmentedSwitch({
+  id,
+  label,
+  leftLabel,
+  rightLabel,
+  value,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  leftLabel: string;
+  rightLabel: string;
+  value: boolean;
+  onChange: (val: boolean) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-1.5 w-full">
+      <FieldLabel>{label}</FieldLabel>
+      <div className="grid grid-cols-2 p-0.5 rounded-xs bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] shadow-xs gap-1">
+        <button
+          id={`${id}-false`}
+          type="button"
+          onClick={() => onChange(false)}
+          className={cn(
+            'py-2 px-3 rounded-xs font-body text-xs sm:text-sm font-semibold transition-all cursor-pointer text-center select-none truncate min-h-[36px] flex items-center justify-center',
+            !value
+              ? 'bg-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs'
+              : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-[var(--parchment-bg)]/40'
+          )}
+        >
+          {leftLabel}
+        </button>
+        <button
+          id={`${id}-true`}
+          type="button"
+          onClick={() => onChange(true)}
+          className={cn(
+            'py-2 px-3 rounded-xs font-body text-xs sm:text-sm font-semibold transition-all cursor-pointer text-center select-none truncate min-h-[36px] flex items-center justify-center',
+            value
+              ? 'bg-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs'
+              : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-[var(--parchment-bg)]/40'
+          )}
+        >
+          {rightLabel}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 interface TastingMetadataSectionProps {
   spirit: Spirit;
   update: <K extends keyof Spirit>(key: K, value: Spirit[K]) => void;
@@ -86,9 +136,9 @@ export function TastingMetadataSection({
         </select>
       </div>
 
-      {/* 2-Column Metadata Grid */}
+      {/* 2-Column Symmetrical Metadata Grid */}
       <div className="grid grid-cols-2 gap-x-4 gap-y-4">
-        {/* Distillery (Full Width) */}
+        {/* Row 1: Distillery (Full Width) */}
         <div className="col-span-2 flex flex-col gap-1">
           <FieldLabel htmlFor="distillery-input">{t('distilleryProducer')}</FieldLabel>
           <TextInput
@@ -99,7 +149,7 @@ export function TastingMetadataSection({
           />
         </div>
 
-        {/* Name (Full Width) */}
+        {/* Row 2: Name (Full Width) */}
         <div className="col-span-2 flex flex-col gap-1">
           <FieldLabel htmlFor="name-input">{t('spiritName')}</FieldLabel>
           <TextInput
@@ -110,7 +160,7 @@ export function TastingMetadataSection({
           />
         </div>
 
-        {/* Region & Cask / Batch No */}
+        {/* Row 3: Region & Age */}
         <div className="flex flex-col gap-1">
           <FieldLabel htmlFor="region-input">{t('regionOrigin')}</FieldLabel>
           <TextInput
@@ -120,17 +170,6 @@ export function TastingMetadataSection({
             placeholder="e.g. Islay, Scotland"
           />
         </div>
-        <div className="flex flex-col gap-1">
-          <FieldLabel htmlFor="cask-input">{t('caskBatchNo')}</FieldLabel>
-          <TextInput
-            id="cask-input"
-            value={spirit.caskNo ?? ''}
-            onChange={(v) => update('caskNo', v)}
-            placeholder="Optional"
-          />
-        </div>
-
-        {/* Age & Date Tasted */}
         <div className="flex flex-col gap-1">
           <FieldLabel htmlFor="age-input">{t('ageYears')}</FieldLabel>
           <input
@@ -144,17 +183,28 @@ export function TastingMetadataSection({
             className="w-full bg-transparent border-b border-[var(--parchment-border)] pb-1 text-sm sm:text-base text-[var(--sepia-text)] font-body focus:outline-none focus:border-[var(--sepia-muted)] placeholder:text-[var(--parchment-border)]"
           />
         </div>
+
+        {/* Row 4: Cask / Batch No & Finish (50% Length) */}
         <div className="flex flex-col gap-1">
-          <FieldLabel htmlFor="date-tasted-input">{t('dateTasted')}</FieldLabel>
-          <LocalizedDatePicker
-            id="date-tasted-input"
-            value={spirit.dateTasted}
-            onChange={(isoDate) => update('dateTasted', isoDate)}
-            language={language}
+          <FieldLabel htmlFor="cask-input">{t('caskBatchNo')}</FieldLabel>
+          <TextInput
+            id="cask-input"
+            value={spirit.caskNo ?? ''}
+            onChange={(v) => update('caskNo', v)}
+            placeholder="Optional"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <FieldLabel htmlFor="finish-input">{t('finishType')}</FieldLabel>
+          <TextInput
+            id="finish-input"
+            value={spirit.finish ?? ''}
+            onChange={(v) => update('finish', v)}
+            placeholder="e.g. Oloroso Sherry Finish"
           />
         </div>
 
-        {/* ABV % & Bottle Price + Currency */}
+        {/* Row 5: ABV % & Bottle Volume (ml) Dropdown */}
         <div className="flex flex-col gap-1">
           <FieldLabel htmlFor="abv-input">{t('abvPercent')}</FieldLabel>
           <input
@@ -163,9 +213,61 @@ export function TastingMetadataSection({
             min={0}
             max={100}
             step={0.1}
-            value={spirit.abv}
-            onChange={(e) => update('abv', Number(e.target.value))}
-            className="w-full bg-transparent border-b border-[var(--parchment-border)] pb-1 text-sm sm:text-base text-[var(--sepia-text)] font-body focus:outline-none focus:border-[var(--sepia-muted)]"
+            value={spirit.abv === 0 ? '' : spirit.abv}
+            placeholder="40.0"
+            onChange={(e) => {
+              const val = e.target.value;
+              update('abv', val === '' ? 0 : parseFloat(val) || 0);
+            }}
+            className="w-full bg-transparent border-b border-[var(--parchment-border)] pb-1 text-sm sm:text-base text-[var(--sepia-text)] font-body focus:outline-none focus:border-[var(--sepia-muted)] placeholder:text-[var(--sepia-muted)]/50"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <FieldLabel htmlFor="volume-select">{t('bottleVolume')}</FieldLabel>
+          <div className="flex items-center gap-1.5 border-b border-[var(--parchment-border)]">
+            <select
+              id="volume-select"
+              value={[50, 500, 700, 1000].includes(spirit.volumeMl ?? 700) ? (spirit.volumeMl ?? 700) : 'custom'}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val !== 'custom') {
+                  update('volumeMl', parseInt(val, 10));
+                }
+              }}
+              className="w-full bg-transparent pb-1 text-sm sm:text-base text-[var(--sepia-text)] font-body focus:outline-none cursor-pointer border-none"
+            >
+              <option value={700} className="bg-[var(--parchment-bg)] text-[var(--sepia-text)]">700 ml (Standard)</option>
+              <option value={500} className="bg-[var(--parchment-bg)] text-[var(--sepia-text)]">500 ml</option>
+              <option value={1000} className="bg-[var(--parchment-bg)] text-[var(--sepia-text)]">1.000 ml (1L)</option>
+              <option value={50} className="bg-[var(--parchment-bg)] text-[var(--sepia-text)]">50 ml (Sample)</option>
+              <option value="custom" className="bg-[var(--parchment-bg)] text-[var(--sepia-text)]">
+                {language === 'DE' ? 'Eigene Füllmenge…' : 'Custom size…'}
+              </option>
+            </select>
+            {![50, 500, 700, 1000].includes(spirit.volumeMl ?? 700) && (
+              <input
+                id="custom-volume-input"
+                type="number"
+                min={0}
+                max={5000}
+                step={10}
+                value={spirit.volumeMl ?? ''}
+                placeholder="ml"
+                onChange={(e) => update('volumeMl', e.target.value ? parseInt(e.target.value, 10) : undefined)}
+                className="w-16 bg-transparent pb-1 text-sm sm:text-base text-[var(--sepia-text)] font-mono font-bold focus:outline-none text-right placeholder:text-[var(--sepia-muted)]/50"
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Row 6: Date Tasted & Bottle Price + Currency */}
+        <div className="flex flex-col gap-1">
+          <FieldLabel htmlFor="date-tasted-input">{t('dateTasted')}</FieldLabel>
+          <LocalizedDatePicker
+            id="date-tasted-input"
+            value={spirit.dateTasted}
+            onChange={(isoDate) => update('dateTasted', isoDate)}
+            language={language}
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -198,36 +300,31 @@ export function TastingMetadataSection({
           </div>
         </div>
 
-        {/* Finish free text input (Full Width) */}
-        <div className="col-span-2 flex flex-col gap-1 mt-1">
-          <FieldLabel htmlFor="finish-notes-input">{t('finishType')}</FieldLabel>
-          <TextInput
-            id="finish-notes-input"
-            value={spirit.finishNotes ?? ''}
-            onChange={(v) => update('finishNotes', v)}
-            placeholder="e.g. Oloroso Sherry Cask Finish, Pedro Ximénez Cask Finish, Port Cask Finish"
-          />
-        </div>
-
-        {/* Production Spec Toggle Buttons */}
-        <div className="col-span-2 grid grid-cols-3 gap-2 mt-1.5 pt-1">
-          <ToggleButton
-            id="cask-strength-btn"
-            active={spirit.isCaskStrength ?? false}
-            onClick={() => update('isCaskStrength', !spirit.isCaskStrength)}
+        {/* Production Attribute 2-Option Segmented Switches (Full Width Vertical Stack) */}
+        <div className="col-span-2 flex flex-col gap-3.5 mt-2 pt-3 border-t border-[var(--parchment-divider)]">
+          <SegmentedSwitch
+            id="cask-strength-switch"
             label={t('caskStrength')}
+            leftLabel={t('drinkingStrength')}
+            rightLabel={t('caskStrength')}
+            value={spirit.isCaskStrength ?? false}
+            onChange={(v) => update('isCaskStrength', v)}
           />
-          <ToggleButton
-            id="added-colour-btn"
-            active={spirit.addedColour ?? false}
-            onClick={() => update('addedColour', !spirit.addedColour)}
+          <SegmentedSwitch
+            id="added-colour-switch"
             label={t('addedColour')}
+            leftLabel={t('naturalColour')}
+            rightLabel={t('addedColour')}
+            value={spirit.addedColour ?? false}
+            onChange={(v) => update('addedColour', v)}
           />
-          <ToggleButton
-            id="chill-filtered-btn"
-            active={spirit.chillFiltered ?? true}
-            onClick={() => update('chillFiltered', !spirit.chillFiltered)}
+          <SegmentedSwitch
+            id="chill-filtered-switch"
             label={t('chillFiltered')}
+            leftLabel={t('nonChillFiltered')}
+            rightLabel={t('chillFiltered')}
+            value={spirit.chillFiltered ?? false}
+            onChange={(v) => update('chillFiltered', v)}
           />
         </div>
       </div>

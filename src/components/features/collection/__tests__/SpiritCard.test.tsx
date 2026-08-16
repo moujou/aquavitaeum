@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { MOCK_SPIRITS } from '@/data/mock-spirits';
+import { LanguageProvider } from '@/context/LanguageContext';
 import { SpiritCard } from '../SpiritCard';
 
 describe('Modular SpiritCard Component', () => {
@@ -10,18 +11,20 @@ describe('Modular SpiritCard Component', () => {
     const clickFn = vi.fn();
 
     render(
-      <SpiritCard
-        spirit={sampleSpirit}
-        isSelected={false}
-        onClick={clickFn}
-      />
+      <LanguageProvider>
+        <SpiritCard
+          spirit={sampleSpirit}
+          isSelected={false}
+          onClick={clickFn}
+        />
+      </LanguageProvider>
     );
 
     expect(screen.getByText('Laphroaig')).toBeDefined();
     expect(screen.getByText('10 Year Old Original Cask Strength')).toBeDefined();
     expect(screen.getByText('Islay')).toBeDefined();
-    expect(screen.getByText('10yr')).toBeDefined();
-    expect(screen.getByText('40%')).toBeDefined(); // Formatted directly behind number
+    expect(screen.getByText('10 Years')).toBeDefined();
+    expect(screen.getByText('40% vol')).toBeDefined();
 
     const button = screen.getByRole('button');
     fireEvent.click(button);

@@ -1,6 +1,7 @@
 import { db } from '@/lib/db';
 import { Journal, Spirit } from '@/types/spirit.types';
-import { validateSpirit } from '@/lib/schemas/spirit.schema';
+import { isValidSpiritData } from '@/lib/schemas/spirit.schema';
+import { isValidJournalData } from '@/lib/schemas/journal.schema';
 
 // ─── Constants & Types ────────────────────────────────────────────────────────
 
@@ -286,19 +287,7 @@ export function sanitizeFileName(name: string): string {
   return name.replace(/[\\/:*?"<>|]/g, '_').trim() || 'Untitled';
 }
 
-/**
- * Validates a spirit object against rogue or invalid files
- */
-export function isValidSpiritData(data: unknown): data is Spirit {
-  if (!data || typeof data !== 'object') return false;
-  const spirit = data as Partial<Spirit>;
-  if (!spirit.id || typeof spirit.id !== 'string') return false;
-  if (!spirit.name || typeof spirit.name !== 'string') return false;
-  if (!spirit.spiritType || typeof spirit.spiritType !== 'string') return false;
-  
-  const validation = validateSpirit(spirit);
-  return validation.valid;
-}
+export { isValidSpiritData } from '@/lib/schemas/spirit.schema';
 
 /**
  * Executes a full bidirectional sync with Google Drive using transparent folder hierarchy:
@@ -501,7 +490,7 @@ export async function downloadLocalBackupFile(): Promise<void> {
  * Imports a local JSON backup file into IndexedDB with schema validation
  */
 export async function importLocalBackupFile(file: File): Promise<{ importedSpirits: number; importedJournals: number }> {
-  const fileText = await file.text();
+  const fileText = await readFileText(file);
   const parsed = JSON.parse(fileText) as Partial<AquaVitaeumFullBackup>;
 
   if (!parsed.journals || !Array.isArray(parsed.journals) || !parsed.spirits || !Array.isArray(parsed.spirits)) {
@@ -512,7 +501,7 @@ export async function importLocalBackupFile(file: File): Promise<{ importedSpiri
   let importedSpirits = 0;
 
   for (const j of parsed.journals) {
-    if (j.id && j.name) {
+    if (isValidJournalData(j)) {
       await db.journals.put(j);
       importedJournals++;
     }
@@ -652,8 +641,8 @@ export async function importJournalFile(file: File): Promise<{ journalCount: num
   // Case 1: Standard export payload with journals and spirits arrays
   if (Array.isArray(parsed.journals) && Array.isArray(parsed.spirits)) {
     for (const j of parsed.journals) {
-      if (j && typeof j === 'object' && 'id' in j && 'name' in j) {
-        await db.journals.put(j as never);
+      if (isValidJournalData(j)) {
+        await db.journals.put(j);
         journalCount++;
       }
     }
@@ -667,8 +656,8 @@ export async function importJournalFile(file: File): Promise<{ journalCount: num
   }
 
   // Case 2: Direct single journal object
-  if (parsed.id && parsed.name && typeof parsed.name === 'string') {
-    await db.journals.put(parsed as never);
+  if (isValidJournalData(parsed)) {
+    await db.journals.put(parsed);
     journalCount++;
     return { journalCount, spiritCount: 0 };
   }

@@ -23,6 +23,7 @@ interface AppHeaderProps {
   globalTypeFilter: SpiritType | 'All';
   setGlobalTypeFilter: (t: SpiritType | 'All') => void;
   isSelectMode?: boolean;
+  onNavigateToSpirit?: (spiritId: string, journalId: string) => void;
 }
 
 export default function AppHeader({
@@ -40,6 +41,7 @@ export default function AppHeader({
   globalTypeFilter,
   setGlobalTypeFilter,
   isSelectMode = false,
+  onNavigateToSpirit,
 }: AppHeaderProps) {
   const { t, language } = useLanguage();
 
@@ -86,6 +88,7 @@ export default function AppHeader({
               setGlobalSearchQuery={setGlobalSearchQuery}
               globalTypeFilter={globalTypeFilter}
               setGlobalTypeFilter={setGlobalTypeFilter}
+              onNavigateToSpirit={onNavigateToSpirit}
             />
           )}
         </div>
@@ -148,6 +151,7 @@ export default function AppHeader({
                 setGlobalSearchQuery={setGlobalSearchQuery}
                 globalTypeFilter={globalTypeFilter}
                 setGlobalTypeFilter={setGlobalTypeFilter}
+                onNavigateToSpirit={onNavigateToSpirit}
               />
             )}
           </div>
