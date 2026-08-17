@@ -31,42 +31,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     return 'EN';
   });
 
-  // Hydrate language on startup from /api/settings or localStorage fallback
-  useEffect(() => {
-    let isMounted = true;
-
-    async function loadLanguageSetting() {
-      try {
-        const res = await fetch('/api/settings');
-        if (res.ok) {
-          const data = await res.json();
-          const serverLang = data?.settings?.language;
-          if (isMounted && (SUPPORTED_LANGUAGES as readonly string[]).includes(serverLang)) {
-            setLanguageState(serverLang as Language);
-            if (typeof window !== 'undefined') {
-              window.localStorage.setItem(LOCAL_STORAGE_LANG_KEY, serverLang);
-            }
-            return;
-          }
-        }
-      } catch {
-        // Fallback to local storage
-      }
-
-      if (typeof window !== 'undefined') {
-        const cached = window.localStorage.getItem(LOCAL_STORAGE_LANG_KEY);
-        if (isMounted && (SUPPORTED_LANGUAGES as readonly string[]).includes(cached ?? '')) {
-          setLanguageState(cached as Language);
-        }
-      }
-    }
-
-    loadLanguageSetting();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
   // Sync HTML lang attribute for screen readers, CSS :lang(), and spellcheck
   useEffect(() => {
     if (typeof document !== 'undefined') {
@@ -84,14 +48,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         // Ignore storage quota error
       }
     }
-
-    fetch('/api/settings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ language: newLang }),
-    }).catch(() => {
-      // Ignore background network error
-    });
   }, []);
 
   const t = useCallback(

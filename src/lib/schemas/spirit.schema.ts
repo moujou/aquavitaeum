@@ -194,7 +194,7 @@ export function isValidSpiritData(data: unknown): data is Spirit {
   if (!data || typeof data !== 'object') return false;
   const spirit = data as Partial<Spirit>;
   if (!spirit.id || typeof spirit.id !== 'string') return false;
-  if (!spirit.name || typeof spirit.name !== 'string') return false;
+  if (typeof spirit.name !== 'string') return false;
   if (!spirit.spiritType || typeof spirit.spiritType !== 'string') return false;
 
   const validation = validateSpirit(spirit);

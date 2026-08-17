@@ -55,16 +55,7 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
   beforeEach(() => {
     sessionStorage.clear();
     localStorage.clear();
-
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockImplementation(() => {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve({ spirits: [] }),
-        });
-      }),
-    );
+    localStorage.setItem('aqua-vitaeum-seeded', 'true');
   });
 
   it('renders welcome onboarding page when session is not started', () => {

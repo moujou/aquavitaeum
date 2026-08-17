@@ -1,9 +1,10 @@
 'use client';
 
-import React from 'react';
-import { Trash2, X, Download, CheckSquare } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { Trash2, X, Download, CheckSquare, Upload, CheckCircle2, AlertCircle } from 'lucide-react';
 import { JournalWithStats } from '@/hooks/useJournals';
 import { PageActionsDropdown } from '@/components/ui/PageActionsDropdown';
+import { cn } from '@/lib/utils';
 
 interface JournalLandingHeaderProps {
   journal: JournalWithStats;
@@ -17,6 +18,7 @@ interface JournalLandingHeaderProps {
   onEnterSelectMode?: () => void;
   onExportJournal?: (id: string) => void;
   onExportSelectedNotes?: () => void;
+  onImportNotes?: (file: File) => Promise<{ importedCount: number }>;
   language?: string;
 }
 
@@ -31,8 +33,46 @@ export function JournalLandingHeader({
   onEnterSelectMode,
   onExportJournal,
   onExportSelectedNotes,
+  onImportNotes,
   language = 'EN',
 }: JournalLandingHeaderProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [importNotice, setImportNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  const handleFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setImportNotice(null);
+      if (onImportNotes) {
+        const result = await onImportNotes(file);
+        setImportNotice({
+          type: 'success',
+          message:
+            language === 'DE'
+              ? `${result.importedCount} Notiz(en) erfolgreich importiert!`
+              : `Successfully imported ${result.importedCount} note(s)!`,
+        });
+        setTimeout(() => setImportNotice(null), 3500);
+      }
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : language === 'DE'
+            ? 'Import fehlgeschlagen.'
+            : 'Import failed.';
+      setImportNotice({
+        type: 'error',
+        message,
+      });
+      setTimeout(() => setImportNotice(null), 4000);
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   return (
     <div className="pb-2 w-full">
       <div className="flex items-center justify-between gap-3 min-w-0 min-h-[36px]">
@@ -100,6 +140,12 @@ export function JournalLandingHeader({
                   onClick: () => onEnterSelectMode?.(),
                 },
                 {
+                  id: 'import-notes',
+                  label: language === 'DE' ? 'Notizen importieren' : 'Import Notes',
+                  icon: <Upload size={16} />,
+                  onClick: () => fileInputRef.current?.click(),
+                },
+                {
                   id: 'export-journal',
                   label: language === 'DE' ? 'Journal exportieren' : 'Export Journal',
                   icon: <Download size={16} />,
@@ -107,9 +153,30 @@ export function JournalLandingHeader({
                 },
               ]}
             />
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileSelected}
+              accept=".json,application/json"
+              className="hidden"
+            />
           </div>
         )}
       </div>
+
+      {importNotice && (
+        <div
+          className={cn(
+            'mt-2.5 flex items-center gap-2 text-xs px-3 py-1.5 rounded-md border animate-fade-in font-medium z-10 w-fit',
+            importNotice.type === 'success'
+              ? 'bg-[var(--forest-green)]/15 text-[var(--forest-green)] border-[var(--forest-green)]/40 dark:text-emerald-300'
+              : 'bg-red-950/40 text-red-700 dark:text-red-300 border-red-500/40'
+          )}
+        >
+          {importNotice.type === 'success' ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />}
+          <span>{importNotice.message}</span>
+        </div>
+      )}
 
       {journal.description && !isSelectMode && (
         <p className="font-body text-xs sm:text-sm text-[var(--sepia-muted)] italic mt-1.5 leading-relaxed">

@@ -7,17 +7,35 @@ export interface TombstoneRecord {
 }
 
 export const TOMBSTONES_STORAGE_KEY = 'aqua-vitaeum-tombstones';
-const MAX_TOMBSTONE_AGE_DAYS = 60;
+export const MAX_TOMBSTONE_AGE_DAYS = 60;
 
 /**
- * Retrieves all stored local tombstones
+ * Prunes tombstones older than MAX_TOMBSTONE_AGE_DAYS (60 days)
+ */
+export function pruneTombstones(records: Record<string, TombstoneRecord>, maxAgeDays = MAX_TOMBSTONE_AGE_DAYS): Record<string, TombstoneRecord> {
+  const now = Date.now();
+  const maxAgeMs = maxAgeDays * 24 * 60 * 60 * 1000;
+  const pruned: Record<string, TombstoneRecord> = {};
+
+  for (const [id, record] of Object.entries(records)) {
+    const recordTime = new Date(record.deletedAt).getTime();
+    if (!isNaN(recordTime) && now - recordTime < maxAgeMs) {
+      pruned[id] = record;
+    }
+  }
+  return pruned;
+}
+
+/**
+ * Retrieves all stored local tombstones (automatically pruned)
  */
 export function getTombstones(): Record<string, TombstoneRecord> {
   if (typeof window === 'undefined') return {};
   try {
     const raw = localStorage.getItem(TOMBSTONES_STORAGE_KEY);
     if (!raw) return {};
-    return JSON.parse(raw) as Record<string, TombstoneRecord>;
+    const parsed = JSON.parse(raw) as Record<string, TombstoneRecord>;
+    return pruneTombstones(parsed);
   } catch (err) {
     console.warn('[Aqua Vitaeum] Failed to parse tombstones:', err);
     return {};
@@ -27,20 +45,10 @@ export function getTombstones(): Record<string, TombstoneRecord> {
 /**
  * Saves tombstones back to localStorage, automatically pruning old ones
  */
-function saveTombstones(records: Record<string, TombstoneRecord>): void {
+export function saveTombstones(records: Record<string, TombstoneRecord>): void {
   if (typeof window === 'undefined') return;
   try {
-    const now = Date.now();
-    const maxAgeMs = MAX_TOMBSTONE_AGE_DAYS * 24 * 60 * 60 * 1000;
-    const pruned: Record<string, TombstoneRecord> = {};
-
-    for (const [id, record] of Object.entries(records)) {
-      const recordTime = new Date(record.deletedAt).getTime();
-      if (now - recordTime < maxAgeMs) {
-        pruned[id] = record;
-      }
-    }
-
+    const pruned = pruneTombstones(records);
     localStorage.setItem(TOMBSTONES_STORAGE_KEY, JSON.stringify(pruned));
   } catch (err) {
     console.warn('[Aqua Vitaeum] Failed to save tombstones:', err);
