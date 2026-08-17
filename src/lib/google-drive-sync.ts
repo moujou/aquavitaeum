@@ -3,9 +3,11 @@ import { Journal, Spirit } from '@/types/spirit.types';
 import { isValidSpiritData } from '@/lib/schemas/spirit.schema';
 import { isValidJournalData } from '@/lib/schemas/journal.schema';
 import { notifyRemoteSyncCompleted } from '@/lib/sync-events';
+import { generateUuid } from '@/lib/spirit-utils';
 import {
   getTombstones,
   isTombstoned,
+  removeTombstone,
   mergeRemoteTombstones,
 } from '@/lib/sync-tombstones';
 
@@ -312,6 +314,13 @@ export function sanitizeFileName(name: string): string {
   return name.replace(/[\\/:*?"<>|]/g, '_').trim() || 'Untitled';
 }
 
+/**
+ * Returns the canonical Google Drive filename for a spirit tasting note
+ */
+export function getDriveSpiritFileName(spiritId: string): string {
+  return `spirit_${spiritId}.json`;
+}
+
 export { isValidSpiritData } from '@/lib/schemas/spirit.schema';
 
 /**
@@ -319,7 +328,7 @@ export { isValidSpiritData } from '@/lib/schemas/spirit.schema';
  * Aqua Vitaeum/
  * └── [Journal Name]/
  *      ├── _journal.json
- *      └── [Distillery - Spirit Name].json
+ *      └── spirit_[UUID].json
  */
 export async function performGoogleDriveSync(token: string): Promise<SyncStats> {
   let pushedSpirits = 0;
@@ -425,7 +434,6 @@ export async function performGoogleDriveSync(token: string): Promise<SyncStats> 
       pulledJournals++;
     } else {
       journalId = existingLocalJournal.id;
-      // If remote journal has newer updatedAt or local is missing coverImage, update local
       const localDate = new Date(existingLocalJournal.updatedAt || existingLocalJournal.createdAt || 0).getTime();
       const remoteDate = new Date(journalUpdatedAt || journalCreatedAt || 0).getTime();
       const shouldAdoptCover = !existingLocalJournal.coverImage && !!journalCoverImage;
@@ -441,39 +449,49 @@ export async function performGoogleDriveSync(token: string): Promise<SyncStats> 
       }
     }
 
-    // Read and sync spirit JSON files in this folder
-    const spiritFilesToPull = folderFiles.filter(
-      (f) => f.name !== JOURNAL_METADATA_FILE && f.name.endsWith('.json')
+    // ─── 6a. Canonical spirit files (spirit_<UUID>.json) ─────────────────────
+    const canonicalSpiritFiles = folderFiles.filter(
+      (f) => f.name.startsWith('spirit_') && f.name.endsWith('.json')
     );
 
-    for (const file of spiritFilesToPull) {
-      const parsedData = await readDriveJsonFile<unknown>(token, file.id);
-      if (!isValidSpiritData(parsedData)) {
-        console.warn(`[Aqua Vitaeum Sync] Skipping invalid rogue file in Drive: ${file.name}`);
-        skippedInvalidFiles++;
-        continue;
-      }
+    for (const file of canonicalSpiritFiles) {
+      const extractedId = file.name.slice('spirit_'.length, -'.json'.length);
 
-      const remoteSpirit = parsedData as Spirit;
-      remoteSpirit.journalId = journalId;
-
-      if (isTombstoned(remoteSpirit.id, remoteSpirit.updatedAt || remoteSpirit.dateTasted)) {
+      // Fast check: Is this UUID tombstoned?
+      if (isTombstoned(extractedId)) {
         await deleteDriveFile(token, file.id);
         deletedRemotes++;
         continue;
       }
 
-      const localSpirit = localSpiritMap.get(remoteSpirit.id);
-      if (!localSpirit) {
-        await db.spirits.put(remoteSpirit);
-        localSpiritMap.set(remoteSpirit.id, remoteSpirit);
-        pulledSpirits++;
-      } else {
-        const localDate = new Date(localSpirit.updatedAt || localSpirit.dateTasted || 0).getTime();
-        const remoteDate = new Date(remoteSpirit.updatedAt || remoteSpirit.dateTasted || 0).getTime();
-        const shouldAdoptImage = !localSpirit.thumbnailImage && !!remoteSpirit.thumbnailImage;
+      const localSpirit = localSpiritMap.get(extractedId);
+      const remoteFileTime = file.modifiedTime ? new Date(file.modifiedTime).getTime() : 0;
+      const localTime = localSpirit ? new Date(localSpirit.updatedAt || localSpirit.dateTasted || 0).getTime() : 0;
 
-        if (remoteDate > localDate || shouldAdoptImage) {
+      // Only download if missing locally OR remote is newer
+      if (!localSpirit || remoteFileTime > localTime) {
+        const parsedData = await readDriveJsonFile<unknown>(token, file.id);
+        if (!isValidSpiritData(parsedData)) {
+          console.warn(`[Aqua Vitaeum Sync] Skipping invalid file in Drive: ${file.name}`);
+          skippedInvalidFiles++;
+          continue;
+        }
+
+        const remoteSpirit = parsedData as Spirit;
+        remoteSpirit.journalId = journalId;
+
+        if (isTombstoned(remoteSpirit.id, remoteSpirit.updatedAt || remoteSpirit.dateTasted)) {
+          await deleteDriveFile(token, file.id);
+          deletedRemotes++;
+          continue;
+        }
+
+        if (!localSpirit) {
+          await db.spirits.put(remoteSpirit);
+          localSpiritMap.set(remoteSpirit.id, remoteSpirit);
+          pulledSpirits++;
+        } else {
+          const shouldAdoptImage = !localSpirit.thumbnailImage && !!remoteSpirit.thumbnailImage;
           const mergedSpirit: Spirit = {
             ...remoteSpirit,
             thumbnailImage: remoteSpirit.thumbnailImage || localSpirit.thumbnailImage,
@@ -488,13 +506,58 @@ export async function performGoogleDriveSync(token: string): Promise<SyncStats> 
         }
       }
     }
+
+    // ─── 6b. Automatic Legacy & Orphan Janitor Sweep ──────────────────────────
+    // Cleans up legacy files: [Distillery] - [Name].json, Spirit - Note.json, duplicates
+    const legacyFiles = folderFiles.filter(
+      (f) =>
+        f.name !== JOURNAL_METADATA_FILE &&
+        f.name.endsWith('.json') &&
+        !f.name.startsWith('spirit_')
+    );
+
+    for (const file of legacyFiles) {
+      const parsedData = await readDriveJsonFile<unknown>(token, file.id);
+      if (isValidSpiritData(parsedData)) {
+        const legacySpirit = parsedData as Spirit;
+        legacySpirit.journalId = journalId;
+
+        if (isTombstoned(legacySpirit.id, legacySpirit.updatedAt || legacySpirit.dateTasted)) {
+          // It's a deleted spirit -> remove legacy file
+          await deleteDriveFile(token, file.id);
+          deletedRemotes++;
+        } else {
+          // Active spirit: Ensure stored locally, upload canonical spirit_<UUID>.json, and delete legacy file
+          const localSpirit = localSpiritMap.get(legacySpirit.id);
+          if (!localSpirit) {
+            await db.spirits.put(legacySpirit);
+            localSpiritMap.set(legacySpirit.id, legacySpirit);
+            pulledSpirits++;
+          }
+          // Upload as canonical spirit_<UUID>.json
+          const canonicalName = getDriveSpiritFileName(legacySpirit.id);
+          const canonicalAlreadyExists = canonicalSpiritFiles.some((f) => f.name === canonicalName);
+          if (!canonicalAlreadyExists) {
+            await writeDriveJsonFile(token, folder.id, canonicalName, localSpirit || legacySpirit);
+            pushedSpirits++;
+          }
+          // Delete old legacy file from Drive
+          await deleteDriveFile(token, file.id);
+          deletedRemotes++;
+        }
+      } else {
+        // Corrupt or empty untracked legacy file -> delete from Drive
+        await deleteDriveFile(token, file.id);
+        deletedRemotes++;
+      }
+    }
   }
 
   // 7. Reload local state after pull
   const refreshedLocalJournals = await db.journals.toArray();
   const refreshedLocalSpirits = await db.spirits.toArray();
 
-  // 8. Push Local Journals & Spirits to Google Drive (Delta-only push)
+  // 8. Push Local Journals & Spirits to Google Drive (Delta-only push with UUID filenames)
   for (const journal of refreshedLocalJournals) {
     if (isTombstoned(journal.id)) continue;
 
@@ -528,16 +591,14 @@ export async function performGoogleDriveSync(token: string): Promise<SyncStats> 
       pushedJournals++;
     }
 
-    // Push all spirits belonging to this journal
+    // Push all spirits belonging to this journal as spirit_<UUID>.json
     const journalSpirits = refreshedLocalSpirits.filter((s) => s.journalId === journal.id);
 
     for (const spirit of journalSpirits) {
       if (isTombstoned(spirit.id)) continue;
 
-      const spiritFileName = `${sanitizeFileName(spirit.distillery || 'Spirit')} - ${sanitizeFileName(spirit.name || 'Note')}.json`;
-      const existingSpiritFile = folderFiles.find(
-        (f) => f.name === spiritFileName || (f.name.endsWith('.json') && f.name.includes(spirit.id))
-      );
+      const canonicalFileName = getDriveSpiritFileName(spirit.id);
+      const existingSpiritFile = folderFiles.find((f) => f.name === canonicalFileName);
 
       const localSpiritTime = new Date(spirit.updatedAt || spirit.dateTasted || 0).getTime();
       const remoteFileTime = existingSpiritFile?.modifiedTime
@@ -549,7 +610,7 @@ export async function performGoogleDriveSync(token: string): Promise<SyncStats> 
         await writeDriveJsonFile(
           token,
           journalFolderId,
-          spiritFileName,
+          canonicalFileName,
           spirit,
           existingSpiritFile?.id
         );
@@ -558,7 +619,7 @@ export async function performGoogleDriveSync(token: string): Promise<SyncStats> 
     }
   }
 
-  // 9. Upload updated _deletions.json manifest to Google Drive Root Folder
+  // 9. Upload updated _deletions.json manifest to Google Drive Root Folder with 60-day TTL
   const tombstones = getTombstones();
   if (Object.keys(tombstones).length > 0) {
     const existingDeletionsFile = rootFiles.find((f) => f.name === DELETIONS_MANIFEST_FILE);
@@ -811,4 +872,61 @@ export async function importJournalFile(file: File): Promise<{ journalCount: num
   }
 
   throw new Error('Invalid or corrupt journal JSON file.');
+}
+
+/**
+ * Imports single or multiple spirit notes from a JSON file directly into a specific journal,
+ * generating fresh UUIDs and updating timestamps so the notes exist as independent records.
+ */
+export async function importSpiritsIntoJournal(
+  file: File,
+  targetJournalId: string
+): Promise<{ importedCount: number }> {
+  const fileText = await readFileText(file);
+  const parsed = JSON.parse(fileText) as Record<string, unknown>;
+
+  const spiritsToImport: Spirit[] = [];
+
+  // Case 1: Standard export payload with spirits array
+  if (Array.isArray(parsed.spirits)) {
+    for (const s of parsed.spirits) {
+      if (isValidSpiritData(s)) {
+        spiritsToImport.push(s);
+      }
+    }
+  } else if (isValidSpiritData(parsed)) {
+    // Case 2: Direct single Spirit note JSON
+    spiritsToImport.push(parsed);
+  } else if (Array.isArray(parsed)) {
+    // Case 3: Raw array of spirits
+    for (const s of parsed) {
+      if (isValidSpiritData(s)) {
+        spiritsToImport.push(s);
+      }
+    }
+  } else {
+    throw new Error('Invalid or corrupt tasting note JSON file.');
+  }
+
+  if (spiritsToImport.length === 0) {
+    throw new Error('No valid tasting notes found in this file.');
+  }
+
+  let importedCount = 0;
+  const nowIso = new Date().toISOString();
+
+  for (const s of spiritsToImport) {
+    const freshSpirit: Spirit = {
+      ...s,
+      id: generateUuid(),
+      journalId: targetJournalId,
+      createdAt: nowIso,
+      updatedAt: nowIso,
+    };
+    await db.spirits.put(freshSpirit);
+    removeTombstone(freshSpirit.id);
+    importedCount++;
+  }
+
+  return { importedCount };
 }

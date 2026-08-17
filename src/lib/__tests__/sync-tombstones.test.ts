@@ -55,4 +55,21 @@ describe('sync-tombstones', () => {
     expect(isTombstoned('remote-spirit-1')).toBe(true);
     expect(isTombstoned('remote-journal-2')).toBe(true);
   });
+
+  it('automatically prunes tombstones older than 60 days', () => {
+    const now = Date.now();
+    const seventyDaysAgo = new Date(now - 70 * 24 * 60 * 60 * 1000).toISOString();
+    const tenDaysAgo = new Date(now - 10 * 24 * 60 * 60 * 1000).toISOString();
+
+    mergeRemoteTombstones({
+      'ancient-spirit': { type: 'spirit', deletedAt: seventyDaysAgo },
+      'recent-spirit': { type: 'spirit', deletedAt: tenDaysAgo },
+    });
+
+    const tombstones = getTombstones();
+    expect(tombstones['ancient-spirit']).toBeUndefined();
+    expect(tombstones['recent-spirit']).toBeDefined();
+    expect(isTombstoned('ancient-spirit')).toBe(false);
+    expect(isTombstoned('recent-spirit')).toBe(true);
+  });
 });

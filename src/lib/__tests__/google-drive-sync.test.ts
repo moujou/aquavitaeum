@@ -1,9 +1,11 @@
 import { describe, it, expect, vi } from 'vitest';
 import {
   sanitizeFileName,
+  getDriveSpiritFileName,
   isValidSpiritData,
   parseSingleSpiritFile,
   importJournalFile,
+  importSpiritsIntoJournal,
   GOOGLE_DRIVE_ROOT_FOLDER,
   JOURNAL_METADATA_FILE,
 } from '../google-drive-sync';
@@ -35,6 +37,15 @@ describe('Google Drive Sync Engine & Rogue-File Guards', () => {
   it('has standard constants defined', () => {
     expect(GOOGLE_DRIVE_ROOT_FOLDER).toBe('Aqua Vitaeum');
     expect(JOURNAL_METADATA_FILE).toBe('_journal.json');
+  });
+
+  describe('getDriveSpiritFileName', () => {
+    it('constructs canonical spirit_<UUID>.json filenames', () => {
+      expect(getDriveSpiritFileName('550e8400-e29b-41d4-a716-446655440000')).toBe(
+        'spirit_550e8400-e29b-41d4-a716-446655440000.json'
+      );
+      expect(getDriveSpiritFileName('abc-123')).toBe('spirit_abc-123.json');
+    });
   });
 
   describe('sanitizeFileName', () => {
@@ -96,6 +107,30 @@ describe('Google Drive Sync Engine & Rogue-File Guards', () => {
       };
 
       expect(isValidSpiritData(validSpirit)).toBe(true);
+    });
+
+    it('accepts a blank/in-progress Spirit record with empty name', () => {
+      const blankSpirit: Spirit = {
+        id: 'spirit-blank-123',
+        journalId: 'journal-default',
+        spiritType: 'Single Malt Scotch',
+        name: '',
+        distillery: '',
+        region: '',
+        abv: 0,
+        dateTasted: '',
+        rating100: 0,
+        starRating: 0,
+        colour: 'Clear',
+        finishNotes: '',
+        flavorTags: [],
+        noseProfile: { fruity: 0, floral: 0, spicy: 0, cereal: 0, peaty: 0, sulphury: 0, feinty: 0, nutty: 0, woody: 0, winey: 0, chocolate: 0 },
+        tasteProfile: { fruity: 0, floral: 0, spicy: 0, cereal: 0, peaty: 0, sulphury: 0, feinty: 0, nutty: 0, woody: 0, winey: 0, chocolate: 0 },
+        createdAt: '2026-08-16T00:00:00.000Z',
+        updatedAt: '2026-08-16T00:00:00.000Z',
+      };
+
+      expect(isValidSpiritData(blankSpirit)).toBe(true);
     });
 
     it('rejects rogue foreign files or non-objects', () => {
@@ -235,6 +270,88 @@ describe('Google Drive Sync Engine & Rogue-File Guards', () => {
     it('rejects completely invalid journal files', async () => {
       const invalidFile = createMockFile('{"something": "wrong"}', 'Invalid.json');
       await expect(importJournalFile(invalidFile)).rejects.toThrow();
+    });
+  });
+
+  describe('importSpiritsIntoJournal', () => {
+    it('imports single spirit note assigning target journalId and new UUID v4', async () => {
+      const singleSpirit = {
+        id: 'old-uuid-from-friend',
+        journalId: 'friends-journal',
+        spiritType: 'Single Malt Scotch',
+        name: 'Ardbeg Corryvreckan',
+        distillery: 'Ardbeg',
+        region: 'Islay',
+        abv: 57.1,
+        dateTasted: '2026-08-16',
+        rating100: 94,
+        starRating: 5,
+        colour: 'Amber',
+        finishNotes: 'Intense peppery finish.',
+        flavorTags: ['Sea Salt', 'Black Pepper'],
+        noseProfile: { fruity: 2, floral: 0, spicy: 6, cereal: 2, peaty: 10, sulphury: 0, feinty: 4, nutty: 3, woody: 5, winey: 2, chocolate: 4 },
+        tasteProfile: { fruity: 2, floral: 0, spicy: 7, cereal: 2, peaty: 10, sulphury: 0, feinty: 4, nutty: 3, woody: 6, winey: 2, chocolate: 4 },
+      };
+
+      const file = createMockFile(JSON.stringify(singleSpirit), 'Ardbeg - Corryvreckan.json');
+      const result = await importSpiritsIntoJournal(file, 'my-target-journal-123');
+
+      expect(result.importedCount).toBe(1);
+    });
+
+    it('imports multi-spirit export payload assigning target journalId', async () => {
+      const multiPayload = {
+        version: '1.0',
+        exportedAt: '2026-08-16T00:00:00.000Z',
+        type: 'spirits-export',
+        journalName: 'Islay Malts',
+        spirits: [
+          {
+            id: 'old-id-1',
+            journalId: 'old-journal',
+            spiritType: 'Single Malt Scotch',
+            name: 'Talisker 10',
+            distillery: 'Talisker',
+            region: 'Islands',
+            abv: 45.8,
+            dateTasted: '2026-08-16',
+            rating100: 89,
+            starRating: 4.5,
+            colour: 'Gold',
+            finishNotes: 'Smoky pepper finish',
+            flavorTags: ['Maritime'],
+            noseProfile: { fruity: 3, floral: 1, spicy: 5, cereal: 2, peaty: 7, sulphury: 0, feinty: 2, nutty: 2, woody: 4, winey: 1, chocolate: 1 },
+            tasteProfile: { fruity: 3, floral: 1, spicy: 6, cereal: 2, peaty: 8, sulphury: 0, feinty: 2, nutty: 2, woody: 5, winey: 1, chocolate: 1 },
+          },
+          {
+            id: 'old-id-2',
+            journalId: 'old-journal',
+            spiritType: 'Single Malt Scotch',
+            name: 'Highland Park 12',
+            distillery: 'Highland Park',
+            region: 'Islands',
+            abv: 40,
+            dateTasted: '2026-08-16',
+            rating100: 86,
+            starRating: 4,
+            colour: 'Gold',
+            finishNotes: 'Heather honey smoke',
+            flavorTags: ['Honey', 'Heather Smoke'],
+            noseProfile: { fruity: 4, floral: 3, spicy: 3, cereal: 3, peaty: 4, sulphury: 0, feinty: 2, nutty: 3, woody: 4, winey: 2, chocolate: 2 },
+            tasteProfile: { fruity: 4, floral: 2, spicy: 3, cereal: 3, peaty: 4, sulphury: 0, feinty: 2, nutty: 3, woody: 4, winey: 2, chocolate: 2 },
+          },
+        ],
+      };
+
+      const file = createMockFile(JSON.stringify(multiPayload), 'Islay-Export.json');
+      const result = await importSpiritsIntoJournal(file, 'my-target-journal-123');
+
+      expect(result.importedCount).toBe(2);
+    });
+
+    it('rejects corrupt tasting note files', async () => {
+      const corruptFile = createMockFile('not valid json at all', 'Corrupt.json');
+      await expect(importSpiritsIntoJournal(corruptFile, 'target-journal')).rejects.toThrow();
     });
   });
 });

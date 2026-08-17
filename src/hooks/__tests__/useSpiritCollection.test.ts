@@ -54,21 +54,6 @@ describe('useSpiritCollection Hook', () => {
     sessionStorage.clear();
     localStorage.setItem('aqua-vitaeum-seeded', 'true');
     mockDatabaseStore = [...MOCK_SPIRITS];
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockImplementation((url: string) => {
-        if (url === '/api/spirits') {
-          return Promise.resolve({
-            ok: true,
-            json: () => Promise.resolve({ spirits: MOCK_SPIRITS }),
-          });
-        }
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve({ success: true }),
-        });
-      }),
-    );
   });
 
   afterEach(() => {
@@ -123,7 +108,7 @@ describe('useSpiritCollection Hook', () => {
     });
 
     expect(result.current.spirits.length).toBe(initialLength + 1);
-    expect(result.current.selectedId).toMatch(/^new-/);
+    expect(result.current.selectedId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
   });
 
   it('saves an updated spirit note', async () => {

@@ -7,6 +7,7 @@ import {
   REMOTE_SYNC_COMPLETED_EVENT,
 } from '@/lib/sync-events';
 import { recordTombstone, removeTombstone } from '@/lib/sync-tombstones';
+import { generateUuid } from '@/lib/spirit-utils';
 
 export interface JournalWithStats extends Journal {
   bottleCount: number;
@@ -94,7 +95,7 @@ export function useJournals() {
   // Create a new journal
   const createJournal = useCallback(async (name: string, description?: string, coverImage?: string) => {
     const newJournal: Journal = {
-      id: `journal-${Date.now()}`,
+      id: generateUuid(),
       name: name.trim() || 'New Journal',
       description,
       coverImage,

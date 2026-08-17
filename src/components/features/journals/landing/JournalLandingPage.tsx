@@ -7,7 +7,8 @@ import { JournalWithStats } from '@/hooks/useJournals';
 import { Spirit } from '@/types/spirit.types';
 import { OverviewLayout } from '@/hooks/useLayoutPreference';
 import { useMultiSelect } from '@/hooks/useMultiSelect';
-import { exportJournalsToFile, exportSpiritsToFile } from '@/lib/google-drive-sync';
+import { exportJournalsToFile, exportSpiritsToFile, importSpiritsIntoJournal } from '@/lib/google-drive-sync';
+import { notifyDataMutated } from '@/lib/sync-events';
 import { JournalLandingHeader } from './JournalLandingHeader';
 import { NoteEmptyState } from './NoteEmptyState';
 import { NoteListView } from './layouts/NoteListView';
@@ -54,6 +55,12 @@ export function JournalLandingPage({
 
   const canDelete = selectedIds.size > 0;
 
+  const handleImportNotes = async (file: File) => {
+    const result = await importSpiritsIntoJournal(file, journal.id);
+    notifyDataMutated();
+    return result;
+  };
+
   // ── Shared props piped to every layout view ───────────────────────────────
   const selectModeProps = {
     isSelectMode,
@@ -74,11 +81,6 @@ export function JournalLandingPage({
     );
   }
 
-  // ── Empty ─────────────────────────────────────────────────────────────────
-  if (spirits.length === 0) {
-    return <NoteEmptyState onNewNote={onNewNote} />;
-  }
-
   // ── Main ──────────────────────────────────────────────────────────────────
   return (
     <div className="flex flex-col min-h-full max-w-6xl mx-auto w-full px-4 sm:px-6 pt-8 pb-8">
@@ -95,26 +97,31 @@ export function JournalLandingPage({
         onEnterSelectMode={enterSelectMode}
         onExportJournal={(id) => exportJournalsToFile([id])}
         onExportSelectedNotes={() => exportSpiritsToFile([...selectedIds], journal?.name || 'Journal')}
+        onImportNotes={handleImportNotes}
         language={language}
       />
 
-      {/* ── Layout content */}
-      <div className="flex-1">
-        {layout === 'list' && (
-          <NoteListView
-            spirits={spirits}
-            onSelect={onSelectSpirit}
-            {...selectModeProps}
-          />
-        )}
-        {layout === 'grid' && (
-          <NoteGridView
-            spirits={spirits}
-            onSelect={onSelectSpirit}
-            {...selectModeProps}
-          />
-        )}
-      </div>
+      {/* ── Layout content or Empty state ─────────────────────────────────── */}
+      {spirits.length === 0 ? (
+        <NoteEmptyState onNewNote={onNewNote} />
+      ) : (
+        <div className="flex-1">
+          {layout === 'list' && (
+            <NoteListView
+              spirits={spirits}
+              onSelect={onSelectSpirit}
+              {...selectModeProps}
+            />
+          )}
+          {layout === 'grid' && (
+            <NoteGridView
+              spirits={spirits}
+              onSelect={onSelectSpirit}
+              {...selectModeProps}
+            />
+          )}
+        </div>
+      )}
 
       <ConfirmDialog
         isOpen={confirmBulkDelete}

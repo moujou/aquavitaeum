@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   isValidAbv,
   deduplicateTags,
+  generateUuid,
   createBlankSpirit,
   formatDateByLanguage,
   parseDateInputToIso,
@@ -9,11 +10,23 @@ import {
 import { MOCK_SPIRITS } from '@/data/mock-spirits';
 
 describe('Spirit Utilities', () => {
+  describe('generateUuid', () => {
+    it('generates standard 36-character RFC4122 v4 UUIDs', () => {
+      const uuid1 = generateUuid();
+      const uuid2 = generateUuid();
+      expect(uuid1).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+      expect(uuid2).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+      expect(uuid1).not.toBe(uuid2);
+    });
+  });
+
   describe('createBlankSpirit', () => {
-    it('initializes a new spirit object with default attributes', () => {
+    it('initializes a new spirit object with default attributes, UUID and ISO timestamps', () => {
       const blank = createBlankSpirit();
-      expect(blank.id).toMatch(/^new-/);
+      expect(blank.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
       expect(blank.spiritType).toBe('Single Malt Scotch');
+      expect(blank.name).toBe('');
+      expect(blank.distillery).toBe('');
       expect(blank.isCaskStrength).toBe(false);
       expect(blank.addedColour).toBe(false);
       expect(blank.chillFiltered).toBe(false);
@@ -21,6 +34,8 @@ describe('Spirit Utilities', () => {
       expect(blank.onTheRocks).toBe(false);
       expect(blank.withChocolate).toBe(false);
       expect(blank.currency).toBe('€');
+      expect(blank.createdAt).toBeDefined();
+      expect(blank.updatedAt).toBeDefined();
     });
   });
 

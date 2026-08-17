@@ -23,20 +23,6 @@ export function useSpiritCollection(activeJournalId: string | null) {
   const [typeFilter, setTypeFilter] = useState<SpiritType | 'All'>('All');
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Helper to sync local database state to server API endpoint (for development fallback)
-  const syncWithServer = useCallback(async () => {
-    try {
-      const allSpirits = await db.spirits.toArray();
-      await fetch('/api/spirits', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ spirits: allSpirits }),
-      });
-    } catch (err) {
-      console.warn('Aqua Vitaeum: Background server API sync failed, relying on local database cache.', err);
-    }
-  }, []);
-
   // Fetch spirits for the active journal
   const loadSpirits = useCallback(async () => {
     if (!activeJournalId) {
@@ -52,50 +38,26 @@ export function useSpiritCollection(activeJournalId: string | null) {
       console.warn('Aqua Vitaeum: Failed to load spirits from IndexedDB.', err);
     }
 
-    // If local database has no spirits for this journal AND it's the default journal AND has never seeded before, 
-    // we check the server API endpoint with fallback to MOCK_SPIRITS (for static/offline mobile builds)
+    // First-time seed for default compendium directly from MOCK_SPIRITS
     const isAlreadySeeded = typeof window !== 'undefined' && localStorage.getItem(SEEDED_STORAGE_KEY) === 'true';
     if (localSpirits.length === 0 && journalId === 'default-compendium' && !isAlreadySeeded) {
       if (typeof window !== 'undefined') {
         localStorage.setItem(SEEDED_STORAGE_KEY, 'true');
       }
-      try {
-        const res = await fetch('/api/spirits');
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data.spirits) && data.spirits.length > 0) {
-            const seeded = data.spirits.map((s: Spirit) => ({
-              ...s,
-              journalId: 'default-compendium',
-            }));
-            setSpirits(seeded);
-            setSelectedId(seeded[0]?.id ?? null);
-            try {
-              await db.spirits.bulkPut(seeded);
-            } catch (err) {
-              console.warn('Aqua Vitaeum: Could not seed IndexedDB from API.', err);
-            }
-            setIsLoading(false);
-            return;
-          }
+      if (MOCK_SPIRITS.length > 0) {
+        const seeded = MOCK_SPIRITS.map((s: Spirit) => ({
+          ...s,
+          journalId: 'default-compendium',
+        }));
+        setSpirits(seeded);
+        setSelectedId(seeded[0]?.id ?? null);
+        setIsLoading(false);
+        try {
+          await db.spirits.bulkPut(seeded);
+        } catch (err) {
+          console.warn('Aqua Vitaeum: Could not seed IndexedDB from MOCK_SPIRITS.', err);
         }
-      } catch {
-        // Server fetch failed (e.g. static export, GitHub Pages, offline mobile) -> fallback to MOCK_SPIRITS
-        if (MOCK_SPIRITS.length > 0) {
-          const seeded = MOCK_SPIRITS.map((s: Spirit) => ({
-            ...s,
-            journalId: 'default-compendium',
-          }));
-          setSpirits(seeded);
-          setSelectedId(seeded[0]?.id ?? null);
-          setIsLoading(false);
-          try {
-            await db.spirits.bulkPut(seeded);
-          } catch (err) {
-            console.warn('Aqua Vitaeum: Could not seed IndexedDB from MOCK_SPIRITS fallback.', err);
-          }
-          return;
-        }
+        return;
       }
     }
 
@@ -190,12 +152,11 @@ export function useSpiritCollection(activeJournalId: string | null) {
       if (typeof window !== 'undefined') {
         sessionStorage.setItem(SESSION_SPIRIT_KEY, blank.id);
       }
-      await syncWithServer();
       notifyDataMutated();
     } catch (err) {
       console.error('Aqua Vitaeum: Failed to create new note.', err);
     }
-  }, [activeJournalId, syncWithServer]);
+  }, [activeJournalId]);
 
   const handleSave = useCallback(
     async (updated: Spirit) => {
@@ -215,14 +176,13 @@ export function useSpiritCollection(activeJournalId: string | null) {
         if (typeof window !== 'undefined') {
           sessionStorage.setItem(SESSION_SPIRIT_KEY, spiritToSave.id);
         }
-        await syncWithServer();
         notifyDataMutated();
       } catch (err) {
         console.error('Aqua Vitaeum: Failed to save spirit locally.', err);
         throw err;
       }
     },
-    [syncWithServer]
+    []
   );
 
   const handleDelete = useCallback(
@@ -248,14 +208,13 @@ export function useSpiritCollection(activeJournalId: string | null) {
           });
           return next;
         });
-        await syncWithServer();
         notifyDataMutated();
       } catch (err) {
         console.error('Aqua Vitaeum: Failed to delete spirit locally.', err);
         throw err;
       }
     },
-    [syncWithServer]
+    []
   );
 
   return {
