@@ -1,4 +1,4 @@
-import { FlavorProfile } from '@/types/spirit.types';
+import { FlavorProfile, CustomFlavorDescriptor } from '@/types/spirit.types';
 
 export interface FlavorDescriptor {
   id: string;
@@ -352,12 +352,99 @@ export const SPIRIT_FLAVOR_TAXONOMY: FlavorCategory[] = [
   },
 ];
 
+// ─── Custom Flavor Registry & Storage ────────────────────────────────────────
+
+const CUSTOM_FLAVORS_STORAGE_KEY = 'aquavitaeum_custom_flavors';
+
+let runtimeCustomFlavors: CustomFlavorDescriptor[] = [];
+
+export function getStoredCustomFlavors(): CustomFlavorDescriptor[] {
+  if (typeof window === 'undefined') {
+    return runtimeCustomFlavors;
+  }
+  try {
+    const raw = localStorage.getItem(CUSTOM_FLAVORS_STORAGE_KEY);
+    if (!raw) return runtimeCustomFlavors;
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      runtimeCustomFlavors = parsed;
+      return parsed;
+    }
+  } catch {
+    // ignore parse error
+  }
+  return runtimeCustomFlavors;
+}
+
+export function registerCustomFlavor(flavor: CustomFlavorDescriptor): void {
+  const current = getStoredCustomFlavors();
+  const existingIdx = current.findIndex(
+    (f) =>
+      f.id.toLowerCase() === flavor.id.toLowerCase() ||
+      f.name.toLowerCase() === flavor.name.toLowerCase()
+  );
+  let updated: CustomFlavorDescriptor[];
+  if (existingIdx >= 0) {
+    updated = [...current];
+    updated[existingIdx] = flavor;
+  } else {
+    updated = [...current, flavor];
+  }
+  runtimeCustomFlavors = updated;
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem(CUSTOM_FLAVORS_STORAGE_KEY, JSON.stringify(updated));
+    } catch {
+      // ignore
+    }
+  }
+}
+
+export function deleteStoredCustomFlavor(id: string): void {
+  const current = getStoredCustomFlavors();
+  const updated = current.filter(
+    (f) =>
+      f.id.toLowerCase() !== id.toLowerCase() &&
+      f.name.toLowerCase() !== id.toLowerCase()
+  );
+  runtimeCustomFlavors = updated;
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem(CUSTOM_FLAVORS_STORAGE_KEY, JSON.stringify(updated));
+    } catch {
+      // ignore
+    }
+  }
+}
+
 // ─── SSOT Derived Helpers ───────────────────────────────────────────────────
 
-export function getAllFlavorDescriptors(): FlavorDescriptor[] {
-  return SPIRIT_FLAVOR_TAXONOMY.flatMap((cat) =>
+export function getAllFlavorDescriptors(customFlavors?: CustomFlavorDescriptor[]): FlavorDescriptor[] {
+  const baseDescriptors = SPIRIT_FLAVOR_TAXONOMY.flatMap((cat) =>
     cat.subcategories.flatMap((sub) => sub.descriptors),
   );
+
+  const customList = customFlavors ?? getStoredCustomFlavors();
+  const convertedCustom: FlavorDescriptor[] = customList.map((cf) => ({
+    id: cf.id,
+    name: { EN: cf.name, DE: cf.name },
+    radarDimension: cf.radarDimension,
+    color: cf.color ?? RADAR_DIMENSION_COLORS[cf.radarDimension] ?? '#C59B27',
+    aliases: [cf.name, cf.id, ...(cf.emoji ? [`${cf.emoji} ${cf.name}`] : [])],
+  }));
+
+  const seen = new Set<string>();
+  const merged: FlavorDescriptor[] = [];
+
+  for (const d of [...baseDescriptors, ...convertedCustom]) {
+    const key = d.id.toLowerCase();
+    if (!seen.has(key)) {
+      seen.add(key);
+      merged.push(d);
+    }
+  }
+
+  return merged;
 }
 
 export function getDescriptorsByCategory(categoryId: string): FlavorDescriptor[] {
@@ -366,15 +453,21 @@ export function getDescriptorsByCategory(categoryId: string): FlavorDescriptor[]
   return category.subcategories.flatMap((sub) => sub.descriptors);
 }
 
-export function getDescriptorsByRadarDimension(dimension: keyof FlavorProfile): FlavorDescriptor[] {
-  return getAllFlavorDescriptors().filter((desc) => desc.radarDimension === dimension);
+export function getDescriptorsByRadarDimension(
+  dimension: keyof FlavorProfile,
+  customFlavors?: CustomFlavorDescriptor[]
+): FlavorDescriptor[] {
+  return getAllFlavorDescriptors(customFlavors).filter((desc) => desc.radarDimension === dimension);
 }
 
-export function findFlavorDescriptor(query: string): FlavorDescriptor | undefined {
+export function findFlavorDescriptor(
+  query: string,
+  customFlavors?: CustomFlavorDescriptor[]
+): FlavorDescriptor | undefined {
   if (!query) return undefined;
   const q = query.trim().toLowerCase();
 
-  return getAllFlavorDescriptors().find((desc) => {
+  return getAllFlavorDescriptors(customFlavors).find((desc) => {
     const descId = desc.id.toLowerCase();
     const descEN = desc.name.EN.toLowerCase();
     const descDE = desc.name.DE.toLowerCase();
@@ -392,8 +485,8 @@ export function translateFlavorTag(tag: string, language: 'EN' | 'DE'): string {
   return tag;
 }
 
-export function getFlavorColor(tagName: string): string {
-  const desc = findFlavorDescriptor(tagName);
+export function getFlavorColor(tagName: string, customFlavors?: CustomFlavorDescriptor[]): string {
+  const desc = findFlavorDescriptor(tagName, customFlavors);
   if (desc && desc.color) {
     return desc.color;
   }
@@ -416,12 +509,15 @@ export interface ActiveFlavorCategory {
   count: number;
 }
 
-export function getActiveFlavorCategories(tags?: string[]): ActiveFlavorCategory[] {
+export function getActiveFlavorCategories(
+  tags?: string[],
+  customFlavors?: CustomFlavorDescriptor[]
+): ActiveFlavorCategory[] {
   if (!tags || tags.length === 0) return [];
-  const categoryMap = new Map<string, { category: FlavorCategory; count: number }>();
+  const categoryMap = new Map<string, { category: FlavorCategory | { id: string; name: { EN: string; DE: string }; emoji: string; radarDimension: keyof FlavorProfile }; count: number }>();
 
   for (const tag of tags) {
-    const desc = findFlavorDescriptor(tag);
+    const desc = findFlavorDescriptor(tag, customFlavors);
     if (!desc) continue;
 
     const category = SPIRIT_FLAVOR_TAXONOMY.find((cat) =>
@@ -436,6 +532,23 @@ export function getActiveFlavorCategories(tags?: string[]): ActiveFlavorCategory
         existing.count++;
       } else {
         categoryMap.set(category.id, { category, count: 1 });
+      }
+    } else {
+      // Custom flavor mapped to radar dimension
+      const dimKey = desc.radarDimension;
+      const existing = categoryMap.get(dimKey);
+      if (existing) {
+        existing.count++;
+      } else {
+        categoryMap.set(dimKey, {
+          category: {
+            id: dimKey,
+            name: { EN: dimKey.charAt(0).toUpperCase() + dimKey.slice(1), DE: dimKey.charAt(0).toUpperCase() + dimKey.slice(1) },
+            emoji: '✨',
+            radarDimension: dimKey,
+          },
+          count: 1,
+        });
       }
     }
   }

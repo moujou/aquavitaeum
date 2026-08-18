@@ -5,6 +5,7 @@ import {
   translateColour,
   translateGlance,
   translateRadarDimension,
+  translateCharacteristic,
 } from '../translations';
 
 describe('i18n Translation Dictionary', () => {
@@ -38,10 +39,12 @@ describe('i18n Translation Dictionary', () => {
   });
 
   it('translates spirit colours accurately', () => {
-    expect(translateColour('Gold', 'EN')).toBe('Gold');
-    expect(translateColour('Gold', 'DE')).toBe('Gold');
-    expect(translateColour('Dark Oak', 'DE')).toBe('Dunkle Eiche');
+    expect(translateColour('Gin Clear', 'EN')).toBe('Gin Clear');
+    expect(translateColour('Gin Clear', 'DE')).toBe('Wasserhell / Klar');
     expect(translateColour('Amber', 'DE')).toBe('Bernstein');
+    expect(translateColour('Tawny Port', 'EN')).toBe('Tawny Port');
+    expect(translateColour('Chestnut', 'DE')).toBe('Kastanie / Oloroso');
+    expect(translateColour('Treacle', 'DE')).toBe('Treacle / Black Oak');
   });
 
   it('translates glance mouthfeel accurately', () => {
@@ -51,9 +54,45 @@ describe('i18n Translation Dictionary', () => {
   });
 
   it('translates finish time intensity diagram keys accurately', () => {
-    expect(t('finishTimeIntensityDiagram', 'EN')).toBe('Finish Intensity');
-    expect(t('finishTimeIntensityDiagram', 'DE')).toBe('Abgangs-Intensität');
-    expect(t('attackPhase', 'DE')).toBe('Auftakt (0-3s)');
+    expect(t('finishTimeIntensityDiagram', 'EN')).toBe('Finish');
+    expect(t('finishTimeIntensityDiagram', 'DE')).toBe('Abgang');
+    expect(t('finishLength', 'DE')).toBe('Abgangslänge');
+    expect(t('finishCharacterLabel', 'DE')).toBe('Abgangs-Charakter & Wärme');
+  });
+
+  it('translates finish characters accurately', () => {
+    expect(translateFinishCharacter('Warming', 'EN')).toBe('Warming');
+    expect(translateFinishCharacter('Warming', 'DE')).toBe('Wärmend');
+    expect(translateFinishCharacter('Sharp', 'DE')).toBe('Scharf');
+    expect(translateFinishCharacter('Spicy', 'DE')).toBe('Würzig');
+    expect(translateFinishCharacter('Alcoholic', 'DE')).toBe('Alkoholisch');
+    expect(translateFinishCharacter('Peated', 'DE')).toBe('Torfig');
+    expect(translateFinishCharacter('Smoky', 'DE')).toBe('Rauchig');
+    expect(translateFinishCharacter('Oaky', 'DE')).toBe('Eichenholz');
+    expect(translateFinishCharacter('Tannic', 'DE')).toBe('Tanninreich');
+    expect(translateFinishCharacter('Dry', 'DE')).toBe('Trocken');
+    expect(translateFinishCharacter('Sweet', 'DE')).toBe('Süß');
+    expect(translateFinishCharacter('Mild', 'DE')).toBe('Mild');
+    expect(translateFinishCharacter('Saline', 'DE')).toBe('Salzig');
+    expect(translateFinishCharacter('Mineral', 'DE')).toBe('Mineralisch');
+  });
+
+  it('translates characteristics accurately', () => {
+    expect(translateCharacteristic('Cask Strength', 'EN')).toBe('Cask Strength');
+    expect(translateCharacteristic('Cask Strength', 'DE')).toBe('Fassstärke');
+    expect(translateCharacteristic('Heavily Peated', 'DE')).toBe('Stark getorft');
+    expect(translateCharacteristic('Single Cask', 'DE')).toBe('Einzelfass');
+    expect(translateCharacteristic('Triple Distilled', 'DE')).toBe('3-fach destilliert');
+  });
+
+  it('translates custom flavor keys accurately', () => {
+    expect(t('createCustomFlavor', 'EN')).toBe('Custom Flavor');
+    expect(t('createCustomFlavor', 'DE')).toBe('Eigenes Aroma');
+    expect(t('customFlavorsCategory', 'DE')).toBe('Eigene Aromen');
+    expect(t('defaultCategoryColor', 'DE')).toBe('Kategorie-Farbe');
+    expect(t('customColor', 'DE')).toBe('Eigene Farbe');
+    expect(t('sensoryDrawerTitle', 'DE')).toBe('Sommelier Aromen-Kompass');
+    expect(t('openSensoryDrawer', 'DE')).toBe('Aromen-Kompass');
   });
 
   it('translates radar dimensions accurately', () => {

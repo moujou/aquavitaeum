@@ -339,12 +339,12 @@ export default function Home() {
 
         {/* ── Main Layout View switcher ──────────────────────────────────── */}
         {activeView === 'profile' ? (
-          <div className="flex-1 overflow-y-auto bg-[var(--pub-bg)] pt-16 lg:pt-0 pb-16 lg:pb-0 flex items-center justify-center">
+          <div className="flex-1 overflow-y-auto bg-[var(--pub-bg)] max-lg:pt-[calc(4.5rem+env(safe-area-inset-top,0px))] lg:pt-0 pb-20 lg:pb-0 flex items-center justify-center">
             <ProfileView layout={layout} onLayoutChange={setLayout} />
           </div>
         ) : activeView === 'overview' ? (
           <div className="flex-1 h-full relative overflow-hidden flex flex-col">
-            <div id="journal-overview-scroll" className="flex-1 overflow-y-auto bg-[var(--pub-bg)] pt-16 lg:pt-0 pb-16 lg:pb-0">
+            <div id="journal-overview-scroll" className="flex-1 overflow-y-auto bg-[var(--pub-bg)] max-lg:pt-[calc(4.5rem+env(safe-area-inset-top,0px))] lg:pt-0 pb-20 lg:pb-0">
               {isLoadingJournals ? (
                 <div className="flex-1 h-64 flex flex-col items-center justify-center text-center p-6 select-none animate-pulse">
                   <div className="w-16 h-16 rounded-full border border-[var(--forest-green)]/40 flex items-center justify-center bg-[var(--wood-dark)]/10 mb-4 shadow-[0_0_25px_rgba(35,115,71,0.20)]">
@@ -393,7 +393,7 @@ export default function Home() {
             <div className="flex flex-1 overflow-hidden relative flex-col">
               <div
                 id="journal-landing-scroll"
-                className="flex-1 overflow-y-auto bg-[var(--pub-bg)] pt-16 lg:pt-0 pb-16 lg:pb-0"
+                className="flex-1 overflow-y-auto bg-[var(--pub-bg)] max-lg:pt-[calc(4.5rem+env(safe-area-inset-top,0px))] lg:pt-0 pb-20 lg:pb-0"
               >
                 <JournalLandingPage
                   journal={activeJournal}

@@ -109,6 +109,29 @@ describe('Spirit Utilities', () => {
     });
   });
 
+  describe('calculateAgeFromDates', () => {
+    it('calculates age from 4-digit vintage years', () => {
+      expect(calculateAgeFromDates('1996', '2021')).toBe(25);
+      expect(calculateAgeFromDates('2010', '2022')).toBe(12);
+    });
+
+    it('calculates exact age from full German date strings', () => {
+      expect(calculateAgeFromDates('15.03.1996', '20.03.2021')).toBe(25);
+      expect(calculateAgeFromDates('15.03.1996', '10.03.2021')).toBe(24);
+    });
+
+    it('calculates exact age from ISO date strings', () => {
+      expect(calculateAgeFromDates('1996-03-15', '2021-03-20')).toBe(25);
+      expect(calculateAgeFromDates('1996-03-15', '2021-03-10')).toBe(24);
+    });
+
+    it('returns null for missing, inverted, or invalid dates', () => {
+      expect(calculateAgeFromDates(undefined, '2021')).toBeNull();
+      expect(calculateAgeFromDates('2021', '1996')).toBeNull();
+      expect(calculateAgeFromDates('invalid', 'dates')).toBeNull();
+    });
+  });
+
   describe('Integration with MOCK_SPIRITS dataset', () => {
     it('validates that all mock spirits have valid ABVs', () => {
       MOCK_SPIRITS.forEach((spirit) => {

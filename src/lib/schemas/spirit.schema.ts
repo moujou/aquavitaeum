@@ -33,11 +33,11 @@ const RADAR_DIMENSIONS: (keyof FlavorProfile)[] = [
 export function validateSpirit(spirit: Partial<Spirit>): ValidationResult {
   const errors: Record<string, string> = {};
 
-  if (!spirit.spiritType || !(SPIRIT_TYPES as readonly string[]).includes(spirit.spiritType)) {
+  if (!spirit.spiritType || typeof spirit.spiritType !== 'string' || spirit.spiritType.trim().length === 0 || spirit.spiritType.length > 100) {
     errors.spiritType = 'Valid spirit type is required.';
   }
 
-  if (spirit.colour && !(SPIRIT_COLOURS as readonly string[]).includes(spirit.colour)) {
+  if (spirit.colour && (typeof spirit.colour !== 'string' || spirit.colour.length > 50)) {
     errors.colour = 'Invalid spirit colour choice.';
   }
 
@@ -45,9 +45,82 @@ export function validateSpirit(spirit: Partial<Spirit>): ValidationResult {
     if (!Array.isArray(spirit.glance)) {
       errors.glance = 'Mouthfeel must be an array of choices.';
     } else {
-      const hasInvalid = spirit.glance.some((g) => !(SPIRIT_GLANCES as readonly string[]).includes(g));
+      const hasInvalid = spirit.glance.some(
+        (g) => typeof g !== 'string' || g.trim().length === 0 || g.length > 50
+      );
       if (hasInvalid) {
         errors.glance = 'Invalid spirit mouthfeel choice(s).';
+      }
+    }
+  }
+
+  if (spirit.tastingAdditions) {
+    if (!Array.isArray(spirit.tastingAdditions)) {
+      errors.tastingAdditions = 'Tasting additions must be an array of choices.';
+    } else {
+      const hasInvalid = spirit.tastingAdditions.some(
+        (a) => typeof a !== 'string' || a.trim().length === 0 || a.length > 50
+      );
+      if (hasInvalid) {
+        errors.tastingAdditions = 'Invalid spirit tasting addition choice(s).';
+      }
+    }
+  }
+
+  if (spirit.characteristics) {
+    if (!Array.isArray(spirit.characteristics)) {
+      errors.characteristics = 'Characteristics must be an array of choices.';
+    } else {
+      const hasInvalid = spirit.characteristics.some(
+        (c) => typeof c !== 'string' || c.trim().length === 0 || c.length > 50
+      );
+      if (hasInvalid) {
+        errors.characteristics = 'Invalid spirit characteristic choice(s).';
+      }
+    }
+  }
+
+  if (spirit.finishCharacter) {
+    if (!Array.isArray(spirit.finishCharacter)) {
+      errors.finishCharacter = 'Finish character must be an array of choices.';
+    } else {
+      const hasInvalid = spirit.finishCharacter.some(
+        (fc) => typeof fc !== 'string' || fc.trim().length === 0 || fc.length > 50
+      );
+      if (hasInvalid) {
+        errors.finishCharacter = 'Invalid finish character choice(s).';
+      }
+    }
+  }
+
+  if (spirit.barRole) {
+    if (!Array.isArray(spirit.barRole)) {
+      errors.barRole = 'Bar role must be an array of choices.';
+    } else {
+      const hasInvalid = spirit.barRole.some(
+        (br) => typeof br !== 'string' || br.trim().length === 0 || br.length > 50
+      );
+      if (hasInvalid) {
+        errors.barRole = 'Invalid bar role choice(s).';
+      }
+    }
+  }
+
+  if (spirit.customFlavors) {
+    if (!Array.isArray(spirit.customFlavors)) {
+      errors.customFlavors = 'Custom flavors must be an array.';
+    } else {
+      const hasInvalid = spirit.customFlavors.some(
+        (f) =>
+          !f ||
+          typeof f.id !== 'string' ||
+          typeof f.name !== 'string' ||
+          f.name.trim().length === 0 ||
+          f.name.length > 50 ||
+          typeof f.radarDimension !== 'string'
+      );
+      if (hasInvalid) {
+        errors.customFlavors = 'Invalid custom flavor descriptor(s).';
       }
     }
   }
@@ -108,6 +181,18 @@ export function validateSpirit(spirit: Partial<Spirit>): ValidationResult {
 
   if (spirit.finish && spirit.finish.length > 200) {
     errors.finish = 'Finish cannot exceed 200 characters.';
+  }
+
+  if (spirit.distillationDate && (typeof spirit.distillationDate !== 'string' || spirit.distillationDate.length > 50)) {
+    errors.distillationDate = 'Distillation date cannot exceed 50 characters.';
+  }
+
+  if (spirit.bottlingDate && (typeof spirit.bottlingDate !== 'string' || spirit.bottlingDate.length > 50)) {
+    errors.bottlingDate = 'Bottling date cannot exceed 50 characters.';
+  }
+
+  if (spirit.servingNotes && (typeof spirit.servingNotes !== 'string' || spirit.servingNotes.length > 500)) {
+    errors.servingNotes = 'Serving notes cannot exceed 500 characters.';
   }
 
   if (spirit.finishNotes && spirit.finishNotes.length > 2000) {

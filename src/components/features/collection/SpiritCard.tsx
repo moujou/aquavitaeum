@@ -2,13 +2,15 @@
 'use client';
 
 import React from 'react';
-import { Star, CheckCircle2, Calendar } from 'lucide-react';
+import { CheckCircle2, Calendar } from 'lucide-react';
 import { Spirit, SPIRIT_COLOUR_HEX, SpiritColour } from '@/types/spirit.types';
 import { WhiskyLogo } from '@/components/ui/WhiskyLogo';
 import { cn } from '@/lib/utils';
-import { getRatingTierStyle } from '@/lib/spirit-utils';
 import { useLanguage } from '@/context/LanguageContext';
 import { getActiveFlavorCategories } from '@/data/spirit-flavor-taxonomy';
+import { translateCharacteristic } from '@/lib/i18n/translations';
+import { formatSpiritCardSpecs } from '@/lib/spirit-utils';
+import { SommelierScoreMedallion } from '@/components/ui/SommelierScoreMedallion';
 
 interface SpiritCardProps {
   spirit: Spirit;
@@ -38,11 +40,6 @@ export function SpiritCard({
 }: SpiritCardProps) {
   const { language } = useLanguage();
   const colourHex = SPIRIT_COLOUR_HEX[spirit.colour as SpiritColour] ?? '#FFD700';
-  const tierStyle = getRatingTierStyle(spirit.rating100);
-
-  const formattedDate = spirit.dateTasted
-    ? new Date(spirit.dateTasted).toLocaleDateString(language === 'DE' ? 'de-DE' : 'en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-    : '';
 
   // Extract high-level active flavor categories for circular icon badges
   const activeCategories = React.useMemo(
@@ -50,48 +47,17 @@ export function SpiritCard({
     [spirit.flavorTags]
   );
 
-  // Construct Specs Line 1 (Row 4: Years · vol · bottle size)
-  const specsRow4: string[] = [];
-  if (spirit.age) specsRow4.push(`${spirit.age} ${language === 'DE' ? 'Jahre' : 'Years'}`);
-  if (spirit.abv > 0) specsRow4.push(`${spirit.abv}% vol`);
-  if (spirit.volumeMl && spirit.volumeMl > 0) specsRow4.push(`${spirit.volumeMl}ml`);
-
-  // Construct Specs Line 2 (Row 5: Strength · Added Colour · Chill Filtered)
-  const specsRow5: string[] = [];
-  specsRow5.push(
-    spirit.isCaskStrength
-      ? (language === 'DE' ? 'Fassstärke' : 'Cask Strength')
-      : (language === 'DE' ? 'Trinkstärke' : 'Standard')
+  const { formattedDate, specsRow4, specsRow5, specsRow6 } = React.useMemo(
+    () => formatSpiritCardSpecs(spirit, language, translateCharacteristic),
+    [spirit, language]
   );
-  specsRow5.push(
-    !spirit.addedColour
-      ? (language === 'DE' ? 'Ohne Farbstoff' : 'Natural Colour')
-      : (language === 'DE' ? 'Mit Farbstoff' : 'Added Colour')
-  );
-  specsRow5.push(
-    !spirit.chillFiltered
-      ? (language === 'DE' ? 'Nicht kühlgefiltert' : 'Non-Chill Filtered')
-      : (language === 'DE' ? 'Kühlgefiltert' : 'Chill Filtered')
-  );
-
-  // Construct Specs Line 3 (Row 6: Finish · Cask / Batch No. - conditional)
-  const specsRow6: string[] = [];
-  if (spirit.finish) specsRow6.push(spirit.finish);
-  if (spirit.caskNo) {
-    specsRow6.push(
-      spirit.caskNo.toLowerCase().startsWith('cask') ||
-      spirit.caskNo.toLowerCase().startsWith('batch') ||
-      spirit.caskNo.startsWith('#')
-        ? spirit.caskNo
-        : `Cask #${spirit.caskNo}`
-    );
-  }
 
   return (
     <button
       id={`spirit-card-${spirit.id}`}
       type="button"
       onClick={onClick}
+      aria-pressed={isSelectMode ? isSelectChecked : isSelected}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
       onTouchCancel={onTouchCancel}
@@ -124,22 +90,16 @@ export function SpiritCard({
           </div>
         )}
 
-        {/* Dynamic Score Medal (Top-Right of photo) */}
-        <div
-          className={cn(
-            'absolute top-2 right-2 sm:top-2.5 sm:right-2.5 flex items-center gap-0.5 sm:gap-1 px-2 sm:px-2.5 py-1 rounded-lg border font-display font-black text-xs sm:text-sm shadow-md select-none z-10',
-            tierStyle.bg,
-            tierStyle.border,
-            tierStyle.text,
-          )}
-        >
-          <Star size={11} className={cn('sm:size-[13px] shrink-0 -mt-0.5', tierStyle.starColor)} />
-          <span>{spirit.rating100}</span>
-        </div>
+        {/* Dynamic Sommelier Wax Seal Medallion (Top-Right of photo) */}
+        <SommelierScoreMedallion
+          score={spirit.rating100}
+          size="sm"
+          className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 shadow-md"
+        />
 
         {/* Multi-Select Circle Checkbox Overlay (Top-Left of photo) */}
         {isSelectMode && (
-          <div className="absolute top-2 left-2 z-10">
+          <div className="absolute top-2 left-2 z-10 pointer-events-none">
             <div
               className={cn(
                 'w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all shadow-md',

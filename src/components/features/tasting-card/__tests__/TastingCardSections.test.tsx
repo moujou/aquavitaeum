@@ -58,6 +58,34 @@ describe('Modular OO Tasting Card Sections', () => {
 
       fireEvent.change(distilleryInput, { target: { value: 'Ardbeg' } });
       expect(updateFn).toHaveBeenCalledWith('distillery', 'Ardbeg');
+
+      const distDateInput = screen.getByLabelText(/distillationDate/i);
+      expect(distDateInput).toBeDefined();
+      fireEvent.change(distDateInput, { target: { value: '1998' } });
+      expect(updateFn).toHaveBeenCalledWith('distillationDate', '1998');
+
+      const botDateInput = screen.getByLabelText(/bottlingDate/i);
+      expect(botDateInput).toBeDefined();
+      fireEvent.change(botDateInput, { target: { value: '2023' } });
+      expect(updateFn).toHaveBeenCalledWith('bottlingDate', '2023');
+
+      // Check Liquid Colour Slider
+      const colourSlider = screen.getByRole('slider', { name: /spirit colour/i });
+      expect(colourSlider).toBeDefined();
+      fireEvent.keyDown(colourSlider, { key: 'ArrowRight' });
+      expect(updateFn).toHaveBeenCalled();
+
+      // Check Characteristics Sommelier Badge Chips
+      const caskStrengthChip = screen.getByRole('button', { name: /char_Cask_Strength|Cask Strength/i });
+      expect(caskStrengthChip).toBeDefined();
+      fireEvent.click(caskStrengthChip);
+      expect(updateFn).toHaveBeenCalledWith('characteristics', expect.any(Array));
+
+      // Check Tasting Addition chip
+      const waterChip = screen.getByRole('button', { name: /^Water$/i });
+      expect(waterChip).toBeDefined();
+      fireEvent.click(waterChip);
+      expect(updateFn).toHaveBeenCalledWith('tastingAdditions', expect.any(Array));
     });
   });
 
@@ -90,8 +118,6 @@ describe('Modular OO Tasting Card Sections', () => {
         <LanguageProvider>
           <TastingFinishSection
             spirit={sampleSpirit}
-            finishViewMode="simple"
-            setFinishViewMode={setModeFn}
             update={updateFn}
             t={mockT}
           />
@@ -108,21 +134,34 @@ describe('Modular OO Tasting Card Sections', () => {
   });
 
   describe('TastingRatingSection', () => {
-    it('renders clean Rating score badge, stars and slider without redundant buttons', () => {
+    it('renders clean Rating score medallion, stars, timeline milestones and bar verdict chips', () => {
       const updateFn = vi.fn();
       const mockT = (key: string) => key;
 
       render(
-        <TastingRatingSection
-          spirit={sampleSpirit}
-          stars={4.5}
-          update={updateFn}
-          t={mockT}
-        />,
+        <LanguageProvider>
+          <TastingRatingSection
+            spirit={sampleSpirit}
+            stars={4.5}
+            update={updateFn}
+            t={mockT}
+          />
+        </LanguageProvider>,
       );
 
-      expect(screen.getByText('92')).toBeDefined();
-      expect(screen.queryByText('Score')).toBeNull(); // Redundant sub-header removed
+      expect(screen.getAllByText('92').length).toBeGreaterThan(0);
+      expect(screen.getByText(/Daily Sipper/i)).toBeDefined();
+      expect(screen.getByText(/Showcase Bottle|Vitrinen-Highlight/i)).toBeDefined();
+
+      // Test toggling a bar verdict chip
+      const dailySipperBtn = screen.getByRole('button', { name: /Daily Sipper/i });
+      fireEvent.click(dailySipperBtn);
+      expect(updateFn).toHaveBeenCalledWith('barRole', expect.any(Array));
+
+      // Test clicking score milestone
+      const milestone80Btn = screen.getByRole('button', { name: '80' });
+      fireEvent.click(milestone80Btn);
+      expect(updateFn).toHaveBeenCalledWith('rating100', 80);
     });
   });
 

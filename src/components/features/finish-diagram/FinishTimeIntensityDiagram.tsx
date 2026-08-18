@@ -1,468 +1,313 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
-import { FinishCurveParams, RADAR_DIMENSION_COLORS, SPIRIT_FINISH_DURATIONS } from '@/types/spirit.types';
+import React, { useState } from 'react';
+import {
+  FinishCurveParams,
+  SPIRIT_FINISH_DURATIONS,
+  SPIRIT_FINISH_CHARACTERS,
+  SpiritFinishDuration,
+} from '@/types/spirit.types';
 import { useLanguage } from '@/context/LanguageContext';
-import { TranslationKey } from '@/lib/i18n/translations';
-import { findFlavorDescriptor, translateFlavorTag } from '@/data/spirit-flavor-taxonomy';
+import { TranslationKey, translateFinishCharacter } from '@/lib/i18n/translations';
+import { translateFlavorTag, getFlavorColor } from '@/data/spirit-flavor-taxonomy';
 import { SectionHeader } from '@/components/ui/SectionHeader';
-import { DualRangeSlider } from '@/components/ui/DualRangeSlider';
+import { Plus, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-// ─── Color Synchronization Utility ──────────────────────────────────────────
-
-export function getFlavorColor(tagName: string): string {
-  const desc = findFlavorDescriptor(tagName);
-  if (desc && desc.color) {
-    return desc.color;
-  }
-  if (desc && desc.radarDimension && RADAR_DIMENSION_COLORS[desc.radarDimension]) {
-    return RADAR_DIMENSION_COLORS[desc.radarDimension];
-  }
-  let hash = 0;
-  for (let i = 0; i < tagName.length; i++) {
-    hash = tagName.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  const h = Math.abs(hash) % 360;
-  return `hsl(${h}, 65%, 45%)`;
-}
 
 // ─── Component Props ─────────────────────────────────────────────────────────
 
 interface FinishTimeIntensityDiagramProps {
   noseFlavorTags?: string[];
   tasteFlavorTags?: string[];
-  noseTagIntensities?: Record<string, number>;
-  tasteTagIntensities?: Record<string, number>;
   finishCurves?: Record<string, FinishCurveParams>;
-  onChangeCurves: (curves: Record<string, FinishCurveParams>) => void;
-  viewMode?: 'simple' | 'advanced';
-  onViewModeChange?: (mode: 'simple' | 'advanced') => void;
+  onChangeCurves?: (curves: Record<string, FinishCurveParams>) => void;
   selectedFinish?: string;
   onSelectFinish?: (finish: string) => void;
+  finishCharacter?: string[];
+  onChangeFinishCharacter?: (chars: string[]) => void;
   className?: string;
 }
-
-// ─── Diagram Dimensions & Coordinates ────────────────────────────────────────
-
-const CANVAS_WIDTH = 640;
-const CANVAS_HEIGHT = 240;
-const PADDING = { top: 20, right: 30, bottom: 40, left: 45 };
-
-const GRAPH_WIDTH = CANVAS_WIDTH - PADDING.left - PADDING.right;   // 565px
-const GRAPH_HEIGHT = CANVAS_HEIGHT - PADDING.top - PADDING.bottom; // 180px
-
-const MAX_TIME = 60; // 60 seconds time scale
-const MAX_INTENSITY = 10; // 0 to 10 scale
-
-function timeToX(t: number): number {
-  const clamped = Math.max(0, Math.min(MAX_TIME, t));
-  return PADDING.left + (clamped / MAX_TIME) * GRAPH_WIDTH;
-}
-
-function intensityToY(intensity: number): number {
-  const clamped = Math.max(0, Math.min(MAX_INTENSITY, intensity));
-  return PADDING.top + GRAPH_HEIGHT - (clamped / MAX_INTENSITY) * GRAPH_HEIGHT;
-}
-
-function getDefaultCurve(
-  tagName: string,
-  noseTagIntensities: Record<string, number>,
-  tasteTagIntensities: Record<string, number>
-): FinishCurveParams {
-  const baseIntensity =
-    tasteTagIntensities[tagName] ??
-    noseTagIntensities[tagName] ??
-    6;
-
-  return {
-    startTime: 0,
-    peakTime: 9,
-    peakIntensity: baseIntensity,
-    endTime: 30,
-  };
-}
-
-// ─── Main Component ────────────────────────────────────────────────────────────
 
 export function FinishTimeIntensityDiagram({
   noseFlavorTags = [],
   tasteFlavorTags = [],
-  noseTagIntensities = {},
-  tasteTagIntensities = {},
   finishCurves = {},
   onChangeCurves,
-  viewMode = 'simple',
-  onViewModeChange,
-  selectedFinish,
+  selectedFinish = 'Medium',
   onSelectFinish,
+  finishCharacter = [],
+  onChangeFinishCharacter,
   className,
 }: FinishTimeIntensityDiagramProps) {
   const { language, t } = useLanguage();
-  const svgRef = useRef<SVGSVGElement | null>(null);
 
   const activeTags = Array.from(
     new Set([...noseFlavorTags, ...tasteFlavorTags])
   );
 
-  const [hoveredTag, setHoveredTag] = useState<string | null>(null);
+  const [isAddingCustomChar, setIsAddingCustomChar] = useState(false);
+  const [customCharInput, setCustomCharInput] = useState('');
 
-  useEffect(() => {
-    let updated = false;
-    const nextCurves: Record<string, FinishCurveParams> = { ...finishCurves };
-
-    activeTags.forEach((tag) => {
-      if (!nextCurves[tag]) {
-        nextCurves[tag] = getDefaultCurve(tag, noseTagIntensities, tasteTagIntensities);
-        updated = true;
-      }
-    });
-
-    if (updated) {
-      onChangeCurves(nextCurves);
+  const handleToggleFinishChar = (char: string) => {
+    if (!onChangeFinishCharacter) return;
+    const exists = finishCharacter.includes(char);
+    if (exists) {
+      onChangeFinishCharacter(finishCharacter.filter((c) => c !== char));
+    } else {
+      onChangeFinishCharacter([...finishCharacter, char]);
     }
-  }, [activeTags, finishCurves, noseTagIntensities, tasteTagIntensities, onChangeCurves]);
-
-  const getCurvePath = (curve: FinishCurveParams): string => {
-    const start = Math.max(0, curve.startTime);
-    const end = Math.max(start + 1, curve.endTime);
-    const peak = Math.max(start, Math.min(end, curve.startTime + (end - start) * 0.3));
-
-    const xStart = timeToX(start);
-    const yStart = intensityToY(0);
-
-    const xPeak = timeToX(peak);
-    const yPeak = intensityToY(curve.peakIntensity);
-
-    const xEnd = timeToX(end);
-    const yEnd = intensityToY(0);
-
-    const cp1x = xStart + (xPeak - xStart) * 0.5;
-    const cp2x = xPeak + (xEnd - xPeak) * 0.4;
-
-    return `M ${xStart} ${yStart} C ${cp1x} ${yPeak}, ${cp1x} ${yPeak}, ${xPeak} ${yPeak} C ${cp2x} ${yPeak}, ${cp2x} ${yEnd}, ${xEnd} ${yEnd}`;
   };
 
-  const renderHeader = () => (
-    <div className="flex items-center justify-between border-b border-[var(--parchment-border)]/50 pb-1">
-      <SectionHeader>
-        {t('finishTimeIntensityDiagram')}
-      </SectionHeader>
-      {onViewModeChange && (
-        <div className="flex items-center p-0.5 rounded-sm bg-[var(--sepia-text)]/10 border border-[var(--parchment-border)]/80 shrink-0">
-          <button
-            id="finish-mode-simple"
-            type="button"
-            onClick={() => onViewModeChange('simple')}
-            className={cn(
-              'px-3 py-1.5 text-xs sm:text-sm font-body font-bold rounded-xs transition-all cursor-pointer',
-              viewMode === 'simple'
-                ? 'bg-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs'
-                : 'text-[var(--sepia-muted)] hover:text-[var(--sepia-text)]'
-            )}
-            aria-pressed={viewMode === 'simple'}
-          >
-            {t('simpleMode')}
-          </button>
-          <button
-            id="finish-mode-advanced"
-            type="button"
-            onClick={() => onViewModeChange('advanced')}
-            className={cn(
-              'px-3 py-1.5 text-xs sm:text-sm font-body font-bold rounded-xs transition-all cursor-pointer',
-              viewMode === 'advanced'
-                ? 'bg-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs'
-                : 'text-[var(--sepia-muted)] hover:text-[var(--sepia-text)]'
-            )}
-            aria-pressed={viewMode === 'advanced'}
-          >
-            {t('advancedMode')}
-          </button>
-        </div>
-      )}
-    </div>
-  );
+  const handleAddCustomChar = () => {
+    const trimmed = customCharInput.trim();
+    if (trimmed && !finishCharacter.includes(trimmed)) {
+      onChangeFinishCharacter?.([...finishCharacter, trimmed]);
+    }
+    setCustomCharInput('');
+    setIsAddingCustomChar(false);
+  };
 
-  const renderSimpleMode = () => (
-    <div className="grid grid-cols-3 gap-2.5 py-1">
-      {SPIRIT_FINISH_DURATIONS.map((key) => {
-        const labelKey = `finish_${key}` as TranslationKey;
-        return (
-          <button
-            key={key}
-            id={`finish-btn-${key.toLowerCase()}`}
-            type="button"
-            onClick={() => onSelectFinish?.(key)}
-            className={cn(
-              'px-3 py-2.5 rounded-md border text-xs sm:text-sm font-body font-semibold transition-all text-center cursor-pointer',
-              selectedFinish === key
-                ? 'bg-[var(--wood-selection)] border-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs'
-                : 'border-[var(--parchment-border)]/60 bg-[var(--pub-bg-alt)] text-[var(--sepia-muted)] hover:bg-[var(--pub-bg-alt)]/80 hover:text-[var(--sepia-text)]'
-            )}
-            aria-pressed={selectedFinish === key}
-          >
-            {t(labelKey)}
-          </button>
-        );
-      })}
-    </div>
-  );
+  const handleToggleLingeringTag = (tag: string) => {
+    if (!onChangeCurves) return;
+    const curve = finishCurves[tag];
+    const isCurrentlyProminent = (curve?.peakIntensity ?? 7) >= 6;
+    const nextIntensity = isCurrentlyProminent ? 3 : 8;
 
-  if (viewMode === 'simple') {
-    return (
-      <div className={cn('flex flex-col gap-3.5 w-full', className)}>
-        {renderHeader()}
-        {renderSimpleMode()}
-      </div>
-    );
-  }
-
-  if (activeTags.length === 0) {
-    return (
-      <div className={cn('flex flex-col gap-2 w-full', className)}>
-        {renderHeader()}
-        <div className="p-6 text-center border border-dashed border-[var(--parchment-border)]/50 rounded-sm bg-[var(--sepia-text)]/5 flex flex-col items-center justify-center gap-2">
-          <p className="text-xs sm:text-sm text-[var(--sepia-light)] font-body italic max-w-md">
-            {t('noActiveFlavorTagsFinish')}
-          </p>
-        </div>
-      </div>
-    );
-  }
+    onChangeCurves({
+      ...finishCurves,
+      [tag]: {
+        startTime: curve?.startTime ?? 0,
+        peakTime: curve?.peakTime ?? 8,
+        endTime: curve?.endTime ?? 30,
+        peakIntensity: nextIntensity,
+      },
+    });
+  };
 
   return (
-    <div className={cn('flex flex-col gap-3.5 w-full', className)}>
-      {renderHeader()}
-
-      {/* SVG Canvas (Clean 60s Graph Display) */}
-      <div className="relative w-full bg-[var(--sepia-text)]/8 border border-[var(--parchment-border)]/60 rounded-md p-2 shadow-inner overflow-hidden select-none">
-        <svg
-          ref={svgRef}
-          viewBox={`0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`}
-          className="w-full h-auto"
-        >
-          {/* Grid Lines */}
-          {[0, 2, 4, 6, 8, 10].map((intVal) => {
-            const y = intensityToY(intVal);
-            return (
-              <g key={`y-grid-${intVal}`}>
-                <line
-                  x1={PADDING.left}
-                  y1={y}
-                  x2={CANVAS_WIDTH - PADDING.right}
-                  y2={y}
-                  stroke="var(--parchment-border)"
-                  strokeOpacity={intVal === 0 ? 0.4 : 0.15}
-                  strokeDasharray={intVal === 0 ? undefined : '3,3'}
-                />
-                <text
-                  x={PADDING.left - 8}
-                  y={y + 4}
-                  fill="var(--sepia-light)"
-                  fontSize={11}
-                  fontFamily="Inter"
-                  textAnchor="end"
-                >
-                  {intVal}
-                </text>
-              </g>
-            );
-          })}
-
-          {/* X Axis Time Grid Lines & Labels (0s to 60s) */}
-          {[0, 15, 30, 45, 60].map((tSec) => {
-            const x = timeToX(tSec);
-            return (
-              <g key={`x-grid-${tSec}`}>
-                <line
-                  x1={x}
-                  y1={PADDING.top}
-                  x2={x}
-                  y2={CANVAS_HEIGHT - PADDING.bottom}
-                  stroke="var(--parchment-border)"
-                  strokeOpacity={0.15}
-                  strokeDasharray="3,3"
-                />
-                <text
-                  x={x}
-                  y={CANVAS_HEIGHT - PADDING.bottom + 18}
-                  fill="var(--sepia-light)"
-                  fontSize={11}
-                  fontFamily="Inter"
-                  textAnchor="middle"
-                >
-                  {tSec}s
-                </text>
-              </g>
-            );
-          })}
-
-          {/* X and Y Axis Titles */}
-          <text
-            x={CANVAS_WIDTH / 2}
-            y={CANVAS_HEIGHT - 4}
-            fill="var(--sepia-light)"
-            fontSize={12}
-            fontFamily="Inter"
-            fontWeight={700}
-            textAnchor="middle"
-          >
-            {t('timeSeconds')}
-          </text>
-          <text
-            x={14}
-            y={CANVAS_HEIGHT / 2}
-            fill="var(--sepia-light)"
-            fontSize={12}
-            fontFamily="Inter"
-            fontWeight={700}
-            textAnchor="middle"
-            transform={`rotate(-90 14 ${CANVAS_HEIGHT / 2})`}
-          >
-            {t('intensityScale')}
-          </text>
-
-          {/* Render Sleek 2.25px Spline Curves for each active tag */}
-          {activeTags.map((tag) => {
-            const curve = finishCurves[tag] ?? getDefaultCurve(tag, noseTagIntensities, tasteTagIntensities);
-            const color = getFlavorColor(tag);
-            const isHovered = hoveredTag === tag;
-            const pathD = getCurvePath(curve);
-
-            const xStart = timeToX(curve.startTime);
-            const xEnd = timeToX(curve.endTime);
-
-            return (
-              <g
-                key={`curve-${tag}`}
-                onMouseEnter={() => setHoveredTag(tag)}
-                onMouseLeave={() => setHoveredTag(null)}
-                className="transition-opacity duration-150"
-                opacity={hoveredTag === null || isHovered ? 1 : 0.2}
-              >
-                <path
-                  d={pathD}
-                  fill="none"
-                  stroke={color}
-                  strokeWidth={isHovered ? 3.5 : 2.25}
-                  strokeOpacity={0.9}
-                  strokeLinecap="round"
-                />
-                <path
-                  d={`${pathD} L ${xEnd} ${intensityToY(0)} L ${xStart} ${intensityToY(0)} Z`}
-                  fill={color}
-                  fillOpacity={isHovered ? 0.22 : 0.08}
-                />
-              </g>
-            );
-          })}
-        </svg>
+    <div className={cn('flex flex-col gap-4 w-full', className)}>
+      <div className="flex items-center justify-between border-b border-[var(--parchment-border)]/50 pb-1.5">
+        <SectionHeader className="mb-0">
+          {t('finishTimeIntensityDiagram')}
+        </SectionHeader>
       </div>
 
-      {/* Prominent Multi-Control Panel with Dual-Thumb Sliders */}
-      <div className="flex flex-col gap-3 w-full bg-[var(--sepia-text)]/5 p-3.5 sm:p-4 rounded-md border border-[var(--parchment-border)]/50">
-        <SectionHeader className="mb-0">
-          {language === 'DE' ? 'Abgangs-Intensität Steuerung' : 'Finish Intensity Timeline Controls'}
-        </SectionHeader>
+      {/* 1. Abgangslänge (Persistence Scale) - Compact Single-Row Layout */}
+      <div className="flex flex-col gap-1.5">
+        <span className="text-xs font-display uppercase tracking-wider font-bold text-[var(--sepia-muted)]">
+          {t('finishLength')}
+        </span>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {SPIRIT_FINISH_DURATIONS.map((dur) => {
+            const isSelected = selectedFinish === dur;
+            const label =
+              dur === 'Short'
+                ? (language === 'DE' ? 'Kurz' : 'Short')
+                : dur === 'Medium'
+                ? (language === 'DE' ? 'Mittel' : 'Medium')
+                : dur === 'Long'
+                ? (language === 'DE' ? 'Lang' : 'Long')
+                : (language === 'DE' ? 'Sehr lang' : 'Very Long');
 
-        <div
-          className={cn(
-            'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5',
-            activeTags.length > 6 && 'max-h-[380px] overflow-y-auto pr-1.5'
-          )}
-        >
-          {activeTags.map((tag) => {
-            const curve = finishCurves[tag] ?? getDefaultCurve(tag, noseTagIntensities, tasteTagIntensities);
-            const color = getFlavorColor(tag);
-            const displayTagName = translateFlavorTag(tag, language);
-            const isHovered = hoveredTag === tag;
+            const durationText =
+              dur === 'Short'
+                ? '< 15s'
+                : dur === 'Medium'
+                ? '15–45s'
+                : dur === 'Long'
+                ? '45–90s'
+                : '> 90s';
 
             return (
-              <div
-                key={`slider-panel-${tag}`}
-                onMouseEnter={() => setHoveredTag(tag)}
-                onMouseLeave={() => setHoveredTag(null)}
+              <button
+                key={dur}
+                type="button"
+                id={`finish-btn-${dur.toLowerCase().replace(/\s+/g, '-')}`}
+                onClick={() => onSelectFinish?.(dur)}
                 className={cn(
-                  'flex flex-col gap-3 p-3.5 rounded-md border transition-all',
-                  isHovered
-                    ? 'border-[var(--brass-accent)] bg-[var(--sepia-text)]/12 shadow-sm'
-                    : 'border-[var(--parchment-border)]/40 bg-[var(--sepia-text)]/5'
+                  'px-3 py-2 rounded-lg border text-left transition-all duration-150 flex items-center justify-between gap-1.5 cursor-pointer select-none min-h-[38px]',
+                  isSelected
+                    ? 'bg-[var(--wood-selection)] border-[var(--wood-selection)] text-white shadow-xs'
+                    : 'border-[var(--parchment-border)] bg-[var(--parchment-bg-alt)]/60 text-[var(--foreground)] hover:bg-[var(--parchment-bg-alt)] hover:border-[var(--brass-accent)]'
                 )}
+                aria-pressed={isSelected}
               >
-                {/* Header with Color Pill Indicator */}
-                <div className="flex items-center justify-between border-b border-[var(--parchment-border)]/30 pb-1.5">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="w-3.5 h-3.5 rounded-full flex-shrink-0 border border-white/30 shadow-xs"
-                      style={{ backgroundColor: color }}
-                    />
-                    <span className="font-body text-xs sm:text-sm font-bold text-[var(--sepia-text)] truncate">
-                      {displayTagName}
-                    </span>
-                  </div>
-                </div>
-
-                {/* 2 Clean Controls per active flavor */}
-                <div className="flex flex-col gap-3 font-body">
-                  {/* Control 1: Dual-Thumb Start O ====== O End Time Window */}
-                  <div className="flex flex-col gap-1">
-                    <div className="flex justify-between items-center text-xs text-[var(--sepia-light)]">
-                      <span className="font-semibold">Time Span</span>
-                      <span className="font-bold text-[var(--sepia-text)] text-xs">
-                        Start {curve.startTime}s | End {curve.endTime}s
-                      </span>
-                    </div>
-                    <DualRangeSlider
-                      min={0}
-                      max={60}
-                      step={1}
-                      value={[curve.startTime, curve.endTime]}
-                      activeColor={color}
-                      onChange={([newStart, newEnd]) => {
-                        const newPeak = Math.max(newStart + 1, Math.round(newStart + (newEnd - newStart) * 0.3));
-                        onChangeCurves({
-                          ...finishCurves,
-                          [tag]: {
-                            ...curve,
-                            startTime: newStart,
-                            peakTime: newPeak,
-                            endTime: newEnd,
-                          },
-                        });
-                      }}
-                      ariaLabelStart={`${displayTagName} start time`}
-                      ariaLabelEnd={`${displayTagName} end time`}
-                    />
-                  </div>
-
-                  {/* Control 2: Peak Intensity Slider (1-10) */}
-                  <div className="flex flex-col gap-1">
-                    <div className="flex justify-between items-center text-xs text-[var(--sepia-light)]">
-                      <span className="font-semibold">{t('peakIntensity')}</span>
-                      <span className="font-bold text-[var(--sepia-text)] text-xs sm:text-sm">{curve.peakIntensity} / 10</span>
-                    </div>
-                    <input
-                      type="range"
-                      min={1}
-                      max={10}
-                      step={1}
-                      value={curve.peakIntensity}
-                      onChange={(e) => {
-                        const val = Number(e.target.value);
-                        onChangeCurves({
-                          ...finishCurves,
-                          [tag]: { ...curve, peakIntensity: val },
-                        });
-                      }}
-                      className="h-2.5 w-full cursor-pointer rounded-lg"
-                      style={{ accentColor: color }}
-                      aria-label={`${displayTagName} ${t('peakIntensity')}`}
-                    />
-                  </div>
-                </div>
-              </div>
+                <span className={cn('text-xs sm:text-[13px] font-body font-bold truncate', isSelected ? 'text-white' : 'text-[var(--foreground)]')}>
+                  {label}
+                </span>
+                <span
+                  className={cn(
+                    'text-xs sm:text-[13px] font-mono shrink-0 whitespace-nowrap font-bold',
+                    isSelected ? 'text-white font-extrabold' : 'text-[var(--sepia-muted)]'
+                  )}
+                >
+                  {durationText}
+                </span>
+              </button>
             );
           })}
+        </div>
+      </div>
+
+      {/* 2. Dominante Noten im Nachklang (Lingering Notes) */}
+      <div className="p-3.5 rounded-xl bg-[var(--parchment-bg-alt)]/60 border border-[var(--parchment-border)] flex flex-col gap-2 shadow-2xs">
+        <div className="flex flex-col gap-0.5">
+          <span className="text-xs font-display uppercase tracking-wider font-bold text-[var(--sepia-muted)]">
+            {t('lingeringNotesTitle')}
+          </span>
+          <span className="text-[11px] font-body text-[var(--sepia-muted)]">
+            {t('lingeringNotesDesc')}
+          </span>
+        </div>
+
+        {activeTags.length > 0 ? (
+          <div className="flex flex-wrap gap-2 pt-1">
+            {activeTags.map((tag) => {
+              const color = getFlavorColor(tag);
+              const curve = finishCurves[tag];
+              const isProminent = (curve?.peakIntensity ?? 7) >= 6;
+
+              return (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => handleToggleLingeringTag(tag)}
+                  style={{
+                    backgroundColor: isProminent ? color : undefined,
+                  }}
+                  className={cn(
+                    'px-3 py-1.5 rounded-full border text-xs sm:text-sm font-bold font-body transition-all duration-150 flex items-center gap-1.5 cursor-pointer select-none min-h-[32px]',
+                    isProminent
+                      ? 'border-transparent text-white shadow-xs scale-[1.02]'
+                      : 'border-[var(--parchment-border)] bg-[var(--parchment-bg)] text-[var(--sepia-muted)] hover:border-[var(--brass-accent)]'
+                  )}
+                  aria-pressed={isProminent}
+                >
+                  <span
+                    className={cn(
+                      'w-2 h-2 rounded-full shrink-0 border border-black/20',
+                      isProminent && 'bg-white border-white/50'
+                    )}
+                    style={{ backgroundColor: isProminent ? undefined : color }}
+                  />
+                  <span>{translateFlavorTag(tag, language)}</span>
+                  {isProminent && <Check size={13} className="ml-0.5 text-white" />}
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="text-xs text-[var(--sepia-muted)] italic font-body py-0.5">
+            {language === 'DE'
+              ? 'Wähle oben Aromen bei Nase oder Geschmack aus, um sie hier als dominante Nachklang-Noten hervorzuheben.'
+              : 'Select aromas under Nose or Taste to highlight them as dominant finish notes.'}
+          </p>
+        )}
+      </div>
+
+      {/* 3. Abgangs-Charakter & Wärme (Sommelier Multi-Chips) */}
+      <div className="flex flex-col gap-2 pt-0.5">
+        <span className="text-xs font-display uppercase tracking-wider font-bold text-[var(--sepia-muted)]">
+          {t('finishCharacterLabel')}
+        </span>
+
+        <div className="flex flex-wrap gap-2 items-center">
+          {SPIRIT_FINISH_CHARACTERS.map((char) => {
+            const isSelected = finishCharacter.includes(char);
+
+            return (
+              <button
+                key={char}
+                type="button"
+                onClick={() => handleToggleFinishChar(char)}
+                className={cn(
+                  'px-3 py-1.5 rounded-full border text-xs sm:text-sm font-medium font-body transition-all duration-150 flex items-center gap-1.5 cursor-pointer select-none min-h-[32px]',
+                  isSelected
+                    ? 'bg-[var(--wood-selection)] border-[var(--wood-selection)] text-white shadow-xs font-semibold'
+                    : 'border-[var(--parchment-border)] bg-[var(--parchment-bg-alt)]/60 text-[var(--foreground)] hover:bg-[var(--parchment-bg-alt)] hover:border-[var(--brass-accent)]'
+                )}
+                aria-pressed={isSelected}
+              >
+                {char === 'Warming' && '🔥'}
+                {char === 'Sharp' && '⚡'}
+                {char === 'Spicy' && '🌶️'}
+                {char === 'Alcoholic' && '🥃'}
+                {char === 'Peated' && '🪵'}
+                {char === 'Smoky' && '💨'}
+                {char === 'Oaky' && '🌳'}
+                {char === 'Tannic' && '🍂'}
+                {char === 'Dry' && '🌵'}
+                {char === 'Sweet' && '🍯'}
+                {char === 'Mild' && '🌿'}
+                {char === 'Saline' && '🌊'}
+                {char === 'Mineral' && '🪨'}
+                <span>{translateFinishCharacter(char, language)}</span>
+                {isSelected && <Check size={12} className="ml-0.5" />}
+              </button>
+            );
+          })}
+
+          {/* Render custom added characters */}
+          {finishCharacter
+            .filter((c) => !(SPIRIT_FINISH_CHARACTERS as readonly string[]).includes(c))
+            .map((customChar) => (
+              <div
+                key={customChar}
+                className="px-3 py-1.5 rounded-full border border-[var(--wood-selection)] bg-[var(--wood-selection)] text-white text-xs sm:text-sm font-semibold font-body shadow-xs flex items-center gap-1.5 min-h-[32px] select-none"
+              >
+                <span>✨ {customChar}</span>
+                <button
+                  type="button"
+                  onClick={() => handleToggleFinishChar(customChar)}
+                  className="ml-1 text-xs opacity-75 hover:opacity-100 hover:text-red-200 cursor-pointer"
+                  title="Remove"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+
+          {/* Add Custom Finish Character Button / Inline Input */}
+          {isAddingCustomChar ? (
+            <div className="flex items-center gap-1.5 bg-[var(--parchment-bg)] border border-[var(--wood-selection)] rounded-full px-2 py-0.5 shadow-xs">
+              <input
+                type="text"
+                value={customCharInput}
+                onChange={(e) => setCustomCharInput(e.target.value)}
+                maxLength={30}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleAddCustomChar();
+                  else if (e.key === 'Escape') setIsAddingCustomChar(false);
+                }}
+                placeholder={language === 'DE' ? 'z.B. Cremig' : 'e.g. Creamy'}
+                autoFocus
+                className="w-24 text-xs font-body bg-transparent outline-none text-[var(--foreground)] px-1"
+              />
+              <button
+                type="button"
+                onClick={handleAddCustomChar}
+                className="px-2 py-0.5 rounded-full bg-[var(--wood-selection)] text-white text-[11px] font-bold cursor-pointer hover:scale-105"
+              >
+                ✓
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsAddingCustomChar(false)}
+                className="text-xs text-[var(--sepia-muted)] hover:text-[var(--sepia-text)] px-1 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setIsAddingCustomChar(true)}
+              className="px-3 py-1.5 rounded-full border border-dashed border-[var(--parchment-border)] text-xs font-body font-semibold text-[var(--sepia-muted)] hover:text-[var(--sepia-text)] hover:border-[var(--sepia-muted)] transition-all cursor-pointer min-h-[32px] flex items-center gap-1"
+            >
+              <Plus size={13} />
+              <span>{t('addCustomFinishChar')}</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

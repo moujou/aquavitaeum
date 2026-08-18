@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { Spirit } from '@/types/spirit.types';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { SectionHeader } from '@/components/ui/SectionHeader';
@@ -34,8 +33,6 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
     importSpirit,
     confirmDelete,
   } = useTastingCardForm(initialSpirit, onSave, onDelete);
-
-  const [finishViewMode, setFinishViewMode] = useState<'simple' | 'advanced'>('simple');
 
   return (
     <div className={cn('parchment rounded-lg overflow-hidden animate-fade-in', className)}>
@@ -91,11 +88,9 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
         {/* Specular Clover Green Divider */}
         <div className="divider-clover-glow my-1" />
 
-        {/* Full-Width Section 4: Interactive Finish Curve Diagram & Notes */}
+        {/* Full-Width Section 4: Interactive Finish & Notes */}
         <TastingFinishSection
           spirit={spirit}
-          finishViewMode={finishViewMode}
-          setFinishViewMode={setFinishViewMode}
           update={update}
           t={t}
         />
