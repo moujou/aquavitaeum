@@ -5,10 +5,9 @@ import {
   FinishCurveParams,
   SPIRIT_FINISH_DURATIONS,
   SPIRIT_FINISH_CHARACTERS,
-  SpiritFinishDuration,
 } from '@/types/spirit.types';
 import { useLanguage } from '@/context/LanguageContext';
-import { TranslationKey, translateFinishCharacter } from '@/lib/i18n/translations';
+import { translateFinishCharacter } from '@/lib/i18n/translations';
 import { translateFlavorTag, getFlavorColor } from '@/data/spirit-flavor-taxonomy';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { Plus, Check } from 'lucide-react';

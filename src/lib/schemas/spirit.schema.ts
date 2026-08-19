@@ -2,6 +2,7 @@ import {
   Spirit,
   SPIRIT_TYPES,
   SPIRIT_COLOURS,
+  SPIRIT_COLOUR_HEX,
   SPIRIT_GLANCES,
   SUPPORTED_CURRENCIES,
   FlavorProfile,
@@ -12,6 +13,18 @@ export interface ValidationResult {
   valid: boolean;
   errors: Record<string, string>;
 }
+
+const VALID_COLOUR_SET = new Set<string>([
+  ...SPIRIT_COLOURS,
+  ...Object.keys(SPIRIT_COLOUR_HEX),
+]);
+
+const VALID_GLANCE_SET = new Set<string>([
+  ...SPIRIT_GLANCES,
+  'Crisp',
+  'Tannic',
+  'Syrupy',
+]);
 
 const RADAR_DIMENSIONS: (keyof FlavorProfile)[] = [
   'fruity',
@@ -33,11 +46,11 @@ const RADAR_DIMENSIONS: (keyof FlavorProfile)[] = [
 export function validateSpirit(spirit: Partial<Spirit>): ValidationResult {
   const errors: Record<string, string> = {};
 
-  if (!spirit.spiritType || typeof spirit.spiritType !== 'string' || spirit.spiritType.trim().length === 0 || spirit.spiritType.length > 100) {
+  if (!spirit.spiritType || typeof spirit.spiritType !== 'string' || !(SPIRIT_TYPES as readonly string[]).includes(spirit.spiritType)) {
     errors.spiritType = 'Valid spirit type is required.';
   }
 
-  if (spirit.colour && (typeof spirit.colour !== 'string' || spirit.colour.length > 50)) {
+  if (spirit.colour && (typeof spirit.colour !== 'string' || !VALID_COLOUR_SET.has(spirit.colour))) {
     errors.colour = 'Invalid spirit colour choice.';
   }
 
@@ -46,7 +59,7 @@ export function validateSpirit(spirit: Partial<Spirit>): ValidationResult {
       errors.glance = 'Mouthfeel must be an array of choices.';
     } else {
       const hasInvalid = spirit.glance.some(
-        (g) => typeof g !== 'string' || g.trim().length === 0 || g.length > 50
+        (g) => typeof g !== 'string' || !VALID_GLANCE_SET.has(g)
       );
       if (hasInvalid) {
         errors.glance = 'Invalid spirit mouthfeel choice(s).';

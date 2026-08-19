@@ -9,7 +9,6 @@ import {
   getStoredCustomFlavors,
   registerCustomFlavor,
   deleteStoredCustomFlavor,
-  getFlavorColor,
   findFlavorDescriptor,
   RADAR_DIMENSION_COLORS,
 } from '@/data/spirit-flavor-taxonomy';

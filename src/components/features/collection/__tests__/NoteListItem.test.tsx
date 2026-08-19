@@ -26,8 +26,9 @@ describe('NoteListItem Component', () => {
     expect(screen.getByText('10 Years')).toBeDefined();
     expect(screen.getByText('40% vol')).toBeDefined();
 
-    // Verify Medallion Score
+    // Verify Medallion Score and Star Rating
     expect(screen.getByText('92')).toBeDefined();
+    expect(screen.getByLabelText(/Star rating: 4.5 of 5/i)).toBeDefined();
 
     // Verify click
     const button = screen.getByRole('button');

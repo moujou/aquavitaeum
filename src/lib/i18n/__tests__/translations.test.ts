@@ -6,6 +6,7 @@ import {
   translateGlance,
   translateRadarDimension,
   translateCharacteristic,
+  translateFinishCharacter,
 } from '../translations';
 
 describe('i18n Translation Dictionary', () => {
@@ -44,7 +45,7 @@ describe('i18n Translation Dictionary', () => {
     expect(translateColour('Amber', 'DE')).toBe('Bernstein');
     expect(translateColour('Tawny Port', 'EN')).toBe('Tawny Port');
     expect(translateColour('Chestnut', 'DE')).toBe('Kastanie / Oloroso');
-    expect(translateColour('Treacle', 'DE')).toBe('Treacle / Black Oak');
+    expect(translateColour('Treacle', 'DE')).toBe('Melasse / Schwarzeiche');
   });
 
   it('translates glance mouthfeel accurately', () => {
@@ -91,7 +92,7 @@ describe('i18n Translation Dictionary', () => {
     expect(t('customFlavorsCategory', 'DE')).toBe('Eigene Aromen');
     expect(t('defaultCategoryColor', 'DE')).toBe('Kategorie-Farbe');
     expect(t('customColor', 'DE')).toBe('Eigene Farbe');
-    expect(t('sensoryDrawerTitle', 'DE')).toBe('Sommelier Aromen-Kompass');
+    expect(t('sensoryDrawerTitle', 'DE')).toBe('Aromen-Kompass');
     expect(t('openSensoryDrawer', 'DE')).toBe('Aromen-Kompass');
   });
 

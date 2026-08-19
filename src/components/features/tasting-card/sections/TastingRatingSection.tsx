@@ -53,24 +53,52 @@ export function TastingRatingSection({
       <div className="bg-[var(--parchment-bg-alt)]/70 p-5 sm:p-6 rounded-2xl border border-[var(--parchment-border)] shadow-xs flex flex-col lg:flex-row items-center justify-between gap-6 lg:gap-8">
         
         {/* Left / Center Column: Interactive Golden Score Timeline */}
-        <div className="flex-1 w-full flex flex-col gap-3.5">
+        <div className="flex-1 w-full flex flex-col gap-4">
           
-          {/* Header Row: Tier Pill Badge (WCAG AA Dark Mode Contrast) */}
-          <div className="flex items-center justify-center sm:justify-start">
+          {/* Header Row: Tier Pill Badge & One-Tap Preset Chips */}
+          <div className="flex flex-wrap items-center justify-between gap-2.5">
+            {/* Sommelier Quality Tier Badge */}
             <span
               className={cn(
-                'px-3.5 py-1 rounded-full text-xs font-display font-black uppercase tracking-wider shadow-2xs border flex items-center gap-1.5 transition-all text-black',
+                'px-3 py-1 rounded-full text-xs font-display font-bold uppercase tracking-wider shadow-2xs border flex items-center gap-1.5 transition-all text-[var(--foreground)]',
                 currentTier.pillBg,
                 currentTier.pillBorder
               )}
             >
-              <span>{currentTier.emoji}</span>
-              <span className="text-black font-black">{language === 'DE' ? currentTier.labelDe : currentTier.labelEn}</span>
+              <span className="text-[var(--brass-accent)]">★</span>
+              <span>{language === 'DE' ? currentTier.labelDe : currentTier.labelEn}</span>
             </span>
+
+            {/* One-Tap Sommelier Preset Chips */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {[
+                { score: 95, labelDe: '95 Klassiker', labelEn: '95 Classic' },
+                { score: 90, labelDe: '90 Meisterwerk', labelEn: '90 Masterpiece' },
+                { score: 85, labelDe: '85 Sehr gut', labelEn: '85 Very Good' },
+                { score: 80, labelDe: '80 Gut', labelEn: '80 Good' },
+              ].map((preset) => {
+                const isActive = currentScore === preset.score;
+                return (
+                  <button
+                    key={preset.score}
+                    type="button"
+                    onClick={() => update('rating100', preset.score)}
+                    className={cn(
+                      'px-2.5 py-0.5 rounded-md text-[11px] font-body font-semibold transition-all border cursor-pointer',
+                      isActive
+                        ? 'bg-[var(--brass-accent)] text-[var(--parchment-bg)] border-[var(--brass-accent)] shadow-xs scale-105'
+                        : 'bg-[var(--pub-bg-panel)]/80 text-[var(--sepia-muted)] border-[var(--parchment-border)] hover:border-[var(--brass-accent)] hover:text-[var(--brass-accent)]'
+                    )}
+                  >
+                    {language === 'DE' ? preset.labelDe : preset.labelEn}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Sommelier Score Spectrum Slider Track */}
-          <div className="pt-1">
+          {/* Sommelier Score Amber Liquid Gauge Slider */}
+          <div className="pt-0.5">
             <SommelierScoreSlider
               score={currentScore}
               onChange={(val) => update('rating100', val)}

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { CustomFlavorDescriptor, FlavorProfile } from '@/types/spirit.types';
 import { RADAR_DIMENSION_COLORS } from '@/data/spirit-flavor-taxonomy';
 import { DIMENSIONS } from '@/components/features/radar-chart/FlavorRadarChart';
@@ -56,21 +56,32 @@ export function CustomFlavorModal({
   onSave,
   initialName = '',
 }: CustomFlavorModalProps) {
+  if (!isOpen) return null;
+
+  return (
+    <CustomFlavorDialog
+      key={initialName}
+      onClose={onClose}
+      onSave={onSave}
+      initialName={initialName}
+    />
+  );
+}
+
+function CustomFlavorDialog({
+  onClose,
+  onSave,
+  initialName = '',
+}: {
+  onClose: () => void;
+  onSave: (flavor: CustomFlavorDescriptor) => void;
+  initialName?: string;
+}) {
   const { language, t } = useLanguage();
   const [name, setName] = useState(initialName);
   const [emoji, setEmoji] = useState('🍎');
   const [selectedDimension, setSelectedDimension] = useState<keyof FlavorProfile>('fruity');
   const [customColor, setCustomColor] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (isOpen) {
-      setName(initialName);
-      if (!emoji || emoji === '✨') setEmoji('🍎');
-      setCustomColor(null);
-    }
-  }, [isOpen, initialName]);
-
-  if (!isOpen) return null;
 
   const activeColor = customColor || RADAR_DIMENSION_COLORS[selectedDimension] || '#C59B27';
 

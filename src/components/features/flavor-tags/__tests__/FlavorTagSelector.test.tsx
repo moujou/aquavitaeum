@@ -157,7 +157,7 @@ describe('FlavorTagSelector Component', () => {
     fireEvent.click(openCompassBtn);
 
     // Drawer should be open
-    expect(screen.getByText(/Sommelier Flavor Compass|Sommelier Aromen-Kompass/i)).toBeDefined();
+    expect(screen.getByRole('heading', { name: /Flavor Compass|Aromen-Kompass/i })).toBeDefined();
 
     // Select Peat Smoke in drawer
     const peatSmokeBtn = screen.getByRole('button', { name: /Peat Smoke/i });

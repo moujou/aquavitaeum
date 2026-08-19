@@ -26,6 +26,10 @@ describe('Modular SpiritCard Component', () => {
     expect(screen.getByText('10 Years')).toBeDefined();
     expect(screen.getByText('40% vol')).toBeDefined();
 
+    // Verify Sommelier Medallion and Stars in footer
+    expect(screen.getByText('92')).toBeDefined();
+    expect(screen.getByLabelText(/Star rating: 4.5 of 5/i)).toBeDefined();
+
     const button = screen.getByRole('button');
     fireEvent.click(button);
     expect(clickFn).toHaveBeenCalled();

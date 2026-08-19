@@ -520,7 +520,6 @@ export async function performGoogleDriveSync(token: string): Promise<SyncStats> 
           localSpiritMap.set(remoteSpirit.id, remoteSpirit);
           pulledSpirits++;
         } else {
-          const shouldAdoptImage = !localSpirit.thumbnailImage && !!remoteSpirit.thumbnailImage;
           const mergedSpirit: Spirit = {
             ...remoteSpirit,
             thumbnailImage: remoteSpirit.thumbnailImage || localSpirit.thumbnailImage,

@@ -6,6 +6,7 @@ import {
   createBlankSpirit,
   formatDateByLanguage,
   parseDateInputToIso,
+  calculateAgeFromDates,
 } from '../spirit-utils';
 import { MOCK_SPIRITS } from '@/data/mock-spirits';
 

@@ -103,6 +103,8 @@ export const SPIRIT_GLANCES = [
   'Watery',
 ] as const;
 
+export type SpiritGlance = typeof SPIRIT_GLANCES[number] | string;
+
 export const SPIRIT_CHARACTERISTICS = [
   'Cask Strength',
   'Natural Colour',

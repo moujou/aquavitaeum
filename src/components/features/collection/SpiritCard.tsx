@@ -9,8 +9,9 @@ import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
 import { getActiveFlavorCategories } from '@/data/spirit-flavor-taxonomy';
 import { translateCharacteristic } from '@/lib/i18n/translations';
-import { formatSpiritCardSpecs } from '@/lib/spirit-utils';
+import { formatSpiritCardSpecs, scoreToStars } from '@/lib/spirit-utils';
 import { SommelierScoreMedallion } from '@/components/ui/SommelierScoreMedallion';
+import { RatingStars } from '@/components/ui/RatingStars';
 
 interface SpiritCardProps {
   spirit: Spirit;
@@ -50,6 +51,11 @@ export function SpiritCard({
   const { formattedDate, specsRow4, specsRow5, specsRow6 } = React.useMemo(
     () => formatSpiritCardSpecs(spirit, language, translateCharacteristic),
     [spirit, language]
+  );
+
+  const stars = React.useMemo(
+    () => scoreToStars(spirit.rating100 || 85),
+    [spirit.rating100]
   );
 
   return (
@@ -208,14 +214,10 @@ export function SpiritCard({
         )}
       </div>
 
-      {/* 4. Signature Clover Green Grounded Footer: Date (Right) */}
+      {/* 4. Signature Clover Green Grounded Footer: Stars (Left) & Date (Right) */}
       <div className="w-full bg-[var(--wood-dark)] px-3 sm:px-3.5 py-1.5 sm:py-2 border-t border-[var(--wood-dark)]/80 flex items-center justify-between gap-1 sm:gap-2 text-[10px] sm:text-xs shrink-0">
-        <div className="flex items-center gap-1.5 min-w-0 text-[var(--parchment-bg)]/80 font-body font-medium">
-          {activeCategories.length > 0 && (
-            <span>
-              {activeCategories.length} {language === 'DE' ? 'Profile' : 'Profiles'}
-            </span>
-          )}
+        <div className="flex items-center gap-1.5 min-w-0">
+          <RatingStars stars={stars} size={13.5} className="shrink-0 gap-0.5" />
         </div>
 
         {formattedDate && (

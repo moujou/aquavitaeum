@@ -118,15 +118,10 @@ export function SensoryCompassDrawer({
         {/* Drawer Header (Kleeblatt Green Gradient) */}
         <div className="flex items-center justify-between px-5 sm:px-7 py-4 bg-gradient-to-r from-[var(--wood-dark)] to-[var(--wood-selection)] text-white border-b border-black/10 shadow-sm shrink-0">
           <div className="flex items-center gap-3">
-            <Compass className="w-6 h-6 text-amber-200" />
-            <div>
-              <h3 className="font-display font-bold text-lg sm:text-xl tracking-wide text-white drop-shadow-xs">
-                {t('sensoryDrawerTitle')}
-              </h3>
-              <p className="text-xs sm:text-sm text-white/80 font-body hidden sm:block">
-                {t('sensoryDrawerDesc')}
-              </p>
-            </div>
+            <Compass className="w-6 h-6 text-amber-200 shrink-0" />
+            <h3 className="font-display font-bold text-lg sm:text-xl tracking-wide text-white drop-shadow-xs">
+              {t('sensoryDrawerTitle')}
+            </h3>
           </div>
 
           <div className="flex items-center gap-3">

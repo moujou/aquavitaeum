@@ -111,7 +111,6 @@ describe('Modular OO Tasting Card Sections', () => {
   describe('TastingFinishSection', () => {
     it('renders finish diagram and finish notes input', () => {
       const updateFn = vi.fn();
-      const setModeFn = vi.fn();
       const mockT = (key: string) => key;
 
       render(
@@ -157,6 +156,11 @@ describe('Modular OO Tasting Card Sections', () => {
       const dailySipperBtn = screen.getByRole('button', { name: /Daily Sipper/i });
       fireEvent.click(dailySipperBtn);
       expect(updateFn).toHaveBeenCalledWith('barRole', expect.any(Array));
+
+      // Test clicking sommelier preset chip
+      const preset95Btn = screen.getByRole('button', { name: /95 Classic|95 Klassiker/i });
+      fireEvent.click(preset95Btn);
+      expect(updateFn).toHaveBeenCalledWith('rating100', 95);
 
       // Test clicking score milestone
       const milestone80Btn = screen.getByRole('button', { name: '80' });

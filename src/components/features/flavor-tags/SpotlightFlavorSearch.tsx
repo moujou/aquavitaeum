@@ -4,9 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Search, Plus, Check, Sparkles } from 'lucide-react';
 import {
   getAllFlavorDescriptors,
-  FlavorDescriptor,
   RADAR_DIMENSION_COLORS,
-  translateFlavorTag,
 } from '@/data/spirit-flavor-taxonomy';
 import { useLanguage } from '@/context/LanguageContext';
 import { translateRadarDimension } from '@/lib/i18n/translations';
@@ -58,10 +56,6 @@ export function SpotlightFlavorSearch({
           aliases.some((a) => a.includes(trimmedQuery))
         );
       }).slice(0, 8); // Top 8 most relevant suggestions
-
-  useEffect(() => {
-    setHighlightedIndex(0);
-  }, [query]);
 
   // Handle click outside to close dropdown
   useEffect(() => {
@@ -129,6 +123,7 @@ export function SpotlightFlavorSearch({
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
+            setHighlightedIndex(0);
             setIsOpen(true);
           }}
           onFocus={() => setIsOpen(true)}

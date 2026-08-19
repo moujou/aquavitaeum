@@ -91,7 +91,7 @@ export function PricingVolumeRow({
         <FieldLabel htmlFor="date-tasted-input">{t('dateTasted')}</FieldLabel>
         <LocalizedDatePicker
           id="date-tasted-input"
-          value={dateTasted}
+          value={dateTasted ?? ''}
           onChange={onChangeDateTasted}
           language={language}
         />

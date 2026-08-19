@@ -9,32 +9,27 @@ import { LanguageProvider } from '@/context/LanguageContext';
 
 describe('SommelierScoreMedallion Component & Tiers', () => {
   describe('getScoreTierConfig Helper', () => {
-    it('correctly maps each of the 10 decades', () => {
-      expect(getScoreTierConfig(5).badgeDe).toBe('HOLZ');
-      expect(getScoreTierConfig(15).badgeDe).toBe('ROST');
-      expect(getScoreTierConfig(25).badgeDe).toBe('EISEN');
-      expect(getScoreTierConfig(35).badgeDe).toBe('KUPFER');
-      expect(getScoreTierConfig(45).badgeDe).toBe('BRONZE');
-      expect(getScoreTierConfig(55).badgeDe).toBe('SILBER');
-      expect(getScoreTierConfig(65).badgeDe).toBe('GOLD');
-      expect(getScoreTierConfig(75).badgeDe).toBe('SMARAGD');
-      expect(getScoreTierConfig(85).badgeDe).toBe('PLATIN');
-      expect(getScoreTierConfig(95).badgeDe).toBe('DIAMANT');
-      expect(getScoreTierConfig(100).badgeDe).toBe('DIAMANT');
+    it('correctly maps each of the 5 sommelier quality bands', () => {
+      expect(getScoreTierConfig(50).badgeDe).toBe('EINFACH');
+      expect(getScoreTierConfig(75).badgeDe).toBe('GUT');
+      expect(getScoreTierConfig(82).badgeDe).toBe('SEHR GUT');
+      expect(getScoreTierConfig(88).badgeDe).toBe('AUSGEZEICHNET');
+      expect(getScoreTierConfig(95).badgeDe).toBe('MEISTERWERK');
+      expect(getScoreTierConfig(100).badgeDe).toBe('MEISTERWERK');
     });
 
     it('safely handles boundary and invalid inputs', () => {
-      // 0 or negative defaults to lowest tier (Wood)
-      expect(getScoreTierConfig(0).badgeDe).toBe('HOLZ');
-      expect(getScoreTierConfig(-10).badgeDe).toBe('HOLZ');
+      // 0 or negative defaults to lowest tier (Casual/Developing)
+      expect(getScoreTierConfig(0).badgeDe).toBe('EINFACH');
+      expect(getScoreTierConfig(-10).badgeDe).toBe('EINFACH');
       // NaN or undefined defaults safely
-      expect(getScoreTierConfig(NaN).badgeDe).toBe('HOLZ');
-      // Above 100 clamps to Diamond
-      expect(getScoreTierConfig(150).badgeDe).toBe('DIAMANT');
+      expect(getScoreTierConfig(NaN).badgeDe).toBe('EINFACH');
+      // Above 100 clamps to Masterpiece
+      expect(getScoreTierConfig(150).badgeDe).toBe('MEISTERWERK');
     });
 
-    it('has exactly 10 comprehensive tiers without gaps or overlaps', () => {
-      expect(SCORE_TIERS_CONFIG.length).toBe(10);
+    it('has exactly 5 comprehensive sommelier tiers without gaps or overlaps', () => {
+      expect(SCORE_TIERS_CONFIG.length).toBe(5);
       for (let i = 1; i <= 100; i++) {
         const config = getScoreTierConfig(i);
         expect(config).toBeDefined();
@@ -70,8 +65,8 @@ describe('SommelierScoreMedallion Component & Tiers', () => {
         </LanguageProvider>
       );
       expect(screen.getByText('95')).toBeDefined();
-      expect(screen.getByText(/DIAMANT|DIAMOND/i)).toBeDefined();
-      expect(screen.getByText(/TOP TIER/i)).toBeDefined();
+      expect(screen.getByText(/MEISTERWERK|MASTERPIECE/i)).toBeDefined();
+      expect(screen.getByText(/MEISTERWERK|TOP TIER/i)).toBeDefined();
     });
   });
 });

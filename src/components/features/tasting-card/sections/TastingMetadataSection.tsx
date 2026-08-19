@@ -182,7 +182,7 @@ export function TastingMetadataSection({
           onChangeVolume={(v) => update('volumeMl', v)}
           onChangePrice={(p) => update('price', p)}
           onChangeCurrency={(c) => update('currency', c as Currency)}
-          onChangeDateTasted={(d) => update('dateTasted', d)}
+          onChangeDateTasted={(d) => update('dateTasted', d ?? '')}
           language={language}
           t={t}
         />
