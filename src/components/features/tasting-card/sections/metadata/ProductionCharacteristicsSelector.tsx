@@ -80,7 +80,7 @@ export function ProductionCharacteristicsSelector({
   };
 
   return (
-    <div className={cn('border-t border-[var(--parchment-divider)] pt-4 flex flex-col gap-1.5 w-full', className)}>
+    <div className={cn('border-t border-[var(--parchment-border)]/60 pt-4 flex flex-col gap-1.5 w-full', className)}>
       <SectionHeader className="mb-0.5">{t('characteristics')}</SectionHeader>
       <div className="flex flex-wrap gap-1.5 items-center">
         {allAvailableCharacteristics.map((char) => {

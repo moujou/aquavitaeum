@@ -96,13 +96,6 @@ export function SpiritCard({
           </div>
         )}
 
-        {/* Dynamic Sommelier Wax Seal Medallion (Top-Right of photo) */}
-        <SommelierScoreMedallion
-          score={spirit.rating100}
-          size="sm"
-          className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 shadow-md"
-        />
-
         {/* Multi-Select Circle Checkbox Overlay (Top-Left of photo) */}
         {isSelectMode && (
           <div className="absolute top-2 left-2 z-10 pointer-events-none">
@@ -135,83 +128,94 @@ export function SpiritCard({
         <div className="absolute inset-0 shadow-[inset_0_1px_2px_rgba(0,0,0,0.6)] pointer-events-none" />
       </div>
 
-      {/* 3. Editorial Card Body (Structured Continuous Rows + Finish/Cask + Category Icons) */}
-      <div className="w-full p-2.5 sm:p-3.5 flex flex-col gap-1 sm:gap-1.5 flex-1 min-w-0 justify-between">
-        {/* Row 1: Name des Whiskys */}
-        <div className="min-w-0">
-          <h3 className="font-display text-sm sm:text-base md:text-lg font-bold text-[var(--foreground)] group-hover:text-[var(--brass-accent)] transition-colors duration-300 truncate leading-tight tracking-wide">
-            {spirit.name || spirit.distillery}
-          </h3>
-        </div>
+      {/* 3. Editorial Card Body: 2 Dedicated Columns (Left: Text Content, Right: Seal at Title Height) */}
+      <div className="w-full p-2.5 sm:p-3.5 flex flex-row items-start justify-between gap-2 sm:gap-3 flex-1 min-w-0">
+        {/* Left Column: Full Editorial Text Content Stack */}
+        <div className="flex-1 min-w-0 flex flex-col gap-1 sm:gap-1.5 justify-between">
+          {/* Row 1: Name des Whiskys */}
+          <div className="min-w-0">
+            <h3 className="font-display text-sm sm:text-base md:text-lg font-bold text-[var(--foreground)] group-hover:text-[var(--brass-accent)] transition-colors duration-300 truncate leading-tight tracking-wide">
+              {spirit.name || spirit.distillery}
+            </h3>
+          </div>
 
-        {/* Row 2: Typ des Whiskys */}
-        <div className="font-display text-[10px] sm:text-xs uppercase tracking-wider text-[var(--sepia-text)] font-semibold truncate leading-tight">
-          {spirit.spiritType}
-        </div>
+          {/* Row 2: Typ des Whiskys */}
+          <div className="font-display text-[10px] sm:text-xs uppercase tracking-wider text-[var(--sepia-text)] font-semibold truncate leading-tight">
+            {spirit.spiritType}
+          </div>
 
-        {/* Row 3: Destillerie • Herkunft */}
-        <div className="text-xs sm:text-[13px] font-body text-[var(--sepia-text)] font-semibold truncate leading-tight flex items-center gap-1.5 min-w-0">
-          <span className="truncate">{spirit.distillery}</span>
-          {spirit.region && (
-            <>
-              <span className="text-[var(--sepia-muted)]/50 select-none">·</span>
-              <span className="truncate font-semibold text-[var(--sepia-text)]">{spirit.region}</span>
-            </>
+          {/* Row 3: Destillerie • Herkunft */}
+          <div className="text-xs sm:text-[13px] font-body text-[var(--sepia-text)] font-semibold truncate leading-tight flex items-center gap-1.5 min-w-0">
+            <span className="truncate">{spirit.distillery}</span>
+            {spirit.region && (
+              <>
+                <span className="text-[var(--sepia-muted)]/50 select-none">·</span>
+                <span className="truncate font-semibold text-[var(--sepia-text)]">{spirit.region}</span>
+              </>
+            )}
+          </div>
+
+          {/* Row 4: Years · vol · bottle size (Continuous Text) */}
+          {specsRow4.length > 0 && (
+            <div className="text-[11px] sm:text-xs font-body text-[var(--sepia-text)] font-medium leading-tight flex items-center gap-1.5 flex-wrap min-w-0">
+              {specsRow4.map((item, idx) => (
+                <React.Fragment key={idx}>
+                  {idx > 0 && <span className="text-[var(--sepia-muted)]/50 select-none">·</span>}
+                  <span className="truncate">{item}</span>
+                </React.Fragment>
+              ))}
+            </div>
+          )}
+
+          {/* Row 5: Strength · Added Colour · Chill Filtered (Continuous Text) */}
+          <div className="text-[10.5px] sm:text-xs font-body text-[var(--sepia-muted)] font-medium leading-tight flex items-center gap-1.5 flex-wrap min-w-0">
+            {specsRow5.map((item, idx) => (
+              <React.Fragment key={idx}>
+                {idx > 0 && <span className="text-[var(--sepia-muted)]/50 select-none">·</span>}
+                <span className="truncate">{item}</span>
+              </React.Fragment>
+            ))}
+          </div>
+
+          {/* Row 6: Finish · Cask / Batch No. (Continuous Text, conditional) */}
+          {specsRow6.length > 0 && (
+            <div className="text-[10.5px] sm:text-xs font-body text-[var(--sepia-muted)] font-medium leading-tight flex items-center gap-1.5 flex-wrap min-w-0">
+              {specsRow6.map((item, idx) => (
+                <React.Fragment key={idx}>
+                  {idx > 0 && <span className="text-[var(--sepia-muted)]/50 select-none">·</span>}
+                  <span className="truncate">{item}</span>
+                </React.Fragment>
+              ))}
+            </div>
+          )}
+
+          {/* Row 7: Active Flavor Category Badges (Circular Mini Category Icons) */}
+          {activeCategories.length > 0 && (
+            <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap min-w-0 pt-0.5">
+              {activeCategories.slice(0, 6).map((cat) => (
+                <span
+                  key={cat.id}
+                  title={`${cat.name[language] ?? cat.name.EN} (${cat.count})`}
+                  style={{
+                    backgroundColor: `${cat.color}20`,
+                    borderColor: `${cat.color}50`,
+                  }}
+                  className="w-5.5 h-5.5 sm:w-6 sm:h-6 rounded-full border flex items-center justify-center text-[10.5px] sm:text-xs shadow-2xs shrink-0 select-none cursor-default transition-transform hover:scale-110"
+                >
+                  <span>{cat.emoji}</span>
+                </span>
+              ))}
+            </div>
           )}
         </div>
 
-        {/* Row 4: Years · vol · bottle size (Continuous Text) */}
-        {specsRow4.length > 0 && (
-          <div className="text-[11px] sm:text-xs font-body text-[var(--sepia-text)] font-medium leading-tight flex items-center gap-1.5 flex-wrap min-w-0">
-            {specsRow4.map((item, idx) => (
-              <React.Fragment key={idx}>
-                {idx > 0 && <span className="text-[var(--sepia-muted)]/50 select-none">·</span>}
-                <span className="truncate">{item}</span>
-              </React.Fragment>
-            ))}
-          </div>
-        )}
-
-        {/* Row 5: Strength · Added Colour · Chill Filtered (Continuous Text) */}
-        <div className="text-[10.5px] sm:text-xs font-body text-[var(--sepia-muted)] font-medium leading-tight flex items-center gap-1.5 flex-wrap min-w-0">
-          {specsRow5.map((item, idx) => (
-            <React.Fragment key={idx}>
-              {idx > 0 && <span className="text-[var(--sepia-muted)]/50 select-none">·</span>}
-              <span className="truncate">{item}</span>
-            </React.Fragment>
-          ))}
+        {/* Right Column: Dedicated Seal Slot at Top-Right Height of Title */}
+        <div className="shrink-0 flex flex-col items-center justify-start pt-0.5">
+          <SommelierScoreMedallion
+            score={spirit.rating100}
+            size="sm"
+          />
         </div>
-
-        {/* Row 6: Finish · Cask / Batch No. (Continuous Text, conditional) */}
-        {specsRow6.length > 0 && (
-          <div className="text-[10.5px] sm:text-xs font-body text-[var(--sepia-muted)] font-medium leading-tight flex items-center gap-1.5 flex-wrap min-w-0">
-            {specsRow6.map((item, idx) => (
-              <React.Fragment key={idx}>
-                {idx > 0 && <span className="text-[var(--sepia-muted)]/50 select-none">·</span>}
-                <span className="truncate">{item}</span>
-              </React.Fragment>
-            ))}
-          </div>
-        )}
-
-        {/* Row 7: Active Flavor Category Badges (Circular Mini Category Icons) */}
-        {activeCategories.length > 0 && (
-          <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap min-w-0 pt-0.5">
-            {activeCategories.slice(0, 6).map((cat) => (
-              <span
-                key={cat.id}
-                title={`${cat.name[language] ?? cat.name.EN} (${cat.count})`}
-                style={{
-                  backgroundColor: `${cat.color}20`,
-                  borderColor: `${cat.color}50`,
-                }}
-                className="w-5.5 h-5.5 sm:w-6 sm:h-6 rounded-full border flex items-center justify-center text-[10.5px] sm:text-xs shadow-2xs shrink-0 select-none cursor-default transition-transform hover:scale-110"
-              >
-                <span>{cat.emoji}</span>
-              </span>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* 4. Signature Clover Green Grounded Footer: Stars (Left) & Date (Right) */}

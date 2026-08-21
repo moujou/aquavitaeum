@@ -180,8 +180,8 @@ export const TRANSLATIONS = {
     interactiveControlsHint: 'Drag control points on the canvas or adjust sliders below.',
     dragDividersHint: 'Drag dividers to adjust flavor transitions during the finish.',
 
-    // Rating & Score
-    scoreRatingSection: 'Rating & Sommelier Seal',
+    // Score & Rating
+    scoreRatingSection: 'Rating & Recommendations',
     score: 'Score',
     tier_rustic: 'Rustic / Mixer',
     tier_solid: 'Solid Everyday Dram',
@@ -505,8 +505,8 @@ export const TRANSLATIONS = {
     interactiveControlsHint: 'Ziehe Kontrollpunkte im Graphen oder bewege die Regler unten.',
     dragDividersHint: 'Bewege die Trennlinien, um die Übergänge der Aromen im Abgang einzuteilen.',
 
-    // Rating & Score
-    scoreRatingSection: 'Bewertung & Sommelier-Siegel',
+    // Score & Rating
+    scoreRatingSection: 'Bewertung & Empfehlungen',
     score: 'Punkte',
     tier_rustic: 'Rustikal / Mixer',
     tier_solid: 'Solider Alltagsdram',

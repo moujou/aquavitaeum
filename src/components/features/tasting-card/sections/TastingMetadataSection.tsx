@@ -221,7 +221,7 @@ export function TastingMetadataSection({
       />
 
       {/* Colour Spectrum Section (Full Width Liquid Colour Slider) */}
-      <div className="border-t border-[var(--parchment-divider)] pt-4 flex flex-col gap-1.5 w-full">
+      <div className="border-t border-[var(--parchment-border)]/60 pt-4 flex flex-col gap-1.5 w-full">
         <SectionHeader className="mb-0.5">{t('colour')}</SectionHeader>
         <LiquidColourSlider
           id="spirit-liquid-colour-slider"
@@ -232,7 +232,7 @@ export function TastingMetadataSection({
       </div>
 
       {/* 2-Column Section: Left Glance / Mouthfeel | Right Tasting Additions */}
-      <div className="border-t border-[var(--parchment-divider)] pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 items-start">
+      <div className="border-t border-[var(--parchment-border)]/60 pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 items-start">
         {/* Left Column: Glance / Mouthfeel Subcomponent */}
         <MouthfeelGlanceSelector
           glance={spirit.glance}
@@ -255,7 +255,7 @@ export function TastingMetadataSection({
       </div>
 
       {/* Active Flavor Tag Selector (Left Column Bottom) */}
-      <div className="border-t border-[var(--parchment-divider)] pt-4 flex flex-col gap-2 w-full">
+      <div className="border-t border-[var(--parchment-border)]/60 pt-4 flex flex-col gap-2 w-full">
         <FlavorTagSelector
           spiritId={spirit.id}
           noseFlavorTags={spirit.noseFlavorTags ?? []}

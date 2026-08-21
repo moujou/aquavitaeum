@@ -19,7 +19,7 @@ export function TastingFinishSection({
   t,
 }: TastingFinishSectionProps) {
   return (
-    <section className="border-t border-[var(--parchment-divider)] pt-5 flex flex-col gap-5 w-full" aria-label="Finish">
+    <section className="border-t border-[var(--parchment-border)]/60 pt-5 flex flex-col gap-5 w-full" aria-label="Finish">
       <FinishTimeIntensityDiagram
         noseFlavorTags={spirit.noseFlavorTags ?? []}
         tasteFlavorTags={spirit.tasteFlavorTags ?? []}

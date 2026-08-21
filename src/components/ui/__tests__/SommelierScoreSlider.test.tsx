@@ -62,7 +62,7 @@ describe('SommelierScoreSlider Component', () => {
       </LanguageProvider>
     );
 
-    const milestone90 = screen.getByRole('button', { name: '90' });
+    const milestone90 = screen.getByRole('button', { name: /Score 90|90/i });
     expect(milestone90).toBeDefined();
     fireEvent.click(milestone90);
     expect(onChangeFn).toHaveBeenCalledWith(90);

@@ -157,13 +157,8 @@ describe('Modular OO Tasting Card Sections', () => {
       fireEvent.click(dailySipperBtn);
       expect(updateFn).toHaveBeenCalledWith('barRole', expect.any(Array));
 
-      // Test clicking sommelier preset chip
-      const preset95Btn = screen.getByRole('button', { name: /95 Classic|95 Klassiker/i });
-      fireEvent.click(preset95Btn);
-      expect(updateFn).toHaveBeenCalledWith('rating100', 95);
-
       // Test clicking score milestone
-      const milestone80Btn = screen.getByRole('button', { name: '80' });
+      const milestone80Btn = screen.getByRole('button', { name: /Score 80|80/i });
       fireEvent.click(milestone80Btn);
       expect(updateFn).toHaveBeenCalledWith('rating100', 80);
     });

@@ -66,7 +66,7 @@ describe('SommelierScoreMedallion Component & Tiers', () => {
       );
       expect(screen.getByText('95')).toBeDefined();
       expect(screen.getByText(/MEISTERWERK|MASTERPIECE/i)).toBeDefined();
-      expect(screen.getByText(/MEISTERWERK|TOP TIER/i)).toBeDefined();
+      expect(screen.getByText(/FINE SPIRITS JOURNAL/i)).toBeDefined();
     });
   });
 });

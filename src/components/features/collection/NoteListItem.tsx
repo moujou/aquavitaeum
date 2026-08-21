@@ -182,8 +182,8 @@ export function NoteListItem({
           )}
         </div>
 
-        {/* 3. Dedicated Sommelier Medal Column (Right-Aligned, Isolated Slot) */}
-        <div className="p-3 sm:p-4 md:p-5 shrink-0 flex items-center justify-center self-center z-10">
+        {/* 3. Dedicated Sommelier Medal Column (Right-Aligned, Top-Right Title Height Slot) */}
+        <div className="p-3 sm:p-4 md:p-4.5 shrink-0 flex items-center justify-center self-start z-10">
           <SommelierScoreMedallion
             score={spirit.rating100}
             size="md"

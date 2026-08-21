@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import { Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { scoreToStars } from '@/lib/spirit-utils';
 
 export interface ScoreTierConfig {
   min: number;
@@ -13,91 +13,73 @@ export interface ScoreTierConfig {
   badgeEn: string;
   badgeDe: string;
   emoji: string;
-  gradient: string;
-  border: string;
-  glow: string;
   colorHex: string;
   pillBg: string;
   pillBorder: string;
 }
 
 export const SCORE_TIERS_CONFIG: ScoreTierConfig[] = [
-  // 1. 90-100: Masterpiece / Meisterwerk (Grand Cru / Gold Medal)
+  // 1. 90-100: Masterpiece / Meisterwerk
   {
     min: 90,
     max: 100,
-    labelEn: 'Masterpiece / Exceptional',
-    labelDe: 'Meisterwerk / Außergewöhnlich',
+    labelEn: 'Masterpiece',
+    labelDe: 'Meisterwerk',
     badgeEn: 'MASTERPIECE',
     badgeDe: 'MEISTERWERK',
     emoji: '★',
-    gradient: 'from-[#D97706] via-[#B45309] to-[#78350F]',
-    border: 'border-[#FCD34D]',
-    glow: 'shadow-[0_0_20px_rgba(217,119,6,0.45)]',
-    colorHex: '#D97706',
+    colorHex: '#B45309',
     pillBg: 'bg-amber-500/15',
     pillBorder: 'border-amber-600/40',
   },
-  // 2. 85-89: Excellent / Ausgezeichnet (Highly Recommended / Silver Medal)
+  // 2. 85-89: Excellent / Ausgezeichnet
   {
     min: 85,
     max: 89,
-    labelEn: 'Excellent / Distinguished',
-    labelDe: 'Ausgezeichnet / Hervorragend',
+    labelEn: 'Excellent',
+    labelDe: 'Ausgezeichnet',
     badgeEn: 'EXCELLENT',
     badgeDe: 'AUSGEZEICHNET',
     emoji: '★',
-    gradient: 'from-[#C2410C] via-[#9A3412] to-[#7C2D12]',
-    border: 'border-[#FB923C]',
-    glow: 'shadow-[0_0_16px_rgba(194,65,12,0.35)]',
     colorHex: '#C2410C',
     pillBg: 'bg-orange-500/15',
     pillBorder: 'border-orange-600/40',
   },
-  // 3. 80-84: Very Good / Sehr gut (Recommended / Solid Quality)
+  // 3. 80-84: Very Good / Sehr gut
   {
     min: 80,
     max: 84,
-    labelEn: 'Very Good / Recommended',
-    labelDe: 'Sehr gut / Empfohlen',
+    labelEn: 'Very Good',
+    labelDe: 'Sehr gut',
     badgeEn: 'VERY GOOD',
     badgeDe: 'SEHR GUT',
     emoji: '★',
-    gradient: 'from-[#2E945D] via-[#237347] to-[#1B5733]',
-    border: 'border-[#6EE7B7]',
-    glow: 'shadow-[0_0_16px_rgba(46,148,93,0.35)]',
     colorHex: '#2E945D',
     pillBg: 'bg-emerald-500/15',
     pillBorder: 'border-emerald-600/40',
   },
-  // 4. 70-79: Good / Solide (Daily Sipper / Standard Dram)
+  // 4. 70-79: Good / Gut
   {
     min: 70,
     max: 79,
-    labelEn: 'Good / Solid Sipper',
-    labelDe: 'Gut / Solider Dram',
+    labelEn: 'Good',
+    labelDe: 'Gut',
     badgeEn: 'GOOD',
     badgeDe: 'GUT',
     emoji: '★',
-    gradient: 'from-[#78716C] via-[#57534E] to-[#44403C]',
-    border: 'border-[#D6D3D1]',
-    glow: 'shadow-[0_0_12px_rgba(120,113,108,0.25)]',
     colorHex: '#78716C',
     pillBg: 'bg-stone-500/15',
     pillBorder: 'border-stone-600/40',
   },
-  // 5. 1-69: Developing / Einfach (Casual / Young / Base)
+  // 5. 1-69: Casual / Einfach
   {
     min: 1,
     max: 69,
-    labelEn: 'Developing / Casual',
-    labelDe: 'In Entwicklung / Einfach',
+    labelEn: 'Casual',
+    labelDe: 'Einfach',
     badgeEn: 'CASUAL',
     badgeDe: 'EINFACH',
     emoji: '★',
-    gradient: 'from-[#44403C] via-[#292524] to-[#1C1917]',
-    border: 'border-[#A8A29E]',
-    glow: 'shadow-xs',
     colorHex: '#44403C',
     pillBg: 'bg-stone-600/15',
     pillBorder: 'border-stone-700/40',
@@ -124,91 +106,241 @@ export function SommelierScoreMedallion({
   className,
 }: SommelierScoreMedallionProps) {
   const { language } = useLanguage();
+  const rawId = React.useId();
+  const uid = rawId.replace(/[^a-zA-Z0-9_-]/g, '');
+  const topPathId = `pathAquaTop-${uid}`;
+  const bottomPathId = `pathSloganBottom-${uid}`;
+  const halfStarGradId = `halfStar-${uid}`;
+
   const safeScore = typeof score === 'number' && !isNaN(score) && score > 0 ? Math.max(1, Math.min(100, Math.round(score))) : 85;
+  const starRating = scoreToStars(safeScore);
   const tier = getScoreTierConfig(safeScore);
-  const a11yLabel = `${safeScore} / 100 - ${language === 'DE' ? tier.labelDe : tier.labelEn}`;
+  const a11yLabel = `${safeScore} / 100 - ${language === 'DE' ? tier.labelDe : tier.labelEn} (${starRating} ★)`;
 
-  // 1. Grid Overview Card Badge: Clean, Circular Embossed Seal (size="sm")
-  if (size === 'sm') {
-    return (
-      <div
-        role="img"
-        aria-label={a11yLabel}
-        title={a11yLabel}
-        className={cn(
-          'relative w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br border-2 shadow-md flex items-center justify-center font-display font-black text-sm sm:text-base text-white select-none transition-transform duration-200 group-hover:scale-105 z-10 shrink-0',
-          tier.gradient,
-          tier.border,
-          tier.glow,
-          className
-        )}
-      >
-        <div className="absolute inset-0.5 rounded-full border border-white/30 border-dashed pointer-events-none" />
-        <span className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)] relative z-10 leading-none">{safeScore}</span>
-      </div>
-    );
-  }
+  const sizeClasses =
+    size === 'sm'
+      ? 'w-11 h-11 sm:w-12 sm:h-12'
+      : size === 'md'
+      ? 'w-12 h-12 sm:w-13 sm:h-13'
+      : 'w-44 h-44 sm:w-48 sm:h-48 md:w-52 md:h-52';
 
-  // 2. List Overview Row Badge: Clean, Circular Embossed Seal (size="md")
-  if (size === 'md') {
-    return (
-      <div
-        role="img"
-        aria-label={a11yLabel}
-        title={a11yLabel}
-        className={cn(
-          'relative w-12 h-12 sm:w-13 sm:h-13 rounded-full bg-gradient-to-br border-2 shadow-md flex flex-col items-center justify-center text-white select-none shrink-0 transition-transform duration-200 hover:scale-105',
-          tier.gradient,
-          tier.border,
-          tier.glow,
-          className
-        )}
-      >
-        <div className="absolute inset-0.5 rounded-full border border-white/30 border-dashed pointer-events-none" />
-        <span className="font-display font-black text-base sm:text-lg leading-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)] z-10">
-          {safeScore}
-        </span>
-      </div>
-    );
-  }
-
-  // 3. Tasting Card Editor Hero: Master Sommelier Embossed Seal (size="lg")
   return (
     <div
       role="img"
       aria-label={a11yLabel}
       title={a11yLabel}
       className={cn(
-        'relative w-36 h-36 sm:w-40 sm:h-40 rounded-full bg-gradient-to-br border-4 shadow-xl flex flex-col items-center justify-center p-3 text-center transition-all duration-300 transform select-none hover:scale-105 shrink-0',
-        tier.gradient,
-        tier.border,
-        tier.glow,
+        'relative shrink-0 select-none transition-transform duration-300 hover:scale-105 bg-transparent',
+        'text-[#1f1209]',
+        sizeClasses,
         className
       )}
     >
-      {/* Outer Laurel / Barley Ornament Ring */}
-      <div className="absolute inset-1.5 rounded-full border border-white/25 border-dashed pointer-events-none" />
+      {/* Vector Cask Brand Stamp SVG */}
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 500 500"
+        className="w-full h-full drop-shadow-[0_1px_2px_rgba(31,18,9,0.25)]"
+        fill="currentColor"
+      >
+        <defs>
+          {/* Curved Text Paths with Mathematical Centering between Ring Radii */}
+          <path id={topPathId} d="M 54,250 a 196,196 0 0,1 392,0" fill="none" />
+          <path id={bottomPathId} d="M 38,250 a 212,212 0 0,0 424,0" fill="none" />
 
-      {/* Sparkle Icon for Top Tier (Masterpiece 90+) */}
-      {safeScore >= 90 && (
-        <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-amber-400 text-amber-950 px-2.5 py-0.5 rounded-full shadow-md animate-pulse flex items-center gap-1 text-[9px] font-display font-black tracking-wider border border-amber-200">
-          <Sparkles size={11} className="shrink-0" />
-          <span>{language === 'DE' ? 'MEISTERWERK' : 'TOP TIER'}</span>
-        </div>
-      )}
+          {/* Half Star Split Gradient for 0.5 Increments */}
+          <linearGradient id={halfStarGradId} x1="0" y1="0" x2="100%" y2="0">
+            <stop offset="50%" stopColor="currentColor" />
+            <stop offset="50%" stopColor="currentColor" stopOpacity="0.15" />
+          </linearGradient>
+        </defs>
 
-      {/* Centered Content Stack with Exact Optical Alignment */}
-      <div className="flex flex-col items-center justify-center text-center w-full px-2 z-10">
-        {/* Badge Ribbon Header - Single Line Never Wrapping */}
-        <div className="text-[9.5px] sm:text-[11px] font-display font-black tracking-wider text-white uppercase drop-shadow-[0_1.5px_3px_rgba(0,0,0,0.95)] leading-tight text-center pb-0.5 whitespace-nowrap select-none">
-          ★ {language === 'DE' ? tier.badgeDe : tier.badgeEn} ★
-        </div>
+        {/* ================= ÄUSSERER DOPPELRING (SCHLANK & ELEGANT) ================= */}
+        <circle cx="250" cy="250" r="240" fill="none" stroke="currentColor" strokeWidth="6" />
+        <circle cx="250" cy="250" r="230" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4,3" />
 
-        {/* Big Bold Score in Exact Geometric Center */}
-        <div className="font-display font-black text-5xl sm:text-6xl text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] leading-none tabular-nums text-center">
+        {/* ================= INNERER DOPPELRING ================= */}
+        <circle cx="250" cy="250" r="180" fill="none" stroke="currentColor" strokeWidth="3.5" />
+        <circle cx="250" cy="250" r="174" fill="none" stroke="currentColor" strokeWidth="1.2" />
+
+        {/* ================= TEXT ZWISCHEN DEN RINGEN ================= */}
+        {/* Oben: AQUA VITAEUM (Groß & Präsent) */}
+        <text
+          fontFamily="'Playfair Display', Georgia, serif"
+          fontWeight="bold"
+          fontSize="31"
+          letterSpacing="9"
+          fill="currentColor"
+        >
+          <textPath href={`#${topPathId}`} startOffset="50%" textAnchor="middle">
+            AQUA VITAEUM
+          </textPath>
+        </text>
+
+        {/* Flankierende 3er-Sterne-Konstellation Links (Dem Bogen folgend) */}
+        <g>
+          {/* Oberer Begleitstern */}
+          <g transform="translate(46, 230) scale(1)">
+            <polygon points="0,-7 2.1,-2.3 7.3,-2.3 3.1,1.1 4.7,6.1 0,3.1 -4.7,6.1 -3.1,1.1 -7.3,-2.3 -2.1,-2.3" fill="currentColor" />
+          </g>
+          {/* Zentraler Hauptstern */}
+          <g transform="translate(44, 250) scale(1.45)">
+            <polygon points="0,-7 2.1,-2.3 7.3,-2.3 3.1,1.1 4.7,6.1 0,3.1 -4.7,6.1 -3.1,1.1 -7.3,-2.3 -2.1,-2.3" fill="currentColor" />
+          </g>
+          {/* Unterer Begleitstern */}
+          <g transform="translate(46, 270) scale(1)">
+            <polygon points="0,-7 2.1,-2.3 7.3,-2.3 3.1,1.1 4.7,6.1 0,3.1 -4.7,6.1 -3.1,1.1 -7.3,-2.3 -2.1,-2.3" fill="currentColor" />
+          </g>
+        </g>
+
+        {/* Flankierende 3er-Sterne-Konstellation Rechts (Dem Bogen folgend) */}
+        <g>
+          {/* Oberer Begleitstern */}
+          <g transform="translate(454, 230) scale(1)">
+            <polygon points="0,-7 2.1,-2.3 7.3,-2.3 3.1,1.1 4.7,6.1 0,3.1 -4.7,6.1 -3.1,1.1 -7.3,-2.3 -2.1,-2.3" fill="currentColor" />
+          </g>
+          {/* Zentraler Hauptstern */}
+          <g transform="translate(456, 250) scale(1.45)">
+            <polygon points="0,-7 2.1,-2.3 7.3,-2.3 3.1,1.1 4.7,6.1 0,3.1 -4.7,6.1 -3.1,1.1 -7.3,-2.3 -2.1,-2.3" fill="currentColor" />
+          </g>
+          {/* Unterer Begleitstern */}
+          <g transform="translate(454, 270) scale(1)">
+            <polygon points="0,-7 2.1,-2.3 7.3,-2.3 3.1,1.1 4.7,6.1 0,3.1 -4.7,6.1 -3.1,1.1 -7.3,-2.3 -2.1,-2.3" fill="currentColor" />
+          </g>
+        </g>
+
+        {/* Feine Verbindungs-Linien entlang des Kreisbogens zu den Texten (Mit großzügigem Text-Abstand) */}
+        {/* Links Oben */}
+        <path d="M 52,216 A 205,205 0 0,1 64,163" fill="none" stroke="currentColor" strokeWidth="1.3" strokeDasharray="3,3" opacity="0.65" />
+        <circle cx="64" cy="163" r="2.2" fill="currentColor" />
+        
+        {/* Links Unten */}
+        <path d="M 52,284 A 205,205 0 0,0 64,337" fill="none" stroke="currentColor" strokeWidth="1.3" strokeDasharray="3,3" opacity="0.65" />
+        <circle cx="64" cy="337" r="2.2" fill="currentColor" />
+
+        {/* Rechts Oben */}
+        <path d="M 448,216 A 205,205 0 0,0 436,163" fill="none" stroke="currentColor" strokeWidth="1.3" strokeDasharray="3,3" opacity="0.65" />
+        <circle cx="436" cy="163" r="2.2" fill="currentColor" />
+
+        {/* Rechts Unten */}
+        <path d="M 448,284 A 205,205 0 0,1 436,337" fill="none" stroke="currentColor" strokeWidth="1.3" strokeDasharray="3,3" opacity="0.65" />
+        <circle cx="436" cy="337" r="2.2" fill="currentColor" />
+
+        {/* Unten: Slogan FINE SPIRITS JOURNAL (Weit geschwungener Halbkreis) */}
+        <text
+          fontFamily="'Inter', system-ui, sans-serif"
+          fontWeight="bold"
+          fontSize="21"
+          letterSpacing="7"
+          fill="currentColor"
+        >
+          <textPath href={`#${bottomPathId}`} startOffset="50%" textAnchor="middle">
+            FINE SPIRITS JOURNAL
+          </textPath>
+        </text>
+
+        {/* ================= INNENBEREICH / BEWERTUNG ================= */}
+        <text
+          x="250"
+          y="135"
+          fontFamily="'Inter', system-ui, sans-serif"
+          fontWeight="bold"
+          fontSize="12.5"
+          letterSpacing="3"
+          textAnchor="middle"
+          fill="currentColor"
+          opacity="0.85"
+        >
+          OFFICIAL RATING
+        </text>
+        <text
+          x="250"
+          y="164"
+          fontFamily="'Playfair Display', Georgia, serif"
+          fontWeight="900"
+          fontSize="24"
+          letterSpacing="2.5"
+          textAnchor="middle"
+          fill="currentColor"
+        >
+          {language === 'DE' ? tier.badgeDe : tier.badgeEn}
+        </text>
+
+        <line x1="140" y1="178" x2="360" y2="178" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3,3" opacity="0.75" />
+
+        {/* 5 Sterne Bewertung (Präzise 5% Feintuning) */}
+        <g transform="translate(250, 206)">
+          {/* Stern 1 */}
+          <g transform="translate(-92, 0) scale(2.5)">
+            <polygon
+              points="0,-6 1.8,-1.9 6.3,-1.9 2.7,0.9 4,5.2 0,2.6 -4,5.2 -2.7,0.9 -6.3,-1.9 -1.8,-1.9"
+              fill={starRating >= 1 ? 'currentColor' : starRating >= 0.5 ? `url(#${halfStarGradId})` : 'currentColor'}
+              fillOpacity={starRating >= 1 ? 1 : starRating >= 0.5 ? 1 : 0.12}
+              stroke="currentColor"
+              strokeWidth={starRating >= 1 ? 0 : 0.9}
+              strokeOpacity={starRating >= 1 ? 0 : 0.6}
+            />
+          </g>
+          {/* Stern 2 */}
+          <g transform="translate(-46, 0) scale(2.5)">
+            <polygon
+              points="0,-6 1.8,-1.9 6.3,-1.9 2.7,0.9 4,5.2 0,2.6 -4,5.2 -2.7,0.9 -6.3,-1.9 -1.8,-1.9"
+              fill={starRating >= 2 ? 'currentColor' : starRating >= 1.5 ? `url(#${halfStarGradId})` : 'currentColor'}
+              fillOpacity={starRating >= 2 ? 1 : starRating >= 1.5 ? 1 : 0.12}
+              stroke="currentColor"
+              strokeWidth={starRating >= 2 ? 0 : 0.9}
+              strokeOpacity={starRating >= 2 ? 0 : 0.6}
+            />
+          </g>
+          {/* Stern 3 (Zentraler Hero-Stern) */}
+          <g transform="translate(0, -4.5) scale(3.1)">
+            <polygon
+              points="0,-6 1.8,-1.9 6.3,-1.9 2.7,0.9 4,5.2 0,2.6 -4,5.2 -2.7,0.9 -6.3,-1.9 -1.8,-1.9"
+              fill={starRating >= 3 ? 'currentColor' : starRating >= 2.5 ? `url(#${halfStarGradId})` : 'currentColor'}
+              fillOpacity={starRating >= 3 ? 1 : starRating >= 2.5 ? 1 : 0.12}
+              stroke="currentColor"
+              strokeWidth={starRating >= 3 ? 0 : 0.9}
+              strokeOpacity={starRating >= 3 ? 0 : 0.6}
+            />
+          </g>
+          {/* Stern 4 */}
+          <g transform="translate(46, 0) scale(2.5)">
+            <polygon
+              points="0,-6 1.8,-1.9 6.3,-1.9 2.7,0.9 4,5.2 0,2.6 -4,5.2 -2.7,0.9 -6.3,-1.9 -1.8,-1.9"
+              fill={starRating >= 4 ? 'currentColor' : starRating >= 3.5 ? `url(#${halfStarGradId})` : 'currentColor'}
+              fillOpacity={starRating >= 4 ? 1 : starRating >= 3.5 ? 1 : 0.12}
+              stroke="currentColor"
+              strokeWidth={starRating >= 4 ? 0 : 0.9}
+              strokeOpacity={starRating >= 4 ? 0 : 0.6}
+            />
+          </g>
+          {/* Stern 5 */}
+          <g transform="translate(92, 0) scale(2.5)">
+            <polygon
+              points="0,-6 1.8,-1.9 6.3,-1.9 2.7,0.9 4,5.2 0,2.6 -4,5.2 -2.7,0.9 -6.3,-1.9 -1.8,-1.9"
+              fill={starRating >= 5 ? 'currentColor' : starRating >= 4.5 ? `url(#${halfStarGradId})` : 'currentColor'}
+              fillOpacity={starRating >= 5 ? 1 : starRating >= 4.5 ? 1 : 0.12}
+              stroke="currentColor"
+              strokeWidth={starRating >= 5 ? 0 : 0.9}
+              strokeOpacity={starRating >= 5 ? 0 : 0.6}
+            />
+          </g>
+        </g>
+
+        {/* Zentrum: Maximized Hero Score Numeral */}
+        <text
+          x="250"
+          y="324"
+          fontFamily="'Playfair Display', Georgia, serif"
+          fontWeight="900"
+          fontSize="124"
+          letterSpacing="0"
+          textAnchor="middle"
+          fill="currentColor"
+        >
           {safeScore}
-        </div>
-      </div>
+        </text>
+      </svg>
     </div>
   );
 }
