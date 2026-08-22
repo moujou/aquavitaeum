@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { Spirit } from '@/types/spirit.types';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { SectionHeader } from '@/components/ui/SectionHeader';
@@ -35,8 +34,6 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
     confirmDelete,
   } = useTastingCardForm(initialSpirit, onSave, onDelete);
 
-  const [finishViewMode, setFinishViewMode] = useState<'simple' | 'advanced'>('simple');
-
   return (
     <div className={cn('parchment rounded-lg overflow-hidden animate-fade-in', className)}>
       
@@ -54,7 +51,7 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
       <div className="p-6 flex flex-col gap-6">
 
         {/* Mobile-Only Spirit Photos Section (< lg screens) */}
-        <div className="flex lg:hidden flex-col gap-2 border-b border-[var(--parchment-divider)] pb-5">
+        <div className="flex lg:hidden flex-col gap-2 border-b border-[var(--parchment-border)]/60 pb-5">
           <SectionHeader>{t('spiritPhotos')}</SectionHeader>
           <SpiritPhotoCarousel
             images={spirit.images}
@@ -68,7 +65,7 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
           {/* Left Column: Metadata Section */}
-          <div className="lg:col-span-6 border-b lg:border-b-0 lg:border-r border-[var(--parchment-divider)] pb-6 lg:pb-0 lg:pr-6">
+          <div className="lg:col-span-6 border-b lg:border-b-0 lg:border-r border-[var(--parchment-border)]/60 pb-6 lg:pb-0 lg:pr-6">
             <TastingMetadataSection
               spirit={spirit}
               update={update}
@@ -88,20 +85,12 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
 
         </div>
 
-        {/* Specular Clover Green Divider */}
-        <div className="divider-clover-glow my-1" />
-
-        {/* Full-Width Section 4: Interactive Finish Curve Diagram & Notes */}
+        {/* Full-Width Section 4: Interactive Finish & Notes */}
         <TastingFinishSection
           spirit={spirit}
-          finishViewMode={finishViewMode}
-          setFinishViewMode={setFinishViewMode}
           update={update}
           t={t}
         />
-
-        {/* Specular Clover Green Divider */}
-        <div className="divider-clover-glow my-1" />
 
         {/* Full-Width Section 5: Score & Star Ratings */}
         <TastingRatingSection

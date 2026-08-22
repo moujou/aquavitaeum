@@ -354,4 +354,33 @@ describe('Google Drive Sync Engine & Rogue-File Guards', () => {
       await expect(importSpiritsIntoJournal(corruptFile, 'target-journal')).rejects.toThrow();
     });
   });
+
+  describe('renameDriveFile', () => {
+    it('sends PATCH request to Google Drive API with new name', async () => {
+      const { renameDriveFile } = await import('../google-drive-sync');
+
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ id: 'folder-123', name: 'Renamed Folder' }),
+      });
+      vi.stubGlobal('fetch', mockFetch);
+
+      await renameDriveFile('mock-token-123', 'folder-123', 'Hebriden Malts');
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        'https://www.googleapis.com/drive/v3/files/folder-123',
+        expect.objectContaining({
+          method: 'PATCH',
+          body: JSON.stringify({ name: 'Hebriden Malts' }),
+        })
+      );
+
+      const callArgs = mockFetch.mock.calls[0];
+      const headers = callArgs[1].headers as Headers;
+      expect(headers.get('Authorization')).toBe('Bearer mock-token-123');
+      expect(headers.get('Content-Type')).toBe('application/json');
+
+      vi.restoreAllMocks();
+    });
+  });
 });

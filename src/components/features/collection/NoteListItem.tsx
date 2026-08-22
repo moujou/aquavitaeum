@@ -2,13 +2,16 @@
 'use client';
 
 import React from 'react';
-import { Check, Star, Calendar } from 'lucide-react';
+import { Check, Calendar } from 'lucide-react';
 import { Spirit, SPIRIT_COLOUR_HEX, SpiritColour } from '@/types/spirit.types';
 import { WhiskyLogo } from '@/components/ui/WhiskyLogo';
 import { cn } from '@/lib/utils';
-import { getRatingTierStyle } from '@/lib/spirit-utils';
 import { useLanguage } from '@/context/LanguageContext';
 import { translateFlavorTag, getFlavorColor } from '@/data/spirit-flavor-taxonomy';
+import { translateCharacteristic } from '@/lib/i18n/translations';
+import { formatSpiritCardSpecs, scoreToStars } from '@/lib/spirit-utils';
+import { SommelierScoreMedallion } from '@/components/ui/SommelierScoreMedallion';
+import { RatingStars } from '@/components/ui/RatingStars';
 
 interface NoteListItemProps {
   spirit: Spirit;
@@ -33,52 +36,16 @@ export function NoteListItem({
 }: NoteListItemProps) {
   const { language } = useLanguage();
   const colourHex = SPIRIT_COLOUR_HEX[spirit.colour as SpiritColour] ?? '#FFD700';
-  const tierStyle = getRatingTierStyle(spirit.rating100);
 
-  const formattedDate = spirit.dateTasted
-    ? new Date(spirit.dateTasted).toLocaleDateString(language === 'DE' ? 'de-DE' : 'en-GB', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-      })
-    : '';
-
-  // Construct Specs Line 1 (Row 4: Years · vol · bottle size)
-  const specsRow4: string[] = [];
-  if (spirit.age) specsRow4.push(`${spirit.age} ${language === 'DE' ? 'Jahre' : 'Years'}`);
-  if (spirit.abv > 0) specsRow4.push(`${spirit.abv}% vol`);
-  if (spirit.volumeMl && spirit.volumeMl > 0) specsRow4.push(`${spirit.volumeMl}ml`);
-
-  // Construct Specs Line 2 (Row 5: Strength · Added Colour · Chill Filtered)
-  const specsRow5: string[] = [];
-  specsRow5.push(
-    spirit.isCaskStrength
-      ? (language === 'DE' ? 'Fassstärke' : 'Cask Strength')
-      : (language === 'DE' ? 'Trinkstärke' : 'Standard')
-  );
-  specsRow5.push(
-    !spirit.addedColour
-      ? (language === 'DE' ? 'Ohne Farbstoff' : 'Natural Colour')
-      : (language === 'DE' ? 'Mit Farbstoff' : 'Added Colour')
-  );
-  specsRow5.push(
-    !spirit.chillFiltered
-      ? (language === 'DE' ? 'Nicht kühlgefiltert' : 'Non-Chill Filtered')
-      : (language === 'DE' ? 'Kühlgefiltert' : 'Chill Filtered')
+  const { formattedDate, specsRow4, specsRow5, specsRow6 } = React.useMemo(
+    () => formatSpiritCardSpecs(spirit, language, translateCharacteristic),
+    [spirit, language]
   );
 
-  // Construct Specs Line 3 (Row 6: Finish · Cask / Batch No. - conditional)
-  const specsRow6: string[] = [];
-  if (spirit.finish) specsRow6.push(spirit.finish);
-  if (spirit.caskNo) {
-    specsRow6.push(
-      spirit.caskNo.toLowerCase().startsWith('cask') ||
-      spirit.caskNo.toLowerCase().startsWith('batch') ||
-      spirit.caskNo.startsWith('#')
-        ? spirit.caskNo
-        : `Cask #${spirit.caskNo}`
-    );
-  }
+  const stars = React.useMemo(
+    () => scoreToStars(spirit.rating100 || 85),
+    [spirit.rating100]
+  );
 
   // Get up to 8 flavor tags for rich preview across full width
   const previewFlavorTags = (spirit.flavorTags ?? []).slice(0, 8);
@@ -90,6 +57,7 @@ export function NoteListItem({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={isSelectMode ? isSelected : false}
       onTouchStart={onTouchStart}
       onTouchCancel={onTouchCancel}
       onTouchMove={onTouchMove}
@@ -139,7 +107,7 @@ export function NoteListItem({
 
           {/* Select Mode Checkbox (Top-Left) */}
           {isSelectMode && (
-            <div className="absolute top-2 left-2 z-30">
+            <div className="absolute top-2 left-2 z-30 pointer-events-none">
               <div
                 className={cn(
                   'w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all shadow-md',
@@ -154,28 +122,13 @@ export function NoteListItem({
           )}
         </div>
 
-        {/* Editorial Metadata Block (Top-Right: Structured Continuous Rows with Calibrated Responsive Typography) */}
+        {/* Editorial Metadata Block (Takes full remaining space) */}
         <div className="flex-1 min-w-0 p-3 sm:p-4 md:p-4.5 flex flex-col justify-center gap-1 sm:gap-1.5 z-10">
-          {/* Row 1: Name des Whiskys & Rating Medal */}
-          <div className="flex items-start justify-between gap-2.5 min-w-0">
-            <div className="min-w-0 flex-1">
-              <h3 className="font-display font-bold text-base sm:text-xl md:text-2xl text-[var(--foreground)] group-hover:text-[var(--brass-accent)] transition-colors truncate leading-tight tracking-wide">
-                {spirit.name || spirit.distillery}
-              </h3>
-            </div>
-
-            {/* Dynamic Score Medal */}
-            <div
-              className={cn(
-                'shrink-0 flex items-center justify-center gap-1 px-2 sm:px-2.5 py-1 rounded-lg border font-display font-black text-xs sm:text-sm md:text-base shadow-xs select-none',
-                tierStyle.bg,
-                tierStyle.border,
-                tierStyle.text
-              )}
-            >
-              <Star size={12} className={cn('sm:size-[14px] shrink-0 -mt-0.5', tierStyle.starColor)} />
-              <span>{spirit.rating100}</span>
-            </div>
+          {/* Row 1: Name des Whiskys */}
+          <div className="min-w-0">
+            <h3 className="font-display font-bold text-base sm:text-xl md:text-2xl text-[var(--foreground)] group-hover:text-[var(--brass-accent)] transition-colors truncate leading-tight tracking-wide">
+              {spirit.name || spirit.distillery}
+            </h3>
           </div>
 
           {/* Row 2: Typ des Whiskys */}
@@ -228,6 +181,14 @@ export function NoteListItem({
             </div>
           )}
         </div>
+
+        {/* 3. Dedicated Sommelier Medal Column (Right-Aligned, Top-Right Title Height Slot) */}
+        <div className="p-3 sm:p-4 md:p-4.5 shrink-0 flex items-center justify-center self-start z-10">
+          <SommelierScoreMedallion
+            score={spirit.rating100}
+            size="md"
+          />
+        </div>
       </div>
 
       {/* ── 2. Middle Section: Dedicated Full-Width Sensory Canvas (Flavor Tags & Tasting Notes on Parchment) ── */}
@@ -261,14 +222,10 @@ export function NoteListItem({
         )}
       </div>
 
-      {/* ── 3. Signature Clover Green Grounded Footer: Date & Flavor Count ── */}
-      <div className="w-full bg-[var(--wood-dark)] px-3 sm:px-4 py-1.5 sm:py-2 border-t border-[var(--wood-dark)]/80 flex items-center justify-between gap-2 text-[10px] sm:text-xs text-[var(--parchment-bg)] shrink-0">
-        <div className="flex items-center gap-1.5 min-w-0 font-medium text-[var(--parchment-bg)]/80">
-          {previewFlavorTags.length > 0 && (
-            <span>
-              {previewFlavorTags.length} {language === 'DE' ? 'Aromen erfasst' : 'Aromas captured'}
-            </span>
-          )}
+      {/* ── 3. Signature Clover Green Grounded Footer: Stars (Left) & Date (Right) ── */}
+      <div className="w-full bg-[var(--wood-dark)] px-3 sm:px-4 py-1.5 sm:py-2 border-t border-[var(--wood-dark)]/80 flex items-center justify-between gap-2 text-[10px] sm:text-xs shrink-0">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <RatingStars stars={stars} size={13.5} className="shrink-0 gap-0.5" />
         </div>
 
         {formattedDate && (

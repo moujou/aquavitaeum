@@ -2,17 +2,17 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { MOCK_SPIRITS } from '@/data/mock-spirits';
 import { LanguageProvider } from '@/context/LanguageContext';
-import { SpiritCard } from '../SpiritCard';
+import { NoteListItem } from '../NoteListItem';
 
-describe('Modular SpiritCard Component', () => {
+describe('NoteListItem Component', () => {
   const sampleSpirit = MOCK_SPIRITS[0];
 
-  it('renders spirit details, region, age, score and ABV with % formatted directly behind the number', () => {
+  it('renders spirit name, distillery, score medallion, and editorial specs cleanly', () => {
     const clickFn = vi.fn();
 
     render(
       <LanguageProvider>
-        <SpiritCard
+        <NoteListItem
           spirit={sampleSpirit}
           isSelected={false}
           onClick={clickFn}
@@ -26,12 +26,31 @@ describe('Modular SpiritCard Component', () => {
     expect(screen.getByText('10 Years')).toBeDefined();
     expect(screen.getByText('40% vol')).toBeDefined();
 
-    // Verify Sommelier Medallion and Stars in footer
+    // Verify Medallion Score and Star Rating
     expect(screen.getByText('92')).toBeDefined();
     expect(screen.getByLabelText(/Star rating: 4.5 of 5/i)).toBeDefined();
 
+    // Verify click
     const button = screen.getByRole('button');
     fireEvent.click(button);
     expect(clickFn).toHaveBeenCalled();
+  });
+
+  it('supports select mode and renders checkmark when selected', () => {
+    const clickFn = vi.fn();
+
+    render(
+      <LanguageProvider>
+        <NoteListItem
+          spirit={sampleSpirit}
+          isSelectMode={true}
+          isSelected={true}
+          onClick={clickFn}
+        />
+      </LanguageProvider>
+    );
+
+    const button = screen.getByRole('button');
+    expect(button.getAttribute('aria-pressed')).toBe('true');
   });
 });

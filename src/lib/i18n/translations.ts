@@ -23,6 +23,12 @@ export const TRANSLATIONS = {
     spiritName: 'Name',
     regionOrigin: 'Region / Origin',
     ageYears: 'Age',
+    distillationDate: 'Distillation Date',
+    bottlingDate: 'Bottling Date',
+    distillationDatePlaceholder: 'e.g. 1996 or 15.03.1996',
+    bottlingDatePlaceholder: 'e.g. 2021 or 24.11.2021',
+    calculatedAgeHelper: 'Calculated Age',
+    applyCalculatedAge: 'Apply',
     caskBatchNo: 'Cask / Batch No.',
     abvPercent: 'ABV %',
     dateTasted: 'Date Tasted',
@@ -35,6 +41,8 @@ export const TRANSLATIONS = {
     chillFiltered: 'Chill Filtered',
     bottlePrice: 'Bottle Price',
     bottleVolume: 'Bottle Size (ml)',
+    servingNotes: 'Serving & Pairing Notes',
+    servingNotesPlaceholder: 'e.g. Glencairn neat @ 18°C · 3 drops spring water · 85% Dark Chocolate',
 
     // Tasting Additions & Characteristics
     characteristics: 'Characteristics',
@@ -43,6 +51,30 @@ export const TRANSLATIONS = {
     addedWaterBtn: 'Water',
     onTheRocksBtn: 'On the Rocks',
     withChocolateBtn: 'With Chocolate',
+    addition_Water: 'Water',
+    addition_On_the_Rocks: 'On the Rocks',
+    addition_With_Chocolate: 'With Chocolate',
+    addCustomAddition: '+ Custom',
+    customAdditionPlaceholder: 'Type addition & press Enter…',
+
+    // Production Characteristics (14 Sommelier Presets + Custom)
+    char_Cask_Strength: 'Cask Strength',
+    char_Natural_Colour: 'Natural Colour',
+    char_Non_Chill_Filtered: 'Non-Chill Filtered',
+    char_Peated: 'Peated',
+    char_Single_Cask: 'Single Cask',
+    char_Small_Batch: 'Small Batch',
+    char_Heavily_Peated: 'Heavily Peated',
+    char_Lightly_Peated: 'Lightly Peated',
+    char_Unpeated: 'Unpeated',
+    char_Cask_Finish: 'Cask Finish',
+    char_First_Fill: 'First Fill',
+    char_Triple_Distilled: 'Triple Distilled',
+    char_Single_Estate: 'Single Estate',
+    char_Bottled_in_Bond: 'Bottled in Bond',
+    char_Virgin_Oak: 'Virgin Oak',
+    addCustomCharacteristic: '+ Custom',
+    customCharacteristicPlaceholder: 'Type characteristic & press Enter…',
 
     // Visuals & Texture
     colour: 'Colour',
@@ -53,8 +85,8 @@ export const TRANSLATIONS = {
     noPhotosAdded: 'No Photos Added',
     addPhotoDesc: 'Add bottle label, spirit colour, or tasting setup photos',
     addPhoto: 'Add Photo',
-    useAsThumbnail: 'Use as Thumbnail',
-    useAsThumbnailActive: 'Use as Thumbnail (Active)',
+    useAsThumbnail: 'Set Cover',
+    useAsThumbnailActive: 'Cover',
     deletePhoto: 'Delete photo',
     addAnotherPhoto: 'Add photo',
 
@@ -68,21 +100,74 @@ export const TRANSLATIONS = {
     cat_herbal_botanical: 'Herbal & Botanical',
     cat_maritime_mineral: 'Maritime & Mineral',
 
+    // Custom Flavor Descriptors
+    createCustomFlavor: 'Custom Flavor',
+    createCustomFlavorTitle: 'Create Custom Flavor',
+    createCustomFlavorDesc: 'Add any unique aroma and map it to a flavor wheel dimension.',
+    flavorNameLabel: 'Aroma Name',
+    flavorNamePlaceholder: 'e.g. Honeycrisp Apple, Pine Resin, Mesquite Smoke',
+    flavorEmojiLabel: 'Emoji Icon',
+    flavorDimensionLabel: 'Flavor Wheel Axis / Category',
+    flavorColorLabel: 'Aroma Color',
+    defaultCategoryColor: 'Category Default',
+    customColor: 'Custom Color',
+    customFlavorSearchShortcut: 'Create "{query}" as Custom Flavor',
+    saveAndAddFlavor: 'Save & Add to Note',
+    customFlavorsCategory: 'Custom Aromas',
+    customFlavorDeleted: 'Custom aroma deleted',
+    openSensoryDrawer: 'Flavor Compass',
+    sensoryDrawerTitle: 'Flavor Compass',
+    sensoryDrawerDesc: '',
+    spotlightSearchPlaceholder: 'Quick-add aroma (e.g. Peat, Vanilla, Dried Fig)…',
+    noAromasFound: 'No matching aroma found',
+    done: 'Done',
+    inNose: 'In Nose',
+    inTaste: 'In Taste',
+    noseSectionTitle: 'Nose Aromas',
+    tasteSectionTitle: 'Taste Aromas',
+    searchNosePlaceholder: 'Search aroma for Nose…',
+    searchTastePlaceholder: 'Search aroma for Taste…',
+    noNoseFlavors: 'No aromas recorded for Nose yet',
+    noTasteFlavors: 'No aromas recorded for Taste yet',
+    clearAll: 'Clear all',
+
     // Radar & Sliders
     noseTasteRadar: 'Taste & Note',
     noseIntensity: 'Nose Intensity',
     tasteIntensity: 'Taste Intensity',
 
     // Finish Section
-    finishTimeIntensityDiagram: 'Finish Intensity',
-    finishLength: 'Finish Length & Temporal Profile',
+    finishTimeIntensityDiagram: 'Finish',
+    finishLength: 'Finish Length',
     finishNotes: 'Finish Notes',
     finishNotesPlaceholder: 'Describe the lingering finish, warmth, and persistence…',
     simpleMode: 'Simple',
     advancedMode: 'Advanced',
-    finish_Short: 'Short (0-5s)',
-    finish_Medium: 'Medium (5-12s)',
-    finish_Long: 'Long (10-20s+)',
+    finish_Short: 'Short (< 15s)',
+    finish_Medium: 'Medium (15–45s)',
+    finish_Long: 'Long (45–90s)',
+    finish_Very_Long: 'Very Long (> 90s)',
+    finishEnvelope: 'Sommelier Decay Envelope',
+    finishCharacterLabel: 'Finish Character & Warmth',
+    finishAttack: 'Attack',
+    finishEvolution: 'Evolution',
+    finishResonance: 'Lingering Resonance',
+    finishChar_Warming: 'Warming',
+    finishChar_Sharp: 'Sharp',
+    finishChar_Spicy: 'Spicy',
+    finishChar_Alcoholic: 'Alcoholic',
+    finishChar_Peated: 'Peated',
+    finishChar_Smoky: 'Smoky',
+    finishChar_Oaky: 'Oaky',
+    finishChar_Tannic: 'Tannic',
+    finishChar_Dry: 'Dry',
+    finishChar_Sweet: 'Sweet',
+    finishChar_Mild: 'Mild',
+    finishChar_Saline: 'Saline',
+    finishChar_Mineral: 'Mineral',
+    addCustomFinishChar: '+ Custom',
+    lingeringNotesTitle: 'Dominant Lingering Notes',
+    lingeringNotesDesc: 'Select the notes that stay pronounced in the finish.',
     attackPhase: 'Attack (0-3s)',
     midPhase: 'Mid-Palate (3-10s)',
     finishPhase: 'Finish (10-30s+)',
@@ -93,10 +178,23 @@ export const TRANSLATIONS = {
     finishDuration: 'Length (s)',
     noActiveFlavorTagsFinish: 'Select flavor tags under Nose or Taste to view and edit flavor evolution curves in the finish diagram.',
     interactiveControlsHint: 'Drag control points on the canvas or adjust sliders below.',
+    dragDividersHint: 'Drag dividers to adjust flavor transitions during the finish.',
 
-    // Rating & Score
-    scoreRatingSection: 'Rating',
+    // Score & Rating
+    scoreRatingSection: 'Rating & Recommendations',
     score: 'Score',
+    tier_rustic: 'Rustic / Mixer',
+    tier_solid: 'Solid Everyday Dram',
+    tier_very_good: 'Highly Recommended',
+    tier_liquid_gold: 'Liquid Gold / Outstanding',
+    tier_masterpiece: 'Legendary Masterpiece',
+    barVerdictLabel: 'Bar Verdict & Recommendations',
+    barRole_Daily_Sipper: 'Daily Sipper',
+    barRole_Showcase_Bottle: 'Showcase Bottle',
+    barRole_Buy_Again: 'Buy Again',
+    barRole_Great_Value: 'Great Value',
+    barRole_Guest_Favorite: 'Guest Favorite',
+    barRole_Gift_Idea: 'Gift Idea',
     deleteTastingNote: 'Delete',
     reset: 'Reset',
     saveTastingNote: 'Save',
@@ -110,22 +208,53 @@ export const TRANSLATIONS = {
     yesDeleteNote: 'Yes, Delete Note',
     cancel: 'Cancel',
 
-    // Spirit Colours
-    colour_Clear: 'Clear',
+    // Spirit Colours (21-Shade Sommelier Scale)
+    colour_Gin_Clear: 'Gin Clear',
     colour_White_Wine: 'White Wine',
-    colour_Straw: 'Straw',
-    colour_Honey: 'Honey',
-    colour_Gold: 'Gold',
+    colour_Pale_Straw: 'Pale Straw',
+    colour_Pale_Gold: 'Pale Gold',
+    colour_Ripe_Corn: 'Ripe Corn',
+    colour_Yellow_Gold: 'Yellow Gold',
+    colour_Old_Gold: 'Old Gold',
     colour_Amber: 'Amber',
-    colour_Copper: 'Copper',
+    colour_Deep_Gold: 'Deep Gold',
+    colour_Amontillado: 'Amontillado Sherry',
+    colour_Deep_Copper: 'Deep Copper',
+    colour_Burnished: 'Burnished',
+    colour_Chestnut: 'Chestnut / Oloroso',
+    colour_Russet: 'Russet / Muscat',
+    colour_Tawny_Port: 'Tawny Port',
+    colour_Auburn: 'Auburn / Ruby',
     colour_Mahogany: 'Mahogany',
-    colour_Dark_Oak: 'Dark Oak',
+    colour_Burnt_Umber: 'Burnt Umber',
+    colour_Old_Oak: 'Old Oak',
+    colour_Brown_Sherry: 'Brown Sherry',
+    colour_Treacle: 'Treacle / Black Oak',
 
-    // Glances / Mouthfeel
-    glance_Watery: 'Watery',
+    // Backward compatibility aliases
+    colour_Clear: 'Gin Clear',
+    colour_Straw: 'Pale Straw',
+    colour_Honey: 'Ripe Corn',
+    colour_Gold: 'Yellow Gold',
+    colour_Copper: 'Deep Copper',
+    colour_Ruby: 'Auburn / Ruby',
+    colour_Dark_Oak: 'Old Oak',
+
+    // Glances / Mouthfeel (12 Sommelier Texture Presets + Custom)
+    glance_Silky: 'Silky',
     glance_Oily: 'Oily',
     glance_Creamy: 'Creamy',
+    glance_Viscous: 'Viscous',
     glance_Smooth: 'Smooth',
+    glance_Velvety: 'Velvety',
+    glance_Warming: 'Warming',
+    glance_Dry: 'Dry',
+    glance_Watery: 'Watery',
+    glance_Crisp: 'Crisp',
+    glance_Tannic: 'Tannic',
+    glance_Syrupy: 'Syrupy',
+    addCustomMouthfeel: '+ Custom',
+    customMouthfeelPlaceholder: 'Type texture & press Enter…',
 
     // Radar Dimensions
     radar_fruity: 'Fruity',
@@ -219,6 +348,12 @@ export const TRANSLATIONS = {
     spiritName: 'Name',
     regionOrigin: 'Herkunft / Region',
     ageYears: 'Alter',
+    distillationDate: 'Destillationsdatum',
+    bottlingDate: 'Abfülldatum',
+    distillationDatePlaceholder: 'z.B. 1996 oder 15.03.1996',
+    bottlingDatePlaceholder: 'z.B. 2021 oder 24.11.2021',
+    calculatedAgeHelper: 'Errechnetes Alter',
+    applyCalculatedAge: 'Übernehmen',
     caskBatchNo: 'Fass / Batch-Nr.',
     abvPercent: 'Alk. %',
     dateTasted: 'Verkostungsdatum',
@@ -231,6 +366,8 @@ export const TRANSLATIONS = {
     chillFiltered: 'Kühlgefiltert',
     bottlePrice: 'Flaschenpreis',
     bottleVolume: 'Füllmenge (ml)',
+    servingNotes: 'Servier- & Pairing-Notizen',
+    servingNotesPlaceholder: 'z.B. Glencairn pur @ 18°C · 3 Tropfen Quellwasser · 85% dunkle Schokolade',
 
     // Tasting Additions & Characteristics
     characteristics: 'Eigenschaften',
@@ -239,6 +376,30 @@ export const TRANSLATIONS = {
     addedWaterBtn: 'Wasser',
     onTheRocksBtn: 'Auf Eis',
     withChocolateBtn: 'Mit Schokolade',
+    addition_Water: 'Wasser',
+    addition_On_the_Rocks: 'Auf Eis',
+    addition_With_Chocolate: 'Mit Schokolade',
+    addCustomAddition: '+ Eigene',
+    customAdditionPlaceholder: 'Zusatz eingeben & Enter…',
+
+    // Production Characteristics (14 Sommelier Presets + Custom)
+    char_Cask_Strength: 'Fassstärke',
+    char_Natural_Colour: 'Ohne Farbstoff',
+    char_Non_Chill_Filtered: 'Nicht kühlgefiltert',
+    char_Peated: 'Getorft',
+    char_Single_Cask: 'Einzelfass',
+    char_Small_Batch: 'Small Batch',
+    char_Heavily_Peated: 'Stark getorft',
+    char_Lightly_Peated: 'Leicht getorft',
+    char_Unpeated: 'Ungestorft',
+    char_Cask_Finish: 'Fass-Finish',
+    char_First_Fill: 'First Fill',
+    char_Triple_Distilled: '3-fach destilliert',
+    char_Single_Estate: 'Single Estate',
+    char_Bottled_in_Bond: 'Bottled in Bond',
+    char_Virgin_Oak: 'Frische Eiche / Virgin Oak',
+    addCustomCharacteristic: '+ Eigene',
+    customCharacteristicPlaceholder: 'Eigenschaft eingeben & Enter…',
 
     // Visuals & Texture
     colour: 'Farbe',
@@ -249,8 +410,8 @@ export const TRANSLATIONS = {
     noPhotosAdded: 'Keine Fotos vorhanden',
     addPhotoDesc: 'Füge Flaschenetikett, Farbe oder Verkostungsfotos hinzu',
     addPhoto: 'Foto hinzufügen',
-    useAsThumbnail: 'Als Cover nutzen',
-    useAsThumbnailActive: 'Als Cover aktiv',
+    useAsThumbnail: 'Als Cover',
+    useAsThumbnailActive: 'Cover',
     deletePhoto: 'Foto löschen',
     addAnotherPhoto: 'Foto hinzufügen',
 
@@ -264,21 +425,74 @@ export const TRANSLATIONS = {
     cat_herbal_botanical: 'Kräuter & Botanicals',
     cat_maritime_mineral: 'Maritim & Mineralisch',
 
+    // Custom Flavor Descriptors
+    createCustomFlavor: 'Eigenes Aroma',
+    createCustomFlavorTitle: 'Eigenes Aroma erstellen',
+    createCustomFlavorDesc: 'Erstelle eine freie Geschmacksnote und ordne sie einer Aromarad-Kategorie zu.',
+    flavorNameLabel: 'Aroma-Bezeichnung',
+    flavorNamePlaceholder: 'z.B. Boskoop Apfel, Kiefernharz, Lagerfeuerrauch',
+    flavorEmojiLabel: 'Emoji-Symbol',
+    flavorDimensionLabel: 'Aromarad-Achse / Kategorie',
+    flavorColorLabel: 'Aroma-Farbe',
+    defaultCategoryColor: 'Kategorie-Farbe',
+    customColor: 'Eigene Farbe',
+    customFlavorSearchShortcut: '"{query}" als eigenes Aroma anlegen',
+    saveAndAddFlavor: 'Speichern & zur Notiz hinzufügen',
+    customFlavorsCategory: 'Eigene Aromen',
+    customFlavorDeleted: 'Eigenes Aroma gelöscht',
+    openSensoryDrawer: 'Aromen-Kompass',
+    sensoryDrawerTitle: 'Aromen-Kompass',
+    sensoryDrawerDesc: '',
+    spotlightSearchPlaceholder: 'Aroma schnell hinzufügen (z.B. Torf, Vanille, Feige)…',
+    noAromasFound: 'Kein passendes Aroma gefunden',
+    done: 'Fertig',
+    inNose: 'In Nase',
+    inTaste: 'In Geschmack',
+    noseSectionTitle: 'Nase Aromen',
+    tasteSectionTitle: 'Geschmack Aromen',
+    searchNosePlaceholder: 'Aroma für Nase suchen…',
+    searchTastePlaceholder: 'Aroma für Gaumen / Geschmack suchen…',
+    noNoseFlavors: 'Noch keine Aromen für die Nase erfasst',
+    noTasteFlavors: 'Noch keine Aromen für den Gaumen erfasst',
+    clearAll: 'Alle entfernen',
+
     // Radar & Sliders
     noseTasteRadar: 'Geschmack & Nase',
     noseIntensity: 'Nasen-Intensität',
     tasteIntensity: 'Geschmacks-Intensität',
 
     // Finish Section
-    finishTimeIntensityDiagram: 'Abgangs-Intensität',
-    finishLength: 'Abgangslänge & Zeitverlauf',
+    finishTimeIntensityDiagram: 'Abgang',
+    finishLength: 'Abgangslänge',
     finishNotes: 'Abgangsnotizen',
     finishNotesPlaceholder: 'Beschreibe den anhaltenden Nachklang, die Wärme und Komplexität…',
     simpleMode: 'Einfach',
     advancedMode: 'Erweitert',
-    finish_Short: 'Kurz (0-5s)',
-    finish_Medium: 'Mittel (5-12s)',
-    finish_Long: 'Lang (10-20s+)',
+    finish_Short: 'Kurz (< 15s)',
+    finish_Medium: 'Mittel (15–45s)',
+    finish_Long: 'Lang (45–90s)',
+    finish_Very_Long: 'Sehr lang (> 90s)',
+    finishEnvelope: 'Sommelier-Abklingkurve',
+    finishCharacterLabel: 'Abgangs-Charakter & Wärme',
+    finishAttack: 'Auftakt',
+    finishEvolution: 'Entwicklung',
+    finishResonance: 'Nachklang',
+    finishChar_Warming: 'Wärmend',
+    finishChar_Sharp: 'Scharf',
+    finishChar_Spicy: 'Würzig',
+    finishChar_Alcoholic: 'Alkoholisch',
+    finishChar_Peated: 'Torfig',
+    finishChar_Smoky: 'Rauchig',
+    finishChar_Oaky: 'Eichenholz',
+    finishChar_Tannic: 'Tanninreich',
+    finishChar_Dry: 'Trocken',
+    finishChar_Sweet: 'Süß',
+    finishChar_Mild: 'Mild',
+    finishChar_Saline: 'Salzig',
+    finishChar_Mineral: 'Mineralisch',
+    addCustomFinishChar: '+ Eigener',
+    lingeringNotesTitle: 'Dominante Noten im Nachklang',
+    lingeringNotesDesc: 'Wähle die Aromen aus, die im Nachklang besonders präsent bleiben.',
     attackPhase: 'Auftakt (0-3s)',
     midPhase: 'Mitte (3-10s)',
     finishPhase: 'Abgang / Nachhall (10-30s+)',
@@ -289,10 +503,23 @@ export const TRANSLATIONS = {
     finishDuration: 'Länge (s)',
     noActiveFlavorTagsFinish: 'Wähle oben Aromen bei Nase oder Geschmack aus, um Entfaltungskurven im Abgangs-Diagramm anzuzeigen und zu bearbeiten.',
     interactiveControlsHint: 'Ziehe Kontrollpunkte im Graphen oder bewege die Regler unten.',
+    dragDividersHint: 'Bewege die Trennlinien, um die Übergänge der Aromen im Abgang einzuteilen.',
 
-    // Rating & Score
-    scoreRatingSection: 'Bewertung',
+    // Score & Rating
+    scoreRatingSection: 'Bewertung & Empfehlungen',
     score: 'Punkte',
+    tier_rustic: 'Rustikal / Mixer',
+    tier_solid: 'Solider Alltagsdram',
+    tier_very_good: 'Sehr feiner Tropfen',
+    tier_liquid_gold: 'Liquid Gold / Goldmedaille',
+    tier_masterpiece: 'Jahrhundert-Meisterwerk',
+    barVerdictLabel: 'Bar-Fazit & Kaufempfehlung',
+    barRole_Daily_Sipper: 'Daily Sipper',
+    barRole_Showcase_Bottle: 'Vitrinen-Highlight',
+    barRole_Buy_Again: 'Sofort nachkaufen',
+    barRole_Great_Value: 'Preis-Leistungs-Tipp',
+    barRole_Guest_Favorite: 'Perfekt für Gäste',
+    barRole_Gift_Idea: 'Geschenk-Tipp',
     deleteTastingNote: 'Löschen',
     reset: 'Zurücksetzen',
     saveTastingNote: 'Speichern',
@@ -306,22 +533,53 @@ export const TRANSLATIONS = {
     yesDeleteNote: 'Ja, Notiz löschen',
     cancel: 'Abbrechen',
 
-    // Spirit Colours
-    colour_Clear: 'Klar',
+    // Spirit Colours (21-Stufen Sommelier-Skala)
+    colour_Gin_Clear: 'Wasserhell / Klar',
     colour_White_Wine: 'Weißwein',
-    colour_Straw: 'Stroh',
-    colour_Honey: 'Honig',
-    colour_Gold: 'Gold',
+    colour_Pale_Straw: 'Blasses Stroh',
+    colour_Pale_Gold: 'Blassgold',
+    colour_Ripe_Corn: 'Reifer Mais',
+    colour_Yellow_Gold: 'Gelbgold',
+    colour_Old_Gold: 'Altgold',
     colour_Amber: 'Bernstein',
-    colour_Copper: 'Kupfer',
+    colour_Deep_Gold: 'Tiefgold',
+    colour_Amontillado: 'Amontillado Sherry',
+    colour_Deep_Copper: 'Tiefes Kupfer',
+    colour_Burnished: 'Poliertes Kupfer',
+    colour_Chestnut: 'Kastanie / Oloroso',
+    colour_Russet: 'Rostrot / Muskat',
+    colour_Tawny_Port: 'Tawny Port',
+    colour_Auburn: 'Kastanienrot / Auburn',
     colour_Mahogany: 'Mahagoni',
-    colour_Dark_Oak: 'Dunkle Eiche',
+    colour_Burnt_Umber: 'Gebrannte Umbra',
+    colour_Old_Oak: 'Alte Eiche',
+    colour_Brown_Sherry: 'Dunkler Sherry',
+    colour_Treacle: 'Melasse / Schwarzeiche',
 
-    // Glances / Mouthfeel
-    glance_Watery: 'Wässrig',
+    // Backward compatibility aliases
+    colour_Clear: 'Wasserhell / Klar',
+    colour_Straw: 'Blasses Stroh',
+    colour_Honey: 'Reifer Mais',
+    colour_Gold: 'Gelbgold',
+    colour_Copper: 'Tiefes Kupfer',
+    colour_Ruby: 'Kastanienrot / Auburn',
+    colour_Dark_Oak: 'Alte Eiche',
+
+    // Glances / Mouthfeel (12 Sommelier Texture Presets + Custom)
+    glance_Silky: 'Seidig',
     glance_Oily: 'Ölig',
     glance_Creamy: 'Cremig',
+    glance_Viscous: 'Viskos',
     glance_Smooth: 'Weich',
+    glance_Velvety: 'Samtig',
+    glance_Warming: 'Wärmend',
+    glance_Dry: 'Trocken',
+    glance_Watery: 'Wässrig',
+    glance_Crisp: 'Knackig / Frisch',
+    glance_Tannic: 'Tanninreich',
+    glance_Syrupy: 'Sirupartig',
+    addCustomMouthfeel: '+ Eigene',
+    customMouthfeelPlaceholder: 'Eigenschaft eingeben & Enter…',
 
     // Radar Dimensions
     radar_fruity: 'Fruchtig',
@@ -408,11 +666,31 @@ export function translateColour(colour: string, lang: Language): string {
 }
 
 export function translateGlance(glance: string, lang: Language): string {
-  const normalizedKey = `glance_${glance}` as TranslationKey;
+  const normalizedKey = `glance_${glance.replace(/\s+/g, '_')}` as TranslationKey;
   return TRANSLATIONS[lang]?.[normalizedKey] ?? glance;
 }
 
 export function translateRadarDimension(dim: string, lang: Language): string {
   const normalizedKey = `radar_${dim.toLowerCase()}` as TranslationKey;
   return TRANSLATIONS[lang]?.[normalizedKey] ?? dim;
+}
+
+export function translateTastingAddition(addition: string, lang: Language): string {
+  const normalizedKey = `addition_${addition.replace(/\s+/g, '_')}` as TranslationKey;
+  return TRANSLATIONS[lang]?.[normalizedKey] ?? addition;
+}
+
+export function translateCharacteristic(char: string, lang: Language): string {
+  const normalizedKey = `char_${char.replace(/[-\s]+/g, '_')}` as TranslationKey;
+  return TRANSLATIONS[lang]?.[normalizedKey] ?? char;
+}
+
+export function translateFinishCharacter(char: string, lang: Language): string {
+  const normalizedKey = `finishChar_${char.replace(/[&\s-]+/g, '_')}` as TranslationKey;
+  return TRANSLATIONS[lang]?.[normalizedKey] ?? char;
+}
+
+export function translateBarRole(role: string, lang: Language): string {
+  const normalizedKey = `barRole_${role.replace(/[&\s-]+/g, '_')}` as TranslationKey;
+  return TRANSLATIONS[lang]?.[normalizedKey] ?? role;
 }

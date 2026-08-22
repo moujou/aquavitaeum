@@ -227,6 +227,17 @@ export async function deleteDriveFile(token: string, fileId: string): Promise<vo
 }
 
 /**
+ * Renames an existing file or folder in Google Drive via PATCH
+ */
+export async function renameDriveFile(token: string, fileId: string, newName: string): Promise<void> {
+  await driveApiFetch(`files/${fileId}`, token, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: newName }),
+  });
+}
+
+/**
  * Reads and parses a JSON file from Google Drive
  */
 export async function readDriveJsonFile<T>(
@@ -378,6 +389,10 @@ export async function performGoogleDriveSync(token: string): Promise<SyncStats> 
 
   // 5. Scan remote Google Drive folder structure
   const remoteJournalFolders = await listDriveSubfolders(token, rootFolderId);
+  const remoteFolderByJournalId = new Map<
+    string,
+    { folderId: string; folderName: string; metaFileId?: string; metaModifiedTime?: string }
+  >();
 
   // 6. Process Remote Journals & Tasting Cards -> Pull into local IndexedDB with Delta optimization
   for (const folder of remoteJournalFolders) {
@@ -416,6 +431,20 @@ export async function performGoogleDriveSync(token: string): Promise<SyncStats> 
       deletedRemotes++;
       continue;
     }
+
+    // Check for duplicate folders on Drive for the same journal ID (e.g. from past rename anomalies)
+    if (remoteFolderByJournalId.has(journalId)) {
+      await deleteDriveFile(token, folder.id);
+      deletedRemotes++;
+      continue;
+    }
+
+    remoteFolderByJournalId.set(journalId, {
+      folderId: folder.id,
+      folderName: folder.name,
+      metaFileId: journalMetaFile?.id,
+      metaModifiedTime: journalMetaFile?.modifiedTime,
+    });
 
     // Check if local journal exists by ID or by Name
     const existingLocalJournal = localJournals.find(
@@ -491,7 +520,6 @@ export async function performGoogleDriveSync(token: string): Promise<SyncStats> 
           localSpiritMap.set(remoteSpirit.id, remoteSpirit);
           pulledSpirits++;
         } else {
-          const shouldAdoptImage = !localSpirit.thumbnailImage && !!remoteSpirit.thumbnailImage;
           const mergedSpirit: Spirit = {
             ...remoteSpirit,
             thumbnailImage: remoteSpirit.thumbnailImage || localSpirit.thumbnailImage,
@@ -557,21 +585,53 @@ export async function performGoogleDriveSync(token: string): Promise<SyncStats> 
   const refreshedLocalJournals = await db.journals.toArray();
   const refreshedLocalSpirits = await db.spirits.toArray();
 
-  // 8. Push Local Journals & Spirits to Google Drive (Delta-only push with UUID filenames)
+  // 8. Push Local Journals & Spirits to Google Drive (In-Place Folder Rename + UUID filenames)
   for (const journal of refreshedLocalJournals) {
     if (isTombstoned(journal.id)) continue;
 
-    const folderName = sanitizeFileName(journal.name);
-    const journalFolderId = await findOrCreateDriveFolder(token, folderName, rootFolderId);
+    const targetFolderName = sanitizeFileName(journal.name);
+    let journalFolderId: string;
+    let existingMetaFileId: string | undefined;
+    let remoteMetaTime = 0;
+
+    const existingRemoteFolder = remoteFolderByJournalId.get(journal.id);
+
+    if (existingRemoteFolder) {
+      journalFolderId = existingRemoteFolder.folderId;
+      existingMetaFileId = existingRemoteFolder.metaFileId;
+      remoteMetaTime = existingRemoteFolder.metaModifiedTime
+        ? new Date(existingRemoteFolder.metaModifiedTime).getTime()
+        : 0;
+
+      // In-place rename if the human-readable folder name on Drive doesn't match the updated journal name
+      if (existingRemoteFolder.folderName !== targetFolderName) {
+        try {
+          await renameDriveFile(token, journalFolderId, targetFolderName);
+          existingRemoteFolder.folderName = targetFolderName;
+        } catch (renameErr) {
+          console.warn(
+            `[Aqua Vitaeum Sync] Failed to rename folder ${journalFolderId} to ${targetFolderName}:`,
+            renameErr
+          );
+        }
+      }
+    } else {
+      journalFolderId = await findOrCreateDriveFolder(token, targetFolderName, rootFolderId);
+      const folderFiles = await listDriveFiles(token, journalFolderId);
+      const existingMetaFile = folderFiles.find((f) => f.name === JOURNAL_METADATA_FILE);
+      existingMetaFileId = existingMetaFile?.id;
+      remoteMetaTime = existingMetaFile?.modifiedTime
+        ? new Date(existingMetaFile.modifiedTime).getTime()
+        : 0;
+    }
 
     const folderFiles = await listDriveFiles(token, journalFolderId);
-    const existingMetaFile = folderFiles.find((f) => f.name === JOURNAL_METADATA_FILE);
+    const existingMetaFile = existingMetaFileId
+      ? folderFiles.find((f) => f.id === existingMetaFileId)
+      : folderFiles.find((f) => f.name === JOURNAL_METADATA_FILE);
 
     // Delta check for journal metadata
     const localJournalTime = new Date(journal.updatedAt || journal.createdAt || 0).getTime();
-    const remoteMetaTime = existingMetaFile?.modifiedTime
-      ? new Date(existingMetaFile.modifiedTime).getTime()
-      : 0;
 
     if (!existingMetaFile || localJournalTime > remoteMetaTime) {
       await writeDriveJsonFile(

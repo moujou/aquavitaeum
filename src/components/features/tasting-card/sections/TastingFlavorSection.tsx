@@ -32,7 +32,7 @@ export function TastingFlavorSection({
       </div>
 
       {/* Radar Graph */}
-      <div className="flex flex-col gap-2 border-t border-[var(--parchment-divider)] pt-4">
+      <div className="flex flex-col gap-2 border-t border-[var(--parchment-border)]/60 pt-4">
         <div className="flex items-center justify-between">
           <SectionHeader>{t('noseTasteRadar')}</SectionHeader>
         </div>
@@ -47,7 +47,7 @@ export function TastingFlavorSection({
       </div>
 
       {/* Dynamic Nose Tag Sliders Section */}
-      <div className="border-t border-[var(--parchment-divider)] pt-4">
+      <div className="border-t border-[var(--parchment-border)]/60 pt-4">
         <DynamicProfileSliders
           title={t('noseIntensity')}
           type="nose"
@@ -61,7 +61,7 @@ export function TastingFlavorSection({
       </div>
 
       {/* Dynamic Taste Tag Sliders Section */}
-      <div className="border-t border-[var(--parchment-divider)] pt-4">
+      <div className="border-t border-[var(--parchment-border)]/60 pt-4">
         <DynamicProfileSliders
           title={t('tasteIntensity')}
           type="taste"
