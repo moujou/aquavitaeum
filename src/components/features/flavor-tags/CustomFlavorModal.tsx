@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { CustomFlavorDescriptor, FlavorProfile } from '@/types/spirit.types';
 import { RADAR_DIMENSION_COLORS } from '@/data/spirit-flavor-taxonomy';
 import { DIMENSIONS } from '@/components/features/radar-chart/FlavorRadarChart';
@@ -108,9 +109,11 @@ function CustomFlavorDialog({
     onClose();
   };
 
-  return (
+  if (typeof window === 'undefined') return null;
+
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/75 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-[1000] flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-fade-in"
       onClick={onClose}
     >
       <div
@@ -329,6 +332,7 @@ function CustomFlavorDialog({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

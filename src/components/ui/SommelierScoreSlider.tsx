@@ -122,7 +122,7 @@ export function SommelierScoreSlider({
         <div className="w-full h-4 sm:h-5 rounded-full border border-[var(--parchment-border)] bg-[var(--pub-bg-alt)]/80 relative overflow-hidden shadow-[inset_0_2px_4px_rgba(43,30,20,0.15)]">
           {/* Active Liquid Gold Fill Ribbon */}
           <div
-            className="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-[var(--wood-dark)] via-[var(--brass-accent)] to-[var(--brass-light)] rounded-full transition-all duration-75 shadow-xs"
+            className="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-[#6B3A19] via-[#C97A1E] to-[#F59E0B] rounded-full transition-all duration-75 shadow-xs"
             style={{ width: `${percentage}%` }}
           />
 

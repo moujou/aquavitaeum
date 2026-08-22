@@ -111,6 +111,7 @@ export function SommelierScoreMedallion({
   const topPathId = `pathAquaTop-${uid}`;
   const bottomPathId = `pathSloganBottom-${uid}`;
   const halfStarGradId = `halfStar-${uid}`;
+  const smokeGradId = `smokeHalo-${uid}`;
 
   const safeScore = typeof score === 'number' && !isNaN(score) && score > 0 ? Math.max(1, Math.min(100, Math.round(score))) : 85;
   const starRating = scoreToStars(safeScore);
@@ -130,7 +131,7 @@ export function SommelierScoreMedallion({
       aria-label={a11yLabel}
       title={a11yLabel}
       className={cn(
-        'relative shrink-0 select-none transition-transform duration-300 hover:scale-105 bg-transparent',
+        'relative shrink-0 select-none transition-transform duration-300 hover:scale-105 bg-transparent mix-blend-multiply opacity-95',
         'text-[#1f1209]',
         sizeClasses,
         className
@@ -140,7 +141,7 @@ export function SommelierScoreMedallion({
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 500 500"
-        className="w-full h-full drop-shadow-[0_1px_2px_rgba(31,18,9,0.25)]"
+        className="w-full h-full drop-shadow-[0_0_6px_rgba(180,83,9,0.22)] drop-shadow-[0_1.5px_2px_rgba(31,18,9,0.38)]"
         fill="currentColor"
       >
         <defs>
@@ -153,7 +154,18 @@ export function SommelierScoreMedallion({
             <stop offset="50%" stopColor="currentColor" />
             <stop offset="50%" stopColor="currentColor" stopOpacity="0.15" />
           </linearGradient>
+
+          {/* Singed Parchment Heat Halo / Smoke Ring (Subtle Hot-Iron Brand Effect) */}
+          <radialGradient id={smokeGradId} cx="50%" cy="50%" r="50%">
+            <stop offset="68%" stopColor="#78350F" stopOpacity="0" />
+            <stop offset="88%" stopColor="#B45309" stopOpacity="0.09" />
+            <stop offset="96%" stopColor="#542509" stopOpacity="0.14" />
+            <stop offset="100%" stopColor="#78350F" stopOpacity="0" />
+          </radialGradient>
         </defs>
+
+        {/* ================= GEBRANNTER SCHMAUCH- & HITZEHOF (SMOKE VIGNETTE) ================= */}
+        <circle cx="250" cy="250" r="248" fill={`url(#${smokeGradId})`} pointerEvents="none" />
 
         {/* ================= ÄUSSERER DOPPELRING (SCHLANK & ELEGANT) ================= */}
         <circle cx="250" cy="250" r="240" fill="none" stroke="currentColor" strokeWidth="6" />
@@ -269,7 +281,7 @@ export function SommelierScoreMedallion({
         <line x1="140" y1="178" x2="360" y2="178" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3,3" opacity="0.75" />
 
         {/* 5 Sterne Bewertung (Präzise 5% Feintuning) */}
-        <g transform="translate(250, 206)">
+        <g transform="translate(250, 214)">
           {/* Stern 1 */}
           <g transform="translate(-92, 0) scale(2.5)">
             <polygon
@@ -330,7 +342,7 @@ export function SommelierScoreMedallion({
         {/* Zentrum: Maximized Hero Score Numeral */}
         <text
           x="250"
-          y="324"
+          y="342"
           fontFamily="'Playfair Display', Georgia, serif"
           fontWeight="900"
           fontSize="124"
