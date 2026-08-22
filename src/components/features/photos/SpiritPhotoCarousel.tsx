@@ -1,9 +1,13 @@
 'use client';
 
-import { Camera, ChevronLeft, ChevronRight, Trash2, Plus, Star } from 'lucide-react';
+import React, { useState } from 'react';
+import { Camera, ChevronLeft, ChevronRight, Trash2, Plus, Star, Sparkles } from 'lucide-react';
 import { WhiskyLogo } from '@/components/ui/WhiskyLogo';
 import { usePhotoUpload } from '@/hooks/usePhotoUpload';
 import { useLanguage } from '@/context/LanguageContext';
+import { useAiAssistantConfig } from '@/hooks/useAiAssistantConfig';
+import { SpiritScanModal, SpiritApplyMode } from '@/components/features/scanner/SpiritScanModal';
+import { SpiritAnalysisResult } from '@/services/ai-assistant-service';
 import { cn } from '@/lib/utils';
 
 interface SpiritPhotoCarouselProps {
@@ -11,6 +15,7 @@ interface SpiritPhotoCarouselProps {
   thumbnailImage?: string;
   onChange?: (images: string[]) => void;
   onSetThumbnail?: (url: string | undefined) => void;
+  onAnalyzeSpirit?: (result: SpiritAnalysisResult, uploadedImage?: string, mode?: SpiritApplyMode) => void;
   className?: string;
 }
 
@@ -19,9 +24,13 @@ export function SpiritPhotoCarousel({
   thumbnailImage,
   onChange,
   onSetThumbnail,
+  onAnalyzeSpirit,
   className,
 }: SpiritPhotoCarouselProps) {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
+  const { hasAiKey } = useAiAssistantConfig();
+  const [isScanModalOpen, setIsScanModalOpen] = useState(false);
+
   const {
     activeIndex,
     setActiveIndex,
@@ -32,52 +41,84 @@ export function SpiritPhotoCarousel({
     prevImage,
   } = usePhotoUpload(images, onChange);
 
-  const safeActiveIndex = activeIndex >= images.length ? Math.max(0, images.length - 1) : activeIndex;
+  const isThumbnail = (url: string) => thumbnailImage === url;
+  const safeActiveIndex = Math.min(activeIndex, Math.max(0, images.length - 1));
   const currentPhoto = images[safeActiveIndex];
-  const isThumbnail = currentPhoto && currentPhoto === thumbnailImage;
+
+  const handleApplyScan = (result: SpiritAnalysisResult, uploadedImage?: string, mode?: SpiritApplyMode) => {
+    if (uploadedImage) {
+      const newImages = [...images, uploadedImage];
+      onChange?.(newImages);
+      if (!thumbnailImage && onSetThumbnail) {
+        onSetThumbnail(uploadedImage);
+      }
+    }
+    onAnalyzeSpirit?.(result, uploadedImage, mode);
+  };
 
   return (
-    <div className={cn('flex flex-col gap-2.5', className)}>
+    <div className={cn('space-y-4', className)}>
       {/* Hidden native file input */}
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
-        multiple
+        accept="image/jpeg,image/png,image/webp"
         onChange={handleFileUpload}
         className="hidden"
-        id="spirit-photo-file-input"
+        id="spirit-photo-upload"
       />
 
       {images.length === 0 ? (
         /* ── Empty State Placeholder ────────────────────────────────────────── */
-        <div className="w-full h-80 sm:h-[420px] rounded-xl border-2 border-dashed border-[var(--parchment-border)] bg-[var(--pub-bg-alt)]/20 flex flex-col items-center justify-center gap-3.5 p-6 text-center shadow-2xs">
-          {/* Signature Tasting Glass Icon */}
-          <div className="w-16 h-16 rounded-full bg-[var(--wood-dark)]/15 border border-[var(--forest-green)]/40 flex items-center justify-center text-[var(--forest-green)] shadow-[0_0_20px_rgba(35,115,71,0.15)]">
-            <WhiskyLogo size={34} className="text-[var(--forest-green)]" />
+        <div className="flex flex-col items-center justify-center p-6 sm:p-8 rounded-xl border border-dashed border-[var(--parchment-border)] bg-[var(--pub-bg-alt)]/40 text-center gap-3">
+          <div className="w-14 h-14 rounded-full bg-[var(--forest-green)]/10 flex items-center justify-center text-[var(--forest-green)]">
+            <WhiskyLogo size={28} />
           </div>
-
-          <div className="flex flex-col gap-1 max-w-sm">
-            <p className="font-display text-base sm:text-lg font-bold text-[var(--sepia-text)]">
+          <div>
+            <p className="font-display text-sm font-semibold text-[var(--foreground)]">
               {t('noPhotosAdded')}
             </p>
-            <p className="text-xs sm:text-sm text-[var(--sepia-light)] font-body leading-relaxed">
-              {t('addPhotoDesc')}
+            <p className="font-body text-xs text-[var(--sepia-muted)] mt-0.5">
+              {language === 'DE'
+                ? hasAiKey
+                  ? 'Knipse das Etikett für automatische Erkennung oder lade eigene Fotos hoch.'
+                  : 'Füge Fotos deiner Flasche oder des Etiketts hinzu.'
+                : hasAiKey
+                  ? 'Snap the label for automatic identification or upload your own photos.'
+                  : 'Add photos of your bottle or label.'}
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className={cn(
-              'flex items-center gap-2 px-4.5 py-2.5 rounded-lg border border-[var(--forest-green)]/40',
-              'bg-[var(--forest-green)]/10 text-[var(--forest-green)] text-xs sm:text-sm font-body font-semibold',
-              'hover:bg-[var(--forest-green)]/20 transition-all cursor-pointer shadow-xs active:scale-95',
+          {/* Action Buttons: 1. AI Scan & Snap (Primary) | 2. Simple Photo Upload (Secondary) */}
+          <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
+            {hasAiKey && (
+              <button
+                type="button"
+                onClick={() => setIsScanModalOpen(true)}
+                className={cn(
+                  'flex items-center gap-2 px-4.5 py-2.5 rounded-lg border border-[var(--brass-accent)]/50',
+                  'bg-[var(--wood-dark)] text-white text-xs sm:text-sm font-display font-bold uppercase tracking-wider',
+                  'hover:bg-[var(--wood-accent)] transition-all cursor-pointer shadow-md active:scale-95'
+                )}
+              >
+                <Sparkles size={16} className="text-[var(--brass-accent)]" />
+                <span>{language === 'DE' ? 'Flasche analysieren & knipsen' : 'Analyze & Snap Bottle'}</span>
+              </button>
             )}
-          >
-            <Camera size={16} />
-            {t('addPhoto')}
-          </button>
+
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className={cn(
+                'flex items-center gap-2 px-4 py-2.5 rounded-lg border border-[var(--parchment-border)]',
+                'bg-[var(--pub-bg-panel)] text-[var(--sepia-text)] text-xs sm:text-sm font-body font-medium',
+                'hover:bg-[var(--pub-bg-alt)] transition-all cursor-pointer shadow-xs active:scale-95'
+              )}
+            >
+              <Camera size={16} />
+              <span>{t('addPhoto')}</span>
+            </button>
+          </div>
         </div>
       ) : (
         /* ── Populated Carousel ───────────────────────────────────────────── */
@@ -115,58 +156,67 @@ export function SpiritPhotoCarousel({
             )}
           </div>
 
-          {/* 2. Dedicated Atelier Media Control Toolbar (Below Photo) */}
-          <div className="flex items-center justify-between gap-2 p-2 sm:p-2.5 rounded-lg bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] shadow-2xs">
-            {/* Left: Photo Counter & Cover / Thumbnail Toggle */}
-            <div className="flex items-center gap-2 min-w-0">
+          {/* 2. Dedicated Atelier Media Control Toolbar */}
+          <div className="flex items-center justify-between gap-2 p-1.5 sm:p-2 rounded-lg bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] shadow-2xs">
+            {/* Left: Counter, Cover Toggle, AI Assistant & Add Photo */}
+            <div className="flex items-center gap-1.5 min-w-0">
               <span className="text-xs font-mono font-semibold text-[var(--sepia-muted)] px-2.5 py-1 rounded bg-[var(--pub-bg-alt)]/60 border border-[var(--parchment-border)]/50 shrink-0">
                 {safeActiveIndex + 1} / {images.length}
               </span>
 
               <button
-                id="set-as-thumbnail-btn"
                 type="button"
                 onClick={() => {
-                  onSetThumbnail?.(isThumbnail ? undefined : currentPhoto);
+                  onSetThumbnail?.(isThumbnail(currentPhoto) ? undefined : currentPhoto);
                 }}
-                title={isThumbnail ? t('useAsThumbnailActive') : t('useAsThumbnail')}
-                aria-label={isThumbnail ? t('useAsThumbnailActive') : t('useAsThumbnail')}
+                title={isThumbnail(currentPhoto) ? t('useAsThumbnailActive') : t('useAsThumbnail')}
+                aria-label={isThumbnail(currentPhoto) ? t('useAsThumbnailActive') : t('useAsThumbnail')}
                 className={cn(
-                  'flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-body font-semibold transition-all border cursor-pointer shrink-0 truncate',
-                  isThumbnail
-                    ? 'bg-[var(--brass-accent)]/15 border-[var(--brass-accent)] text-[var(--brass-accent)] shadow-2xs'
-                    : 'bg-transparent border-[var(--parchment-border)] text-[var(--sepia-muted)] hover:border-[var(--brass-accent)] hover:text-[var(--brass-accent)]',
+                  'w-8 h-8 rounded-lg flex items-center justify-center transition-all border cursor-pointer shrink-0 active:scale-95 shadow-2xs',
+                  isThumbnail(currentPhoto)
+                    ? 'bg-[var(--brass-accent)]/20 border-[var(--brass-accent)] text-[var(--brass-accent)]'
+                    : 'bg-transparent border-[var(--parchment-border)] text-[var(--sepia-muted)] hover:border-[var(--brass-accent)] hover:text-[var(--brass-accent)] hover:bg-[var(--pub-bg-alt)]',
                 )}
               >
-                <Star size={13} className={isThumbnail ? 'fill-[var(--brass-accent)]' : ''} />
-                <span>{isThumbnail ? t('useAsThumbnailActive') : t('useAsThumbnail')}</span>
+                <Star size={15} className={isThumbnail(currentPhoto) ? 'fill-[var(--brass-accent)]' : ''} />
+              </button>
+
+              {/* AI Assistant Button in Clover Green */}
+              {hasAiKey && (
+                <button
+                  type="button"
+                  onClick={() => setIsScanModalOpen(true)}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--forest-green)]/15 border border-[var(--forest-green)]/40 text-[var(--forest-green)] hover:bg-[var(--forest-green)] hover:text-white transition-all cursor-pointer shadow-2xs active:scale-95"
+                  title={language === 'DE' ? 'Cask & Spirit Assistent: Flasche analysieren' : 'Cask & Spirit Assistant: Analyze bottle'}
+                  aria-label={language === 'DE' ? 'Flasche neu analysieren' : 'Re-analyze Bottle'}
+                >
+                  <Sparkles size={15} />
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--wood-dark)] text-white hover:bg-[var(--wood-accent)] transition-all cursor-pointer shadow-2xs active:scale-95 border border-[var(--wood-dark)]"
+                title={t('addPhoto')}
+                aria-label={t('addPhoto')}
+              >
+                <Plus size={15} />
               </button>
             </div>
 
-            {/* Right: Delete Active Photo & Add New Photo */}
-            <div className="flex items-center gap-1.5 shrink-0">
+            {/* Right: Delete Action */}
+            <div className="flex items-center shrink-0">
               <button
                 type="button"
                 onClick={() => {
                   handleDelete(safeActiveIndex);
                 }}
-                className="flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-body font-medium text-[var(--sepia-muted)] hover:text-red-700 hover:bg-red-500/10 hover:border-red-300 border border-transparent transition-all cursor-pointer"
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--sepia-muted)] hover:text-red-700 hover:bg-red-500/15 hover:border-red-400 border border-[var(--parchment-border)]/60 transition-all cursor-pointer shadow-2xs active:scale-95"
                 title={t('deletePhoto')}
                 aria-label={t('deletePhoto')}
               >
-                <Trash2 size={13} />
-                <span className="hidden sm:inline">{t('deletePhoto')}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-1 px-3 py-1 rounded-md text-xs font-body font-semibold bg-[var(--wood-dark)] text-[var(--parchment-bg)] hover:bg-[var(--wood-accent)] transition-all cursor-pointer shadow-2xs active:scale-95"
-                title={t('addPhoto')}
-                aria-label={t('addPhoto')}
-              >
-                <Plus size={13} />
-                <span>{t('addPhoto')}</span>
+                <Trash2 size={15} />
               </button>
             </div>
           </div>
@@ -209,6 +259,13 @@ export function SpiritPhotoCarousel({
           </div>
         </div>
       )}
+
+      {/* Embedded Spirit Scan Modal */}
+      <SpiritScanModal
+        isOpen={isScanModalOpen}
+        onClose={() => setIsScanModalOpen(false)}
+        onApply={handleApplyScan}
+      />
     </div>
   );
 }

@@ -1,6 +1,8 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Spirit, FlavorProfile } from '@/types/spirit.types';
 import { createBlankSpirit, deduplicateTags, scoreToStars } from '@/lib/spirit-utils';
+import { SpiritAnalysisResult } from '@/services/ai-assistant-service';
+import { SpiritApplyMode } from '@/components/features/scanner/SpiritScanModal';
 
 export function useTastingCardForm(
   initialSpirit?: Spirit,
@@ -177,6 +179,78 @@ export function useTastingCardForm(
     pendingSpiritRef.current = null;
   }, [spirit.id, spirit.journalId, onSave]);
 
+  const applyScanResult = useCallback(
+    (result: SpiritAnalysisResult, uploadedImage?: string, mode: SpiritApplyMode = 'facts-only') => {
+      setSpirit((prev) => {
+        let updatedImages = prev.images ? [...prev.images] : [];
+        let updatedThumbnail = prev.thumbnailImage;
+
+        if (uploadedImage && !updatedImages.includes(uploadedImage)) {
+          updatedImages = [uploadedImage, ...updatedImages];
+          if (!updatedThumbnail) {
+            updatedThumbnail = uploadedImage;
+          }
+        }
+
+        const detectedCaskFinish =
+          result.caskFinish ||
+          (result.caskTypes && result.caskTypes.length > 0 ? result.caskTypes.join(', ') : prev.finish);
+
+        const nextSpirit: Spirit = {
+          ...prev,
+          name: result.name || prev.name,
+          distillery: result.distillery || prev.distillery,
+          region: result.region || prev.region,
+          spiritType: result.spiritType || prev.spiritType,
+          abv: result.abv || prev.abv,
+          age: result.age !== undefined ? result.age : prev.age,
+          volumeMl: result.volumeMl !== undefined ? result.volumeMl : (prev.volumeMl || 700),
+          caskNo: result.caskTypes && result.caskTypes.length > 0 ? result.caskTypes.join(', ') : prev.caskNo,
+          characteristics:
+            result.characteristics && result.characteristics.length > 0
+              ? result.characteristics
+              : prev.characteristics,
+          colour: result.colour || prev.colour,
+          glance: result.glance && result.glance.length > 0 ? result.glance : prev.glance,
+          finish: detectedCaskFinish,
+          finishCharacter:
+            result.finishCharacter && result.finishCharacter.length > 0
+              ? result.finishCharacter
+              : prev.finishCharacter,
+          servingNotes: result.servingNotes || prev.servingNotes,
+          barRole: result.barRole && result.barRole.length > 0 ? result.barRole : prev.barRole,
+          images: updatedImages,
+          thumbnailImage: updatedThumbnail,
+          updatedAt: new Date().toISOString(),
+        };
+
+        if (mode === 'full') {
+          if (result.finishNotes || result.finish) {
+            nextSpirit.finishNotes = result.finishNotes || result.finish || prev.finishNotes;
+          }
+          if (result.suggestedNoseTags && result.suggestedNoseTags.length > 0) {
+            nextSpirit.noseFlavorTags = Array.from(
+              new Set([...(prev.noseFlavorTags ?? []), ...result.suggestedNoseTags])
+            );
+          }
+          if (result.suggestedTasteTags && result.suggestedTasteTags.length > 0) {
+            nextSpirit.tasteFlavorTags = Array.from(
+              new Set([...(prev.tasteFlavorTags ?? []), ...result.suggestedTasteTags])
+            );
+          }
+          nextSpirit.flavorTags = deduplicateTags([
+            ...(nextSpirit.noseFlavorTags ?? []),
+            ...(nextSpirit.tasteFlavorTags ?? []),
+          ]);
+        }
+
+        triggerSave(nextSpirit);
+        return nextSpirit;
+      });
+    },
+    [triggerSave]
+  );
+
   const stars = scoreToStars(spirit.rating100);
   const displayName = spirit.name.trim() || 'Untitled Spirit Note';
   const subtitleLocation =
@@ -193,6 +267,7 @@ export function useTastingCardForm(
     update,
     updateProfile,
     importSpirit,
+    applyScanResult,
     handleSave,
     handleReset,
     confirmDelete,

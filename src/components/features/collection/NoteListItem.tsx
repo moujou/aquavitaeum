@@ -7,7 +7,7 @@ import { Spirit, SPIRIT_COLOUR_HEX, SpiritColour } from '@/types/spirit.types';
 import { WhiskyLogo } from '@/components/ui/WhiskyLogo';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
-import { translateFlavorTag, getFlavorColor } from '@/data/spirit-flavor-taxonomy';
+import { getActiveFlavorCategories } from '@/data/spirit-flavor-taxonomy';
 import { translateCharacteristic } from '@/lib/i18n/translations';
 import { formatSpiritCardSpecs, scoreToStars } from '@/lib/spirit-utils';
 import { SommelierScoreMedallion } from '@/components/ui/SommelierScoreMedallion';
@@ -37,6 +37,11 @@ export function NoteListItem({
   const { language } = useLanguage();
   const colourHex = SPIRIT_COLOUR_HEX[spirit.colour as SpiritColour] ?? '#FFD700';
 
+  const activeCategories = React.useMemo(
+    () => getActiveFlavorCategories(spirit.flavorTags),
+    [spirit.flavorTags]
+  );
+
   const { formattedDate, specsRow4, specsRow5, specsRow6 } = React.useMemo(
     () => formatSpiritCardSpecs(spirit, language, translateCharacteristic),
     [spirit, language]
@@ -46,9 +51,6 @@ export function NoteListItem({
     () => scoreToStars(spirit.rating100 || 85),
     [spirit.rating100]
   );
-
-  // Get up to 8 flavor tags for rich preview across full width
-  const previewFlavorTags = (spirit.flavorTags ?? []).slice(0, 8);
 
   // Extract a representative tasting note quote snippet
   const tastingQuote = spirit.finishNotes || null;
@@ -126,7 +128,7 @@ export function NoteListItem({
         <div className="flex-1 min-w-0 p-3 sm:p-4 md:p-4.5 flex flex-col justify-center gap-1 sm:gap-1.5 z-10">
           {/* Row 1: Name des Whiskys */}
           <div className="min-w-0">
-            <h3 className="font-display font-bold text-base sm:text-xl md:text-2xl text-[var(--foreground)] group-hover:text-[var(--brass-accent)] transition-colors truncate leading-tight tracking-wide">
+            <h3 className="font-display font-bold text-base sm:text-lg md:text-xl text-[var(--foreground)] group-hover:text-[var(--brass-accent)] transition-colors truncate leading-tight tracking-wide">
               {spirit.name || spirit.distillery}
             </h3>
           </div>
@@ -182,8 +184,8 @@ export function NoteListItem({
           )}
         </div>
 
-        {/* 3. Dedicated Sommelier Medal Column (Right-Aligned, Top-Right Title Height Slot) */}
-        <div className="p-3 sm:p-4 md:p-4.5 shrink-0 flex items-center justify-center self-start z-10">
+        {/* 3. Dedicated Sommelier Medal Box (Right-Aligned, Top-Right Title Height Slot) */}
+        <div className="p-3 sm:p-4 md:p-4.5 shrink-0 flex items-start justify-center self-start z-10">
           <SommelierScoreMedallion
             score={spirit.rating100}
             size="md"
@@ -191,32 +193,30 @@ export function NoteListItem({
         </div>
       </div>
 
-      {/* ── 2. Middle Section: Dedicated Full-Width Sensory Canvas (Flavor Tags & Tasting Notes on Parchment) ── */}
-      <div className="w-full p-3 sm:p-4 md:p-4.5 flex flex-col gap-2 sm:gap-2.5 z-10">
-        {/* Full-Width Soft Opacity Color Flavor Tag Pills */}
-        {previewFlavorTags.length > 0 && (
-          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap overflow-hidden">
-            {previewFlavorTags.map((tag) => {
-              const color = getFlavorColor(tag);
-              return (
-                <span
-                  key={tag}
-                  style={{
-                    backgroundColor: color,
-                    color: '#ffffff',
-                  }}
-                  className="inline-flex items-center text-[10.5px] sm:text-xs md:text-sm font-semibold tracking-wide px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full shadow-2xs select-none opacity-80 transition-all hover:opacity-100 hover:scale-105"
-                >
-                  {translateFlavorTag(tag, language)}
-                </span>
-              );
-            })}
+      {/* ── 2. Middle Section: Dedicated Full-Width Sensory Canvas (Flavor Category Icons & Tasting Notes) ── */}
+      <div className="w-full p-3 sm:p-4 md:p-4.5 flex flex-col gap-2.5 sm:gap-3 z-10">
+        {/* Active Flavor Category Badges (Circular Category Icons) */}
+        {activeCategories.length > 0 && (
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+            {activeCategories.map((cat) => (
+              <span
+                key={cat.id}
+                title={`${cat.name[language] ?? cat.name.EN} (${cat.count})`}
+                style={{
+                  backgroundColor: `${cat.color}20`,
+                  borderColor: `${cat.color}50`,
+                }}
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border flex items-center justify-center text-sm sm:text-base shadow-2xs shrink-0 select-none cursor-default transition-transform hover:scale-110"
+              >
+                <span>{cat.emoji}</span>
+              </span>
+            ))}
           </div>
         )}
 
         {/* Tasting Notes Snippet Quote on Warm Parchment Panel */}
         {tastingQuote && (
-          <p className="line-clamp-2 sm:line-clamp-3 text-xs sm:text-sm md:text-base text-[var(--sepia-text)]/90 italic font-body leading-relaxed bg-[var(--pub-bg-alt)]/40 border border-[var(--parchment-border)]/50 rounded-lg sm:rounded-xl px-3 py-2 sm:px-3.5 sm:py-2.5">
+          <p className="text-xs sm:text-sm text-[var(--sepia-text)]/90 italic font-body leading-relaxed bg-[var(--pub-bg-alt)]/40 border border-[var(--parchment-border)]/50 rounded-lg sm:rounded-xl px-3 py-2 sm:px-3.5 sm:py-2.5">
             „{tastingQuote}“
           </p>
         )}

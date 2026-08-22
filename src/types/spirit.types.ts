@@ -149,6 +149,8 @@ export const SPIRIT_BAR_ROLES = [
   'Great Value',
   'Guest Favorite',
   'Gift Idea',
+  'Beginner Friendly',
+  'Connoisseur Choice',
 ] as const;
 
 export type SpiritBarRole = typeof SPIRIT_BAR_ROLES[number] | string;

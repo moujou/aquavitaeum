@@ -1,9 +1,11 @@
 'use client';
 
+import React, { useState } from 'react';
 import { Spirit } from '@/types/spirit.types';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { SpiritPhotoCarousel } from '@/components/features/photos/SpiritPhotoCarousel';
+import { SpiritScanModal } from '@/components/features/scanner/SpiritScanModal';
 import { useTastingCardForm } from '@/hooks/useTastingCardForm';
 import { useLanguage } from '@/context/LanguageContext';
 import { cn } from '@/lib/utils';
@@ -31,8 +33,11 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
     subtitleLocation,
     update,
     importSpirit,
+    applyScanResult,
     confirmDelete,
   } = useTastingCardForm(initialSpirit, onSave, onDelete);
+
+  const [isHeaderScanModalOpen, setIsHeaderScanModalOpen] = useState(false);
 
   return (
     <div className={cn('parchment rounded-lg overflow-hidden animate-fade-in', className)}>
@@ -44,6 +49,7 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
         subtitleLocation={subtitleLocation}
         onDelete={onDelete ? () => setShowDeleteModal(true) : undefined}
         onImportSpirit={importSpirit}
+        onScanSpirit={() => setIsHeaderScanModalOpen(true)}
         t={t}
         language={language}
       />
@@ -58,6 +64,7 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
             thumbnailImage={spirit.thumbnailImage}
             onChange={(imgs) => update('images', imgs)}
             onSetThumbnail={(url) => update('thumbnailImage', url as string | undefined)}
+            onAnalyzeSpirit={applyScanResult}
           />
         </div>
 
@@ -79,6 +86,7 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
             <TastingFlavorSection
               spirit={spirit}
               update={update}
+              onAnalyzeSpirit={applyScanResult}
               t={t}
             />
           </div>
@@ -117,6 +125,15 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
         cancelLabel={t('cancel')}
         onConfirm={confirmDelete}
         onCancel={() => setShowDeleteModal(false)}
+      />
+
+      {/* Header-Triggered Spirit Scan Modal */}
+      <SpiritScanModal
+        isOpen={isHeaderScanModalOpen}
+        onClose={() => setIsHeaderScanModalOpen(false)}
+        onApply={(result, uploadedImage, mode) => {
+          applyScanResult(result, uploadedImage, mode);
+        }}
       />
     </div>
   );

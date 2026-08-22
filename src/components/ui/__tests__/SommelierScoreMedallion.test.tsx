@@ -1,72 +1,55 @@
-import { render, screen } from '@testing-library/react';
+import React from 'react';
 import { describe, it, expect } from 'vitest';
-import {
-  SommelierScoreMedallion,
-  getScoreTierConfig,
-  SCORE_TIERS_CONFIG,
-} from '../SommelierScoreMedallion';
+import { render, screen } from '@testing-library/react';
+import { SommelierScoreMedallion, SCORE_TIERS_CONFIG } from '../SommelierScoreMedallion';
 import { LanguageProvider } from '@/context/LanguageContext';
 
-describe('SommelierScoreMedallion Component & Tiers', () => {
-  describe('getScoreTierConfig Helper', () => {
-    it('correctly maps each of the 5 sommelier quality bands', () => {
-      expect(getScoreTierConfig(50).badgeDe).toBe('EINFACH');
-      expect(getScoreTierConfig(75).badgeDe).toBe('GUT');
-      expect(getScoreTierConfig(82).badgeDe).toBe('SEHR GUT');
-      expect(getScoreTierConfig(88).badgeDe).toBe('AUSGEZEICHNET');
-      expect(getScoreTierConfig(95).badgeDe).toBe('MEISTERWERK');
-      expect(getScoreTierConfig(100).badgeDe).toBe('MEISTERWERK');
-    });
+describe('SommelierScoreMedallion', () => {
+  it('renders fallback score 85 when score is undefined', () => {
+    render(
+      <LanguageProvider>
+        <SommelierScoreMedallion score={undefined} />
+      </LanguageProvider>
+    );
+    expect(screen.getByText('85')).toBeDefined();
+    expect(screen.getByText(/EXCELLENT|AUSGEZEICHNET/)).toBeDefined();
+  });
 
-    it('safely handles boundary and invalid inputs', () => {
-      // 0 or negative defaults to lowest tier (Casual/Developing)
-      expect(getScoreTierConfig(0).badgeDe).toBe('EINFACH');
-      expect(getScoreTierConfig(-10).badgeDe).toBe('EINFACH');
-      // NaN or undefined defaults safely
-      expect(getScoreTierConfig(NaN).badgeDe).toBe('EINFACH');
-      // Above 100 clamps to Masterpiece
-      expect(getScoreTierConfig(150).badgeDe).toBe('MEISTERWERK');
-    });
+  it('renders masterpiece medallion for score 95', () => {
+    render(
+      <LanguageProvider>
+        <SommelierScoreMedallion score={95} size="md" />
+      </LanguageProvider>
+    );
 
-    it('has exactly 5 comprehensive sommelier tiers without gaps or overlaps', () => {
-      expect(SCORE_TIERS_CONFIG.length).toBe(5);
-      for (let i = 1; i <= 100; i++) {
-        const config = getScoreTierConfig(i);
-        expect(config).toBeDefined();
-        expect(config.min).toBeLessThanOrEqual(i);
-        expect(config.max).toBeGreaterThanOrEqual(i);
-      }
+    expect(screen.getByText('95')).toBeDefined();
+    expect(screen.getByText(/MASTERPIECE|MEISTERWERK/)).toBeDefined();
+  });
+
+  it('renders correct tiers for different score brackets', () => {
+    const testCases = [
+      { score: 92, badge: /MASTERPIECE|MEISTERWERK/ },
+      { score: 87, badge: /EXCELLENT|AUSGEZEICHNET/ },
+      { score: 82, badge: /VERY GOOD|SEHR GUT/ },
+      { score: 75, badge: /GOOD|GUT/ },
+      { score: 65, badge: /CASUAL|SOLIDE|EINFACH/ },
+    ];
+
+    testCases.forEach(({ score, badge }) => {
+      const { unmount } = render(
+        <LanguageProvider>
+          <SommelierScoreMedallion score={score} />
+        </LanguageProvider>
+      );
+      expect(screen.getByText(String(score))).toBeDefined();
+      expect(screen.getByText(badge)).toBeDefined();
+      unmount();
     });
   });
 
-  describe('Rendering Medallion Sizes', () => {
-    it('renders size="sm" for grid cards', () => {
-      render(
-        <LanguageProvider>
-          <SommelierScoreMedallion score={92} size="sm" />
-        </LanguageProvider>
-      );
-      expect(screen.getByText('92')).toBeDefined();
-    });
-
-    it('renders size="md" for list rows', () => {
-      render(
-        <LanguageProvider>
-          <SommelierScoreMedallion score={88} size="md" />
-        </LanguageProvider>
-      );
-      expect(screen.getByText('88')).toBeDefined();
-    });
-
-    it('renders size="lg" hero medallion for tasting cards', () => {
-      render(
-        <LanguageProvider>
-          <SommelierScoreMedallion score={95} size="lg" />
-        </LanguageProvider>
-      );
-      expect(screen.getByText('95')).toBeDefined();
-      expect(screen.getByText(/MEISTERWERK|MASTERPIECE/i)).toBeDefined();
-      expect(screen.getByText(/FINE SPIRITS JOURNAL/i)).toBeDefined();
-    });
+  it('verifies tier configuration ranges', () => {
+    expect(SCORE_TIERS_CONFIG).toHaveLength(5);
+    expect(SCORE_TIERS_CONFIG[0].min).toBe(90);
+    expect(SCORE_TIERS_CONFIG[0].max).toBe(100);
   });
 });

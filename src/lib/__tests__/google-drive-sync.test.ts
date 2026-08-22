@@ -16,6 +16,14 @@ vi.mock('@/lib/db', () => ({
   db: {
     journals: {
       put: vi.fn().mockResolvedValue('j-test-1'),
+      toArray: vi.fn().mockResolvedValue([
+        {
+          id: 'j-1',
+          name: 'Islay Malts',
+          createdAt: '2026-01-01T00:00:00.000Z',
+          updatedAt: '2026-01-01T00:00:00.000Z',
+        },
+      ]),
       where: vi.fn().mockReturnValue({
         anyOf: vi.fn().mockReturnValue({
           toArray: vi.fn().mockResolvedValue([]),
@@ -24,6 +32,25 @@ vi.mock('@/lib/db', () => ({
     },
     spirits: {
       put: vi.fn().mockResolvedValue('s-test-1'),
+      toArray: vi.fn().mockResolvedValue([
+        {
+          id: 's-1',
+          journalId: 'j-1',
+          spiritType: 'Single Malt Scotch',
+          name: 'Laphroaig 10',
+          distillery: 'Laphroaig',
+          region: 'Islay',
+          abv: 40,
+          dateTasted: '2026-01-01',
+          rating100: 92,
+          starRating: 5,
+          colour: 'Pale Gold',
+          finishNotes: 'Smoky finish',
+          flavorTags: ['Peat'],
+          noseProfile: { fruity: 1, floral: 1, spicy: 3, cereal: 1, peaty: 8, sulphury: 0, feinty: 1, nutty: 1, woody: 3, winey: 0, chocolate: 0 },
+          tasteProfile: { fruity: 1, floral: 1, spicy: 3, cereal: 1, peaty: 9, sulphury: 0, feinty: 1, nutty: 1, woody: 4, winey: 0, chocolate: 0 },
+        },
+      ]),
       where: vi.fn().mockReturnValue({
         anyOf: vi.fn().mockReturnValue({
           toArray: vi.fn().mockResolvedValue([]),
@@ -379,6 +406,167 @@ describe('Google Drive Sync Engine & Rogue-File Guards', () => {
       const headers = callArgs[1].headers as Headers;
       expect(headers.get('Authorization')).toBe('Bearer mock-token-123');
       expect(headers.get('Content-Type')).toBe('application/json');
+
+      vi.restoreAllMocks();
+    });
+  });
+
+  describe('Local Backup & File Export Functions', () => {
+    it('executes downloadLocalBackupFile and triggers anchor click', async () => {
+      const { downloadLocalBackupFile } = await import('../google-drive-sync');
+      const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+
+      await downloadLocalBackupFile();
+
+      expect(clickSpy).toHaveBeenCalled();
+      clickSpy.mockRestore();
+    });
+
+    it('executes exportSingleSpiritFile and triggers anchor click', async () => {
+      const { exportSingleSpiritFile } = await import('../google-drive-sync');
+      const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+
+      const mockSpirit: Spirit = {
+        id: 's-exp-1',
+        journalId: 'j-1',
+        spiritType: 'Single Malt Scotch',
+        name: 'Bowmore 12',
+        distillery: 'Bowmore',
+        region: 'Islay',
+        abv: 40,
+        dateTasted: '2026-01-01',
+        rating100: 85,
+        starRating: 4,
+        colour: 'Warm Amber',
+        finishNotes: 'Gentle peat and citrus',
+        flavorTags: ['Peat'],
+        noseProfile: { fruity: 2, floral: 1, spicy: 2, cereal: 2, peaty: 5, sulphury: 0, feinty: 1, nutty: 2, woody: 3, winey: 1, chocolate: 1 },
+        tasteProfile: { fruity: 3, floral: 1, spicy: 2, cereal: 2, peaty: 5, sulphury: 0, feinty: 1, nutty: 2, woody: 3, winey: 1, chocolate: 1 },
+      };
+
+      exportSingleSpiritFile(mockSpirit);
+
+      expect(clickSpy).toHaveBeenCalled();
+      clickSpy.mockRestore();
+    });
+
+    it('executes exportJournalsToFile and exportSpiritsToFile', async () => {
+      const { exportJournalsToFile, exportSpiritsToFile } = await import('../google-drive-sync');
+      const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+
+      await exportJournalsToFile(['j-1']);
+      await exportSpiritsToFile(['s-1', 's-2'], 'Islay Collection');
+
+      expect(clickSpy).toHaveBeenCalled();
+      clickSpy.mockRestore();
+    });
+
+    it('imports local backup file with validation', async () => {
+      const { importLocalBackupFile } = await import('../google-drive-sync');
+      const backupData = {
+        version: 3,
+        exportedAt: '2026-01-01T00:00:00.000Z',
+        journals: [
+          {
+            id: 'b-j-1',
+            name: 'Backup Journal',
+            createdAt: '2026-01-01',
+            updatedAt: '2026-01-01',
+          },
+        ],
+        spirits: [
+          {
+            id: 'b-s-1',
+            journalId: 'b-j-1',
+            spiritType: 'Single Malt Scotch',
+            name: 'Backup Spirit',
+            distillery: 'Distillery',
+            region: 'Region',
+            abv: 43,
+            dateTasted: '2026-01-01',
+            rating100: 88,
+            starRating: 4,
+            colour: 'Old Gold',
+            finishNotes: 'Finish notes',
+            flavorTags: ['Vanilla'],
+            noseProfile: { fruity: 2, floral: 1, spicy: 2, cereal: 2, peaty: 0, sulphury: 0, feinty: 1, nutty: 2, woody: 3, winey: 1, chocolate: 1 },
+            tasteProfile: { fruity: 2, floral: 1, spicy: 2, cereal: 2, peaty: 0, sulphury: 0, feinty: 1, nutty: 2, woody: 3, winey: 1, chocolate: 1 },
+          },
+        ],
+      };
+
+      const file = new File([JSON.stringify(backupData)], 'backup.json', { type: 'application/json' });
+      const result = await importLocalBackupFile(file);
+
+      expect(result.importedJournals).toBe(1);
+      expect(result.importedSpirits).toBe(1);
+    });
+  });
+
+  describe('performGoogleDriveSync Engine Integration', () => {
+    it('executes delta sync with mocked Google Drive API endpoints', async () => {
+      const { performGoogleDriveSync } = await import('../google-drive-sync');
+
+      // Mock fetch responses for folder lookup and file queries
+      const mockFetch = vi.fn().mockImplementation((url: string) => {
+        if (url.includes('mimeType = \'application/vnd.google-apps.folder\'')) {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({ files: [{ id: 'root-folder-id', name: 'Aqua Vitaeum' }] }),
+          });
+        }
+        if (url.includes('parents in \'root-folder-id\'')) {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({
+              files: [
+                {
+                  id: 'journal-folder-1',
+                  name: 'Islay Malts',
+                  mimeType: 'application/vnd.google-apps.folder',
+                  modifiedTime: '2026-01-01T00:00:00.000Z',
+                },
+              ],
+            }),
+          });
+        }
+        if (url.includes('parents in \'journal-folder-1\'')) {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({
+              files: [
+                {
+                  id: 'metadata-file-1',
+                  name: '_journal.json',
+                  mimeType: 'application/json',
+                  modifiedTime: '2026-01-01T00:00:00.000Z',
+                },
+              ],
+            }),
+          });
+        }
+        if (url.includes('/files/metadata-file-1?alt=media')) {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({
+              id: 'remote-j-1',
+              name: 'Islay Malts',
+              createdAt: '2026-01-01T00:00:00.000Z',
+              updatedAt: '2026-01-01T00:00:00.000Z',
+            }),
+          });
+        }
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ id: 'file-created-id' }),
+        });
+      });
+
+      vi.stubGlobal('fetch', mockFetch);
+
+      const result = await performGoogleDriveSync('mock-access-token');
+      expect(result).toBeDefined();
+      expect(result.lastSyncedAt).toBeDefined();
 
       vi.restoreAllMocks();
     });

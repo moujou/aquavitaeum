@@ -19,6 +19,10 @@ export function getRoleEmoji(role: string): string {
       return '👥';
     case 'Gift Idea':
       return '🎁';
+    case 'Beginner Friendly':
+      return '🌱';
+    case 'Connoisseur Choice':
+      return '🧐';
     default:
       return '✨';
   }

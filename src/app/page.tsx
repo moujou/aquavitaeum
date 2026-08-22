@@ -57,6 +57,7 @@ export default function Home() {
     isLoading: isLoadingSpirits,
     selectSpirit,
     handleNewNote,
+    handleNewNoteFromScan,
     handleSave,
     handleDelete,
   } = useSpiritCollection(activeJournalId);
@@ -409,6 +410,13 @@ export default function Home() {
                     handleNewNote().then(() => {
                       startTransition(() => setActiveView('journal-detail'));
                     });
+                  }}
+                  onNewNoteFromScan={async (result, uploadedImage, mode) => {
+                    const id = await handleNewNoteFromScan(result, uploadedImage, mode);
+                    if (id) {
+                      startTransition(() => setActiveView('journal-detail'));
+                    }
+                    return id;
                   }}
                   onDeleteSpirit={handleDelete}
                 />

@@ -1,3 +1,4 @@
+import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { MOCK_SPIRITS } from '@/data/mock-spirits';
@@ -7,7 +8,7 @@ import { SpiritCard } from '../SpiritCard';
 describe('Modular SpiritCard Component', () => {
   const sampleSpirit = MOCK_SPIRITS[0];
 
-  it('renders spirit details, region, age, score and ABV with % formatted directly behind the number', () => {
+  it('renders spirit details, region, age, score, ABV, tasting quote and category icons', () => {
     const clickFn = vi.fn();
 
     render(
@@ -29,6 +30,9 @@ describe('Modular SpiritCard Component', () => {
     // Verify Sommelier Medallion and Stars in footer
     expect(screen.getByText('92')).toBeDefined();
     expect(screen.getByLabelText(/Star rating: 4.5 of 5/i)).toBeDefined();
+
+    // Verify Tasting Quote Snippet
+    expect(screen.getByText(/Ex-Bourbon & Quarter Cask Finish/)).toBeDefined();
 
     const button = screen.getByRole('button');
     fireEvent.click(button);

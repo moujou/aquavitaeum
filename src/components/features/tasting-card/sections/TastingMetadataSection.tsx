@@ -150,7 +150,7 @@ export function TastingMetadataSection({
             id="finish-input"
             value={spirit.finish ?? ''}
             onChange={(v) => update('finish', v)}
-            placeholder="e.g. Oloroso Sherry Finish"
+            placeholder={t('finishPlaceholder')}
           />
         </div>
 

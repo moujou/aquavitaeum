@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { Download, Upload, Trash2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Download, Upload, Trash2, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
 import { Spirit } from '@/types/spirit.types';
 import { PageActionsDropdown } from '@/components/ui/PageActionsDropdown';
+import { useAiAssistantConfig } from '@/hooks/useAiAssistantConfig';
 import { exportSingleSpiritFile, parseSingleSpiritFile } from '@/lib/google-drive-sync';
 import { TranslationKey } from '@/lib/i18n/translations';
 import { cn } from '@/lib/utils';
@@ -14,6 +15,7 @@ interface TastingHeaderSectionProps {
   subtitleLocation: string;
   onDelete?: () => void;
   onImportSpirit?: (imported: Spirit) => void;
+  onScanSpirit?: () => void;
   t: (key: TranslationKey) => string;
   language?: string;
 }
@@ -24,10 +26,12 @@ export function TastingHeaderSection({
   subtitleLocation,
   onDelete,
   onImportSpirit,
+  onScanSpirit,
   t,
   language = 'EN',
 }: TastingHeaderSectionProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { hasAiKey } = useAiAssistantConfig();
   const [importNotice, setImportNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,6 +67,16 @@ export function TastingHeaderSection({
           variant="on-dark-banner"
           title={language === 'DE' ? 'Karten-Aktionen' : 'Card Actions'}
           items={[
+            ...(hasAiKey && onScanSpirit
+              ? [
+                  {
+                    id: 'scan-spirit',
+                    label: language === 'DE' ? 'Flasche analysieren (KI)' : 'Analyze Bottle (AI)',
+                    icon: <Sparkles size={16} />,
+                    onClick: onScanSpirit,
+                  },
+                ]
+              : []),
             {
               id: 'export-note',
               label: t('exportSingleNote'),

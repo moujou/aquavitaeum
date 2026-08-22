@@ -188,5 +188,25 @@ describe('Modular OO Tasting Card Sections', () => {
       expect(cardElement?.className).toContain('animate-fade-in');
       expect(cardElement?.className).not.toContain('animate-fade-in-up');
     });
+
+    it('handles delete flow via gear menu and confirm modal', async () => {
+      const deleteFn = vi.fn();
+      render(
+        <LanguageProvider>
+          <TastingCard
+            initialSpirit={sampleSpirit}
+            onDelete={deleteFn}
+          />
+        </LanguageProvider>
+      );
+
+      const gearBtn = screen.getByRole('button', { name: /card actions|karten-aktionen/i });
+      fireEvent.click(gearBtn);
+
+      const deleteMenuItem = screen.getByRole('button', { name: /delete|löschen/i });
+      fireEvent.click(deleteMenuItem);
+
+      expect(screen.getByRole('button', { name: /Yes, Delete Note|Löschen/i })).toBeDefined();
+    });
   });
 });

@@ -1,28 +1,47 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { BarVerdictRoleSelector } from '../BarVerdictRoleSelector';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { BarVerdictRoleSelector, getRoleEmoji } from '../BarVerdictRoleSelector';
 
-describe('BarVerdictRoleSelector Component', () => {
-  it('renders all bar roles and toggles selection on click', () => {
-    const toggleFn = vi.fn();
-    const mockT = (k: string) => k;
+describe('BarVerdictRoleSelector', () => {
+  it('maps all roles to their signature emojis', () => {
+    expect(getRoleEmoji('Beginner Friendly')).toBe('🌱');
+    expect(getRoleEmoji('Connoisseur Choice')).toBe('🧐');
+    expect(getRoleEmoji('Daily Sipper')).toBe('🥃');
+    expect(getRoleEmoji('Showcase Bottle')).toBe('👑');
+    expect(getRoleEmoji('Buy Again')).toBe('🛒');
+    expect(getRoleEmoji('Great Value')).toBe('💎');
+    expect(getRoleEmoji('Guest Favorite')).toBe('👥');
+    expect(getRoleEmoji('Gift Idea')).toBe('🎁');
+    expect(getRoleEmoji('Unknown')).toBe('✨');
+  });
 
-    render(
+  it('renders all bar roles in German and English and toggles selection', () => {
+    const onToggleRole = vi.fn();
+    const { rerender } = render(
       <BarVerdictRoleSelector
-        activeRoles={['Daily Sipper']}
-        onToggleRole={toggleFn}
-        language="EN"
-        t={mockT}
+        activeRoles={['Beginner Friendly']}
+        onToggleRole={onToggleRole}
+        language="DE"
       />
     );
 
-    expect(screen.getByText(/Daily Sipper/i)).toBeDefined();
-    expect(screen.getByText(/Showcase Bottle/i)).toBeDefined();
-    expect(screen.getByText(/Buy Again/i)).toBeDefined();
-    expect(screen.getByText(/Great Value/i)).toBeDefined();
+    expect(screen.getByText(/Einsteiger-Tipp/)).toBeDefined();
+    expect(screen.getByText(/Für Fortgeschrittene/)).toBeDefined();
 
-    const showcaseBtn = screen.getByRole('button', { name: /Showcase Bottle/i });
-    fireEvent.click(showcaseBtn);
-    expect(toggleFn).toHaveBeenCalledWith('Showcase Bottle');
+    const connoisseurBtn = screen.getByRole('button', { name: /Für Fortgeschrittene/ });
+    fireEvent.click(connoisseurBtn);
+    expect(onToggleRole).toHaveBeenCalledWith('Connoisseur Choice');
+
+    rerender(
+      <BarVerdictRoleSelector
+        activeRoles={['Beginner Friendly']}
+        onToggleRole={onToggleRole}
+        language="EN"
+      />
+    );
+
+    expect(screen.getByText(/Beginner Friendly/)).toBeDefined();
+    expect(screen.getByText(/Connoisseur/)).toBeDefined();
   });
 });

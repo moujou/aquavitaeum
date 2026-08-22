@@ -12,7 +12,6 @@ import {
   HardDrive,
   CheckCircle2,
   AlertCircle,
-  ShieldCheck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -211,12 +210,6 @@ export function GoogleDriveSyncSection() {
           {importStatus}
         </div>
       )}
-
-      {/* Privacy Notice Banner in Atelier Clover Green */}
-      <div className="p-3.5 sm:p-4 bg-[var(--forest-green)]/10 border-t border-[var(--forest-green)]/25 flex items-start gap-2.5 text-xs text-[var(--sepia-text)] leading-relaxed">
-        <ShieldCheck size={17} className="text-[var(--forest-green)] shrink-0 mt-0.5" />
-        <span>{t('privacyNoteGoogle')}</span>
-      </div>
     </>
   );
 }

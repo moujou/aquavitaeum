@@ -113,25 +113,27 @@ function CustomFlavorDialog({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[1000] flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-fade-in"
+      className="fixed inset-0 z-[1100] flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-fade-in"
       onClick={onClose}
     >
       <div
         className="relative w-full max-w-4xl bg-[var(--parchment-bg)] border border-[var(--parchment-border)] rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Modal Top Header */}
-        <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-[var(--wood-dark)] to-[var(--wood-selection)] text-white border-b border-black/10 shadow-sm shrink-0">
-          <div className="flex items-center gap-2.5">
-            <Sparkles className="w-5 h-5 text-amber-200" />
-            <h3 className="font-display font-bold text-lg sm:text-xl tracking-wide text-white drop-shadow-xs">
+        {/* Modal Top Header (Flavor Compass Unified Standard) */}
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 bg-gradient-to-r from-[var(--wood-dark)] to-[var(--wood-selection)] text-white border-b border-black/10 shadow-sm shrink-0 gap-3">
+          <div className="flex items-center gap-2.5 min-w-0 pr-2">
+            <Sparkles className="w-6 h-6 text-amber-200 shrink-0" />
+            <h3 className="font-display font-bold text-base sm:text-xl tracking-wide text-white drop-shadow-xs truncate">
               {t('createCustomFlavorTitle')}
             </h3>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-full text-white/80 hover:text-white hover:bg-white/15 transition-colors cursor-pointer"
+            className="p-2 rounded-xl text-white/80 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 transition-all cursor-pointer shadow-xs shrink-0"
+            aria-label="Close"
+            title="Close"
           >
             <X className="w-5 h-5" />
           </button>

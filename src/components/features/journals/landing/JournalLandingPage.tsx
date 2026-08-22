@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useLanguage } from '@/context/LanguageContext';
 import { JournalWithStats } from '@/hooks/useJournals';
@@ -9,6 +9,8 @@ import { OverviewLayout } from '@/hooks/useLayoutPreference';
 import { useMultiSelect } from '@/hooks/useMultiSelect';
 import { exportJournalsToFile, exportSpiritsToFile, importSpiritsIntoJournal } from '@/lib/google-drive-sync';
 import { notifyDataMutated } from '@/lib/sync-events';
+import { SpiritScanModal, SpiritApplyMode } from '@/components/features/scanner/SpiritScanModal';
+import { SpiritAnalysisResult } from '@/services/ai-assistant-service';
 import { JournalLandingHeader } from './JournalLandingHeader';
 import { NoteEmptyState } from './NoteEmptyState';
 import { NoteListView } from './layouts/NoteListView';
@@ -21,6 +23,11 @@ interface JournalLandingPageProps {
   isLoading: boolean;
   onSelectSpirit: (id: string) => void;
   onNewNote: () => void;
+  onNewNoteFromScan?: (
+    result: SpiritAnalysisResult,
+    uploadedImage?: string,
+    mode?: SpiritApplyMode
+  ) => Promise<string | null>;
   onDeleteSpirit: (id: string) => Promise<void>;
   onSelectModeChange?: (active: boolean) => void;
 }
@@ -32,11 +39,13 @@ export function JournalLandingPage({
   isLoading,
   onSelectSpirit,
   onNewNote,
+  onNewNoteFromScan,
   onDeleteSpirit,
   onSelectModeChange,
 }: JournalLandingPageProps) {
   // ── Language ──────────────────────────────────────────────────────────────
   const { t, language } = useLanguage();
+  const [isScanModalOpen, setIsScanModalOpen] = useState(false);
 
   // ── Multi-Select (shared hook — identical logic to JournalsOverview) ──────
   const {
@@ -59,6 +68,19 @@ export function JournalLandingPage({
     const result = await importSpiritsIntoJournal(file, journal.id);
     notifyDataMutated();
     return result;
+  };
+
+  const handleApplyScan = async (
+    result: SpiritAnalysisResult,
+    uploadedImage?: string,
+    mode?: SpiritApplyMode
+  ) => {
+    if (onNewNoteFromScan) {
+      const newId = await onNewNoteFromScan(result, uploadedImage, mode);
+      if (newId) {
+        onSelectSpirit(newId);
+      }
+    }
   };
 
   // ── Shared props piped to every layout view ───────────────────────────────
@@ -84,7 +106,6 @@ export function JournalLandingPage({
   // ── Main ──────────────────────────────────────────────────────────────────
   return (
     <div className="flex flex-col min-h-full max-w-6xl mx-auto w-full px-4 sm:px-6 pt-8 pb-8">
-
       {/* ── Header — always shown; select mode props toggle inline Trash+X ────── */}
       <JournalLandingHeader
         journal={journal}
@@ -95,6 +116,7 @@ export function JournalLandingPage({
         onConfirmDelete={() => setConfirmBulkDelete(true)}
         onExitSelectMode={exitSelectMode}
         onEnterSelectMode={enterSelectMode}
+        onScanNote={() => setIsScanModalOpen(true)}
         onExportJournal={(id) => exportJournalsToFile([id])}
         onExportSelectedNotes={() => exportSpiritsToFile([...selectedIds], journal?.name || 'Journal')}
         onImportNotes={handleImportNotes}
@@ -103,7 +125,10 @@ export function JournalLandingPage({
 
       {/* ── Layout content or Empty state ─────────────────────────────────── */}
       {spirits.length === 0 ? (
-        <NoteEmptyState onNewNote={onNewNote} />
+        <NoteEmptyState
+          onNewNote={onNewNote}
+          onScanNote={() => setIsScanModalOpen(true)}
+        />
       ) : (
         <div className="flex-1">
           {layout === 'list' && (
@@ -123,6 +148,7 @@ export function JournalLandingPage({
         </div>
       )}
 
+      {/* Bulk Delete Confirm Dialog */}
       <ConfirmDialog
         isOpen={confirmBulkDelete}
         title={language === 'DE' ? 'Warnung / Achtung!' : 'Warning / Achtung!'}
@@ -135,6 +161,13 @@ export function JournalLandingPage({
         cancelLabel={t('cancel')}
         onConfirm={() => handleBulkDelete(onDeleteSpirit)}
         onCancel={() => setConfirmBulkDelete(false)}
+      />
+
+      {/* AI Assistant Spirit Scan Modal */}
+      <SpiritScanModal
+        isOpen={isScanModalOpen}
+        onClose={() => setIsScanModalOpen(false)}
+        onApply={handleApplyScan}
       />
     </div>
   );

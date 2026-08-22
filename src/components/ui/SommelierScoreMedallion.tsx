@@ -120,9 +120,9 @@ export function SommelierScoreMedallion({
 
   const sizeClasses =
     size === 'sm'
-      ? 'w-11 h-11 sm:w-12 sm:h-12'
-      : size === 'md'
       ? 'w-12 h-12 sm:w-13 sm:h-13'
+      : size === 'md'
+      ? 'w-13 h-13 sm:w-14 sm:h-14'
       : 'w-44 h-44 sm:w-48 sm:h-48 md:w-52 md:h-52';
 
   return (
@@ -342,11 +342,11 @@ export function SommelierScoreMedallion({
         {/* Zentrum: Maximized Hero Score Numeral */}
         <text
           x="250"
-          y="342"
+          y="346"
           fontFamily="'Playfair Display', Georgia, serif"
           fontWeight="900"
-          fontSize="124"
-          letterSpacing="0"
+          fontSize="136"
+          letterSpacing="-1"
           textAnchor="middle"
           fill="currentColor"
         >

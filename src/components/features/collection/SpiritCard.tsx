@@ -128,13 +128,13 @@ export function SpiritCard({
         <div className="absolute inset-0 shadow-[inset_0_1px_2px_rgba(0,0,0,0.6)] pointer-events-none" />
       </div>
 
-      {/* 3. Editorial Card Body: 2 Dedicated Columns (Left: Text Content, Right: Seal at Title Height) */}
+      {/* 3. Editorial Card Body: 2 Dedicated Columns (Left: Text Content, Right: Seal Box at Top-Right) */}
       <div className="w-full p-2.5 sm:p-3.5 flex flex-row items-start justify-between gap-2 sm:gap-3 flex-1 min-w-0">
         {/* Left Column: Full Editorial Text Content Stack */}
         <div className="flex-1 min-w-0 flex flex-col gap-1 sm:gap-1.5 justify-between">
           {/* Row 1: Name des Whiskys */}
           <div className="min-w-0">
-            <h3 className="font-display text-sm sm:text-base md:text-lg font-bold text-[var(--foreground)] group-hover:text-[var(--brass-accent)] transition-colors duration-300 truncate leading-tight tracking-wide">
+            <h3 className="font-display text-sm sm:text-base font-bold text-[var(--foreground)] group-hover:text-[var(--brass-accent)] transition-colors duration-300 truncate leading-tight tracking-wide">
               {spirit.name || spirit.distillery}
             </h3>
           </div>
@@ -189,10 +189,10 @@ export function SpiritCard({
             </div>
           )}
 
-          {/* Row 7: Active Flavor Category Badges (Circular Mini Category Icons) */}
+          {/* Row 7: Active Flavor Category Badges (Circular Category Icons) */}
           {activeCategories.length > 0 && (
-            <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap min-w-0 pt-0.5">
-              {activeCategories.slice(0, 6).map((cat) => (
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0 pt-1">
+              {activeCategories.slice(0, 8).map((cat) => (
                 <span
                   key={cat.id}
                   title={`${cat.name[language] ?? cat.name.EN} (${cat.count})`}
@@ -200,7 +200,7 @@ export function SpiritCard({
                     backgroundColor: `${cat.color}20`,
                     borderColor: `${cat.color}50`,
                   }}
-                  className="w-5.5 h-5.5 sm:w-6 sm:h-6 rounded-full border flex items-center justify-center text-[10.5px] sm:text-xs shadow-2xs shrink-0 select-none cursor-default transition-transform hover:scale-110"
+                  className="w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-full border flex items-center justify-center text-sm sm:text-base shadow-2xs shrink-0 select-none cursor-default transition-transform hover:scale-110"
                 >
                   <span>{cat.emoji}</span>
                 </span>
@@ -209,7 +209,7 @@ export function SpiritCard({
           )}
         </div>
 
-        {/* Right Column: Dedicated Seal Slot at Top-Right Height of Title */}
+        {/* Right Column: Dedicated Box for Sommelier Seal at Top-Right */}
         <div className="shrink-0 flex flex-col items-center justify-start pt-0.5">
           <SommelierScoreMedallion
             score={spirit.rating100}
@@ -217,6 +217,15 @@ export function SpiritCard({
           />
         </div>
       </div>
+
+      {/* 3. Tasting Notes Quote Snippet (Conditional) */}
+      {spirit.finishNotes && (
+        <div className="w-full px-3.5 sm:px-4 pb-3 z-10">
+          <p className="text-xs sm:text-[13px] text-[var(--sepia-text)]/90 italic font-body leading-relaxed bg-[var(--pub-bg-alt)]/40 border border-[var(--parchment-border)]/50 rounded-lg px-3 py-2">
+            „{spirit.finishNotes}“
+          </p>
+        </div>
+      )}
 
       {/* 4. Signature Clover Green Grounded Footer: Stars (Left) & Date (Right) */}
       <div className="w-full bg-[var(--wood-dark)] px-3 sm:px-3.5 py-1.5 sm:py-2 border-t border-[var(--wood-dark)]/80 flex items-center justify-between gap-1 sm:gap-2 text-[10px] sm:text-xs shrink-0">

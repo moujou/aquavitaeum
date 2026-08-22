@@ -11,19 +11,21 @@ describe('FlavorTagSelector Component', () => {
     expect(SPIRIT_FLAVOR_TAXONOMY).toHaveLength(9);
 
     const categoryIds = SPIRIT_FLAVOR_TAXONOMY.map((c) => c.id);
-    expect(categoryIds).toContain('torf');
-    expect(categoryIds).toContain('feinty');
-    expect(categoryIds).toContain('sulphury');
-    expect(categoryIds).toContain('maritim');
-    expect(categoryIds).toContain('pflanzlich');
-    expect(categoryIds).toContain('holzig');
-    expect(categoryIds).toContain('weinartig');
-    expect(categoryIds).toContain('fruchtig');
-    expect(categoryIds).toContain('suesse');
+    expect(categoryIds).toEqual([
+      'torf',
+      'feinty',
+      'maritim',
+      'pflanzlich',
+      'wuerzig',
+      'holzig',
+      'fruchtig',
+      'weinartig',
+      'suesse',
+    ]);
   });
 
   it('correctly checks isTagSelected with aliases and multilingual names', () => {
-    const peatDescriptor = SPIRIT_FLAVOR_TAXONOMY[0].subcategories[1].descriptors[0]; // Peat Smoke
+    const peatDescriptor = SPIRIT_FLAVOR_TAXONOMY[0].subcategories[0].descriptors[0]; // Peat Smoke
 
     // Exact English name
     expect(isTagSelected(peatDescriptor, ['Peat Smoke'])).toBe(true);
@@ -158,6 +160,10 @@ describe('FlavorTagSelector Component', () => {
 
     // Drawer should be open
     expect(screen.getByRole('heading', { name: /Flavor Compass|Aromen-Kompass/i })).toBeDefined();
+
+    // Search for Peat Smoke in drawer
+    const searchInput = screen.getByPlaceholderText(/Search aromas|Aromen durchsuchen/i);
+    fireEvent.change(searchInput, { target: { value: 'Peat Smoke' } });
 
     // Select Peat Smoke in drawer
     const peatSmokeBtn = screen.getByRole('button', { name: /Peat Smoke/i });
