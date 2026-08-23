@@ -153,13 +153,13 @@ describe('FlavorTagSelector Component', () => {
       </LanguageProvider>,
     );
 
-    const openCompassBtn = screen.getByRole('button', { name: /Flavor Compass|Aromen-Kompass/i });
+    const openCompassBtn = screen.getByRole('button', { name: /Catalog|Katalog/i });
     expect(openCompassBtn).toBeDefined();
 
     fireEvent.click(openCompassBtn);
 
     // Drawer should be open
-    expect(screen.getByRole('heading', { name: /Flavor Compass|Aromen-Kompass/i })).toBeDefined();
+    expect(screen.getByRole('heading', { name: /Catalog|Katalog/i })).toBeDefined();
 
     // Search for Peat Smoke in drawer
     const searchInput = screen.getByPlaceholderText(/Search aromas|Aromen durchsuchen/i);
@@ -181,7 +181,7 @@ describe('FlavorTagSelector Component', () => {
       </LanguageProvider>,
     );
 
-    const createBtn = screen.getByRole('button', { name: /createCustomFlavor|Eigenes Aroma|Custom Flavor/i });
+    const createBtn = screen.getByRole('button', { name: /Aroma/i });
     expect(createBtn).toBeDefined();
 
     fireEvent.click(createBtn);
@@ -198,5 +198,25 @@ describe('FlavorTagSelector Component', () => {
     fireEvent.click(saveBtn);
 
     expect(handleChange).toHaveBeenCalledWith(['Honeycrisp Apple']);
+  });
+
+  it('correctly maps custom flavors into both the custom list and their designated taxonomy category', async () => {
+    const { isCustomFlavorInCategory } = await import('../SensoryCompassDrawer');
+    const customFruityDesc = {
+      id: 'custom_honeycrisp',
+      name: 'Honeycrisp Apple',
+      radarDimension: 'fruity' as const,
+    };
+    const customPeatyDesc = {
+      id: 'custom_campfire',
+      name: 'Mesquite Smoke',
+      radarDimension: 'peaty' as const,
+    };
+
+    expect(isCustomFlavorInCategory(customFruityDesc, 'fruchtig')).toBe(true);
+    expect(isCustomFlavorInCategory(customFruityDesc, 'torf')).toBe(false);
+
+    expect(isCustomFlavorInCategory(customPeatyDesc, 'torf')).toBe(true);
+    expect(isCustomFlavorInCategory(customPeatyDesc, 'fruchtig')).toBe(false);
   });
 });

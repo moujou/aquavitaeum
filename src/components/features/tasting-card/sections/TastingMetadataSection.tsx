@@ -4,7 +4,6 @@ import React from 'react';
 import {
   Spirit,
   Currency,
-  SPIRIT_TYPES,
 } from '@/types/spirit.types';
 import { FieldLabel } from '@/components/ui/FieldLabel';
 import { FlavorTagSelector } from '@/components/features/flavor-tags/FlavorTagSelector';
@@ -78,25 +77,15 @@ export function TastingMetadataSection({
           />
         </div>
 
-        {/* Row 2: Typ des Whiskys (Editable Combobox with standard presets) */}
+        {/* Row 2: Typ des Whiskys / Spirituosen-Typ (Freitext) */}
         <div className="col-span-2 flex flex-col gap-1">
           <FieldLabel htmlFor="spirit-type-input">{t('spiritType')}</FieldLabel>
-          <div className="relative w-full">
-            <input
-              id="spirit-type-input"
-              list="spirit-types-list"
-              type="text"
-              value={spirit.spiritType}
-              onChange={(e) => update('spiritType', e.target.value)}
-              placeholder="e.g. Single Malt Scotch, Bourbon, etc."
-              className="w-full bg-transparent border-b border-[var(--parchment-border)] pb-1 text-sm sm:text-base text-[var(--sepia-text)] font-body focus:outline-none focus:border-[var(--sepia-muted)] placeholder:text-[var(--parchment-border)] transition-colors"
-            />
-            <datalist id="spirit-types-list">
-              {SPIRIT_TYPES.map((tVal) => (
-                <option key={tVal} value={tVal} />
-              ))}
-            </datalist>
-          </div>
+          <TextInput
+            id="spirit-type-input"
+            value={spirit.spiritType}
+            onChange={(v) => update('spiritType', v)}
+            placeholder="e.g. Single Malt Scotch, Bourbon, etc."
+          />
         </div>
 
         {/* Row 3: Destillerie / Hersteller (Full Width) */}

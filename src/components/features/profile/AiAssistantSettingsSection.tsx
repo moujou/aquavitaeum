@@ -184,7 +184,7 @@ export function AiAssistantSettingsSection() {
                 type="button"
                 onClick={handleLiveTest}
                 disabled={isTesting}
-                className="px-2.5 py-1.5 rounded-lg border border-[var(--parchment-border)] bg-[var(--pub-bg-alt)] hover:bg-black/5 text-[var(--sepia-text)] text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 shadow-2xs active:scale-95"
+                className="px-3 py-2 rounded-lg border border-[var(--parchment-border)] bg-[var(--pub-bg-alt)] hover:bg-black/5 text-[var(--sepia-text)] text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 shadow-2xs active:scale-95 min-h-[38px]"
                 title={language === 'DE' ? 'Verbindung testen' : 'Test connection'}
               >
                 <RefreshCw size={13} className={cn(isTesting && 'animate-spin text-[var(--forest-green)]')} />
@@ -198,7 +198,7 @@ export function AiAssistantSettingsSection() {
                   setIsEditing(true);
                   setTestResult(null);
                 }}
-                className="px-2.5 py-1.5 rounded-lg border border-[var(--parchment-border)] bg-[var(--pub-bg-alt)] hover:bg-black/5 text-[var(--sepia-text)] text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-95"
+                className="px-3 py-2 rounded-lg border border-[var(--parchment-border)] bg-[var(--pub-bg-alt)] hover:bg-black/5 text-[var(--sepia-text)] text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-95 min-h-[38px]"
                 title={language === 'DE' ? 'Key ändern' : 'Edit key'}
               >
                 <Edit2 size={13} />
@@ -208,11 +208,11 @@ export function AiAssistantSettingsSection() {
               <button
                 type="button"
                 onClick={handleRemove}
-                className="p-1.5 rounded-lg border border-transparent text-[var(--sepia-muted)] hover:text-red-700 hover:bg-red-500/10 hover:border-red-300 text-xs transition-all cursor-pointer"
+                className="w-9 h-9 flex items-center justify-center rounded-lg border border-transparent text-[var(--sepia-muted)] hover:text-red-700 hover:bg-red-500/10 hover:border-red-300 text-xs transition-all cursor-pointer min-h-[38px]"
                 title={language === 'DE' ? 'Key entfernen' : 'Remove key'}
                 aria-label={language === 'DE' ? 'Key entfernen' : 'Remove key'}
               >
-                <Trash2 size={14} />
+                <Trash2 size={15} />
               </button>
             </div>
           </div>

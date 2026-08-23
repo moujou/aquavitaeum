@@ -101,7 +101,7 @@ interface SommelierScoreMedallionProps {
 }
 
 export function SommelierScoreMedallion({
-  score = 85,
+  score = 1,
   size = 'md',
   className,
 }: SommelierScoreMedallionProps) {
@@ -113,7 +113,7 @@ export function SommelierScoreMedallion({
   const halfStarGradId = `halfStar-${uid}`;
   const smokeGradId = `smokeHalo-${uid}`;
 
-  const safeScore = typeof score === 'number' && !isNaN(score) && score > 0 ? Math.max(1, Math.min(100, Math.round(score))) : 85;
+  const safeScore = typeof score === 'number' && !isNaN(score) && score > 0 ? Math.max(1, Math.min(100, Math.round(score))) : 1;
   const starRating = scoreToStars(safeScore);
   const tier = getScoreTierConfig(safeScore);
   const a11yLabel = `${safeScore} / 100 - ${language === 'DE' ? tier.labelDe : tier.labelEn} (${starRating} ★)`;
@@ -122,8 +122,8 @@ export function SommelierScoreMedallion({
     size === 'sm'
       ? 'w-12 h-12 sm:w-13 sm:h-13'
       : size === 'md'
-      ? 'w-13 h-13 sm:w-14 sm:h-14'
-      : 'w-44 h-44 sm:w-48 sm:h-48 md:w-52 md:h-52';
+      ? 'w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36'
+      : 'w-40 h-40 sm:w-48 sm:h-48 md:w-52 md:h-52';
 
   return (
     <div

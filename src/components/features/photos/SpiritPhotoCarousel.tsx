@@ -124,7 +124,7 @@ export function SpiritPhotoCarousel({
         /* ── Populated Carousel ───────────────────────────────────────────── */
         <div className="flex flex-col gap-2.5">
           {/* 1. Pure Unobstructed Main Image Viewport */}
-          <div className="relative w-full h-80 sm:h-[420px] rounded-xl border border-[var(--parchment-border)] bg-[var(--pub-bg-alt)]/50 overflow-hidden group flex items-center justify-center shadow-xs">
+          <div className="relative w-full aspect-[4/3] max-h-64 sm:max-h-80 md:max-h-[420px] rounded-xl border border-[var(--parchment-border)] bg-[var(--pub-bg-alt)]/50 overflow-hidden group flex items-center justify-center shadow-xs">
             {/* Image */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img

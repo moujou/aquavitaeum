@@ -45,8 +45,8 @@ describe('FlavorRadarChart & DynamicProfileSliders Component Unit Tests', () => 
     );
 
     expect(screen.getByText('Nose Intensity (2)')).toBeDefined();
-    expect(screen.getByText('Green Crisp Apple')).toBeDefined();
-    expect(screen.getByText('Poached Pear')).toBeDefined();
+    expect(screen.getByText('Green Apple')).toBeDefined();
+    expect(screen.getByText('Pear')).toBeDefined();
 
     const appleSlider = screen.getByLabelText('Nose Intensity Green Apple') as HTMLInputElement;
     expect(appleSlider.value).toBe('7');

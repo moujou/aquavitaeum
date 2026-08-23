@@ -28,8 +28,8 @@ describe('NoteListItem Component', () => {
     expect(screen.getByText('40% vol')).toBeDefined();
 
     // Verify Medallion Score and Star Rating
-    expect(screen.getByText('92')).toBeDefined();
-    expect(screen.getByLabelText(/Star rating: 4.5 of 5/i)).toBeDefined();
+    expect(screen.getAllByText('92').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByLabelText(/92 \/ 100/i).length).toBeGreaterThanOrEqual(1);
 
     // Verify Tasting Quote Snippet
     expect(screen.getByText(/Ex-Bourbon & Quarter Cask Finish/)).toBeDefined();

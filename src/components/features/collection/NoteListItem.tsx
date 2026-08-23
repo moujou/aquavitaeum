@@ -48,7 +48,7 @@ export function NoteListItem({
   );
 
   const stars = React.useMemo(
-    () => scoreToStars(spirit.rating100 || 85),
+    () => scoreToStars(spirit.rating100 || 1),
     [spirit.rating100]
   );
 
@@ -78,7 +78,7 @@ export function NoteListItem({
       {/* ── 1. Top Section: Prominent Bottle Image (Left) + Structured Continuous Rows (Right) ── */}
       <div className="w-full flex flex-row items-stretch border-b border-[var(--parchment-divider)]">
         {/* Generous Flush Bottle Showcase Frame (Top-Left) */}
-        <div className="w-[110px] sm:w-[145px] md:w-[170px] shrink-0 bg-[var(--pub-bg-alt)]/60 border-r border-[var(--parchment-border)] relative flex items-center justify-center p-0 overflow-hidden min-h-[115px] sm:min-h-[140px]">
+        <div className="w-[80px] sm:w-[145px] md:w-[170px] shrink-0 bg-[var(--pub-bg-alt)]/60 border-r border-[var(--parchment-border)] relative flex items-center justify-center p-0 overflow-hidden min-h-[105px] sm:min-h-[140px]">
           {spirit.thumbnailImage ? (
             <img
               src={spirit.thumbnailImage}
@@ -87,8 +87,8 @@ export function NoteListItem({
               draggable={false}
             />
           ) : (
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[var(--forest-green)]/10 border border-[var(--forest-green)]/30 flex items-center justify-center text-[var(--forest-green)] shadow-xs transition-transform duration-300 group-hover:scale-110 z-10">
-              <WhiskyLogo size={36} className="text-[var(--forest-green)] sm:size-[48px]" />
+            <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-[var(--forest-green)]/10 border border-[var(--forest-green)]/30 flex items-center justify-center text-[var(--forest-green)] shadow-xs transition-transform duration-300 group-hover:scale-110 z-10">
+              <WhiskyLogo size={32} className="text-[var(--forest-green)] sm:size-[48px]" />
             </div>
           )}
 
@@ -125,21 +125,21 @@ export function NoteListItem({
         </div>
 
         {/* Editorial Metadata Block (Takes full remaining space) */}
-        <div className="flex-1 min-w-0 p-3 sm:p-4 md:p-4.5 flex flex-col justify-center gap-1 sm:gap-1.5 z-10">
+        <div className="flex-1 min-w-0 p-2.5 sm:p-4 md:p-4.5 flex flex-col justify-center gap-1 sm:gap-1.5 z-10">
           {/* Row 1: Name des Whiskys */}
           <div className="min-w-0">
-            <h3 className="font-display font-bold text-base sm:text-lg md:text-xl text-[var(--foreground)] group-hover:text-[var(--brass-accent)] transition-colors truncate leading-tight tracking-wide">
+            <h3 className="font-display font-bold text-sm sm:text-lg md:text-xl text-[var(--foreground)] group-hover:text-[var(--brass-accent)] transition-colors truncate leading-tight tracking-wide">
               {spirit.name || spirit.distillery}
             </h3>
           </div>
 
           {/* Row 2: Typ des Whiskys */}
-          <div className="font-display text-[10.5px] sm:text-xs md:text-sm uppercase tracking-wider text-[var(--sepia-text)] font-semibold truncate leading-tight">
+          <div className="font-display text-[10px] sm:text-xs md:text-sm uppercase tracking-wider text-[var(--sepia-text)] font-semibold truncate leading-tight">
             {spirit.spiritType}
           </div>
 
           {/* Row 3: Destillerie • Herkunft */}
-          <div className="text-xs sm:text-sm md:text-base font-body text-[var(--sepia-text)] font-semibold truncate leading-tight flex items-center gap-1.5 min-w-0">
+          <div className="text-[11px] sm:text-sm md:text-base font-body text-[var(--sepia-text)] font-semibold truncate leading-tight flex items-center gap-1.5 min-w-0">
             <span className="truncate">{spirit.distillery}</span>
             {spirit.region && (
               <>
@@ -151,7 +151,7 @@ export function NoteListItem({
 
           {/* Row 4: Years · vol · bottle size (Continuous Text) */}
           {specsRow4.length > 0 && (
-            <div className="text-xs sm:text-sm md:text-base font-body text-[var(--sepia-text)] font-medium leading-tight flex items-center gap-1.5 sm:gap-2 flex-wrap">
+            <div className="text-[10.5px] sm:text-sm md:text-base font-body text-[var(--sepia-text)] font-medium leading-tight flex items-center gap-1 sm:gap-2 flex-wrap">
               {specsRow4.map((item, idx) => (
                 <React.Fragment key={idx}>
                   {idx > 0 && <span className="text-[var(--sepia-muted)]/50 select-none">·</span>}
@@ -162,7 +162,7 @@ export function NoteListItem({
           )}
 
           {/* Row 5: Strength · Added Colour · Chill Filtered (Continuous Text) */}
-          <div className="text-[11px] sm:text-xs md:text-sm font-body text-[var(--sepia-muted)] font-medium leading-tight flex items-center gap-1.5 sm:gap-2 flex-wrap">
+          <div className="text-[10px] sm:text-xs md:text-sm font-body text-[var(--sepia-muted)] font-medium leading-tight flex items-center gap-1 sm:gap-2 flex-wrap">
             {specsRow5.map((item, idx) => (
               <React.Fragment key={idx}>
                 {idx > 0 && <span className="text-[var(--sepia-muted)]/50 select-none">·</span>}
@@ -173,7 +173,7 @@ export function NoteListItem({
 
           {/* Row 6: Finish · Cask / Batch No. (Continuous Text, conditional) */}
           {specsRow6.length > 0 && (
-            <div className="text-[11px] sm:text-xs md:text-sm font-body text-[var(--sepia-muted)] font-medium leading-tight flex items-center gap-1.5 sm:gap-2 flex-wrap">
+            <div className="text-[10px] sm:text-xs md:text-sm font-body text-[var(--sepia-muted)] font-medium leading-tight flex items-center gap-1 sm:gap-2 flex-wrap">
               {specsRow6.map((item, idx) => (
                 <React.Fragment key={idx}>
                   {idx > 0 && <span className="text-[var(--sepia-muted)]/50 select-none">·</span>}
@@ -185,11 +185,19 @@ export function NoteListItem({
         </div>
 
         {/* 3. Dedicated Sommelier Medal Box (Right-Aligned, Top-Right Title Height Slot) */}
-        <div className="p-3 sm:p-4 md:p-4.5 shrink-0 flex items-start justify-center self-start z-10">
-          <SommelierScoreMedallion
-            score={spirit.rating100}
-            size="md"
-          />
+        <div className="p-2 sm:p-4 md:p-4.5 shrink-0 flex items-start justify-center self-start z-10">
+          <div className="sm:hidden">
+            <SommelierScoreMedallion
+              score={spirit.rating100}
+              size="sm"
+            />
+          </div>
+          <div className="hidden sm:block">
+            <SommelierScoreMedallion
+              score={spirit.rating100}
+              size="md"
+            />
+          </div>
         </div>
       </div>
 

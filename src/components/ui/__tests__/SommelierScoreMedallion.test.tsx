@@ -5,14 +5,14 @@ import { SommelierScoreMedallion, SCORE_TIERS_CONFIG } from '../SommelierScoreMe
 import { LanguageProvider } from '@/context/LanguageContext';
 
 describe('SommelierScoreMedallion', () => {
-  it('renders fallback score 85 when score is undefined', () => {
+  it('renders fallback score 1 when score is undefined', () => {
     render(
       <LanguageProvider>
         <SommelierScoreMedallion score={undefined} />
       </LanguageProvider>
     );
-    expect(screen.getByText('85')).toBeDefined();
-    expect(screen.getByText(/EXCELLENT|AUSGEZEICHNET/)).toBeDefined();
+    expect(screen.getByText('1')).toBeDefined();
+    expect(screen.getByText(/CASUAL|EINFACH/)).toBeDefined();
   });
 
   it('renders masterpiece medallion for score 95', () => {

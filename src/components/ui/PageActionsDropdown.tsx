@@ -72,12 +72,12 @@ export function PageActionsDropdown({
         className={cn(
           variant === 'on-dark-banner'
             ? cn(
-                'w-9 h-9 rounded-lg border border-[var(--parchment-border)] bg-[var(--pub-bg-panel)] text-[var(--forest-green)] shadow-xs flex items-center justify-center transition-all cursor-pointer active:scale-95',
-                'hover:bg-[#164d2d] hover:border-[#F5CE68] hover:text-[#F5CE68] hover:shadow-md',
-                isOpen && 'bg-[#164d2d] border-[#F5CE68] text-[#F5CE68] ring-2 ring-[#F5CE68]/35 shadow-sm'
+                'w-10 h-10 rounded-lg border border-[var(--parchment-border)] bg-[var(--pub-bg-panel)] text-[var(--forest-green)] shadow-xs flex items-center justify-center transition-all cursor-pointer active:scale-95 min-h-[40px]',
+                'hover:bg-[var(--wood-selection)] hover:border-[var(--brass-light)] hover:text-[var(--brass-light)] hover:shadow-md',
+                isOpen && 'bg-[var(--wood-selection)] border-[var(--brass-light)] text-[var(--brass-light)] ring-2 ring-[var(--brass-light)]/35 shadow-sm'
               )
             : cn(
-                'w-9 h-9 rounded-lg border border-[var(--forest-green)]/35 bg-[var(--pub-bg-panel)] hover:bg-[var(--forest-green)]/10 text-[var(--forest-green)] hover:border-[var(--forest-green)] flex items-center justify-center transition-all shadow-xs active:scale-95 cursor-pointer',
+                'w-10 h-10 rounded-lg border border-[var(--forest-green)]/35 bg-[var(--pub-bg-panel)] hover:bg-[var(--forest-green)]/10 text-[var(--forest-green)] hover:border-[var(--forest-green)] flex items-center justify-center transition-all shadow-xs active:scale-95 cursor-pointer min-h-[40px]',
                 isOpen && 'bg-[var(--forest-green)]/15 border-[var(--forest-green)] text-[var(--forest-green)] ring-2 ring-[var(--forest-green)]/25 shadow-sm'
               )
         )}
@@ -87,7 +87,7 @@ export function PageActionsDropdown({
 
       {/* Floating Parchment Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-56 bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] shadow-[0_12px_32px_rgba(40,28,15,0.18)] rounded-xl p-1.5 z-50 animate-fade-in flex flex-col gap-0.5 select-none">
+        <div className="absolute right-0 top-full mt-2 w-56 bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] shadow-[0_12px_36px_rgba(40,28,15,0.24)] rounded-xl p-1.5 z-[100] animate-fade-in flex flex-col gap-0.5 select-none">
           {items.map((item) => (
             <button
               key={item.id}
@@ -98,7 +98,7 @@ export function PageActionsDropdown({
                 item.onClick();
               }}
               className={cn(
-                'flex items-center gap-2.5 w-full px-3 py-2 text-xs font-display font-semibold rounded-lg transition-colors text-left cursor-pointer active:scale-[0.99]',
+                'flex items-center gap-2.5 w-full px-3 py-2.5 text-xs font-display font-semibold rounded-lg transition-colors text-left cursor-pointer active:scale-[0.99] min-h-[38px]',
                 item.destructive
                   ? 'text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-800'
                   : 'text-[var(--foreground)] hover:bg-[var(--forest-green)]/10 hover:text-[var(--forest-green)]',

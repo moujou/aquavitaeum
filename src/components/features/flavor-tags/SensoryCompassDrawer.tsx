@@ -11,8 +11,9 @@ import {
 import { CustomFlavorDescriptor } from '@/types/spirit.types';
 import { useLanguage } from '@/context/LanguageContext';
 import { isTagSelected } from '@/components/features/flavor-tags/FlavorTagSelector';
-import { Compass, X, Check, Plus, Sparkles, Search } from 'lucide-react';
+import { BookOpen, X, Check, Plus, Sparkles, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 
 interface SensoryCompassDrawerProps {
   isOpen: boolean;
@@ -28,6 +29,15 @@ interface SensoryCompassDrawerProps {
   onDeleteCustomFlavor: (e: React.MouseEvent, id: string) => void;
 }
 
+export function isCustomFlavorInCategory(cf: CustomFlavorDescriptor, catId: string): boolean {
+  const cat = SPIRIT_FLAVOR_TAXONOMY.find((c) => c.id === catId);
+  if (!cat) return false;
+  if (cf.radarDimension === cat.radarDimension) return true;
+  if (catId === 'holzig' && (cf.radarDimension === 'woody' || cf.radarDimension === 'nutty')) return true;
+  if (catId === 'suesse' && (cf.radarDimension === 'cereal' || cf.radarDimension === 'chocolate')) return true;
+  return false;
+}
+
 export function SensoryCompassDrawer({
   isOpen,
   onClose,
@@ -41,6 +51,7 @@ export function SensoryCompassDrawer({
   onRequestCustomFlavor,
   onDeleteCustomFlavor,
 }: SensoryCompassDrawerProps) {
+  useLockBodyScroll(isOpen, onClose);
   const { language, t } = useLanguage();
   const [activeCategoryId, setActiveCategoryId] = useState<string>('fruchtig');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -161,26 +172,42 @@ export function SensoryCompassDrawer({
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-7xl h-[94vh] sm:h-[90vh] bg-[var(--parchment-bg)] border border-[var(--parchment-border)] rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+        className="relative w-full max-w-7xl h-[96dvh] sm:h-[90vh] bg-[var(--parchment-bg)] border border-[var(--parchment-border)] rounded-2xl shadow-2xl overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Drawer Header with distinct Sensory Mode Switcher and well-separated Close button */}
-        <div className="flex items-center justify-between px-4 sm:px-7 py-3.5 bg-gradient-to-r from-[var(--wood-dark)] to-[var(--wood-selection)] text-white border-b border-black/10 shadow-sm shrink-0 gap-3">
-          {/* Left: Branding & Title */}
-          <div className="flex items-center gap-2.5 shrink-0">
-            <Compass className="w-6 h-6 text-amber-200 shrink-0" />
-            <h3 className="font-display font-bold text-base sm:text-xl tracking-wide text-white drop-shadow-xs truncate">
-              {t('sensoryDrawerTitle')}
-            </h3>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 sm:px-7 py-3 sm:py-3.5 bg-gradient-to-r from-[var(--wood-dark)] to-[var(--wood-selection)] text-white border-b border-black/10 shadow-sm shrink-0 gap-2.5 sm:gap-3">
+          {/* Top row on mobile / Left & Right split on desktop */}
+          <div className="flex items-center justify-between w-full sm:w-auto">
+            {/* Branding & Title */}
+            <div className="flex items-center gap-2.5 min-w-0 pr-2">
+              <BookOpen className="w-6 h-6 text-amber-200 shrink-0" />
+              <h3 className="font-display font-bold text-base sm:text-xl tracking-wide text-white drop-shadow-xs truncate">
+                {t('sensoryDrawerTitle')}
+              </h3>
+            </div>
+
+            {/* Right on mobile: Distinct Close (X) Button with 44px hit area */}
+            <div className="sm:hidden shrink-0">
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-10 h-10 rounded-xl text-white/80 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 transition-all cursor-pointer shadow-xs flex items-center justify-center active:scale-95"
+                aria-label="Close"
+                title="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {/* Center: High-Contrast Sensory Mode Switcher (Nase / Geschmack) */}
-          <div className="flex items-center p-1 rounded-xl bg-black/35 border border-white/20 shadow-inner shrink-0">
+          <div className="flex items-center justify-center p-1 rounded-xl bg-black/35 border border-white/20 shadow-inner w-full sm:w-auto shrink-0">
             <button
               type="button"
               onClick={() => onSensoryModeChange('nose')}
               className={cn(
-                'px-3.5 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-body font-black rounded-lg transition-all cursor-pointer flex items-center gap-2',
+                'flex-1 sm:flex-none justify-center px-3.5 sm:px-5 py-2 sm:py-2 text-xs sm:text-sm font-body font-black rounded-lg transition-all cursor-pointer flex items-center gap-2 min-h-[40px]',
                 activeSensoryMode === 'nose'
                   ? 'bg-[var(--sensory-nose)] text-white shadow-md scale-[1.02]'
                   : 'text-white/70 hover:text-white hover:bg-white/10'
@@ -199,7 +226,7 @@ export function SensoryCompassDrawer({
               type="button"
               onClick={() => onSensoryModeChange('taste')}
               className={cn(
-                'px-3.5 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-body font-black rounded-lg transition-all cursor-pointer flex items-center gap-2',
+                'flex-1 sm:flex-none justify-center px-3.5 sm:px-5 py-2 sm:py-2 text-xs sm:text-sm font-body font-black rounded-lg transition-all cursor-pointer flex items-center gap-2 min-h-[40px]',
                 activeSensoryMode === 'taste'
                   ? 'bg-[var(--sensory-taste)] text-white shadow-md scale-[1.02]'
                   : 'text-white/70 hover:text-white hover:bg-white/10'
@@ -215,16 +242,18 @@ export function SensoryCompassDrawer({
             </button>
           </div>
 
-          {/* Right: Distinct Close (X) Button (Generously Spaced) */}
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-2 rounded-xl text-white/80 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 transition-all cursor-pointer shadow-xs shrink-0"
-            aria-label="Close"
-            title="Close"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          {/* Right on Desktop: Close (X) Button */}
+          <div className="hidden sm:block shrink-0">
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-2 rounded-xl text-white/80 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 transition-all cursor-pointer shadow-xs active:scale-95"
+              aria-label="Close"
+              title="Close"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Live Search Bar Styled with Forest Green Border and Tasting Card Parchment Background */}
@@ -269,6 +298,16 @@ export function SensoryCompassDrawer({
               const activeInCatCount = cat.subcategories
                 .flatMap((s) => s.descriptors)
                 .filter((d) => isTagSelected(d, currentActiveTags)).length;
+              const activeCustomInCatCount = customFlavors
+                .filter((cf) => isCustomFlavorInCategory(cf, cat.id))
+                .filter((cf) =>
+                  currentActiveTags.some(
+                    (t) =>
+                      t.trim().toLowerCase() === cf.name.toLowerCase() ||
+                      t.trim().toLowerCase() === cf.id.toLowerCase()
+                  )
+                ).length;
+              const totalCatActive = activeInCatCount + activeCustomInCatCount;
 
               return (
                 <button
@@ -284,9 +323,9 @@ export function SensoryCompassDrawer({
                 >
                   <span>{cat.emoji}</span>
                   <span>{catName}</span>
-                  {activeInCatCount > 0 && (
+                  {totalCatActive > 0 && (
                     <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-white/25 text-white font-extrabold">
-                      {activeInCatCount}
+                      {totalCatActive}
                     </span>
                   )}
                 </button>
@@ -334,7 +373,7 @@ export function SensoryCompassDrawer({
 
               {searchResults.length === 0 && matchingCustomFlavors.length === 0 ? (
                 <div className="p-12 text-center flex flex-col items-center justify-center gap-3 border border-dashed border-[var(--parchment-border)] rounded-2xl bg-[var(--sepia-text)]/5">
-                  <Compass className="w-10 h-10 text-[var(--sepia-muted)] opacity-50" />
+                  <BookOpen className="w-10 h-10 text-[var(--sepia-muted)] opacity-50" />
                   <p className="text-sm sm:text-base text-[var(--sepia-muted)] font-body max-w-md">
                     {language === 'DE'
                       ? `Keine passenden Aromen für "${searchQuery}" gefunden.`
@@ -449,6 +488,16 @@ export function SensoryCompassDrawer({
                   const activeInCatCount = cat.subcategories
                     .flatMap((s) => s.descriptors)
                     .filter((d) => isTagSelected(d, currentActiveTags)).length;
+                  const activeCustomInCatCount = customFlavors
+                    .filter((cf) => isCustomFlavorInCategory(cf, cat.id))
+                    .filter((cf) =>
+                      currentActiveTags.some(
+                        (t) =>
+                          t.trim().toLowerCase() === cf.name.toLowerCase() ||
+                          t.trim().toLowerCase() === cf.id.toLowerCase()
+                      )
+                    ).length;
+                  const totalCatActive = activeInCatCount + activeCustomInCatCount;
 
                   return (
                     <button
@@ -466,14 +515,14 @@ export function SensoryCompassDrawer({
                         <span className="text-base">{cat.emoji}</span>
                         <span className="truncate">{catName}</span>
                       </div>
-                      {activeInCatCount > 0 && (
+                      {totalCatActive > 0 && (
                         <span
                           className={cn(
                             'px-2 py-0.5 rounded-full text-xs font-mono font-bold',
                             isCatActive ? 'bg-white/25 text-white' : 'bg-[var(--wood-selection)] text-white'
                           )}
                         >
-                          {activeInCatCount}
+                          {totalCatActive}
                         </span>
                       )}
                     </button>
@@ -572,8 +621,9 @@ export function SensoryCompassDrawer({
                                 <button
                                   type="button"
                                   onClick={(e) => onDeleteCustomFlavor(e, cf.id)}
-                                  className="px-1.5 py-1 text-sm opacity-60 hover:opacity-100 hover:text-red-400 cursor-pointer transition-opacity"
+                                  className="w-8 h-8 rounded-full flex items-center justify-center text-sm opacity-70 hover:opacity-100 hover:text-red-300 hover:bg-white/10 active:scale-95 cursor-pointer transition-all"
                                   title={t('customFlavorDeleted')}
+                                  aria-label={t('customFlavorDeleted')}
                                 >
                                   ×
                                 </button>
@@ -606,6 +656,8 @@ export function SensoryCompassDrawer({
                     const category = SPIRIT_FLAVOR_TAXONOMY.find((c) => c.id === activeCategoryId);
                     if (!category) return null;
 
+                    const customFlavorsInThisCat = customFlavors.filter((cf) => isCustomFlavorInCategory(cf, category.id));
+
                     return (
                       <div className="flex flex-col gap-6">
                         <div className="flex items-center gap-2.5 border-b border-[var(--parchment-border)]/60 pb-2">
@@ -616,6 +668,7 @@ export function SensoryCompassDrawer({
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                          {/* Standard Taxonomy Subcategories */}
                           {category.subcategories.map((sub) => {
                             const subName = sub.name[language] ?? sub.name.EN;
 
@@ -666,6 +719,55 @@ export function SensoryCompassDrawer({
                               </div>
                             );
                           })}
+
+                          {/* Custom Aromas in this Category (Seamless Uniform Grid Card) */}
+                          {customFlavorsInThisCat.length > 0 && (
+                            <div className="flex flex-col gap-3 p-4 rounded-xl bg-[var(--parchment-bg-alt)]/50 border border-[var(--parchment-border)]/60">
+                              <span className="text-xs sm:text-sm font-display font-bold uppercase tracking-wider text-[var(--sepia-muted)] border-b border-[var(--parchment-border)]/40 pb-1 flex items-center gap-1.5">
+                                <span>✨</span>
+                                <span>{t('customFlavorsCategory')}</span>
+                              </span>
+
+                              <div className="flex flex-wrap gap-2">
+                                {customFlavorsInThisCat.map((cf) => {
+                                  const isSelected = currentActiveTags.some(
+                                    (t) =>
+                                      t.trim().toLowerCase() === cf.name.toLowerCase() ||
+                                      t.trim().toLowerCase() === cf.id.toLowerCase()
+                                  );
+                                  const isSelectedInOther = !isSelected && otherActiveTags.some(
+                                    (t) =>
+                                      t.trim().toLowerCase() === cf.name.toLowerCase() ||
+                                      t.trim().toLowerCase() === cf.id.toLowerCase()
+                                  );
+
+                                  return (
+                                    <button
+                                      key={cf.id}
+                                      type="button"
+                                      onClick={() => handleCustomFlavorToggle(cf)}
+                                      className={cn(
+                                        'px-3.5 py-1.5 rounded-full border text-xs sm:text-sm font-bold font-body transition-all duration-150 flex items-center gap-1.5 cursor-pointer select-none min-h-[34px]',
+                                        isSelected
+                                          ? activeSensoryMode === 'nose'
+                                            ? 'bg-[var(--sensory-nose)] border-[var(--sensory-nose)] text-white shadow-xs'
+                                            : 'bg-[var(--sensory-taste)] border-[var(--sensory-taste)] text-white shadow-xs'
+                                          : isSelectedInOther
+                                          ? activeSensoryMode === 'nose'
+                                            ? 'bg-[var(--sensory-taste)]/15 border-[var(--sensory-taste)]/60 text-[var(--sensory-taste)] font-semibold'
+                                            : 'bg-[var(--sensory-nose)]/15 border-[var(--sensory-nose)]/60 text-[var(--sensory-nose)] font-semibold'
+                                          : 'bg-white/70 dark:bg-black/20 border-[var(--parchment-border)] text-[var(--foreground)] hover:bg-white hover:border-[var(--wood-selection)]'
+                                      )}
+                                    >
+                                      <span>{cf.emoji || '✨'}</span>
+                                      <span>{cf.name}</span>
+                                      {isSelected && <Check size={14} className="ml-0.5 text-white" />}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                     );

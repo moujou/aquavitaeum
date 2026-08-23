@@ -138,7 +138,7 @@ export function CalendarPopup({ value, language, onSelect, onClose, anchorRef }:
     <>
       {/* Mobile-only backdrop overlay */}
       <div
-        className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs sm:hidden animate-fade-in"
+        className="fixed inset-0 z-[900] bg-black/60 backdrop-blur-xs sm:hidden animate-fade-in"
         onClick={onClose}
       />
 
@@ -151,20 +151,20 @@ export function CalendarPopup({ value, language, onSelect, onClose, anchorRef }:
           'rounded-xl border border-[var(--parchment-border)]/40 bg-[var(--parchment-bg)]',
           'shadow-[0_8px_32px_rgba(42,27,18,0.25)] select-none w-72',
           // Mobile: fixed centered modal
-          'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 animate-fade-in',
+          'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[950] animate-fade-in',
           // Desktop: absolute below input
           'sm:absolute sm:top-full sm:left-0 sm:translate-x-0 sm:translate-y-0 sm:mt-2 sm:z-50',
         ].join(' ')}
       >
         {/* ── Header ── */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--parchment-border)]/25">
+        <div className="flex items-center justify-between px-3 py-2.5 border-b border-[var(--parchment-border)]/25">
           <button
             type="button"
             onClick={prevMonth}
             aria-label={language === 'DE' ? 'Vorheriger Monat' : 'Previous month'}
-            className="p-1 rounded-md text-[var(--sepia-muted)] hover:text-[var(--sepia-text)] hover:bg-[var(--sepia-text)]/10 transition-all cursor-pointer"
+            className="w-10 h-10 rounded-lg flex items-center justify-center text-[var(--sepia-muted)] hover:text-[var(--sepia-text)] hover:bg-[var(--sepia-text)]/10 active:scale-95 transition-all cursor-pointer"
           >
-            <ChevronLeft size={16} />
+            <ChevronLeft size={18} />
           </button>
 
           <span className="text-sm font-semibold tracking-wide text-[var(--sepia-text)] font-body">
@@ -175,9 +175,9 @@ export function CalendarPopup({ value, language, onSelect, onClose, anchorRef }:
             type="button"
             onClick={nextMonth}
             aria-label={language === 'DE' ? 'Nächster Monat' : 'Next month'}
-            className="p-1 rounded-md text-[var(--sepia-muted)] hover:text-[var(--sepia-text)] hover:bg-[var(--sepia-text)]/10 transition-all cursor-pointer"
+            className="w-10 h-10 rounded-lg flex items-center justify-center text-[var(--sepia-muted)] hover:text-[var(--sepia-text)] hover:bg-[var(--sepia-text)]/10 active:scale-95 transition-all cursor-pointer"
           >
-            <ChevronRight size={16} />
+            <ChevronRight size={18} />
           </button>
         </div>
 
@@ -216,7 +216,7 @@ export function CalendarPopup({ value, language, onSelect, onClose, anchorRef }:
                 aria-label={`${day} ${MONTH_NAMES[language][viewMonth]} ${viewYear}`}
                 aria-pressed={isSelected}
                 className={[
-                  'relative h-8 w-full rounded-md text-xs font-medium transition-all duration-150 cursor-pointer',
+                  'relative min-h-[34px] w-full rounded-md text-xs font-medium transition-all duration-150 cursor-pointer active:scale-95 flex items-center justify-center',
                   isSelected
                     ? 'bg-[var(--brass-accent)] text-[var(--sepia-text)] font-bold shadow-[0_0_8px_rgba(197,155,39,0.4)]'
                     : isToday

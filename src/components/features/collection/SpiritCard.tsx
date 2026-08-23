@@ -54,7 +54,7 @@ export function SpiritCard({
   );
 
   const stars = React.useMemo(
-    () => scoreToStars(spirit.rating100 || 85),
+    () => scoreToStars(spirit.rating100 || 1),
     [spirit.rating100]
   );
 

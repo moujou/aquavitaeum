@@ -173,7 +173,7 @@ export function LiquidColourSlider({
           {/* The Glass Orb Thumb */}
           <div
             className={cn(
-              'w-6 h-6 sm:w-7 sm:h-7 rounded-full border-2 border-[var(--brass-accent)] bg-[var(--parchment-bg)] shadow-[0_3px_10px_rgba(0,0,0,0.35)] flex items-center justify-center transition-transform',
+              'w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-[var(--brass-accent)] bg-[var(--parchment-bg)] shadow-[0_3px_10px_rgba(0,0,0,0.35)] flex items-center justify-center transition-transform',
               isDragging ? 'scale-115 ring-4 ring-[var(--brass-accent)]/30' : 'group-hover:scale-108'
             )}
             style={{
@@ -181,7 +181,7 @@ export function LiquidColourSlider({
             }}
           >
             <div
-              className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border border-black/20 shadow-inner"
+              className="w-4 h-4 sm:w-4.5 sm:h-4.5 rounded-full border border-black/20 shadow-inner"
               style={{ backgroundColor: activeHex }}
             />
           </div>

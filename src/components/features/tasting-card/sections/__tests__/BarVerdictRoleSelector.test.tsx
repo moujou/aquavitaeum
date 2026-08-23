@@ -26,10 +26,10 @@ describe('BarVerdictRoleSelector', () => {
       />
     );
 
-    expect(screen.getByText(/Einsteiger-Tipp/)).toBeDefined();
-    expect(screen.getByText(/Für Fortgeschrittene/)).toBeDefined();
+    expect(screen.getByText(/Einsteiger/)).toBeDefined();
+    expect(screen.getByText(/Kenner-Wahl/)).toBeDefined();
 
-    const connoisseurBtn = screen.getByRole('button', { name: /Für Fortgeschrittene/ });
+    const connoisseurBtn = screen.getByRole('button', { name: /Kenner-Wahl/ });
     fireEvent.click(connoisseurBtn);
     expect(onToggleRole).toHaveBeenCalledWith('Connoisseur Choice');
 
@@ -41,7 +41,7 @@ describe('BarVerdictRoleSelector', () => {
       />
     );
 
-    expect(screen.getByText(/Beginner Friendly/)).toBeDefined();
+    expect(screen.getByText(/Beginner/)).toBeDefined();
     expect(screen.getByText(/Connoisseur/)).toBeDefined();
   });
 });

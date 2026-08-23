@@ -22,7 +22,7 @@ export function TastingRatingSection({
   t,
 }: TastingRatingSectionProps) {
   const { language } = useLanguage();
-  const currentScore = spirit.rating100 || 85;
+  const currentScore = spirit.rating100 || 1;
   const activeBarRoles = spirit.barRole || [];
 
   const handleToggleBarRole = (role: string) => {
@@ -46,12 +46,16 @@ export function TastingRatingSection({
       </div>
 
       {/* Main Unified Rating & Recommendations Card */}
-      <div className="bg-[var(--parchment-bg-alt)]/70 p-5 sm:p-6 rounded-2xl border border-[var(--parchment-border)] shadow-xs flex flex-col lg:flex-row items-center justify-between gap-6 lg:gap-8">
+      <div className="bg-[var(--parchment-bg-alt)]/70 p-4 sm:p-6 rounded-2xl border border-[var(--parchment-border)] shadow-xs flex flex-col lg:flex-row items-center lg:items-stretch justify-between gap-5 lg:gap-8">
         
-        {/* Left Column: Score Slider + Recommendations (Matching Full Width) */}
-        <div className="flex-1 w-full flex flex-col gap-4">
-          
-          {/* Sommelier Score Amber Liquid Gauge Slider (Full Width) */}
+        {/* Mobile/Tablet: Centered Hero Sommelier Seal (160px–192px Majestic Cask Stamp) */}
+        <div className="flex lg:hidden items-center justify-center pt-1 pb-1">
+          <SommelierScoreMedallion score={currentScore} size="lg" />
+        </div>
+
+        {/* Left Column (Desktop) / Main Controls (Mobile): Full Width Slider + Recommendations */}
+        <div className="flex-1 w-full flex flex-col gap-5 justify-between">
+          {/* Sommelier Score Amber Liquid Gauge Slider (100% Full Width) */}
           <div className="w-full">
             <SommelierScoreSlider
               score={currentScore}
@@ -59,8 +63,8 @@ export function TastingRatingSection({
             />
           </div>
 
-          {/* Integrated Bar Recommendations Chips (Matching Full Width) */}
-          <div className="pt-3 border-t border-[var(--parchment-border)]/40 w-full">
+          {/* Integrated Bar Recommendations Chips (Full Width) */}
+          <div className="pt-3.5 sm:pt-4 border-t border-[var(--parchment-border)]/50 w-full">
             <BarVerdictRoleSelector
               activeRoles={activeBarRoles}
               onToggleRole={handleToggleBarRole}
@@ -70,8 +74,8 @@ export function TastingRatingSection({
           </div>
         </div>
 
-        {/* Right Column: Hero Sommelier Cask Brand Seal (Vertically & Horizontally Centered) */}
-        <div className="shrink-0 flex items-center justify-center self-center my-auto p-2">
+        {/* Desktop-Only: Right Hero Sommelier Seal Column (Vertically & Horizontally Centered) */}
+        <div className="hidden lg:flex shrink-0 items-center justify-center self-center my-auto p-2">
           <SommelierScoreMedallion score={currentScore} size="lg" />
         </div>
       </div>

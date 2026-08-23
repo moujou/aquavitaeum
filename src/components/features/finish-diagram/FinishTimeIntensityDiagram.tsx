@@ -10,7 +10,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { translateFinishCharacter } from '@/lib/i18n/translations';
 import { translateFlavorTag, getFlavorColor } from '@/data/spirit-flavor-taxonomy';
 import { SectionHeader } from '@/components/ui/SectionHeader';
-import { Plus, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 // ─── Component Props ─────────────────────────────────────────────────────────
@@ -46,6 +46,15 @@ export function FinishTimeIntensityDiagram({
 
   const [isAddingCustomChar, setIsAddingCustomChar] = useState(false);
   const [customCharInput, setCustomCharInput] = useState('');
+  const [showAllChars, setShowAllChars] = useState(false);
+
+  const CORE_FINISH_CHARACTERS = ['Warming', 'Spicy', 'Smoky', 'Sweet', 'Dry', 'Oaky'];
+  const displayedCharacters = showAllChars
+    ? (SPIRIT_FINISH_CHARACTERS as readonly string[])
+    : (SPIRIT_FINISH_CHARACTERS as readonly string[]).filter(
+        (c) => CORE_FINISH_CHARACTERS.includes(c) || finishCharacter.includes(c)
+      );
+  const hiddenCount = (SPIRIT_FINISH_CHARACTERS as readonly string[]).length - displayedCharacters.length;
 
   const handleToggleFinishChar = (char: string) => {
     if (!onChangeFinishCharacter) return;
@@ -124,19 +133,19 @@ export function FinishTimeIntensityDiagram({
                 id={`finish-btn-${dur.toLowerCase().replace(/\s+/g, '-')}`}
                 onClick={() => onSelectFinish?.(dur)}
                 className={cn(
-                  'px-3 py-2 rounded-lg border text-left transition-all duration-150 flex items-center justify-between gap-1.5 cursor-pointer select-none min-h-[38px]',
+                  'px-2.5 sm:px-3 py-2 rounded-xl border text-left transition-all duration-150 flex items-center justify-between gap-1 cursor-pointer select-none min-h-[38px] active:scale-95 shadow-2xs',
                   isSelected
                     ? 'bg-[var(--wood-selection)] border-[var(--wood-selection)] text-white shadow-xs'
                     : 'border-[var(--parchment-border)] bg-[var(--parchment-bg-alt)]/60 text-[var(--foreground)] hover:bg-[var(--parchment-bg-alt)] hover:border-[var(--brass-accent)]'
                 )}
                 aria-pressed={isSelected}
               >
-                <span className={cn('text-xs sm:text-[13px] font-body font-bold truncate', isSelected ? 'text-white' : 'text-[var(--foreground)]')}>
+                <span className={cn('text-[11px] sm:text-xs font-body font-bold truncate', isSelected ? 'text-white' : 'text-[var(--foreground)]')}>
                   {label}
                 </span>
                 <span
                   className={cn(
-                    'text-xs sm:text-[13px] font-mono shrink-0 whitespace-nowrap font-bold',
+                    'text-[10px] sm:text-xs font-mono shrink-0 whitespace-nowrap font-bold',
                     isSelected ? 'text-white font-extrabold' : 'text-[var(--sepia-muted)]'
                   )}
                 >
@@ -211,7 +220,7 @@ export function FinishTimeIntensityDiagram({
         </span>
 
         <div className="flex flex-wrap gap-2 items-center">
-          {SPIRIT_FINISH_CHARACTERS.map((char) => {
+          {displayedCharacters.map((char) => {
             const isSelected = finishCharacter.includes(char);
 
             return (
@@ -245,6 +254,19 @@ export function FinishTimeIntensityDiagram({
               </button>
             );
           })}
+
+          {/* Toggle expand/collapse other characters */}
+          {(hiddenCount > 0 || showAllChars) && (
+            <button
+              type="button"
+              onClick={() => setShowAllChars(!showAllChars)}
+              className="px-2.5 py-1 rounded-full text-xs font-body font-semibold text-[var(--forest-green)] hover:bg-[var(--forest-green)]/10 transition-colors cursor-pointer select-none"
+            >
+              {showAllChars
+                ? (language === 'DE' ? 'Weniger' : 'Show less')
+                : (language === 'DE' ? `+ ${hiddenCount} weitere…` : `+ ${hiddenCount} more…`)}
+            </button>
+          )}
 
           {/* Render custom added characters */}
           {finishCharacter
@@ -301,9 +323,8 @@ export function FinishTimeIntensityDiagram({
             <button
               type="button"
               onClick={() => setIsAddingCustomChar(true)}
-              className="px-3 py-1.5 rounded-full border border-dashed border-[var(--parchment-border)] text-xs font-body font-semibold text-[var(--sepia-muted)] hover:text-[var(--sepia-text)] hover:border-[var(--sepia-muted)] transition-all cursor-pointer min-h-[32px] flex items-center gap-1"
+              className="px-3 py-1.5 rounded-full border border-dashed border-[var(--parchment-border)] text-xs font-body font-semibold text-[var(--sepia-muted)] hover:text-[var(--sepia-text)] hover:border-[var(--sepia-muted)] transition-all cursor-pointer min-h-[32px] flex items-center"
             >
-              <Plus size={13} />
               <span>{t('addCustomFinishChar')}</span>
             </button>
           )}

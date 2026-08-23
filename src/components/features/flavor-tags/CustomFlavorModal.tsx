@@ -3,10 +3,8 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { CustomFlavorDescriptor, FlavorProfile } from '@/types/spirit.types';
-import { RADAR_DIMENSION_COLORS } from '@/data/spirit-flavor-taxonomy';
-import { DIMENSIONS } from '@/components/features/radar-chart/FlavorRadarChart';
+import { RADAR_DIMENSION_COLORS, SPIRIT_FLAVOR_TAXONOMY } from '@/data/spirit-flavor-taxonomy';
 import { useLanguage } from '@/context/LanguageContext';
-import { translateRadarDimension } from '@/lib/i18n/translations';
 import { X, Sparkles, Check, Pipette } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -165,31 +163,29 @@ function CustomFlavorDialog({
                 <label className="text-xs sm:text-sm font-display font-bold uppercase tracking-wider text-[var(--foreground)]">
                   {t('flavorDimensionLabel')}
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-52 overflow-y-auto p-1.5 bg-black/5 rounded-xl border border-[var(--parchment-border)]/40">
-                  {DIMENSIONS.map(({ key }) => {
-                    const isDimActive = selectedDimension === key;
-                    const dimColor = RADAR_DIMENSION_COLORS[key] ?? '#C59B27';
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto p-1.5 bg-black/5 rounded-xl border border-[var(--parchment-border)]/40">
+                  {SPIRIT_FLAVOR_TAXONOMY.map((cat) => {
+                    const isCatActive = selectedDimension === cat.radarDimension;
+                    const catName = cat.name[language] ?? cat.name.EN;
+                    const catColor = RADAR_DIMENSION_COLORS[cat.radarDimension] ?? '#C59B27';
 
                     return (
                       <button
-                        key={key}
+                        key={cat.id}
                         type="button"
-                        onClick={() => handleDimensionSelect(key)}
+                        onClick={() => handleDimensionSelect(cat.radarDimension)}
                         className={cn(
-                          'px-2.5 py-2 rounded-lg border text-xs sm:text-sm font-body font-semibold transition-all flex items-center gap-1.5 cursor-pointer text-left',
-                          isDimActive
-                            ? 'border-transparent text-white shadow-xs scale-[1.02]'
-                            : 'border-[var(--parchment-border)]/60 bg-white/50 dark:bg-black/20 text-[var(--foreground)] hover:bg-white/90'
+                          'px-3 py-2 rounded-lg border text-xs sm:text-sm font-body font-semibold transition-all flex items-center gap-2 cursor-pointer text-left',
+                          isCatActive
+                            ? 'border-transparent text-white shadow-xs scale-[1.01]'
+                            : 'border-[var(--parchment-border)]/60 bg-white/60 dark:bg-black/20 text-[var(--foreground)] hover:bg-white/90'
                         )}
                         style={{
-                          backgroundColor: isDimActive ? dimColor : undefined,
+                          backgroundColor: isCatActive ? catColor : undefined,
                         }}
                       >
-                        <span
-                          className="w-2.5 h-2.5 rounded-full shrink-0 border border-black/20"
-                          style={{ backgroundColor: dimColor }}
-                        />
-                        <span className="truncate">{translateRadarDimension(key, language)}</span>
+                        <span className="text-base shrink-0">{cat.emoji}</span>
+                        <span className="truncate">{catName}</span>
                       </button>
                     );
                   })}

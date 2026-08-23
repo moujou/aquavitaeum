@@ -31,7 +31,7 @@ export function ProfileView({
       )}
     >
       {/* Main Profile Card Container */}
-      <div className="w-full rounded-2xl border border-[#237347]/25 bg-[var(--parchment-bg)] p-4 sm:p-8 md:p-10 text-center shadow-[0_10px_32px_-4px_rgba(35,20,8,0.13),0_2px_8px_rgba(35,115,71,0.08)] relative overflow-hidden">
+      <div className="w-full rounded-2xl border border-[var(--forest-green)]/25 bg-[var(--parchment-bg)] p-4 sm:p-8 md:p-10 text-center shadow-[0_10px_32px_-4px_rgba(35,20,8,0.13),0_2px_8px_rgba(35,115,71,0.08)] relative overflow-hidden">
         {/* Subtle Ambient Glow */}
         <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-56 h-56 rounded-full bg-[var(--forest-green)]/10 blur-3xl pointer-events-none" />
 
@@ -46,7 +46,7 @@ export function ProfileView({
         </h2>
 
         {/* Settings Box */}
-        <div className="w-full bg-[var(--pub-bg-panel)] border border-[#237347]/20 rounded-xl divide-y divide-[var(--parchment-divider)] text-left overflow-hidden shadow-xs relative z-10">
+        <div className="w-full bg-[var(--pub-bg-panel)] border border-[var(--forest-green)]/20 rounded-xl divide-y divide-[var(--parchment-divider)] text-left overflow-hidden shadow-xs relative z-10">
           {/* Row 1: Language */}
           <div className="flex items-center justify-between gap-3 p-3.5 sm:p-5 hover:bg-black/[0.02] transition-colors">
             <div className="flex items-center gap-3 sm:gap-4 min-w-0 pr-2">

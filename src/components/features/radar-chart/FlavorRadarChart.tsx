@@ -244,7 +244,7 @@ export function DynamicProfileSliders({
         <SectionHeader>
           {title} ({activeTags.length})
         </SectionHeader>
-        <span className="text-xs text-[var(--sepia-light)] font-body italic">0-10 Scale</span>
+        <span className="text-xs text-[var(--sepia-light)] font-body italic">{language === 'DE' ? 'Skala 0-10' : '0-10 Scale'}</span>
       </div>
 
       <div className="flex flex-col gap-2">
@@ -255,7 +255,7 @@ export function DynamicProfileSliders({
           return (
             <div
               key={tagName}
-              className="grid grid-cols-[130px_1fr_24px] items-center gap-2.5 bg-[var(--sepia-text)]/5 px-2.5 py-2.5 rounded-sm border border-[var(--parchment-border)]/40"
+              className="grid grid-cols-[90px_1fr_20px] sm:grid-cols-[130px_1fr_24px] items-center gap-2 sm:gap-2.5 bg-[var(--sepia-text)]/5 px-2 sm:px-2.5 py-2 sm:py-2.5 rounded-lg border border-[var(--parchment-border)]/40"
             >
               <span className="font-body text-xs sm:text-[13px] font-bold text-[var(--sepia-text)] truncate" title={displayTagName}>
                 {displayTagName}
@@ -267,7 +267,7 @@ export function DynamicProfileSliders({
                 step={1}
                 value={val}
                 onChange={(e) => onIntensityChange(tagName, Number(e.target.value))}
-                className={cn('h-1.5 cursor-pointer', accentClass)}
+                className={cn('h-2 cursor-pointer w-full touch-none', accentClass)}
                 aria-label={`${title} ${tagName}`}
               />
               <span className={cn('text-right text-xs sm:text-sm font-bold', valueColorClass)}>

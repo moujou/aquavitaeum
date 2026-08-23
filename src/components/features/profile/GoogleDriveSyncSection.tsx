@@ -126,33 +126,33 @@ export function GoogleDriveSyncSection() {
                 type="button"
                 disabled={isSyncing}
                 onClick={() => syncNow()}
-                className="w-9 h-9 rounded-lg bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] text-[var(--sepia-text)] hover:text-[var(--forest-green)] hover:bg-black/5 shadow-xs flex items-center justify-center transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+                className="w-10 h-10 rounded-lg bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] text-[var(--sepia-text)] hover:text-[var(--forest-green)] hover:bg-black/5 shadow-xs flex items-center justify-center transition-all cursor-pointer active:scale-95 disabled:opacity-50 min-h-[40px]"
                 title={t('googleSyncNow')}
                 aria-label={t('googleSyncNow')}
               >
-                <RefreshCw size={15} className={cn(isSyncing && 'animate-spin text-[var(--forest-green)]')} />
+                <RefreshCw size={16} className={cn(isSyncing && 'animate-spin text-[var(--forest-green)]')} />
               </button>
 
               {/* Connected Cloud Button (Click to disconnect) */}
               <button
                 type="button"
                 onClick={disconnect}
-                className="w-9 h-9 rounded-lg bg-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs flex items-center justify-center transition-all cursor-pointer hover:bg-[var(--wood-dark)] active:scale-95"
+                className="w-10 h-10 rounded-lg bg-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs flex items-center justify-center transition-all cursor-pointer hover:bg-[var(--wood-dark)] active:scale-95 min-h-[40px]"
                 title={`${t('googleSyncConnected')} · ${t('googleSyncDisconnect')}`}
                 aria-label={t('googleSyncConnected')}
               >
-                <Cloud size={17} />
+                <Cloud size={18} />
               </button>
             </>
           ) : (
             <button
               type="button"
               onClick={() => connect()}
-              className="w-9 h-9 rounded-lg bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5 shadow-xs flex items-center justify-center transition-all cursor-pointer active:scale-95"
+              className="w-10 h-10 rounded-lg bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5 shadow-xs flex items-center justify-center transition-all cursor-pointer active:scale-95 min-h-[40px]"
               title={t('googleSyncConnect')}
               aria-label={t('googleSyncConnect')}
             >
-              <CloudOff size={17} />
+              <CloudOff size={18} />
             </button>
           )}
         </div>
@@ -166,10 +166,10 @@ export function GoogleDriveSyncSection() {
           </div>
           <div className="min-w-0">
             <p className="font-display text-sm sm:text-base font-semibold text-[var(--foreground)] truncate">
-              Offline Datensicherung
+              {t('exportLocalJson')}
             </p>
             <p className="font-body text-xs text-[var(--sepia-muted)] mt-0.5 truncate">
-              Manuelles Backup als .json Datei
+              .json Import & Export
             </p>
           </div>
         </div>
@@ -179,7 +179,7 @@ export function GoogleDriveSyncSection() {
           <button
             type="button"
             onClick={() => exportLocalBackup()}
-            className="w-9 h-9 rounded-lg bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5 flex items-center justify-center transition-all cursor-pointer active:scale-95 shadow-xs"
+            className="w-10 h-10 rounded-lg bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5 flex items-center justify-center transition-all cursor-pointer active:scale-95 shadow-xs min-h-[40px]"
             title={t('exportLocalJson')}
             aria-label={t('exportLocalJson')}
           >
@@ -189,7 +189,7 @@ export function GoogleDriveSyncSection() {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="w-9 h-9 rounded-lg bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5 flex items-center justify-center transition-all cursor-pointer active:scale-95 shadow-xs"
+            className="w-10 h-10 rounded-lg bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5 flex items-center justify-center transition-all cursor-pointer active:scale-95 shadow-xs min-h-[40px]"
             title={t('importLocalJson')}
             aria-label={t('importLocalJson')}
           >
