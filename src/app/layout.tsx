@@ -4,7 +4,10 @@ import { LanguageProvider } from '@/context/LanguageContext';
 import { GoogleDriveSyncProvider } from '@/context/GoogleDriveSyncContext';
 
 export const viewport: Viewport = {
-  themeColor: '#F4EFE6', // Matches the Warm Vintage Linen canvas
+  themeColor: '#ECE5D8', // Matches the Warm Vintage Linen canvas & navigation header (--pub-bg / --nav-bg)
+  viewportFit: 'cover',
+  width: 'device-width',
+  initialScale: 1,
 };
 
 const basePath = process.env.NODE_ENV === 'production' ? '/aquavitaeum' : '';
@@ -22,7 +25,7 @@ export const metadata: Metadata = {
   },
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'black-translucent',
+    statusBarStyle: 'default',
     title: 'Aqua Vitaeum',
   },
 };

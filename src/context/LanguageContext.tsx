@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
-import { Language, SUPPORTED_LANGUAGES, TranslationKey, t as translate } from '@/lib/i18n/translations';
+import { Language, TranslationKey, t as translate } from '@/lib/i18n/translations';
 
 const LOCAL_STORAGE_LANG_KEY = 'aquavitaeum_language_setting';
 

@@ -1,76 +1,138 @@
 # 🏛️ Aqua Vitaeum — Architecture Documentation
 
-This document describes the high-level system architecture, client-first storage strategy, state flow management, and key structural features of **Aqua Vitaeum**.
+This document describes the high-level system architecture, client-first storage strategy, modular subsystem decomposition, and security tiers of **Aqua Vitaeum**.
 
 ---
 
 ## 🗺️ Architectural Topology
 
-Aqua Vitaeum is built as a client-first, server-fallback static application. It executes entirely inside the user's browser, enabling full offline capabilities.
+Aqua Vitaeum is built as a **100% serverless, client-first static web application** executing entirely inside the user's browser with full offline capabilities.
 
 ```mermaid
 graph TD
-  A[Presentation Layer: Next.js Client Views] --> B[State Orchestrator: page.tsx]
-  B --> C[Custom Hooks: useJournals, useSpiritCollection, useTastingCardForm]
-  B --> G[Gesture Layer: useSwipeBack]
-  C --> D[Data Persistence: Dexie IndexedDB]
-  C --> E[Local Server Fallback Sync: /api/spirits /api/settings]
-  E --> F[Static JSON Storage: spirits.json settings.json]
+  subgraph Presentation Layer
+    A[Next.js App Router / page.tsx]
+    A --> Nav[MobileBottomNav / AppHeader]
+    A --> Search[GlobalSearch]
+  end
+
+  subgraph Feature Modules
+    A --> Views[Active View Switcher]
+    Views --> V1[JournalsOverview / Bookshelf]
+    Views --> V2[JournalLandingPage]
+    Views --> V3[TastingCard Workspace]
+    Views --> V4[ProfileView]
+
+    V2 --> Layouts[NoteGridView / NoteListView]
+    V3 --> TCSections[TastingMetadata / Flavor / Finish / Summary]
+    V4 --> ProfSections[AiAssistantSettings / GoogleDriveSync]
+    A --> Scanner[SpiritScanModal / Barcode & Label OCR]
+  end
+
+  subgraph Custom Hook & Logic Tier
+    V1 & V2 --> HJ[useJournals / useSpiritCollection]
+    V2 --> HMS[useMultiSelect / useSwipeBack]
+    V3 --> HTC[useTastingCardForm / usePhotoUpload]
+    ProfSections & Scanner --> HAI[useAiAssistantConfig / ai-assistant-service]
+    ProfSections --> HGD[useGoogleDriveSync / google-drive-sync]
+  end
+
+  subgraph Data & Persistence Tier
+    HJ & HTC & HGD --> Dexie[Dexie.js IndexedDB: db.journals & db.spirits]
+    HGD --> GDrive[Google Drive Cloud Delta-Sync Engine]
+    HAI --> Gemini[Google Gemini 2.5 API: Client-Side BYOK]
+    HGD --> Tombs[Tombstone Engine: tombstones.ts]
+  end
 ```
 
 ---
 
-## 💾 Client Storage Tier (Dexie IndexedDB)
+## 💾 Client Storage Tier (Dexie.js IndexedDB)
 
-To bypass the 5MB browser `localStorage` limits and prevent data loss, Aqua Vitaeum stores tasting records and journal structures directly in the browser's high-capacity **IndexedDB** using **Dexie.js**.
+To bypass the 5MB browser `localStorage` limits and guarantee persistence of high-resolution tasting notes and bottle photos, Aqua Vitaeum uses **IndexedDB** managed through **Dexie.js** (`src/lib/db.ts`).
 
 ### Database Schema Versions
 
-The schema is defined in [`src/lib/db.ts`](../src/lib/db.ts):
-
 * **Version 1**:
-  - `spirits`: Primary key `id`. Indexes: `spiritType`, `distillery`, `name`, `rating100`. (Stores flat collection items).
-* **Version 2 (Migration upgrade)**:
-  - Adds the `journals` table (keys: `id`, `name`, `createdAt`).
-  - Adds `journalId` index to the `spirits` table to group spirits by journal.
-  - Automatically migrates existing version 1 spirits by wrapping them inside a fallback `default-compendium` journal entry to preserve user data.
+  - `spirits`: Primary key `id`. Indexes: `spiritType`, `distillery`, `name`, `rating100`.
+* **Version 2**:
+  - `journals`: Primary key `id`. Indexes: `name`, `createdAt`.
+  - `spirits`: Adds `journalId` index for relational grouping by journal.
 
 ---
 
-## 🔄 State Flow & Synchronization
+## 🧩 Modular Subsystem Decomposition
 
-The application implements a single-source-of-truth state orchestrator inside the home page component [`src/app/page.tsx`](../src/app/page.tsx):
+The codebase is organized into cleanly decoupled, single-responsibility feature domains:
 
-- **View Switching**: Simulates layout routing through client-side active views (`activeView` state switching between `'welcome'`, `'overview'`, `'journal-detail'`, `'profile'`).
-- **Top-Down Prop Injection**: Parent states (`activeJournalId`, `selectedId`, `globalSearchQuery`) flow down to component grids and detail forms.
-- **Dynamic Stats Aggregation**: Journal statistics (total bottles, average rating, latest tasted dates, recent thumbnail images) are calculated on-the-fly when modifications in the spirits collection are saved.
+```
+src/
+├── app/                              # Next.js App Router layout, page, and globals.css
+├── components/
+│   ├── features/
+│   │   ├── collection/               # SpiritCard & NoteListItem presenters
+│   │   ├── finish-diagram/           # Cubic Bezier finish time-intensity spline
+│   │   ├── flavor-tags/              # Sensory compass drawer, spotlight search & tags
+│   │   ├── journals/                 # JournalsOverview, JournalCoverPicker & landing
+│   │   │   └── landing/layouts/      # NoteGridView (Card Feed) & NoteListView (Compact)
+│   │   ├── navigation/               # AppHeader, MobileBottomNav
+│   │   ├── photos/                   # SpiritPhotoCarousel, camera upload handlers
+│   │   ├── profile/                  # ProfileView, GoogleDriveSyncSection, AiAssistantSettings
+│   │   ├── radar-chart/              # Dual-layer 11-dimension sensory radar chart
+│   │   ├── scanner/                  # SpiritScanModal, ScanBarcodeTab, ScanPhotoTab
+│   │   ├── search/                   # GlobalSearch fuzzy search across journals & notes
+│   │   ├── tasting-card/             # TastingCard workspace container
+│   │   │   └── sections/             # Metadata, Flavor, Finish, Summary sections
+│   │   └── welcome/                  # First-run onboarding experience
+│   └── ui/                           # Primitive design components (ErrorBoundary, Sliders, Stars)
+├── context/                          # LanguageContext (DE/EN) & GoogleDriveSyncContext
+├── data/                             # 8-Category SWRI flavor taxonomy & mock datasets
+├── hooks/                            # Dedicated React hooks (useJournals, useMultiSelect, etc.)
+├── lib/                              # Domain utilities, db, tombstones, google-drive-sync
+└── services/                         # ai-assistant-service.ts (Gemini API integration)
+```
 
 ---
 
-## 👆 Gesture Abstraction Layer
+## 🧠 AI Assistant & Security Tier (Google Gemini 2.5)
 
-[`src/hooks/useSwipeBack.ts`](../src/hooks/useSwipeBack.ts) is a zero-coupling gesture hook that separates detection from navigation semantics:
+Aqua Vitaeum implements a **100% Client-Side BYOK (Bring Your Own Key)** architecture:
 
-- Registers passive `touchstart` / `touchend` listeners on `document` — never blocks scrolling or other touch handlers.
-- Detects a right-edge → left swipe: start zone within the last `44px` of screen width, minimum `60px` leftward displacement, maximum `80px` vertical drift.
-- Fires a caller-owned `onBack` callback when all conditions are met. The hook knows nothing about view state; all navigation logic lives in `page.tsx`.
-- The browser/OS native left-edge back gesture is preserved as a complementary interaction — the two mechanisms cover both hands ergonomically.
-
----
-
-## 🖼️ Canvas-Based Client-Side Image Compression
-
-To prevent IndexedDB storage bloating and render performance lag from raw camera uploads (up to 5MB):
-- The hook [`src/hooks/usePhotoUpload.ts`](../src/hooks/usePhotoUpload.ts) pipes FileReader results through a canvas-based resizer.
-- Images are resized to a maximum boundary of `1000px` (preserving aspect ratio) and encoded as a JPEG with `0.85` quality.
-- This compresses image uploads down to ~80-150KB before they are persisted as base64 Data URLs.
+- **Security & Privacy**:
+  - The API key is entered by the user in Profile settings and persisted exclusively in the local browser `localStorage` (`aqua-vitaeum-gemini-key`).
+  - No proxy servers or backend databases ever see or store the user's API key.
+  - All prompt building, image payload encoding (Base64 JPEG), and JSON response parsing execute directly in the browser runtime via `src/services/ai-assistant-service.ts`.
+- **Sensory Extraction**:
+  - The AI service converts unstructured bottle labels into verified tasting schemas (`validateSpirit()`), generating 11-dimension radar profiles and flavor descriptors matched to our human-instinctive color taxonomy.
 
 ---
 
-## 📱 Symmetrical Floating Action Buttons (FABs)
+## ☁️ Google Drive Sync & Tombstone Architecture
 
-- **Bookshelf Overview**: Renders a floating creation FAB (`Plus` button) in the bottom-right corner (`absolute bottom-6 right-6 w-12 h-12`).
-- **Journal Detail Workspace**: Renders symmetrical actions surrounding the Tasting Card container:
-  - **Bottom-Left**: Back to Bookshelf (`BookOpen` button, `absolute bottom-6 left-6`).
-  - **Bottom-Right**: Create tasting note (`Plus` button, `absolute bottom-6 right-6`).
-- **Self-Aligning Coordinates**: Placed inside a relative wrapper context. The buttons automatically slide left/right as the sidebar collapses and expands.
+The synchronization engine in `src/lib/google-drive-sync.ts` coordinates local IndexedDB records with remote Google Drive files:
+
+1. **Two-Way Delta Sync**: Compares `updatedAt` timestamps between local and remote `.json` records. Newer modifications take precedence.
+2. **Tombstone Engine (`src/lib/tombstones.ts`)**: Deletions recorded locally are stored in a persistent tombstone ledger (`aqua_vitaeum_tombstones_v1`). During synchronization, tombstoned items are deleted from Google Drive instead of being pulled back as "missing" items.
+3. **Rogue-File Guard**: Remote files placed manually or by external programs are strictly validated against domain schemas (`src/lib/schemas/`). Unrecognized files are skipped without interrupting the sync cycle.
+4. **Offline Export / Import**: High-integrity single-file backup (`.json`), individual journal export, and standalone spirit note exports with collision detection.
+
+---
+
+## 👆 Gesture & Multi-Select Engine
+
+[`src/hooks/useMultiSelect.ts`](../src/hooks/useMultiSelect.ts) encapsulates collection selection logic:
+
+- **Touch Long-Press (500ms Timer)**: Initiates selection mode with subtle haptic feedback (`navigator.vibrate(40)`).
+- **Synthetic Click Suppression**: Cancels click triggers when a long-press finishes, preventing unintentional note navigation.
+- **Bulk Operations**: Coordinates batch export and atomic multi-note deletion across journals.
+- **Edge Swipe-Back (`useSwipeBack.ts`)**: Right-edge gesture listener navigating seamlessly back to the overview without interfering with native scroll interactions.
+
+---
+
+## 🖼️ Client-Side Image Compression Pipeline
+
+[`src/hooks/usePhotoUpload.ts`](../src/hooks/usePhotoUpload.ts) ensures that user photos never cause storage or rendering bottlenecks:
+- Images are decoded onto an offscreen `<canvas>`.
+- Resized to a maximum bounding box of `1000px` (preserving aspect ratio).
+- Compressed as JPEG at `0.85` quality.
+- Shrinks raw 3–5MB mobile camera photos down to ~80–150KB before IndexedDB storage.

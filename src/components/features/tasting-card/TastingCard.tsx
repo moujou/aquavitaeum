@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Spirit } from '@/types/spirit.types';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { SpiritPhotoCarousel } from '@/components/features/photos/SpiritPhotoCarousel';
+import { SpiritScanModal } from '@/components/features/scanner/SpiritScanModal';
 import { useTastingCardForm } from '@/hooks/useTastingCardForm';
 import { useLanguage } from '@/context/LanguageContext';
 import { cn } from '@/lib/utils';
@@ -32,10 +33,11 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
     subtitleLocation,
     update,
     importSpirit,
+    applyScanResult,
     confirmDelete,
   } = useTastingCardForm(initialSpirit, onSave, onDelete);
 
-  const [finishViewMode, setFinishViewMode] = useState<'simple' | 'advanced'>('simple');
+  const [isHeaderScanModalOpen, setIsHeaderScanModalOpen] = useState(false);
 
   return (
     <div className={cn('parchment rounded-lg overflow-hidden animate-fade-in', className)}>
@@ -47,6 +49,7 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
         subtitleLocation={subtitleLocation}
         onDelete={onDelete ? () => setShowDeleteModal(true) : undefined}
         onImportSpirit={importSpirit}
+        onScanSpirit={() => setIsHeaderScanModalOpen(true)}
         t={t}
         language={language}
       />
@@ -54,13 +57,14 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
       <div className="p-6 flex flex-col gap-6">
 
         {/* Mobile-Only Spirit Photos Section (< lg screens) */}
-        <div className="flex lg:hidden flex-col gap-2 border-b border-[var(--parchment-divider)] pb-5">
+        <div className="flex lg:hidden flex-col gap-2 border-b border-[var(--parchment-border)]/60 pb-5">
           <SectionHeader>{t('spiritPhotos')}</SectionHeader>
           <SpiritPhotoCarousel
             images={spirit.images}
             thumbnailImage={spirit.thumbnailImage}
             onChange={(imgs) => update('images', imgs)}
             onSetThumbnail={(url) => update('thumbnailImage', url as string | undefined)}
+            onAnalyzeSpirit={applyScanResult}
           />
         </div>
 
@@ -68,7 +72,7 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
           {/* Left Column: Metadata Section */}
-          <div className="lg:col-span-6 border-b lg:border-b-0 lg:border-r border-[var(--parchment-divider)] pb-6 lg:pb-0 lg:pr-6">
+          <div className="lg:col-span-6 border-b lg:border-b-0 lg:border-r border-[var(--parchment-border)]/60 pb-6 lg:pb-0 lg:pr-6">
             <TastingMetadataSection
               spirit={spirit}
               update={update}
@@ -82,26 +86,19 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
             <TastingFlavorSection
               spirit={spirit}
               update={update}
+              onAnalyzeSpirit={applyScanResult}
               t={t}
             />
           </div>
 
         </div>
 
-        {/* Specular Clover Green Divider */}
-        <div className="divider-clover-glow my-1" />
-
-        {/* Full-Width Section 4: Interactive Finish Curve Diagram & Notes */}
+        {/* Full-Width Section 4: Interactive Finish & Notes */}
         <TastingFinishSection
           spirit={spirit}
-          finishViewMode={finishViewMode}
-          setFinishViewMode={setFinishViewMode}
           update={update}
           t={t}
         />
-
-        {/* Specular Clover Green Divider */}
-        <div className="divider-clover-glow my-1" />
 
         {/* Full-Width Section 5: Score & Star Ratings */}
         <TastingRatingSection
@@ -128,6 +125,15 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
         cancelLabel={t('cancel')}
         onConfirm={confirmDelete}
         onCancel={() => setShowDeleteModal(false)}
+      />
+
+      {/* Header-Triggered Spirit Scan Modal */}
+      <SpiritScanModal
+        isOpen={isHeaderScanModalOpen}
+        onClose={() => setIsHeaderScanModalOpen(false)}
+        onApply={(result, uploadedImage, mode) => {
+          applyScanResult(result, uploadedImage, mode);
+        }}
       />
     </div>
   );

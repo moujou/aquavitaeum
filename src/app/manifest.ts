@@ -14,8 +14,8 @@ export default function manifest(): MetadataRoute.Manifest {
     scope: `${prefix}/`,
     display: 'standalone',
     orientation: 'portrait',
-    background_color: '#0c1a0e', // matches --pub-bg
-    theme_color: '#311e15',      // refined --wood-accent
+    background_color: '#ECE5D8', // matches --pub-bg
+    theme_color: '#ECE5D8',      // matches --nav-bg and top-menu searchbar
     icons: [
       {
         src: `${prefix}/whisky-logo-with-circle-v5.svg`,

@@ -5,7 +5,8 @@ import { useLanguage } from '@/context/LanguageContext';
 import { LanguageToggle } from '@/components/ui/LanguageToggle';
 import { LayoutToggle } from '@/components/ui/LayoutToggle';
 import { GoogleDriveSyncSection } from '@/components/features/profile/GoogleDriveSyncSection';
-import { User, Globe, LayoutGrid } from 'lucide-react';
+import { AiAssistantSettingsSection } from '@/components/features/profile/AiAssistantSettingsSection';
+import { User, Globe, LayoutGrid, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { OverviewLayout } from '@/hooks/useLayoutPreference';
 
@@ -84,6 +85,15 @@ export function ProfileView({
 
           {/* Row 3: Google Drive Cloud Sync & Backup */}
           <GoogleDriveSyncSection />
+
+          {/* Row 4: Cask & Spirit AI Assistant Settings */}
+          <AiAssistantSettingsSection />
+
+          {/* Privacy Guarantee Banner: Always at the very bottom of Profile settings */}
+          <div className="p-3.5 sm:p-4 bg-[var(--forest-green)]/10 border-t border-[var(--forest-green)]/25 flex items-start gap-2.5 text-xs text-[var(--sepia-text)] leading-relaxed">
+            <ShieldCheck size={17} className="text-[var(--forest-green)] shrink-0 mt-0.5" />
+            <span>{t('privacyNoteGoogle')}</span>
+          </div>
         </div>
 
         {/* Discrete App Version Footer */}

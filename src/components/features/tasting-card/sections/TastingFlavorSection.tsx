@@ -6,16 +6,20 @@ import { SectionHeader } from '@/components/ui/SectionHeader';
 import { FlavorRadarChart, DynamicProfileSliders } from '@/components/features/radar-chart/FlavorRadarChart';
 import { SpiritPhotoCarousel } from '@/components/features/photos/SpiritPhotoCarousel';
 import { TranslationKey } from '@/lib/i18n/translations';
+import { SpiritAnalysisResult } from '@/services/ai-assistant-service';
+import { SpiritApplyMode } from '@/components/features/scanner/SpiritScanModal';
 
 interface TastingFlavorSectionProps {
   spirit: Spirit;
   update: <K extends keyof Spirit>(key: K, value: Spirit[K]) => void;
+  onAnalyzeSpirit?: (result: SpiritAnalysisResult, uploadedImage?: string, mode?: SpiritApplyMode) => void;
   t: (key: TranslationKey) => string;
 }
 
 export function TastingFlavorSection({
   spirit,
   update,
+  onAnalyzeSpirit,
   t,
 }: TastingFlavorSectionProps) {
   return (
@@ -28,11 +32,12 @@ export function TastingFlavorSection({
           thumbnailImage={spirit.thumbnailImage}
           onChange={(imgs) => update('images', imgs)}
           onSetThumbnail={(url) => update('thumbnailImage', url as string | undefined)}
+          onAnalyzeSpirit={onAnalyzeSpirit}
         />
       </div>
 
       {/* Radar Graph */}
-      <div className="flex flex-col gap-2 border-t border-[var(--parchment-divider)] pt-4">
+      <div className="flex flex-col gap-2 border-t border-[var(--parchment-border)]/60 pt-4">
         <div className="flex items-center justify-between">
           <SectionHeader>{t('noseTasteRadar')}</SectionHeader>
         </div>
@@ -47,7 +52,7 @@ export function TastingFlavorSection({
       </div>
 
       {/* Dynamic Nose Tag Sliders Section */}
-      <div className="border-t border-[var(--parchment-divider)] pt-4">
+      <div className="border-t border-[var(--parchment-border)]/60 pt-4">
         <DynamicProfileSliders
           title={t('noseIntensity')}
           type="nose"
@@ -61,7 +66,7 @@ export function TastingFlavorSection({
       </div>
 
       {/* Dynamic Taste Tag Sliders Section */}
-      <div className="border-t border-[var(--parchment-divider)] pt-4">
+      <div className="border-t border-[var(--parchment-border)]/60 pt-4">
         <DynamicProfileSliders
           title={t('tasteIntensity')}
           type="taste"

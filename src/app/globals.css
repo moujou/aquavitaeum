@@ -291,3 +291,8 @@ body {
   border-bottom-color: var(--sepia-muted);
   outline: none;
 }
+
+html, body {
+  background-color: var(--pub-bg);
+  color: var(--foreground);
+}

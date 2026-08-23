@@ -1,99 +1,79 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import { FinishTimeIntensityDiagram, getFlavorColor } from '../FinishTimeIntensityDiagram';
+import { FinishTimeIntensityDiagram } from '../FinishTimeIntensityDiagram';
+import { getFlavorColor } from '@/data/spirit-flavor-taxonomy';
 import { LanguageProvider } from '@/context/LanguageContext';
 
 describe('FinishTimeIntensityDiagram Component', () => {
   const mockOnChangeCurves = vi.fn();
 
-  it('renders empty state message when no flavor tags are selected', () => {
+  it('renders compact persistence scale, lingering flavor chips, and finish character chips', () => {
+    const handleSelectFinish = vi.fn();
+    const handleFinishChar = vi.fn();
+
     render(
       <LanguageProvider>
         <FinishTimeIntensityDiagram
-          viewMode="advanced"
-          noseFlavorTags={[]}
-          tasteFlavorTags={[]}
-          finishCurves={{}}
-          onChangeCurves={mockOnChangeCurves}
-        />
-      </LanguageProvider>
-    );
-
-    expect(
-      screen.getByText(/Select flavor tags under Nose or Taste to view and edit/i)
-    ).toBeDefined();
-  });
-
-  it('renders SVG canvas with 0-20s time axis and multi-slider control panel when active tags are present', () => {
-    render(
-      <LanguageProvider>
-        <FinishTimeIntensityDiagram
-          viewMode="advanced"
+          selectedFinish="Medium"
+          onSelectFinish={handleSelectFinish}
+          finishCharacter={['Warming']}
+          onChangeFinishCharacter={handleFinishChar}
           noseFlavorTags={['Peat Smoke']}
           tasteFlavorTags={['Vanilla']}
-          finishCurves={{
-            'Peat Smoke': { startTime: 0, peakTime: 4, peakIntensity: 8, endTime: 18 },
-            Vanilla: { startTime: 1, peakTime: 3, peakIntensity: 6, endTime: 14 },
-          }}
           onChangeCurves={mockOnChangeCurves}
         />
       </LanguageProvider>
     );
 
     // Verify Title
-    expect(screen.getAllByText(/Finish Intensity/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Finish|Abgang/i).length).toBeGreaterThan(0);
 
-    // Verify Active Tags in Control Panel
-    expect(screen.getByText('Peat Smoke')).toBeDefined();
-    expect(screen.getByText('Vanilla')).toBeDefined();
+    // Verify compact 4-tier persistence scale buttons
+    expect(screen.getByRole('button', { name: /Kurz|< 15s/i })).toBeDefined();
+    expect(screen.getByRole('button', { name: /Mittel|15–45s/i })).toBeDefined();
+    expect(screen.getByRole('button', { name: /Lang|45–90s/i })).toBeDefined();
+    expect(screen.getByRole('button', { name: /Sehr lang|> 90s/i })).toBeDefined();
+
+    // Click "Long" persistence button
+    const longBtn = screen.getByRole('button', { name: /Lang|45–90s/i });
+    fireEvent.click(longBtn);
+    expect(handleSelectFinish).toHaveBeenCalledWith('Long');
+
+    // Verify Lingering Notes Chips
+    expect(screen.getByText(/Dominante Noten im Nachklang|Dominant Lingering Notes/i)).toBeDefined();
+    expect(screen.getByText(/Peat Smoke/i)).toBeDefined();
+    expect(screen.getByText(/Vanilla/i)).toBeDefined();
+
+    // Verify Finish Character & Warmth chips
+    const dryChip = screen.getByRole('button', { name: /Dry|Trocken/i });
+    expect(dryChip).toBeDefined();
+    fireEvent.click(dryChip);
+    expect(handleFinishChar).toHaveBeenCalledWith(['Warming', 'Dry']);
   });
 
-  it('renders quick selection buttons when in simple view mode', () => {
-    const handleSelectFinish = vi.fn();
-
-    render(
-      <LanguageProvider>
-        <FinishTimeIntensityDiagram
-          viewMode="simple"
-          onChangeCurves={mockOnChangeCurves}
-          onSelectFinish={handleSelectFinish}
-        />
-      </LanguageProvider>
-    );
-
-    const shortBtn = screen.getByRole('button', { name: /Short/i });
-    expect(shortBtn).toBeDefined();
-
-    fireEvent.click(shortBtn);
-    expect(handleSelectFinish).toHaveBeenCalledWith('Short');
-  });
-
-  it('updates curve parameters when sliders are adjusted in the control panel', () => {
+  it('toggles lingering aroma prominence on click', () => {
     const handleChangeCurves = vi.fn();
 
     render(
       <LanguageProvider>
         <FinishTimeIntensityDiagram
-          viewMode="advanced"
           noseFlavorTags={['Peat Smoke']}
           tasteFlavorTags={[]}
           finishCurves={{
-            'Peat Smoke': { startTime: 0, peakTime: 4, peakIntensity: 8, endTime: 22 },
+            'Peat Smoke': { startTime: 0, peakTime: 8, peakIntensity: 8, endTime: 30 },
           }}
           onChangeCurves={handleChangeCurves}
         />
       </LanguageProvider>
     );
 
-    // Find peak intensity slider by label
-    const peakSlider = screen.getByLabelText(/Peat Smoke Peak/i);
-    fireEvent.change(peakSlider, { target: { value: '9' } });
-
+    const peatChip = screen.getByRole('button', { name: /Peat Smoke/i });
+    fireEvent.click(peatChip);
     expect(handleChangeCurves).toHaveBeenCalledWith(
       expect.objectContaining({
         'Peat Smoke': expect.objectContaining({
-          peakIntensity: 9,
+          peakIntensity: 3,
         }),
       })
     );

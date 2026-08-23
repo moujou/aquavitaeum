@@ -179,3 +179,145 @@ export function parseDateInputToIso(formattedStr?: string, language: 'EN' | 'DE'
   return dateFnsFormat(parsed, 'yyyy-MM-dd');
 }
 
+/**
+ * Calculates the spirit's age from flexible distillation and bottling date strings.
+ * Handles full dates (YYYY-MM-DD or DD.MM.YYYY), Month/Year (MM/YYYY), or Year (YYYY).
+ * Returns integer years or null if unparseable.
+ */
+export function calculateAgeFromDates(distillationDate?: string, bottlingDate?: string): number | null {
+  if (!distillationDate || !bottlingDate) return null;
+
+  const distClean = distillationDate.trim();
+  const botClean = bottlingDate.trim();
+
+  // Extract 4-digit years
+  const distYearMatch = distClean.match(/\b(18|19|20)\d{2}\b/);
+  const botYearMatch = botClean.match(/\b(18|19|20)\d{2}\b/);
+
+  if (!distYearMatch || !botYearMatch) return null;
+
+  const distYear = parseInt(distYearMatch[0], 10);
+  const botYear = parseInt(botYearMatch[0], 10);
+
+  if (botYear < distYear) return null;
+
+  // If full dates are present (e.g. YYYY-MM-DD or DD.MM.YYYY), compute exact years
+  const parseExact = (s: string): Date | null => {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+      const [y, m, d] = s.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }
+    if (/^\d{1,2}\.\d{1,2}\.\d{4}$/.test(s)) {
+      const [d, m, y] = s.split('.').map(Number);
+      return new Date(y, m - 1, d);
+    }
+    if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)) {
+      const [m, d, y] = s.split('/').map(Number);
+      return new Date(y, m - 1, d);
+    }
+    return null;
+  };
+
+  const exactDist = parseExact(distClean);
+  const exactBot = parseExact(botClean);
+
+  if (exactDist && exactBot && isValid(exactDist) && isValid(exactBot)) {
+    let diff = exactBot.getFullYear() - exactDist.getFullYear();
+    const m = exactBot.getMonth() - exactDist.getMonth();
+    if (m < 0 || (m === 0 && exactBot.getDate() < exactDist.getDate())) {
+      diff--;
+    }
+    return diff >= 0 ? diff : null;
+  }
+
+  const yearDiff = botYear - distYear;
+  return yearDiff >= 0 ? yearDiff : null;
+}
+
+export interface FormattedSpiritSpecs {
+  formattedDate: string;
+  specsRow4: string[];
+  specsRow5: string[];
+  specsRow6: string[];
+}
+
+/**
+ * Extracts and formats the 3-row editorial metadata specs for SpiritCard and NoteListItem.
+ */
+export function formatSpiritCardSpecs(
+  spirit: Spirit,
+  language: 'EN' | 'DE',
+  translateCharacteristicFn: (key: string, lang: 'EN' | 'DE') => string
+): FormattedSpiritSpecs {
+  const formattedDate = spirit.dateTasted
+    ? new Date(spirit.dateTasted).toLocaleDateString(
+        language === 'DE' ? 'de-DE' : 'en-GB',
+        { day: '2-digit', month: 'short', year: 'numeric' }
+      )
+    : '';
+
+  // Row 4: Years · vol · bottle size
+  const specsRow4: string[] = [];
+  if (spirit.age) specsRow4.push(`${spirit.age} ${language === 'DE' ? 'Jahre' : 'Years'}`);
+  if (spirit.abv > 0) specsRow4.push(`${spirit.abv}% vol`);
+  if (spirit.volumeMl && spirit.volumeMl > 0) specsRow4.push(`${spirit.volumeMl}ml`);
+
+  // Row 5: Characteristics
+  const specsRow5: string[] = [];
+  if (Array.isArray(spirit.characteristics) && spirit.characteristics.length > 0) {
+    specsRow5.push(...spirit.characteristics.map((c) => translateCharacteristicFn(c, language)));
+  } else {
+    specsRow5.push(
+      spirit.isCaskStrength
+        ? language === 'DE' ? 'Fassstärke' : 'Cask Strength'
+        : language === 'DE' ? 'Trinkstärke' : 'Standard'
+    );
+    specsRow5.push(
+      !spirit.addedColour
+        ? language === 'DE' ? 'Ohne Farbstoff' : 'Natural Colour'
+        : language === 'DE' ? 'Mit Farbstoff' : 'Added Colour'
+    );
+    specsRow5.push(
+      !spirit.chillFiltered
+        ? language === 'DE' ? 'Nicht kühlgefiltert' : 'Non-Chill Filtered'
+        : language === 'DE' ? 'Kühlgefiltert' : 'Chill Filtered'
+    );
+  }
+
+  // Row 6: Vintage / Bottled · Finish · Cask / Batch No.
+  const specsRow6: string[] = [];
+  if (spirit.distillationDate && spirit.bottlingDate) {
+    specsRow6.push(
+      language === 'DE'
+        ? `Dest. ${spirit.distillationDate} · Abgef. ${spirit.bottlingDate}`
+        : `Dist. ${spirit.distillationDate} · Bottled ${spirit.bottlingDate}`
+    );
+  } else if (spirit.distillationDate) {
+    specsRow6.push(
+      language === 'DE' ? `Dest. ${spirit.distillationDate}` : `Dist. ${spirit.distillationDate}`
+    );
+  } else if (spirit.bottlingDate) {
+    specsRow6.push(
+      language === 'DE' ? `Abgef. ${spirit.bottlingDate}` : `Bottled ${spirit.bottlingDate}`
+    );
+  }
+  if (spirit.finish) specsRow6.push(spirit.finish);
+  if (spirit.caskNo) {
+    specsRow6.push(
+      spirit.caskNo.toLowerCase().startsWith('cask') ||
+      spirit.caskNo.toLowerCase().startsWith('batch') ||
+      spirit.caskNo.startsWith('#')
+        ? spirit.caskNo
+        : `Cask #${spirit.caskNo}`
+    );
+  }
+
+  return {
+    formattedDate,
+    specsRow4,
+    specsRow5,
+    specsRow6,
+  };
+}
+
+

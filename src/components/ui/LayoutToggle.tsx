@@ -24,6 +24,7 @@ export function LayoutToggle({ value, onChange, className }: LayoutToggleProps) 
             : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
         )}
         aria-label="List View"
+        title="List View"
       >
         <AlignJustify size={16} />
       </button>
@@ -36,7 +37,8 @@ export function LayoutToggle({ value, onChange, className }: LayoutToggleProps) 
             ? 'bg-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs'
             : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
         )}
-        aria-label="Grid View"
+        aria-label="Card View"
+        title="Card View"
       >
         <LayoutGrid size={16} />
       </button>

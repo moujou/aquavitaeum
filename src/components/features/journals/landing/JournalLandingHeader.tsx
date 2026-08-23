@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { Trash2, X, Download, CheckSquare, Upload, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Trash2, X, Download, CheckSquare, Upload, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
 import { JournalWithStats } from '@/hooks/useJournals';
+import { useAiAssistantConfig } from '@/hooks/useAiAssistantConfig';
 import { PageActionsDropdown } from '@/components/ui/PageActionsDropdown';
 import { cn } from '@/lib/utils';
 
@@ -16,6 +17,7 @@ interface JournalLandingHeaderProps {
   onConfirmDelete?: () => void;
   onExitSelectMode?: () => void;
   onEnterSelectMode?: () => void;
+  onScanNote?: () => void;
   onExportJournal?: (id: string) => void;
   onExportSelectedNotes?: () => void;
   onImportNotes?: (file: File) => Promise<{ importedCount: number }>;
@@ -31,12 +33,14 @@ export function JournalLandingHeader({
   onConfirmDelete,
   onExitSelectMode,
   onEnterSelectMode,
+  onScanNote,
   onExportJournal,
   onExportSelectedNotes,
   onImportNotes,
   language = 'EN',
 }: JournalLandingHeaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { hasAiKey } = useAiAssistantConfig();
   const [importNotice, setImportNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const handleFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -130,6 +134,20 @@ export function JournalLandingHeader({
           </div>
         ) : (
           <div className="flex items-center gap-2 shrink-0">
+            {/* Cask & Spirit AI Assistant Scan Button (Clover Green Icon-Only) */}
+            {hasAiKey && onScanNote && (
+              <button
+                type="button"
+                onClick={onScanNote}
+                className="w-9 h-9 rounded-lg bg-[var(--forest-green)] hover:bg-[#1b5e39] text-white border border-emerald-400/30 flex items-center justify-center transition-all shadow-xs active:scale-95 cursor-pointer"
+                title={language === 'DE' ? 'Cask & Spirit Assistent: Flasche scannen' : 'Cask & Spirit Assistant: Scan bottle'}
+                aria-label={language === 'DE' ? 'Flasche scannen (KI)' : 'Scan bottle (AI)'}
+              >
+                <Sparkles size={17} />
+              </button>
+            )}
+
+            {/* Gear / Page Actions Dropdown */}
             <PageActionsDropdown
               title={language === 'DE' ? 'Aktionen' : 'Actions'}
               items={[

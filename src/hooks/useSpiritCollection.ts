@@ -1,7 +1,9 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { Spirit, SpiritType } from '@/types/spirit.types';
-import { createBlankSpirit } from '@/lib/spirit-utils';
+import { createBlankSpirit, deduplicateTags } from '@/lib/spirit-utils';
 import { translateColour, translateGlance } from '@/lib/i18n/translations';
+import { SpiritAnalysisResult } from '@/services/ai-assistant-service';
+import { SpiritApplyMode } from '@/components/features/scanner/SpiritScanModal';
 import { db } from '@/lib/db';
 import { MOCK_SPIRITS } from '@/data/mock-spirits';
 import {
@@ -217,6 +219,78 @@ export function useSpiritCollection(activeJournalId: string | null) {
     []
   );
 
+  const handleNewNoteFromScan = useCallback(
+    async (result: SpiritAnalysisResult, uploadedImage?: string, mode: SpiritApplyMode = 'facts-only') => {
+      if (!activeJournalId) return null;
+      const blank = createBlankSpirit(activeJournalId);
+      const updatedImages = uploadedImage ? [uploadedImage] : [];
+      const updatedThumbnail = uploadedImage;
+
+        const detectedCaskFinish =
+          result.caskFinish ||
+          (result.caskTypes && result.caskTypes.length > 0 ? result.caskTypes.join(', ') : 'Ex-Bourbon Casks');
+
+        const newSpirit: Spirit = {
+          ...blank,
+          name: result.name || 'Unknown Spirit',
+          distillery: result.distillery || '',
+          region: result.region || '',
+          spiritType: result.spiritType || 'Single Malt Scotch',
+          abv: result.abv || 40.0,
+          age: result.age !== undefined ? result.age : undefined,
+          volumeMl: result.volumeMl ?? 700,
+          caskNo: result.caskTypes && result.caskTypes.length > 0 ? result.caskTypes.join(', ') : undefined,
+          characteristics:
+            result.characteristics && result.characteristics.length > 0
+              ? result.characteristics
+              : [],
+          colour: result.colour || 'Amber',
+          glance: result.glance && result.glance.length > 0 ? result.glance : [],
+          finish: detectedCaskFinish,
+          finishCharacter:
+            result.finishCharacter && result.finishCharacter.length > 0
+              ? result.finishCharacter
+              : [],
+          servingNotes: result.servingNotes || '',
+          barRole: result.barRole && result.barRole.length > 0 ? result.barRole : [],
+          images: updatedImages,
+          thumbnailImage: updatedThumbnail,
+          updatedAt: new Date().toISOString(),
+        };
+
+        if (mode === 'full') {
+          if (result.finishNotes || result.finish) {
+            newSpirit.finishNotes = result.finishNotes || result.finish || '';
+          }
+          if (result.suggestedNoseTags && result.suggestedNoseTags.length > 0) {
+            newSpirit.noseFlavorTags = [...result.suggestedNoseTags];
+          }
+          if (result.suggestedTasteTags && result.suggestedTasteTags.length > 0) {
+            newSpirit.tasteFlavorTags = [...result.suggestedTasteTags];
+          }
+          newSpirit.flavorTags = deduplicateTags([
+            ...(newSpirit.noseFlavorTags ?? []),
+            ...(newSpirit.tasteFlavorTags ?? []),
+          ]);
+        }
+
+      try {
+        await db.spirits.add(newSpirit);
+        setSpirits((prev) => [newSpirit, ...prev]);
+        setSelectedId(newSpirit.id);
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem(SESSION_SPIRIT_KEY, newSpirit.id);
+        }
+        notifyDataMutated();
+        return newSpirit.id;
+      } catch (err) {
+        console.error('Aqua Vitaeum: Failed to create new note from scan.', err);
+        return null;
+      }
+    },
+    [activeJournalId]
+  );
+
   return {
     spirits,
     filteredSpirits,
@@ -229,6 +303,7 @@ export function useSpiritCollection(activeJournalId: string | null) {
     isLoading,
     selectSpirit,
     handleNewNote,
+    handleNewNoteFromScan,
     handleSave,
     handleDelete,
   };
