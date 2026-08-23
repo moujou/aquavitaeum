@@ -26,6 +26,29 @@ describe('Metadata Subcomponents', () => {
       fireEvent.click(oilyBtn);
       expect(changeFn).toHaveBeenCalledWith([]);
     });
+
+    it('allows adding a custom mouthfeel via plus button', () => {
+      const changeFn = vi.fn();
+      render(
+        <MouthfeelGlanceSelector
+          glance={['Oily']}
+          onChange={changeFn}
+          language="EN"
+          t={mockT}
+        />
+      );
+
+      const addBtn = screen.getByRole('button', { name: /addCustomMouthfeel/i });
+      fireEvent.click(addBtn);
+
+      const input = screen.getByPlaceholderText('customMouthfeelPlaceholder');
+      fireEvent.change(input, { target: { value: 'Velvety Smooth' } });
+
+      const checkBtn = screen.getByRole('button', { name: '✓' });
+      fireEvent.click(checkBtn);
+
+      expect(changeFn).toHaveBeenCalledWith(['Oily', 'Velvety Smooth']);
+    });
   });
 
   describe('ProductionCharacteristicsSelector', () => {
@@ -65,6 +88,17 @@ describe('Metadata Subcomponents', () => {
 
       const waterBtn = screen.getByRole('button', { name: /^Water$/i });
       expect(waterBtn.getAttribute('aria-pressed')).toBe('true');
+
+      const addBtn = screen.getByRole('button', { name: /addCustomAddition/i });
+      fireEvent.click(addBtn);
+
+      const input = screen.getByPlaceholderText('customAdditionPlaceholder');
+      fireEvent.change(input, { target: { value: '3 Drops Spring Water' } });
+
+      const checkBtn = screen.getByRole('button', { name: '✓' });
+      fireEvent.click(checkBtn);
+
+      expect(changeFn).toHaveBeenCalledWith(['Water', '3 Drops Spring Water']);
     });
   });
 

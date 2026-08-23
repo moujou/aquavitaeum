@@ -17,7 +17,6 @@ interface TastingHeaderSectionProps {
   onImportSpirit?: (imported: Spirit) => void;
   onScanSpirit?: () => void;
   t: (key: TranslationKey) => string;
-  language?: string;
 }
 
 export function TastingHeaderSection({
@@ -28,7 +27,6 @@ export function TastingHeaderSection({
   onImportSpirit,
   onScanSpirit,
   t,
-  language = 'EN',
 }: TastingHeaderSectionProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { hasAiKey } = useAiAssistantConfig();
@@ -65,13 +63,13 @@ export function TastingHeaderSection({
       <div className="absolute top-3 right-3 sm:top-3.5 sm:right-4 z-20">
         <PageActionsDropdown
           variant="on-dark-banner"
-          title={language === 'DE' ? 'Karten-Aktionen' : 'Card Actions'}
+          title={t('cardActionsTitle')}
           items={[
             ...(hasAiKey && onScanSpirit
               ? [
                   {
                     id: 'scan-spirit',
-                    label: language === 'DE' ? 'Flasche analysieren (KI)' : 'Analyze Bottle (AI)',
+                    label: t('analyzeBottleAi'),
                     icon: <Sparkles size={16} />,
                     onClick: onScanSpirit,
                   },
@@ -112,17 +110,17 @@ export function TastingHeaderSection({
       </div>
 
       {/* Spirit Type Badge */}
-      <span className="font-display text-xs sm:text-sm font-bold uppercase tracking-[0.25em] text-[#F5CE68]">
+      <span className="font-display text-xs sm:text-sm font-bold uppercase tracking-[0.25em] text-[var(--brass-light)] max-w-[calc(100%-64px)] truncate">
         {spirit.spiritType}
       </span>
 
       {/* Big Spirit Name */}
-      <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-widest text-[var(--parchment-bg)] uppercase leading-tight">
+      <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold tracking-wide sm:tracking-widest text-[var(--parchment-bg)] uppercase leading-tight max-w-[calc(100%-64px)] sm:max-w-[calc(100%-90px)] mx-auto break-words">
         {displayName}
       </h1>
 
       {/* Subtitle (Hersteller & Herkunft) with Crystal Clear Legibility & Radiant Gold Luster */}
-      <p className="font-display text-xs sm:text-sm uppercase tracking-[0.22em] text-[#F5CE68] font-semibold">
+      <p className="font-display text-xs sm:text-sm uppercase tracking-[0.20em] sm:tracking-[0.22em] text-[var(--brass-light)] font-semibold max-w-[calc(100%-64px)] sm:max-w-[calc(100%-90px)] mx-auto break-words">
         {subtitleLocation}
       </p>
 

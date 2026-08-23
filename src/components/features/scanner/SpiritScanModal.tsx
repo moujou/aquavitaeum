@@ -20,6 +20,7 @@ import {
   analyzeSpiritFromImage,
 } from '@/services/ai-assistant-service';
 import { cn } from '@/lib/utils';
+import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 import { ScanPhotoTab } from './subcomponents/ScanPhotoTab';
 import { ScanSearchTab } from './subcomponents/ScanSearchTab';
 import { ScanBarcodeTab } from './subcomponents/ScanBarcodeTab';
@@ -44,7 +45,7 @@ export function SpiritScanModal({
   onApply,
   initialTab = 'photo',
 }: SpiritScanModalProps) {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'photo' | 'text' | 'barcode'>(initialTab);
   const [textQuery, setTextQuery] = useState('');
   const [barcodeQuery, setBarcodeQuery] = useState('');
@@ -95,7 +96,7 @@ export function SpiritScanModal({
     setActiveTab(tab);
   };
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     stopCameraScan();
     setAnalysisResult(null);
     setSelectedImage(null);
@@ -104,12 +105,14 @@ export function SpiritScanModal({
     setError(null);
     setCameraError(null);
     setIsLoading(false);
-  };
+  }, [stopCameraScan]);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     handleReset();
     onClose();
-  };
+  }, [handleReset, onClose]);
+
+  useLockBodyScroll(isOpen, handleClose);
 
   const runBarcodeAnalysis = async (digits: string) => {
     setIsLoading(true);
@@ -295,17 +298,17 @@ export function SpiritScanModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="spirit-scan-modal-title"
-      className="fixed inset-0 z-[1100] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 md:p-8 overflow-y-auto animate-fade-in"
+      className="fixed inset-0 z-[1100] bg-black/80 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-4 md:p-6 overflow-y-auto animate-fade-in"
       onClick={(e) => {
         if (e.target === e.currentTarget) handleClose();
       }}
     >
       <div
-        className="relative w-full max-w-2xl sm:max-w-3xl lg:max-w-4xl min-h-[600px] max-h-[90vh] bg-[var(--parchment-bg)] border border-[var(--parchment-border)] rounded-2xl shadow-2xl overflow-hidden flex flex-col my-auto transition-all"
+        className="relative w-full max-w-2xl sm:max-w-3xl lg:max-w-4xl max-h-[94dvh] sm:max-h-[90dvh] sm:min-h-[500px] bg-[var(--parchment-bg)] border border-[var(--parchment-border)] rounded-2xl shadow-2xl overflow-hidden flex flex-col my-auto transition-all"
         onClick={(e) => e.stopPropagation()}
       >
         {/* ── Flavor-Compass-Harmonized Top Header ── */}
-        <div className="flex items-center justify-between px-5 sm:px-8 py-4 bg-gradient-to-r from-[var(--wood-dark)] to-[var(--wood-selection)] text-white border-b border-black/10 shadow-sm shrink-0 gap-3">
+        <div className="flex items-center justify-between px-4 sm:px-7 py-3 sm:py-3.5 bg-gradient-to-r from-[var(--wood-dark)] to-[var(--wood-selection)] text-white border-b border-black/10 shadow-sm shrink-0 gap-3">
           {/* Left: Branding & Title */}
           <div className="flex items-center gap-3 min-w-0 pr-2">
             <Sparkles className="w-6 h-6 text-amber-200 shrink-0" />
@@ -321,7 +324,7 @@ export function SpiritScanModal({
           <button
             type="button"
             onClick={handleClose}
-            className="p-2 rounded-xl text-white/80 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 transition-all cursor-pointer shadow-xs shrink-0"
+            className="w-10 h-10 rounded-xl text-white/80 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 transition-all cursor-pointer shadow-xs flex items-center justify-center active:scale-95 shrink-0"
             title={language === 'DE' ? 'Schließen' : 'Close'}
             aria-label={language === 'DE' ? 'Schließen' : 'Close'}
           >
@@ -377,7 +380,7 @@ export function SpiritScanModal({
         )}
 
         {/* ── Modal Body ── */}
-        <div className="p-5 sm:p-8 flex flex-col justify-between gap-6 overflow-y-auto flex-1 min-h-[440px]">
+        <div className="p-4 sm:p-7 md:p-8 flex flex-col justify-between gap-6 overflow-y-auto flex-1">
           {/* If Loading: Atmospheric Master Blender Animation */}
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-16 px-4 text-center gap-5 my-auto animate-fade-in">
@@ -454,24 +457,24 @@ export function SpiritScanModal({
         </div>
 
         {/* ── Modal Footer ── */}
-        <div className="flex items-center justify-between p-4 sm:px-8 border-t border-[var(--parchment-divider)] bg-[var(--pub-bg-panel)] select-none">
+        <div className="flex items-center justify-between p-3.5 sm:px-8 border-t border-[var(--parchment-divider)] bg-[var(--pub-bg-panel)] select-none shrink-0">
           {analysisResult ? (
             <>
               <button
                 type="button"
                 onClick={handleReset}
-                className="px-4 py-2.5 rounded-xl border border-[var(--parchment-border)] bg-[var(--pub-bg-alt)] hover:bg-black/5 text-[var(--sepia-text)] font-semibold text-xs sm:text-sm transition-all cursor-pointer flex items-center gap-2 active:scale-95 shadow-xs"
+                className="min-h-[44px] px-4 py-2.5 rounded-xl border border-[var(--parchment-border)] bg-[var(--pub-bg-alt)] hover:bg-black/5 text-[var(--sepia-text)] font-semibold text-xs sm:text-sm transition-all cursor-pointer flex items-center gap-2 active:scale-95 shadow-xs"
               >
-                <RefreshCw size={14} />
-                <span>{language === 'DE' ? 'Neu scannen' : 'Scan Again'}</span>
+                <RefreshCw size={15} />
+                <span>{t('scanAgain')}</span>
               </button>
 
               <button
                 type="button"
                 onClick={handleApply}
-                className="px-5 py-2.5 rounded-xl bg-[var(--wood-dark)] text-white hover:bg-[var(--wood-accent)] font-display font-bold text-xs sm:text-sm uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 shadow-md active:scale-95 border border-[var(--forest-green)]/40"
+                className="min-h-[44px] px-5 py-2.5 rounded-xl bg-[var(--wood-dark)] text-white hover:bg-[var(--wood-accent)] font-display font-bold text-xs sm:text-sm uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 shadow-md active:scale-95 border border-[var(--forest-green)]/40"
               >
-                <span>{language === 'DE' ? 'In Notiz übernehmen' : 'Apply to Note'}</span>
+                <span>{t('applyToNote')}</span>
                 <ChevronRight size={16} />
               </button>
             </>
@@ -480,9 +483,9 @@ export function SpiritScanModal({
               <button
                 type="button"
                 onClick={handleClose}
-                className="px-5 py-2.5 rounded-xl border border-[var(--parchment-border)] bg-[var(--pub-bg-alt)] hover:bg-black/5 text-[var(--sepia-text)] font-semibold text-xs sm:text-sm transition-all cursor-pointer active:scale-95 shadow-xs"
+                className="min-h-[44px] px-5 py-2.5 rounded-xl border border-[var(--parchment-border)] bg-[var(--pub-bg-alt)] hover:bg-black/5 text-[var(--sepia-text)] font-semibold text-xs sm:text-sm transition-all cursor-pointer active:scale-95 shadow-xs flex items-center justify-center"
               >
-                {language === 'DE' ? 'Abbrechen' : 'Cancel'}
+                {t('cancel')}
               </button>
             </div>
           )}

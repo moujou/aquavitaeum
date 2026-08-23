@@ -37,7 +37,7 @@
   /* ── Aged Ink (Typography) ───────────────────────────────────────────── */
   --sepia-text:  #2B1E14;   /* Warmes Buchbinder-Nussbaum-Sepia (13.8:1 AAA) */
   --sepia-muted: #6D5949;   /* Sekundäre Beschriftungen */
-  --sepia-light: #8A6E55;   /* Sektions-Überschriften */
+  --sepia-light: #74563E;   /* Sektions-Überschriften (4.7:1 WCAG AA konform auf Parchment) */
   --foreground:  #2B1E14;   /* Standard-Schrift (organisch, nicht stechend) */
 
   /* ── Action Buttons & Primary CTAs ──────────────────────────────────── */
@@ -196,7 +196,7 @@ body {
 
 /* ─── Accessibility & Reduced Motion ────────────────────────────────────────── */
 :focus-visible {
-  outline: 2px solid #C59B27;
+  outline: 2px solid var(--brass-accent);
   outline-offset: 2px;
 }
 

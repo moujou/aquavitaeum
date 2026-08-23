@@ -15,11 +15,9 @@ interface SommelierScoreSliderProps {
 const SCORE_MILESTONES = [
   { value: 50, label: '50', mobileVisible: true },
   { value: 60, label: '60', mobileVisible: false },
-  { value: 70, label: '70', mobileVisible: true },
+  { value: 70, label: '70', mobileVisible: false },
   { value: 80, label: '80', mobileVisible: true },
-  { value: 85, label: '85', mobileVisible: false },
-  { value: 90, label: '90', mobileVisible: true },
-  { value: 95, label: '95', mobileVisible: false },
+  { value: 90, label: '90', mobileVisible: false },
   { value: 100, label: '100', mobileVisible: true },
 ];
 
@@ -34,7 +32,7 @@ export function SommelierScoreSlider({
   const isDragging = useRef(false);
   const [isDraggingState, setIsDraggingState] = React.useState(false);
 
-  const safeScore = Math.max(1, Math.min(100, score || 85));
+  const safeScore = Math.max(1, Math.min(100, score || 1));
   const tier = getScoreTierConfig(safeScore);
   const percentage = ((safeScore - 1) / 99) * 100;
 
@@ -138,8 +136,10 @@ export function SommelierScoreSlider({
                   key={m.value}
                   style={{ left: `${tickPos}%` }}
                   className={cn(
-                    'absolute w-0.5 bg-[var(--sepia-muted)]/35 -translate-x-1/2',
-                    m.mobileVisible ? 'h-2.5 bg-[var(--sepia-muted)]/50' : 'h-1.5'
+                    'absolute w-0.5 -translate-x-1/2',
+                    m.mobileVisible
+                      ? 'h-2.5 bg-[var(--sepia-muted)]/50'
+                      : 'h-1.5 bg-[var(--sepia-muted)]/35 hidden sm:block'
                   )}
                 />
               );

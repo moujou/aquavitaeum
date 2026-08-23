@@ -87,13 +87,13 @@ describe('i18n Translation Dictionary', () => {
   });
 
   it('translates custom flavor keys accurately', () => {
-    expect(t('createCustomFlavor', 'EN')).toBe('Custom Flavor');
-    expect(t('createCustomFlavor', 'DE')).toBe('Eigenes Aroma');
+    expect(t('createCustomFlavor', 'EN')).toBe('Aroma');
+    expect(t('createCustomFlavor', 'DE')).toBe('Aroma');
     expect(t('customFlavorsCategory', 'DE')).toBe('Eigene Aromen');
     expect(t('defaultCategoryColor', 'DE')).toBe('Kategorie-Farbe');
     expect(t('customColor', 'DE')).toBe('Eigene Farbe');
-    expect(t('sensoryDrawerTitle', 'DE')).toBe('Aromen-Kompass');
-    expect(t('openSensoryDrawer', 'DE')).toBe('Aromen-Kompass');
+    expect(t('sensoryDrawerTitle', 'DE')).toBe('Aromen-Katalog');
+    expect(t('openSensoryDrawer', 'DE')).toBe('Katalog');
   });
 
   it('translates radar dimensions accurately', () => {

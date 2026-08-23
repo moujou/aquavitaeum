@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useGoogleDriveSync } from '@/hooks/useGoogleDriveSync';
+import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 import { X, RefreshCw } from 'lucide-react';
 
 interface WelcomePageProps {
@@ -18,6 +19,8 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [isAnimating, setIsAnimating] = useState(false);
+
+  useLockBodyScroll(isModalOpen, () => setIsModalOpen(false));
 
   const handleEnterClick = () => {
     setIsAnimating(true);
@@ -291,7 +294,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-body text-[var(--sepia-muted)] mb-2 tracking-wider">
-                  Journal Name
+                  {t('journalNameLabel')}
                 </label>
                 <input
                   type="text"
@@ -307,7 +310,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
 
               <div>
                 <label className="block text-xs font-body text-[var(--sepia-muted)] mb-2 tracking-wider">
-                  Description (optional)
+                  {t('descriptionOptionalLabel')}
                 </label>
                 <input
                   type="text"
@@ -327,13 +330,13 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
                     setName('');
                     setDescription('');
                   }}
-                  className="h-10 px-4 rounded-lg bg-[var(--pub-bg-alt)] hover:bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] text-[var(--sepia-muted)] hover:text-[var(--foreground)] text-sm font-semibold transition-colors cursor-pointer"
+                  className="min-h-[44px] px-4 rounded-lg bg-[var(--pub-bg-alt)] hover:bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] text-[var(--sepia-muted)] hover:text-[var(--foreground)] text-sm font-semibold transition-colors cursor-pointer"
                 >
                   {t('cancel')}
                 </button>
                 <button
                   type="submit"
-                  className="h-10 px-5 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] text-[var(--fab-text)] font-semibold text-sm transition-all cursor-pointer shadow-md active:scale-[0.98]"
+                  className="min-h-[44px] px-5 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] text-[var(--fab-text)] font-semibold text-sm transition-all cursor-pointer shadow-md active:scale-[0.98]"
                 >
                   {t('createJournalBtn')}
                 </button>

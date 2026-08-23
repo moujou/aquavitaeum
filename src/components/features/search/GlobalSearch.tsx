@@ -7,6 +7,7 @@ import { db } from '@/lib/db';
 import { SpiritType, SPIRIT_TYPES } from '@/types/spirit.types';
 import { JournalWithStats } from '@/hooks/useJournals';
 import { WhiskyLogo } from '@/components/ui/WhiskyLogo';
+import { useLanguage } from '@/context/LanguageContext';
 import { cn } from '@/lib/utils';
 
 interface GlobalSearchProps {
@@ -32,6 +33,7 @@ export default function GlobalSearch({
   setGlobalTypeFilter,
   onNavigateToSpirit,
 }: GlobalSearchProps) {
+  const { t } = useLanguage();
   const searchRef = useRef<HTMLDivElement>(null);
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
 
@@ -147,7 +149,7 @@ export default function GlobalSearch({
           type="text"
           value={globalSearchQuery}
           onChange={(e) => setGlobalSearchQuery(e.target.value)}
-          placeholder="Search spirits & journals..."
+          placeholder={t('searchPlaceholderGlobal')}
           className="bg-transparent border-none text-sm text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/70 focus:outline-none focus:ring-0 focus-within:ring-0 w-full pr-10 font-body"
         />
 
@@ -164,7 +166,7 @@ export default function GlobalSearch({
                   ? "bg-[var(--forest-green)]/15 border-[var(--forest-green)] text-[var(--forest-green)] shadow-xs"
                   : "border-transparent text-[var(--forest-green)] hover:bg-[var(--forest-green)]/15 hover:border-[var(--forest-green)]/30"
             )}
-            title="Filter by Spirit Type"
+            title={t('filterBySpiritType')}
           >
             <SlidersHorizontal size={14} />
           </button>
@@ -180,7 +182,7 @@ export default function GlobalSearch({
       {isFilterDropdownOpen && (
         <div className="absolute top-13 right-0 bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] rounded-2xl shadow-xl z-50 p-1.5 w-52 max-h-[280px] overflow-y-auto divide-y divide-[var(--parchment-divider)]/50 scrollbar-thin animate-fade-in">
           <div className="px-3 py-1.5 text-[10px] uppercase font-bold text-[var(--forest-green)] tracking-wider">
-            Filter by Type
+            {t('filterByType')}
           </div>
           <button
             type="button"
@@ -192,7 +194,7 @@ export default function GlobalSearch({
                 : "text-[var(--foreground)] hover:bg-black/5"
             )}
           >
-            All Spirits
+            {t('allSpirits')}
           </button>
           {SPIRIT_TYPES.map((type) => (
             <button
@@ -217,13 +219,13 @@ export default function GlobalSearch({
         <div className="absolute top-13 left-0 right-0 bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] rounded-2xl shadow-2xl z-50 p-2.5 max-h-[380px] overflow-y-auto divide-y divide-[var(--parchment-divider)] animate-fade-in">
           {searchResults.journals.length === 0 && searchResults.spirits.length === 0 ? (
             <p className="text-center text-xs text-[var(--sepia-muted)] py-4 italic">
-              No matches found.
+              {t('noMatchesFound')}
             </p>
           ) : (
             <>
               {searchResults.journals.length > 0 && (
                 <div className="py-1">
-                  <p className="text-[10px] uppercase font-bold text-[var(--forest-green)] tracking-wider px-2 mb-1.5">Journals</p>
+                  <p className="text-[10px] uppercase font-bold text-[var(--forest-green)] tracking-wider px-2 mb-1.5">{t('journalsHeading')}</p>
                   {searchResults.journals.map(j => {
                     const hasCover = j.coverImage && j.coverImage.trim() !== '';
                     return (
@@ -263,7 +265,7 @@ export default function GlobalSearch({
                             {j.name}
                           </p>
                           <p className="font-body text-[12px] text-[var(--sepia-muted)] line-clamp-1 italic mt-0.5">
-                            {j.description || 'No description provided.'}
+                            {j.description || t('noDescriptionProvided')}
                           </p>
                           <p className="text-[11px] text-[var(--sepia-muted)]/70 truncate mt-0.5">
                             {j.bottleCount} {j.bottleCount === 1 ? 'Note' : 'Notes'}
@@ -277,7 +279,7 @@ export default function GlobalSearch({
 
               {searchResults.spirits.length > 0 && (
                 <div className="py-1">
-                  <p className="text-[10px] uppercase font-bold text-[var(--forest-green)] tracking-wider px-2 mb-1.5">Spirits</p>
+                  <p className="text-[10px] uppercase font-bold text-[var(--forest-green)] tracking-wider px-2 mb-1.5">{t('spiritsHeading')}</p>
                   {searchResults.spirits.map(s => {
                     const hasImg = s.thumbnailImage && s.thumbnailImage.trim() !== '';
                     return (
@@ -318,7 +320,7 @@ export default function GlobalSearch({
                             {s.distillery} • {s.region} ({s.spiritType})
                           </p>
                           <p className="text-[11px] text-[var(--forest-green)] font-medium truncate mt-0.5">
-                            In {s.journalName}
+                            {t('inJournalPrefix')} {s.journalName}
                           </p>
                         </div>
                       </a>

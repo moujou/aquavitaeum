@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Compass, Plus } from 'lucide-react';
+import { BookOpen, Plus } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import {
   FlavorDescriptor,
@@ -191,7 +191,7 @@ export function FlavorTagSelector({
             }}
             className="px-3.5 py-1.5 rounded-lg bg-[var(--wood-selection)] text-white text-xs font-display font-bold uppercase tracking-wider shadow-xs hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-1.5 cursor-pointer h-[34px]"
           >
-            <Compass size={15} className="text-amber-200" />
+            <BookOpen size={15} className="text-amber-200" />
             <span>{t('openSensoryDrawer')}</span>
           </button>
 

@@ -43,35 +43,33 @@ export function BarVerdictRoleSelector({
   className,
 }: BarVerdictRoleSelectorProps) {
   return (
-    <div
-      className={cn(
-        'flex flex-wrap gap-2',
-        className
-      )}
-    >
-      {SPIRIT_BAR_ROLES.map((role) => {
-        const isSelected = activeRoles.includes(role);
-        const emoji = getRoleEmoji(role);
-        const translatedText = translateBarRole(role, language);
+    <div className={cn('w-full', className)}>
+      {/* Mobile: 2-Column Responsive Masonry Flow | Tablet & Desktop: Inline Fluid Flex */}
+      <div className="columns-2 sm:columns-none sm:flex sm:flex-wrap gap-2 space-y-2 sm:space-y-0">
+        {SPIRIT_BAR_ROLES.map((role) => {
+          const isSelected = activeRoles.includes(role);
+          const emoji = getRoleEmoji(role);
+          const translatedText = translateBarRole(role, language);
 
-        return (
-          <button
-            key={role}
-            type="button"
-            onClick={() => onToggleRole(role)}
-            className={cn(
-              'px-3.5 py-1.5 rounded-full border text-xs sm:text-sm font-bold font-body transition-all duration-150 flex items-center gap-1.5 cursor-pointer select-none min-h-[34px]',
-              isSelected
-                ? 'bg-[var(--wood-selection)] border-[var(--wood-selection)] text-white shadow-xs scale-[1.02]'
-                : 'border-[var(--parchment-border)] bg-white/60 dark:bg-black/20 text-[var(--foreground)] hover:bg-white hover:border-[var(--brass-accent)]'
-            )}
-            aria-pressed={isSelected}
-          >
-            <span>{emoji}</span>
-            <span>{translatedText}</span>
-          </button>
-        );
-      })}
+          return (
+            <button
+              key={role}
+              type="button"
+              onClick={() => onToggleRole(role)}
+              className={cn(
+                'break-inside-avoid w-full sm:w-auto inline-flex items-center justify-start gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs sm:text-sm font-semibold font-body transition-all duration-150 cursor-pointer select-none min-h-[36px] shadow-2xs',
+                isSelected
+                  ? 'bg-[var(--wood-selection)] border-[var(--brass-accent)] text-white shadow-xs font-bold'
+                  : 'border-[var(--parchment-border)] bg-white/80 dark:bg-black/25 text-[var(--foreground)] hover:bg-white hover:border-[var(--brass-accent)] active:scale-95'
+              )}
+              aria-pressed={isSelected}
+            >
+              <span className="text-base shrink-0 select-none">{emoji}</span>
+              <span className="truncate text-left">{translatedText}</span>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

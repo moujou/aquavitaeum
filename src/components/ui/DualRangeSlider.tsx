@@ -23,7 +23,7 @@ export function DualRangeSlider({
   value,
   onChange,
   minDistance = 2,
-  activeColor = '#C59B27',
+  activeColor = 'var(--brass-accent)',
   className,
   ariaLabelStart = 'Start time',
   ariaLabelEnd = 'End time',

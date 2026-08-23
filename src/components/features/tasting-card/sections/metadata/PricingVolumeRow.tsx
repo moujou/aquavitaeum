@@ -86,17 +86,6 @@ export function PricingVolumeRow({
         </div>
       </div>
 
-      {/* Verkostungsdatum */}
-      <div className="flex flex-col gap-1">
-        <FieldLabel htmlFor="date-tasted-input">{t('dateTasted')}</FieldLabel>
-        <LocalizedDatePicker
-          id="date-tasted-input"
-          value={dateTasted ?? ''}
-          onChange={onChangeDateTasted}
-          language={language}
-        />
-      </div>
-
       {/* Flaschenpreis & Währung */}
       <div className="flex flex-col gap-1">
         <FieldLabel htmlFor="price-input">{t('bottlePrice')}</FieldLabel>
@@ -126,6 +115,17 @@ export function PricingVolumeRow({
             ))}
           </select>
         </div>
+      </div>
+
+      {/* Verkostungsdatum */}
+      <div className="flex flex-col gap-1">
+        <FieldLabel htmlFor="date-tasted-input">{t('dateTasted')}</FieldLabel>
+        <LocalizedDatePicker
+          id="date-tasted-input"
+          value={dateTasted ?? ''}
+          onChange={onChangeDateTasted}
+          language={language}
+        />
       </div>
     </>
   );

@@ -51,7 +51,6 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
         onImportSpirit={importSpirit}
         onScanSpirit={() => setIsHeaderScanModalOpen(true)}
         t={t}
-        language={language}
       />
 
       <div className="p-6 flex flex-col gap-6">
