@@ -6,7 +6,6 @@ import {
   Currency,
 } from '@/types/spirit.types';
 import { FieldLabel } from '@/components/ui/FieldLabel';
-import { FlavorTagSelector } from '@/components/features/flavor-tags/FlavorTagSelector';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import {
   Language,
@@ -240,24 +239,6 @@ export function TastingMetadataSection({
           onSyncBooleans={(key, val) => update(key, val)}
           language={language}
           t={t}
-        />
-      </div>
-
-      {/* Active Flavor Tag Selector (Left Column Bottom) */}
-      <div className="border-t border-[var(--parchment-border)]/60 pt-4 flex flex-col gap-2 w-full">
-        <FlavorTagSelector
-          spiritId={spirit.id}
-          noseFlavorTags={spirit.noseFlavorTags ?? []}
-          tasteFlavorTags={spirit.tasteFlavorTags ?? []}
-          onNoseTagsChange={(tags) => {
-            update('noseFlavorTags', tags);
-            update('flavorTags', Array.from(new Set([...tags, ...(spirit.tasteFlavorTags ?? [])])));
-          }}
-          onTasteTagsChange={(tags) => {
-            update('tasteFlavorTags', tags);
-            update('flavorTags', Array.from(new Set([...(spirit.noseFlavorTags ?? []), ...tags])));
-          }}
-          className="mt-1 w-full"
         />
       </div>
     </div>

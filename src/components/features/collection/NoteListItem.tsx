@@ -185,19 +185,11 @@ export function NoteListItem({
         </div>
 
         {/* 3. Dedicated Sommelier Medal Box (Right-Aligned, Top-Right Title Height Slot) */}
-        <div className="p-2 sm:p-4 md:p-4.5 shrink-0 flex items-start justify-center self-start z-10">
-          <div className="sm:hidden">
-            <SommelierScoreMedallion
-              score={spirit.rating100}
-              size="sm"
-            />
-          </div>
-          <div className="hidden sm:block">
-            <SommelierScoreMedallion
-              score={spirit.rating100}
-              size="md"
-            />
-          </div>
+        <div className="p-2 sm:p-3 md:p-3.5 shrink-0 flex items-start justify-center self-start z-10">
+          <SommelierScoreMedallion
+            score={spirit.rating100}
+            size="sm"
+          />
         </div>
       </div>
 

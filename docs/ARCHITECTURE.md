@@ -24,7 +24,7 @@ graph TD
     Views --> V4[ProfileView]
 
     V2 --> Layouts[NoteGridView / NoteListView]
-    V3 --> TCSections[TastingMetadata / Flavor / Finish / Summary]
+    V3 --> TCSections[TastingMetadata / Flavor: Radar & Sunburst Wheel / Finish / Rating]
     V4 --> ProfSections[AiAssistantSettings / GoogleDriveSync]
     A --> Scanner[SpiritScanModal / Barcode & Label OCR]
   end
@@ -40,7 +40,7 @@ graph TD
   subgraph Data & Persistence Tier
     HJ & HTC & HGD --> Dexie[Dexie.js IndexedDB: db.journals & db.spirits]
     HGD --> GDrive[Google Drive Cloud Delta-Sync Engine]
-    HAI --> Gemini[Google Gemini 2.5 API: Client-Side BYOK]
+    HAI --> Gemini[Google Gemini 3.5/3.7 Flash API: Client-Side Header-Auth BYOK]
     HGD --> Tombs[Tombstone Engine: tombstones.ts]
   end
 ```

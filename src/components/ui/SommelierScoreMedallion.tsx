@@ -67,22 +67,48 @@ export const SCORE_TIERS_CONFIG: ScoreTierConfig[] = [
     badgeEn: 'GOOD',
     badgeDe: 'GUT',
     emoji: '★',
-    colorHex: '#78716C',
-    pillBg: 'bg-stone-500/15',
-    pillBorder: 'border-stone-600/40',
+    colorHex: '#C97A1E',
+    pillBg: 'bg-amber-500/15',
+    pillBorder: 'border-amber-600/40',
   },
-  // 5. 1-69: Casual / Einfach
+  // 5. 50-69: Solid / Solide
   {
-    min: 1,
+    min: 50,
     max: 69,
-    labelEn: 'Casual',
-    labelDe: 'Einfach',
-    badgeEn: 'CASUAL',
-    badgeDe: 'EINFACH',
+    labelEn: 'Solid',
+    labelDe: 'Solide',
+    badgeEn: 'SOLID',
+    badgeDe: 'SOLIDE',
     emoji: '★',
-    colorHex: '#44403C',
+    colorHex: '#6D5949',
     pillBg: 'bg-stone-600/15',
     pillBorder: 'border-stone-700/40',
+  },
+  // 6. 30-49: Mediocre / Mäßig
+  {
+    min: 30,
+    max: 49,
+    labelEn: 'Mediocre',
+    labelDe: 'Mäßig',
+    badgeEn: 'MEDIOCRE',
+    badgeDe: 'MÄSSIG',
+    emoji: '★',
+    colorHex: '#9A3412',
+    pillBg: 'bg-amber-900/15',
+    pillBorder: 'border-amber-900/40',
+  },
+  // 7. 1-29: Flawed / Mangelhaft
+  {
+    min: 1,
+    max: 29,
+    labelEn: 'Flawed',
+    labelDe: 'Mangelhaft',
+    badgeEn: 'FLAWED',
+    badgeDe: 'MANGELHAFT',
+    emoji: '★',
+    colorHex: '#991B1B',
+    pillBg: 'bg-red-500/15',
+    pillBorder: 'border-red-600/40',
   },
 ];
 
@@ -96,7 +122,7 @@ export function getScoreTierConfig(score: number): ScoreTierConfig {
 
 interface SommelierScoreMedallionProps {
   score?: number;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'xs' | 'sm' | 'md' | 'lg';
   className?: string;
 }
 
@@ -119,11 +145,13 @@ export function SommelierScoreMedallion({
   const a11yLabel = `${safeScore} / 100 - ${language === 'DE' ? tier.labelDe : tier.labelEn} (${starRating} ★)`;
 
   const sizeClasses =
-    size === 'sm'
-      ? 'w-12 h-12 sm:w-13 sm:h-13'
+    size === 'xs'
+      ? 'w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11'
+      : size === 'sm'
+      ? 'w-11 h-11 sm:w-12 sm:h-12 md:w-13 md:h-13'
       : size === 'md'
-      ? 'w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36'
-      : 'w-40 h-40 sm:w-48 sm:h-48 md:w-52 md:h-52';
+      ? 'w-18 h-18 sm:w-20 sm:h-20 md:w-22 md:h-22'
+      : 'w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40';
 
   return (
     <div

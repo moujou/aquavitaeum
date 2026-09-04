@@ -601,11 +601,12 @@ export function SensoryCompassDrawer({
                               className={cn(
                                 'flex items-center justify-between rounded-xl border text-sm font-body font-bold transition-all duration-150 select-none min-h-[44px] px-3.5 shadow-2xs overflow-hidden',
                                 isSelected
-                                  ? 'border-transparent text-white shadow-md scale-[1.01]'
+                                  ? 'text-[var(--foreground)] shadow-xs scale-[1.01]'
                                   : 'border-[var(--parchment-border)] bg-white/50 dark:bg-black/20 text-[var(--foreground)] hover:border-[var(--wood-selection)] hover:bg-white/80'
                               )}
                               style={{
-                                backgroundColor: isSelected ? chipColor : undefined,
+                                backgroundColor: isSelected ? `${chipColor}20` : undefined,
+                                borderColor: isSelected ? chipColor : undefined,
                               }}
                             >
                               <button
@@ -617,11 +618,11 @@ export function SensoryCompassDrawer({
                                 <span className="truncate">{cf.name}</span>
                               </button>
                               <div className="flex items-center gap-1 shrink-0">
-                                {isSelected && <Check size={16} className="text-white mr-1" />}
+                                {isSelected && <Check size={16} className="text-[var(--wood-selection)] mr-1" />}
                                 <button
                                   type="button"
                                   onClick={(e) => onDeleteCustomFlavor(e, cf.id)}
-                                  className="w-8 h-8 rounded-full flex items-center justify-center text-sm opacity-70 hover:opacity-100 hover:text-red-300 hover:bg-white/10 active:scale-95 cursor-pointer transition-all"
+                                  className="w-8 h-8 rounded-full flex items-center justify-center text-sm opacity-70 hover:opacity-100 hover:text-red-500 hover:bg-black/5 active:scale-95 cursor-pointer transition-all"
                                   title={t('customFlavorDeleted')}
                                   aria-label={t('customFlavorDeleted')}
                                 >

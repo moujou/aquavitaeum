@@ -152,6 +152,7 @@ export function JournalLandingPage({
       <ConfirmDialog
         isOpen={confirmBulkDelete}
         title={language === 'DE' ? 'Warnung / Achtung!' : 'Warning / Achtung!'}
+        subtitle={t('deleteModalSubtitle')}
         message={
           selectedIds.size === 1
             ? <>{t('deleteModalMessage')}?</>

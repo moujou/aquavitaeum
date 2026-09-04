@@ -468,6 +468,7 @@ export function JournalsOverview({
       <ConfirmDialog
         isOpen={confirmBulkDelete}
         title={t('warningTitle')}
+        subtitle={t('deleteModalSubtitle')}
         message={
           deletableSelected.length === 1
             ? <>{t('deleteJournalConfirm')}</>
@@ -576,6 +577,7 @@ export function JournalsOverview({
       <ConfirmDialog
         isOpen={!!confirmDeleteId}
         title={t('warningTitle')}
+        subtitle={t('deleteModalSubtitle')}
         message={<>{t('deleteJournalConfirm')}</>}
         confirmLabel={language === 'DE' ? 'Journal löschen' : 'Delete Journal'}
         cancelLabel={t('cancel')}

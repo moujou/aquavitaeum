@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   FinishCurveParams,
   SPIRIT_FINISH_DURATIONS,
@@ -47,6 +47,23 @@ export function FinishTimeIntensityDiagram({
   const [isAddingCustomChar, setIsAddingCustomChar] = useState(false);
   const [customCharInput, setCustomCharInput] = useState('');
   const [showAllChars, setShowAllChars] = useState(false);
+  const [showAllTags, setShowAllTags] = useState(false);
+
+  const INITIAL_TAG_LIMIT = 6;
+  const sortedTags = useMemo(() => {
+    return [...activeTags].sort((a, b) => {
+      const aProminent = Boolean(finishCurves[a] && finishCurves[a].peakIntensity >= 6) ? 1 : 0;
+      const bProminent = Boolean(finishCurves[b] && finishCurves[b].peakIntensity >= 6) ? 1 : 0;
+      return bProminent - aProminent;
+    });
+  }, [activeTags, finishCurves]);
+
+  const prominentCount = sortedTags.filter(
+    (t) => Boolean(finishCurves[t] && finishCurves[t].peakIntensity >= 6)
+  ).length;
+  const tagDisplayLimit = Math.max(INITIAL_TAG_LIMIT, prominentCount);
+  const displayedTags = showAllTags ? sortedTags : sortedTags.slice(0, tagDisplayLimit);
+  const hiddenTagCount = activeTags.length - displayedTags.length;
 
   const CORE_FINISH_CHARACTERS = ['Warming', 'Spicy', 'Smoky', 'Sweet', 'Dry', 'Oaky'];
   const displayedCharacters = showAllChars
@@ -78,7 +95,7 @@ export function FinishTimeIntensityDiagram({
   const handleToggleLingeringTag = (tag: string) => {
     if (!onChangeCurves) return;
     const curve = finishCurves[tag];
-    const isCurrentlyProminent = (curve?.peakIntensity ?? 7) >= 6;
+    const isCurrentlyProminent = Boolean(curve && curve.peakIntensity >= 6);
     const nextIntensity = isCurrentlyProminent ? 3 : 8;
 
     onChangeCurves({
@@ -158,7 +175,7 @@ export function FinishTimeIntensityDiagram({
       </div>
 
       {/* 2. Dominante Noten im Nachklang (Lingering Notes) */}
-      <div className="p-3.5 rounded-xl bg-[var(--parchment-bg-alt)]/60 border border-[var(--parchment-border)] flex flex-col gap-2 shadow-2xs">
+      <div className="p-3.5 rounded-xl bg-[var(--parchment-bg)] border border-[var(--parchment-border)] flex flex-col gap-2 shadow-2xs">
         <div className="flex flex-col gap-0.5">
           <span className="text-xs font-display uppercase tracking-wider font-bold text-[var(--sepia-muted)]">
             {t('lingeringNotesTitle')}
@@ -169,11 +186,11 @@ export function FinishTimeIntensityDiagram({
         </div>
 
         {activeTags.length > 0 ? (
-          <div className="flex flex-wrap gap-2 pt-1">
-            {activeTags.map((tag) => {
+          <div className="flex flex-wrap gap-2 pt-1 items-center">
+            {displayedTags.map((tag) => {
               const color = getFlavorColor(tag);
               const curve = finishCurves[tag];
-              const isProminent = (curve?.peakIntensity ?? 7) >= 6;
+              const isProminent = Boolean(curve && curve.peakIntensity >= 6);
 
               return (
                 <button
@@ -181,28 +198,38 @@ export function FinishTimeIntensityDiagram({
                   type="button"
                   onClick={() => handleToggleLingeringTag(tag)}
                   style={{
-                    backgroundColor: isProminent ? color : undefined,
+                    backgroundColor: isProminent ? `${color}20` : undefined,
+                    borderColor: isProminent ? color : undefined,
                   }}
                   className={cn(
-                    'px-3 py-1.5 rounded-full border text-xs sm:text-sm font-bold font-body transition-all duration-150 flex items-center gap-1.5 cursor-pointer select-none min-h-[32px]',
+                    'px-3 py-1.5 rounded-full border text-xs sm:text-sm font-body font-semibold transition-all duration-150 flex items-center gap-1.5 cursor-pointer select-none min-h-[32px]',
                     isProminent
-                      ? 'border-transparent text-white shadow-xs scale-[1.02]'
+                      ? 'text-[var(--foreground)] shadow-2xs scale-[1.02]'
                       : 'border-[var(--parchment-border)] bg-[var(--parchment-bg)] text-[var(--sepia-muted)] hover:border-[var(--brass-accent)]'
                   )}
                   aria-pressed={isProminent}
                 >
                   <span
-                    className={cn(
-                      'w-2 h-2 rounded-full shrink-0 border border-black/20',
-                      isProminent && 'bg-white border-white/50'
-                    )}
-                    style={{ backgroundColor: isProminent ? undefined : color }}
+                    className="w-2.5 h-2.5 rounded-full shrink-0 shadow-2xs ring-1 ring-black/10"
+                    style={{ backgroundColor: color }}
                   />
                   <span>{translateFlavorTag(tag, language)}</span>
-                  {isProminent && <Check size={13} className="ml-0.5 text-white" />}
                 </button>
               );
             })}
+
+            {/* Toggle expand/collapse other lingering notes */}
+            {(hiddenTagCount > 0 || (showAllTags && activeTags.length > INITIAL_TAG_LIMIT)) && (
+              <button
+                type="button"
+                onClick={() => setShowAllTags(!showAllTags)}
+                className="px-2.5 py-1 rounded-full text-xs font-body font-semibold text-[var(--forest-green)] hover:bg-[var(--forest-green)]/10 transition-colors cursor-pointer select-none"
+              >
+                {showAllTags
+                  ? (language === 'DE' ? 'Weniger' : 'Show less')
+                  : (language === 'DE' ? `+ ${hiddenTagCount} weitere…` : `+ ${hiddenTagCount} more…`)}
+              </button>
+            )}
           </div>
         ) : (
           <p className="text-xs text-[var(--sepia-muted)] italic font-body py-0.5">

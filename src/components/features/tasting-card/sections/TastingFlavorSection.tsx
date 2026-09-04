@@ -4,7 +4,7 @@ import React from 'react';
 import { Spirit } from '@/types/spirit.types';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { FlavorRadarChart, DynamicProfileSliders } from '@/components/features/radar-chart/FlavorRadarChart';
-import { SpiritPhotoCarousel } from '@/components/features/photos/SpiritPhotoCarousel';
+import { FlavorTagSelector } from '@/components/features/flavor-tags/FlavorTagSelector';
 import { TranslationKey } from '@/lib/i18n/translations';
 import { SpiritAnalysisResult } from '@/services/ai-assistant-service';
 import { SpiritApplyMode } from '@/components/features/scanner/SpiritScanModal';
@@ -19,25 +19,30 @@ interface TastingFlavorSectionProps {
 export function TastingFlavorSection({
   spirit,
   update,
-  onAnalyzeSpirit,
   t,
 }: TastingFlavorSectionProps) {
   return (
-    <div className="flex flex-col gap-5">
-      {/* Desktop-Only Spirit Photos Carousel */}
-      <div className="hidden lg:flex flex-col gap-2">
-        <SectionHeader>{t('spiritPhotos')}</SectionHeader>
-        <SpiritPhotoCarousel
-          images={spirit.images}
-          thumbnailImage={spirit.thumbnailImage}
-          onChange={(imgs) => update('images', imgs)}
-          onSetThumbnail={(url) => update('thumbnailImage', url as string | undefined)}
-          onAnalyzeSpirit={onAnalyzeSpirit}
+    <div className="flex flex-col gap-6 sm:gap-7 w-full">
+      {/* ── Tier 1: 2-Column Aroma Tag Selector (Nase | Geschmack) ── */}
+      <div className="flex flex-col gap-2 w-full">
+        <FlavorTagSelector
+          spiritId={spirit.id}
+          noseFlavorTags={spirit.noseFlavorTags ?? []}
+          tasteFlavorTags={spirit.tasteFlavorTags ?? []}
+          onNoseTagsChange={(tags) => {
+            update('noseFlavorTags', tags);
+            update('flavorTags', Array.from(new Set([...tags, ...(spirit.tasteFlavorTags ?? [])])));
+          }}
+          onTasteTagsChange={(tags) => {
+            update('tasteFlavorTags', tags);
+            update('flavorTags', Array.from(new Set([...(spirit.noseFlavorTags ?? []), ...tags])));
+          }}
+          className="w-full"
         />
       </div>
 
-      {/* Radar Graph */}
-      <div className="flex flex-col gap-2 border-t border-[var(--parchment-border)]/60 pt-4">
+      {/* ── Tier 2: Grand Centerpiece Visualizer (Aromenrad / Netzdiagramm) ── */}
+      <div className="flex flex-col gap-2 border-t border-[var(--parchment-border)]/60 pt-5 sm:pt-6 w-full">
         <div className="flex items-center justify-between">
           <SectionHeader>{t('noseTasteRadar')}</SectionHeader>
         </div>
@@ -51,32 +56,35 @@ export function TastingFlavorSection({
         />
       </div>
 
-      {/* Dynamic Nose Tag Sliders Section */}
-      <div className="border-t border-[var(--parchment-border)]/60 pt-4">
-        <DynamicProfileSliders
-          title={t('noseIntensity')}
-          type="nose"
-          activeTags={spirit.noseFlavorTags ?? []}
-          tagIntensities={spirit.noseTagIntensities ?? {}}
-          onIntensityChange={(tagName, val) => {
-            const updated = { ...(spirit.noseTagIntensities ?? {}), [tagName]: val };
-            update('noseTagIntensities', updated);
-          }}
-        />
-      </div>
+      {/* ── Tier 3: 2-Column Side-by-Side Dynamic Intensity Sliders (Nase | Geschmack) ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 border-t border-[var(--parchment-border)]/60 pt-5 sm:pt-6 items-start w-full">
+        {/* Left Column: Nose Sliders */}
+        <div className="w-full">
+          <DynamicProfileSliders
+            title={t('noseIntensity')}
+            type="nose"
+            activeTags={spirit.noseFlavorTags ?? []}
+            tagIntensities={spirit.noseTagIntensities ?? {}}
+            onIntensityChange={(tagName, val) => {
+              const updated = { ...(spirit.noseTagIntensities ?? {}), [tagName]: val };
+              update('noseTagIntensities', updated);
+            }}
+          />
+        </div>
 
-      {/* Dynamic Taste Tag Sliders Section */}
-      <div className="border-t border-[var(--parchment-border)]/60 pt-4">
-        <DynamicProfileSliders
-          title={t('tasteIntensity')}
-          type="taste"
-          activeTags={spirit.tasteFlavorTags ?? []}
-          tagIntensities={spirit.tasteTagIntensities ?? {}}
-          onIntensityChange={(tagName, val) => {
-            const updated = { ...(spirit.tasteTagIntensities ?? {}), [tagName]: val };
-            update('tasteTagIntensities', updated);
-          }}
-        />
+        {/* Right Column: Taste Sliders */}
+        <div className="w-full">
+          <DynamicProfileSliders
+            title={t('tasteIntensity')}
+            type="taste"
+            activeTags={spirit.tasteFlavorTags ?? []}
+            tagIntensities={spirit.tasteTagIntensities ?? {}}
+            onIntensityChange={(tagName, val) => {
+              const updated = { ...(spirit.tasteTagIntensities ?? {}), [tagName]: val };
+              update('tasteTagIntensities', updated);
+            }}
+          />
+        </div>
       </div>
     </div>
   );

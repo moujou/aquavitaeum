@@ -29,11 +29,11 @@ A personal tasting journal for whisky and fine spirits enthusiasts.
 ### Complete Tasting Records
 Document all essential details of each spirit: distillery, region, age, ABV, cask maturation, natural color, and personal ratings.
 
-### Interactive Flavor Radar & Finish
-Map out what you smell and taste using an 11-dimension flavor wheel. Compare aromas on the nose directly against flavors on the palate, and track the length and warmth of the finish.
+### Grand Sensory Profiling Suite (Astrolabe Radar & Sunburst Aroma Wheel)
+Map out what you smell and taste using a canonical 9-dimension sensory taxonomy. Seamlessly switch between the 9-Axis Astrolabe Radar Chart and the interactive Sunburst Aroma Wheel (Aromenrad) with instant multi-tier ring inspection. Compare aromas on the nose directly against flavors on the palate, adjust category-level intensity sliders, and trace finish curves over time.
 
 ### AI Label & Barcode Scanner
-Take a photo of a bottle label or scan its barcode. The built-in assistant automatically extracts details like distillery, ABV, and suggested flavor tags to help you create notes faster.
+Take a photo of a bottle label or scan its barcode. Powered by Google Gemini 3.5 & 3.7 Flash models with client-side BYOK security (header-authenticated, zero third-party tracking), the assistant automatically extracts details like distillery, ABV, and suggested flavor tags to help you create notes faster.
 
 ### Thematic Journals & Visual Layouts
 Organize your collection into custom journals (e.g. by region, distillery, or spirit type). Switch between a detailed card feed and a compact list view whenever you want.

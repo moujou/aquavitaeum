@@ -403,10 +403,13 @@ async function executeGeminiContentRequest(
 
   for (const model of GEMINI_MODEL_CANDIDATES) {
     try {
-      const url = `${GEMINI_BASE_URL}/${model}:generateContent?key=${apiKey}`;
+      const url = `${GEMINI_BASE_URL}/${model}:generateContent`;
       const response = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': apiKey,
+        },
         body: JSON.stringify(payload),
       });
 

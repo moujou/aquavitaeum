@@ -86,6 +86,14 @@ describe('AI Assistant Service (ai-assistant-service.ts)', () => {
       const result = await testAiAssistantConnection('AIzaValidKey');
       expect(result.success).toBe(true);
       expect(result.message).toContain('erfolgreich hergestellt');
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.not.stringContaining('?key='),
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            'x-goog-api-key': 'AIzaValidKey',
+          }),
+        })
+      );
     });
 
     it('returns invalid key error when status is 400 or 403', async () => {

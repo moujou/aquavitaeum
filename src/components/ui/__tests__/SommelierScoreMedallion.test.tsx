@@ -12,7 +12,7 @@ describe('SommelierScoreMedallion', () => {
       </LanguageProvider>
     );
     expect(screen.getByText('1')).toBeDefined();
-    expect(screen.getByText(/CASUAL|EINFACH/)).toBeDefined();
+    expect(screen.getByText(/FLAWED|MANGELHAFT/)).toBeDefined();
   });
 
   it('renders masterpiece medallion for score 95', () => {
@@ -32,7 +32,9 @@ describe('SommelierScoreMedallion', () => {
       { score: 87, badge: /EXCELLENT|AUSGEZEICHNET/ },
       { score: 82, badge: /VERY GOOD|SEHR GUT/ },
       { score: 75, badge: /GOOD|GUT/ },
-      { score: 65, badge: /CASUAL|SOLIDE|EINFACH/ },
+      { score: 65, badge: /SOLID|SOLIDE/ },
+      { score: 35, badge: /MEDIOCRE|MÄSSIG/ },
+      { score: 20, badge: /FLAWED|MANGELHAFT/ },
     ];
 
     testCases.forEach(({ score, badge }) => {
@@ -48,7 +50,7 @@ describe('SommelierScoreMedallion', () => {
   });
 
   it('verifies tier configuration ranges', () => {
-    expect(SCORE_TIERS_CONFIG).toHaveLength(5);
+    expect(SCORE_TIERS_CONFIG).toHaveLength(7);
     expect(SCORE_TIERS_CONFIG[0].min).toBe(90);
     expect(SCORE_TIERS_CONFIG[0].max).toBe(100);
   });

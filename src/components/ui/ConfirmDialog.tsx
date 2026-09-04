@@ -19,7 +19,7 @@ interface ConfirmDialogProps {
 export function ConfirmDialog({
   isOpen,
   title,
-  subtitle = 'This action cannot be undone.',
+  subtitle,
   message,
   confirmLabel = 'Yes, Delete',
   cancelLabel = 'Cancel',
@@ -43,10 +43,10 @@ export function ConfirmDialog({
         className="relative w-full max-w-md bg-[var(--parchment-bg)] border border-[var(--parchment-border)] rounded-2xl shadow-2xl overflow-hidden flex flex-col my-auto animate-fade-in"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* ── Signature Irish Clover Header Banner ── */}
+        {/* ── Dialog Header Banner ── */}
         <div className="flex items-center justify-between px-5 py-3.5 bg-gradient-to-r from-[var(--wood-dark)] to-[var(--wood-selection)] text-white border-b border-black/10 shadow-sm shrink-0">
           <div className="flex items-center gap-2.5 min-w-0 pr-2">
-            <span className="text-xl shrink-0 select-none text-amber-200" aria-hidden="true">☘️</span>
+            <AlertTriangle size={18} className="text-amber-300 shrink-0" aria-hidden="true" />
             <h3
               id="confirm-dialog-title"
               className="font-display font-bold text-base sm:text-lg tracking-wide text-white drop-shadow-xs truncate"
@@ -68,8 +68,8 @@ export function ConfirmDialog({
         {/* ── Modal Body Content on Warm Parchment ── */}
         <div className="p-5 sm:p-6 flex flex-col gap-4">
           {subtitle && (
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-amber-800 dark:text-amber-300 bg-amber-500/10 border border-amber-500/25 px-3 py-1.5 rounded-lg shadow-2xs">
-              <AlertTriangle size={14} className="shrink-0 text-amber-600 dark:text-amber-400" />
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-950 bg-amber-500/15 border border-amber-600/30 px-3 py-1.5 rounded-lg shadow-2xs">
+              <AlertTriangle size={14} className="shrink-0 text-amber-900" />
               <span>{subtitle}</span>
             </div>
           )}

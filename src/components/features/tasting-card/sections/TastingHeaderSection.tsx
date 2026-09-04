@@ -58,8 +58,8 @@ export function TastingHeaderSection({
   };
 
   return (
-    <div className="relative bg-[var(--wood-dark)] text-center py-5 px-6 border-b border-[var(--wood-dark)]/80 flex flex-col items-center justify-center gap-1.5 shadow-[inset_0_-10px_20px_-10px_rgba(0,0,0,0.25)]">
-      {/* Top Right Page Action Menu with radiant gold on dark banner */}
+    <div className="relative bg-[var(--wood-dark)] text-center py-4 sm:py-5 px-12 sm:px-16 border-b border-[var(--wood-dark)]/80 flex flex-col items-center justify-center gap-1.5 sm:gap-2 shadow-[inset_0_-10px_20px_-10px_rgba(0,0,0,0.25)]">
+      {/* Top Right Dedicated Action Menu Slot */}
       <div className="absolute top-3 right-3 sm:top-3.5 sm:right-4 z-20">
         <PageActionsDropdown
           variant="on-dark-banner"
@@ -109,18 +109,18 @@ export function TastingHeaderSection({
         />
       </div>
 
-      {/* Spirit Type Badge */}
-      <span className="font-display text-xs sm:text-sm font-bold uppercase tracking-[0.25em] text-[var(--brass-light)] max-w-[calc(100%-64px)] truncate">
+      {/* Spirit Type Badge (Own dedicated line) */}
+      <span className="font-display text-xs sm:text-sm font-bold uppercase tracking-[0.20em] sm:tracking-[0.25em] text-[var(--brass-light)]">
         {spirit.spiritType}
       </span>
 
-      {/* Big Spirit Name */}
-      <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold tracking-wide sm:tracking-widest text-[var(--parchment-bg)] uppercase leading-tight max-w-[calc(100%-64px)] sm:max-w-[calc(100%-90px)] mx-auto break-words">
+      {/* Big Spirit Name - Full Width with generous breathing room */}
+      <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold tracking-wide sm:tracking-widest text-[var(--parchment-bg)] uppercase leading-tight w-full max-w-4xl mx-auto break-words px-1">
         {displayName}
       </h1>
 
       {/* Subtitle (Hersteller & Herkunft) with Crystal Clear Legibility & Radiant Gold Luster */}
-      <p className="font-display text-xs sm:text-sm uppercase tracking-[0.20em] sm:tracking-[0.22em] text-[var(--brass-light)] font-semibold max-w-[calc(100%-64px)] sm:max-w-[calc(100%-90px)] mx-auto break-words">
+      <p className="font-display text-xs sm:text-sm uppercase tracking-[0.16em] sm:tracking-[0.20em] text-[var(--brass-light)] font-semibold w-full max-w-3xl mx-auto break-words px-1">
         {subtitleLocation}
       </p>
 

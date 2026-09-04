@@ -452,12 +452,12 @@ export default function Home() {
           )
         ) : (
           /* activeView === 'journal-detail' */
-          <div className="flex flex-1 overflow-hidden relative animate-fade-in">
+          <div className="flex flex-1 overflow-hidden relative flex-col animate-fade-in">
             {/* Main Wrapper: Holds scrollable card and floating buttons */}
             <div className="flex-1 h-full relative overflow-hidden flex flex-col">
-              <section
-                id="tasting-card-section"
-                className="flex-1 h-full overflow-y-auto overflow-x-hidden px-3 pt-18 pb-16 sm:px-6 sm:pt-22 sm:pb-18 lg:pt-8 lg:pb-8 flex justify-center items-start"
+              <div
+                id="tasting-card-scroll"
+                className="flex-1 overflow-y-auto bg-[var(--pub-bg)] max-lg:pt-[calc(4.5rem+env(safe-area-inset-top,0px))] lg:pt-0 pb-20 lg:pb-0"
               >
                 {isLoadingSpirits ? (
                   <div className="flex flex-col items-center justify-center text-center p-6 select-none animate-pulse">
@@ -471,7 +471,7 @@ export default function Home() {
                 ) : spirits.length === 0 ? (
                   <NoteEmptyState onNewNote={handleNewNote} />
                 ) : (
-                  <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 self-start">
+                  <div className="flex-1 w-full max-w-6xl mx-auto px-3 sm:px-6 pt-4 sm:pt-8 pb-8 animate-fade-in">
                     <ErrorBoundary>
                       <TastingCard
                         key={activeSpirit.id}
@@ -482,7 +482,7 @@ export default function Home() {
                     </ErrorBoundary>
                   </div>
                 )}
-              </section>
+              </div>
 
               {/* Content-Aligned Desktop Action Layer (Detail) */}
               {(() => {

@@ -40,9 +40,9 @@ export function TastingFinishSection({
           rows={3}
           placeholder={t('finishNotesPlaceholder')}
           className={cn(
-            'w-full bg-transparent border border-[var(--parchment-border)] rounded-sm p-4',
+            'w-full bg-transparent border border-[var(--parchment-border)] rounded-lg p-3.5 sm:p-4',
             'text-sm sm:text-base text-[var(--sepia-text)] font-body placeholder:text-[var(--parchment-border)] leading-relaxed',
-            'focus:outline-none focus:border-[var(--sepia-muted)] resize-none transition-colors duration-200',
+            'focus:outline-none focus:border-[var(--sepia-muted)] resize-none transition-colors duration-200 shadow-2xs',
           )}
         />
       </div>
