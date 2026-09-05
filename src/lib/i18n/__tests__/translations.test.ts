@@ -97,8 +97,8 @@ describe('i18n Translation Dictionary', () => {
   });
 
   it('translates radar dimensions accurately', () => {
-    expect(translateRadarDimension('Peaty', 'DE')).toBe('Torfbetont');
-    expect(translateRadarDimension('Woody', 'DE')).toBe('Holzig');
-    expect(translateRadarDimension('Fruity', 'DE')).toBe('Fruchtig');
+    expect(translateRadarDimension('Peaty', 'DE')).toBe('Torf & Rauch');
+    expect(translateRadarDimension('Woody', 'DE')).toBe('Eichenholz & Fass');
+    expect(translateRadarDimension('Fruity', 'DE')).toBe('Frisch & Fruchtig');
   });
 });

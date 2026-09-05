@@ -77,13 +77,34 @@ export const SPIRIT_FLAVOR_TAXONOMY: FlavorCategory[] = [
     ],
   },
 
-  // ─── 2. FEINTY, WAXY & LEATHER (Wachsig & Leder) ──────────────────────────
+  // ─── 2. LEATHER, MEATY & FEINTY (Leder, Fleischig & Wachs) ───────────────
   {
     id: 'feinty',
-    name: { EN: 'Feinty & Waxy', DE: 'Wachsig & Leder' },
+    name: { EN: 'Leather, Meaty & Feinty', DE: 'Leder, Fleischig & Wachs' },
     emoji: '🐂',
     radarDimension: 'feinty',
     subcategories: [
+      {
+        id: 'leder_tabak',
+        name: { EN: 'Leather & Tobacco', DE: 'Leder & Tabak' },
+        descriptors: [
+          { id: 'leather', name: { EN: 'Leather', DE: 'Leder' }, radarDimension: 'feinty', color: '#634026', aliases: ['Leather', 'Leder', 'Sattelleder'] },
+          { id: 'nasses_leder', name: { EN: 'Wet Leather', DE: 'Nasses Leder' }, radarDimension: 'feinty', color: '#57371F', aliases: ['Wet Leather', 'Nasses Leder'] },
+          { id: 'pfeifentabak', name: { EN: 'Pipe Tobacco', DE: 'Pfeifentabak' }, radarDimension: 'feinty', color: '#784D28', aliases: ['Pipe Tobacco', 'Pfeifentabak', 'Tabak'] },
+          { id: 'tabakblaetter', name: { EN: 'Tobacco Leaves', DE: 'Tabakblätter' }, radarDimension: 'feinty', color: '#705335', aliases: ['Tobacco', 'Tabak', 'Tabakblätter'] },
+          { id: 'zigarrenkiste', name: { EN: 'Cigar Box', DE: 'Zigarrenkiste' }, radarDimension: 'feinty', color: '#6E4D2C', aliases: ['Cigar Box', 'Zigarrenkiste'] },
+          { id: 'altes_buch', name: { EN: 'Old Parchment', DE: 'Altes Pergament' }, radarDimension: 'feinty', color: '#735738', aliases: ['Old Book', 'Library', 'Bibliothek', 'Pergament', 'Altes Pergament'] },
+        ],
+      },
+      {
+        id: 'fleischig_herzhaft',
+        name: { EN: 'Savory & Meaty', DE: 'Fleischig & Herzhaft' },
+        descriptors: [
+          { id: 'fleischig', name: { EN: 'Meaty / Gravy', DE: 'Fleischig' }, radarDimension: 'feinty', color: '#823B33', aliases: ['Meaty', 'Gravy', 'Bratensauce', 'Fleischig', 'Braten'] },
+          { id: 'speck', name: { EN: 'Smoked Bacon', DE: 'Geräucherter Speck' }, radarDimension: 'feinty', color: '#8F382E', aliases: ['Bacon', 'Speck', 'Geräucherter Speck', 'Bauchspeck'] },
+          { id: 'hefeextrakt', name: { EN: 'Yeast / Umami', DE: 'Hefe & Umami' }, radarDimension: 'feinty', color: '#8F7B56', aliases: ['Yeast', 'Umami', 'Hefeextrakt', 'Brühe', 'Rinderbrühe'] },
+        ],
+      },
       {
         id: 'wachsig_fettig',
         name: { EN: 'Waxy & Rich', DE: 'Wachs & Mundgefühl' },
@@ -95,18 +116,6 @@ export const SPIRIT_FLAVOR_TAXONOMY: FlavorCategory[] = [
           { id: 'fettig', name: { EN: 'Oily Texture', DE: 'Ölig' }, radarDimension: 'feinty', color: '#A89244', aliases: ['Fatty', 'Fettig', 'Oily', 'Ölig', 'Ölige Schwere'] },
           { id: 'lanolin', name: { EN: 'Lanolin / Wool', DE: 'Lanolin / Wolle' }, radarDimension: 'feinty', color: '#9E884F', aliases: ['Lanolin', 'Wolle', 'Wollwachs'] },
           { id: 'olivenoel', name: { EN: 'Olive Oil', DE: 'Olivenöl' }, radarDimension: 'feinty', color: '#7E7D3A', aliases: ['Olive Oil', 'Olivenöl', 'Öl'] },
-        ],
-      },
-      {
-        id: 'leder_tabak',
-        name: { EN: 'Leather & Tobacco', DE: 'Leder & Tabak' },
-        descriptors: [
-          { id: 'leather', name: { EN: 'Leather', DE: 'Leder' }, radarDimension: 'feinty', color: '#634026', aliases: ['Leather', 'Leder', 'Sattelleder'] },
-          { id: 'nasses_leder', name: { EN: 'Wet Leather', DE: 'Nasses Leder' }, radarDimension: 'feinty', color: '#57371F', aliases: ['Wet Leather', 'Nasses Leder'] },
-          { id: 'pfeifentabak', name: { EN: 'Pipe Tobacco', DE: 'Pfeifentabak' }, radarDimension: 'feinty', color: '#784D28', aliases: ['Pipe Tobacco', 'Pfeifentabak', 'Tabak'] },
-          { id: 'tabakblaetter', name: { EN: 'Tobacco Leaves', DE: 'Tabakblätter' }, radarDimension: 'feinty', color: '#705335', aliases: ['Tobacco', 'Tabak', 'Tabakblätter'] },
-          { id: 'zigarrenkiste', name: { EN: 'Cigar Box', DE: 'Zigarrenkiste' }, radarDimension: 'feinty', color: '#6E4D2C', aliases: ['Cigar Box', 'Zigarrenkiste'] },
-          { id: 'altes_buch', name: { EN: 'Old Parchment', DE: 'Altes Pergament' }, radarDimension: 'feinty', color: '#735738', aliases: ['Old Book', 'Library', 'Bibliothek', 'Pergament', 'Altes Pergament'] },
         ],
       },
     ],
@@ -126,17 +135,18 @@ export const SPIRIT_FLAVOR_TAXONOMY: FlavorCategory[] = [
           { id: 'sea_salt', name: { EN: 'Sea Salt', DE: 'Meersalz' }, radarDimension: 'sulphury', color: '#2B788B', aliases: ['Sea Salt', 'Meersalz', 'Salz', 'Fleur de Sel', 'Meersalzkristalle'] },
           { id: 'meeresbrise', name: { EN: 'Sea Breeze', DE: 'Meeresbrise' }, radarDimension: 'sulphury', color: '#2C889E', aliases: ['Sea Spray', 'Meeresbrise', 'Gischt', 'Sea Breeze'] },
           { id: 'seegras', name: { EN: 'Seaweed', DE: 'Seetang & Algen' }, radarDimension: 'sulphury', color: '#246D5E', aliases: ['Seaweed', 'Kelp', 'Seegras', 'Seetang', 'Tang', 'Algen', 'Meeresalgen'] },
-          { id: 'austernschale', name: { EN: 'Oyster Shell', DE: 'Austernschale' }, radarDimension: 'sulphury', color: '#3E7D8A', aliases: ['Oyster Shell', 'Kiesel', 'Austernschale'] },
+          { id: 'austernschale', name: { EN: 'Oyster Shell', DE: 'Austernschale' }, radarDimension: 'sulphury', color: '#3E7D8A', aliases: ['Oyster Shell', 'Austernschale'] },
           { id: 'salzkruste', name: { EN: 'Salt Crust', DE: 'Salzkruste' }, radarDimension: 'sulphury', color: '#4B8896', aliases: ['Salt Crust', 'Salzkruste'] },
         ],
       },
       {
-        id: 'herzhaft_fleischig',
-        name: { EN: 'Savory & Meaty', DE: 'Herzhaft & Fleischig' },
+        id: 'mineralisch',
+        name: { EN: 'Mineral & Earth', DE: 'Mineralisch & Gestein' },
         descriptors: [
-          { id: 'fleischig', name: { EN: 'Meaty / Gravy', DE: 'Fleischig' }, radarDimension: 'sulphury', color: '#823B33', aliases: ['Meaty', 'Gravy', 'Bratensauce', 'Fleischig'] },
-          { id: 'speck', name: { EN: 'Bacon', DE: 'Speck' }, radarDimension: 'sulphury', color: '#8F382E', aliases: ['Bacon', 'Speck', 'Geräucherter Speck'] },
-          { id: 'hefeextrakt', name: { EN: 'Yeast / Umami', DE: 'Hefe & Umami' }, radarDimension: 'sulphury', color: '#8F7B56', aliases: ['Yeast', 'Umami', 'Hefeextrakt'] },
+          { id: 'feuerstein', name: { EN: 'Flint', DE: 'Feuerstein' }, radarDimension: 'sulphury', color: '#4A6270', aliases: ['Flint', 'Feuerstein', 'Kiesel', 'Kieselstein'] },
+          { id: 'schiefer', name: { EN: 'Slate', DE: 'Schiefer' }, radarDimension: 'sulphury', color: '#3B4D57', aliases: ['Slate', 'Schiefer', 'Gestein'] },
+          { id: 'feuchte_erde', name: { EN: 'Damp Earth / Petrichor', DE: 'Feuchte Erde / Petrichor' }, radarDimension: 'sulphury', color: '#594A3D', aliases: ['Damp Earth', 'Earth', 'Erde', 'Petrichor', 'Feuchte Erde'] },
+          { id: 'kreide', name: { EN: 'Chalk & Limestone', DE: 'Kreide & Kalkstein' }, radarDimension: 'sulphury', color: '#6E7D85', aliases: ['Chalk', 'Kreide', 'Kalkstein', 'Limestone'] },
         ],
       },
     ],
@@ -537,6 +547,8 @@ export function getDescriptorsByCategory(categoryId: string): FlavorDescriptor[]
   return category.subcategories.flatMap((sub) => sub.descriptors);
 }
 
+export const getDescriptorsByCategoryId = getDescriptorsByCategory;
+
 export function getDescriptorsByRadarDimension(
   dimension: keyof FlavorProfile,
   customFlavors?: CustomFlavorDescriptor[]
@@ -583,6 +595,20 @@ export function getFlavorColor(tagName: string, customFlavors?: CustomFlavorDesc
   }
   const h = Math.abs(hash) % 360;
   return `hsl(${h}, 65%, 45%)`;
+}
+
+export function getCategoryByDescriptorId(
+  tagNameOrId: string,
+  customFlavors?: CustomFlavorDescriptor[]
+): FlavorCategory | undefined {
+  const desc = findFlavorDescriptor(tagNameOrId, customFlavors);
+  if (!desc) return undefined;
+
+  return SPIRIT_FLAVOR_TAXONOMY.find((cat) =>
+    cat.subcategories.some((sub) =>
+      sub.descriptors.some((d) => d.id === desc.id)
+    )
+  );
 }
 
 export interface ActiveFlavorCategory {

@@ -189,9 +189,9 @@ export function FlavorTagSelector({
               setDrawerSensoryMode('nose');
               setIsDrawerOpen(true);
             }}
-            className="px-3.5 py-1.5 rounded-lg bg-[var(--wood-selection)] text-white text-xs font-display font-bold uppercase tracking-wider shadow-xs hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-1.5 cursor-pointer h-[34px]"
+            className="px-3 py-1.5 rounded-lg border border-[var(--parchment-border)] bg-[var(--parchment-bg-alt)]/60 text-[var(--foreground)] hover:bg-[var(--parchment-bg-alt)] text-xs font-display font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer h-[34px]"
           >
-            <BookOpen size={15} className="text-amber-200" />
+            <BookOpen size={14} className="text-[var(--wood-selection)]" />
             <span>{t('openSensoryDrawer')}</span>
           </button>
 
@@ -209,10 +209,10 @@ export function FlavorTagSelector({
         </div>
       </div>
 
-      {/* ── Vertical Stack: Nose Section (Top) & Taste Section (Bottom) ──────── */}
-      <div className="flex flex-col gap-4 w-full">
+      {/* ── 2-Column Responsive Grid: Nose Section (Left on lg) & Taste Section (Right on lg) ──────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 w-full items-start">
         {/* ── SECTION 1: NOSE SECTION (Warm Amber Accent) ───────────────────── */}
-        <div className="p-4 rounded-xl bg-[var(--parchment-bg-alt)]/40 border border-[var(--parchment-border)] flex flex-col gap-3 shadow-2xs">
+        <div className="p-4 rounded-xl bg-[var(--parchment-bg)] border border-[var(--parchment-border)] flex flex-col gap-3 shadow-2xs">
           {/* Header Title with Sensory Dot Indicator */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -250,7 +250,7 @@ export function FlavorTagSelector({
             placeholder={t('searchNosePlaceholder')}
           />
 
-          {/* Active Nose Flavor Badges in Full Category Color */}
+          {/* Active Nose Flavor Badges in Subtle Parchment Sommelier Tint */}
           <div className="min-h-[48px] flex flex-wrap gap-1.5 items-start content-start pt-1">
             {activeNoseTags.length > 0 ? (
               activeNoseTags.map((tag) => {
@@ -269,15 +269,26 @@ export function FlavorTagSelector({
                 return (
                   <div
                     key={tag}
-                    className="px-3 py-1.5 rounded-full text-white text-xs sm:text-[13px] font-body font-bold flex items-center gap-1.5 shadow-xs select-none animate-fade-in transition-transform hover:scale-[1.02]"
-                    style={{ backgroundColor: chipColor }}
+                    className="px-2.5 py-1 sm:py-1.5 rounded-full text-xs sm:text-[13px] font-body font-semibold text-[var(--foreground)] flex items-center gap-1.5 border shadow-2xs select-none animate-fade-in transition-all hover:scale-[1.02] hover:shadow-xs group"
+                    style={{
+                      backgroundColor: `${chipColor}1A`, // ~10% translucent parchment tint
+                      borderColor: `${chipColor}4D`, // ~30% soft border
+                    }}
                   >
-                    {emoji && <span className="text-sm">{emoji}</span>}
-                    <span>{translateFlavorTag(tag, language)}</span>
+                    {/* Jewel Bead / Emoji Indicator */}
+                    {emoji ? (
+                      <span className="text-sm shrink-0">{emoji}</span>
+                    ) : (
+                      <span
+                        className="w-2.5 h-2.5 rounded-full shrink-0 shadow-2xs ring-1 ring-black/10"
+                        style={{ backgroundColor: chipColor }}
+                      />
+                    )}
+                    <span className="leading-tight">{translateFlavorTag(tag, language)}</span>
                     <button
                       type="button"
                       onClick={() => handleToggleNoseTag(tag)}
-                      className="ml-0.5 w-4 h-4 rounded-full bg-black/20 hover:bg-black/40 text-white flex items-center justify-center text-[11px] font-bold cursor-pointer transition-colors"
+                      className="ml-0.5 w-4 h-4 rounded-full bg-black/5 dark:bg-white/10 hover:bg-red-500 hover:text-white text-[var(--sepia-muted)] flex items-center justify-center text-[12px] font-bold cursor-pointer transition-colors"
                       title="Remove aroma"
                       aria-label="Remove aroma"
                     >
@@ -296,7 +307,7 @@ export function FlavorTagSelector({
 
         {/* ── SECTION 2: TASTE / PALATE SECTION (Maritime Teal Accent) ──────── */}
         {!isLegacyMode && (
-          <div className="p-4 rounded-xl bg-[var(--parchment-bg-alt)]/40 border border-[var(--parchment-border)] flex flex-col gap-3 shadow-2xs">
+          <div className="p-4 rounded-xl bg-[var(--parchment-bg)] border border-[var(--parchment-border)] flex flex-col gap-3 shadow-2xs">
             {/* Header Title with Sensory Dot Indicator */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -331,7 +342,7 @@ export function FlavorTagSelector({
               placeholder={t('searchTastePlaceholder')}
             />
 
-            {/* Active Taste Flavor Badges in Full Category Color */}
+            {/* Active Taste Flavor Badges in Subtle Parchment Sommelier Tint */}
             <div className="min-h-[48px] flex flex-wrap gap-1.5 items-start content-start pt-1">
               {activeTasteTags.length > 0 ? (
                 activeTasteTags.map((tag) => {
@@ -350,15 +361,26 @@ export function FlavorTagSelector({
                   return (
                     <div
                       key={tag}
-                      className="px-3 py-1.5 rounded-full text-white text-xs sm:text-[13px] font-body font-bold flex items-center gap-1.5 shadow-xs select-none animate-fade-in transition-transform hover:scale-[1.02]"
-                      style={{ backgroundColor: chipColor }}
+                      className="px-2.5 py-1 sm:py-1.5 rounded-full text-xs sm:text-[13px] font-body font-semibold text-[var(--foreground)] flex items-center gap-1.5 border shadow-2xs select-none animate-fade-in transition-all hover:scale-[1.02] hover:shadow-xs group"
+                      style={{
+                        backgroundColor: `${chipColor}1A`, // ~10% translucent parchment tint
+                        borderColor: `${chipColor}4D`, // ~30% soft border
+                      }}
                     >
-                      {emoji && <span className="text-sm">{emoji}</span>}
-                      <span>{translateFlavorTag(tag, language)}</span>
+                      {/* Jewel Bead / Emoji Indicator */}
+                      {emoji ? (
+                        <span className="text-sm shrink-0">{emoji}</span>
+                      ) : (
+                        <span
+                          className="w-2.5 h-2.5 rounded-full shrink-0 shadow-2xs ring-1 ring-black/10"
+                          style={{ backgroundColor: chipColor }}
+                        />
+                      )}
+                      <span className="leading-tight">{translateFlavorTag(tag, language)}</span>
                       <button
                         type="button"
                         onClick={() => handleToggleTasteTag(tag)}
-                        className="ml-0.5 w-4 h-4 rounded-full bg-black/20 hover:bg-black/40 text-white flex items-center justify-center text-[11px] font-bold cursor-pointer transition-colors"
+                        className="ml-0.5 w-4 h-4 rounded-full bg-black/5 dark:bg-white/10 hover:bg-red-500 hover:text-white text-[var(--sepia-muted)] flex items-center justify-center text-[12px] font-bold cursor-pointer transition-colors"
                         title="Remove aroma"
                         aria-label="Remove aroma"
                       >

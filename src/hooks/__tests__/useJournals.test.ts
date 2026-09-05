@@ -120,6 +120,19 @@ describe('useJournals Hook', () => {
     expect(defaultComp?.bottleCount).toBe(2);
     expect(defaultComp?.averageRating).toBe(85); // (90 + 80) / 2 = 85
     expect(defaultComp?.latestTastedDate).toBe('2026-08-03');
+    expect(defaultComp?.latestSpiritName).toBe('Makers Mark');
+    expect(defaultComp?.recentSpirits?.length).toBe(2);
+    expect(defaultComp?.recentSpirits?.[0].name).toBe('Makers Mark');
+    expect(defaultComp?.topScore).toBe(90);
+    expect(defaultComp?.topDram?.name).toBe('10');
+    expect(defaultComp?.topDram?.rating).toBe(90);
+    expect(defaultComp?.topDrams?.length).toBe(2);
+    expect(defaultComp?.topDrams?.[0].name).toBe('10');
+    expect(defaultComp?.topDrams?.[1].name).toBe('Mark');
+    expect(defaultComp?.distilleriesSummary).toBe('Laphroaig · Makers');
+    expect(defaultComp?.distilleryCount).toBe(2);
+    expect(defaultComp?.regionsSummary).toBe('Islay · Kentucky');
+    expect(defaultComp?.regionCount).toBe(2);
 
     // Summer Whiskys stats (empty)
     const summerWhiskys = result.current.journals.find((j) => j.id === 'journal-1');
@@ -127,6 +140,13 @@ describe('useJournals Hook', () => {
     expect(summerWhiskys?.bottleCount).toBe(0);
     expect(summerWhiskys?.averageRating).toBe(0);
     expect(summerWhiskys?.latestTastedDate).toBeNull();
+    expect(summerWhiskys?.latestSpiritName).toBeNull();
+    expect(summerWhiskys?.recentSpirits?.length).toBe(0);
+    expect(summerWhiskys?.topScore).toBe(0);
+    expect(summerWhiskys?.distilleryCount).toBe(0);
+    expect(summerWhiskys?.regionCount).toBe(0);
+    expect(summerWhiskys?.topDram).toBeNull();
+    expect(summerWhiskys?.topDrams?.length).toBe(0);
   });
 
   it('creates a new journal successfully', async () => {

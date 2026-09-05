@@ -85,4 +85,26 @@ describe('FinishTimeIntensityDiagram Component', () => {
     expect(peatColor).toBe('#655A52'); // Peat Smoke human-instinctive smoky grey-brown
     expect(appleColor).toBe('#3E8E41'); // Green Apple human-instinctive crisp green
   });
+
+  it('collapses long lists of lingering notes and expands on clicking + X more', () => {
+    const manyTags = ['Tag1', 'Tag2', 'Tag3', 'Tag4', 'Tag5', 'Tag6', 'Tag7', 'Tag8', 'Tag9', 'Tag10'];
+
+    render(
+      <LanguageProvider>
+        <FinishTimeIntensityDiagram
+          noseFlavorTags={manyTags.slice(0, 5)}
+          tasteFlavorTags={manyTags.slice(5)}
+        />
+      </LanguageProvider>
+    );
+
+    // Should show + 4 more...
+    const expandBtn = screen.getByRole('button', { name: /\+ 4/i });
+    expect(expandBtn).toBeDefined();
+
+    // Click expand
+    fireEvent.click(expandBtn);
+    expect(screen.getByRole('button', { name: /Tag10/i })).toBeDefined();
+    expect(screen.getByRole('button', { name: /Show less|Weniger/i })).toBeDefined();
+  });
 });

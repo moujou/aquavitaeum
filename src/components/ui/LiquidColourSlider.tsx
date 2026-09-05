@@ -161,12 +161,17 @@ export function LiquidColourSlider({
           className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 pointer-events-none transition-all duration-75 ease-out"
           style={{ left: `${percentage}%` }}
         >
-          {/* Floating Live Droplet Tooltip */}
+          {/* Floating Live Droplet Tooltip (Parchment badge styling matching app theme) */}
           {isDragging && (
             <div
-              className="absolute -top-7 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-md bg-[var(--wood-dark)] text-[var(--parchment-bg)] text-[10px] font-display font-bold uppercase tracking-wider whitespace-nowrap shadow-md border border-[var(--brass-accent)]/40 animate-fade-in pointer-events-none"
+              style={{ transform: `translateX(-${percentage}%)` }}
+              className="absolute -top-7 left-1/2 px-2 py-0.5 rounded-md bg-[var(--parchment-bg)] border border-[var(--parchment-border)] text-[var(--sepia-text)] text-[10.5px] font-display font-bold uppercase tracking-wider whitespace-nowrap shadow-[0_4px_16px_rgba(43,30,20,0.22)] animate-fade-in pointer-events-none flex items-center gap-1.5"
             >
-              {translateColour(activeColour, language)}
+              <span
+                className="w-2.5 h-2.5 rounded-full border border-black/20 shrink-0"
+                style={{ backgroundColor: activeHex }}
+              />
+              <span>{translateColour(activeColour, language)}</span>
             </div>
           )}
 

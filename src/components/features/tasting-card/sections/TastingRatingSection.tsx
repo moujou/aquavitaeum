@@ -46,10 +46,10 @@ export function TastingRatingSection({
       </div>
 
       {/* Main Unified Rating & Recommendations Card */}
-      <div className="bg-[var(--parchment-bg-alt)]/70 p-4 sm:p-6 rounded-2xl border border-[var(--parchment-border)] shadow-xs flex flex-col lg:flex-row items-center lg:items-stretch justify-between gap-5 lg:gap-8">
+      <div className="bg-[var(--parchment-bg)] p-4 sm:p-6 rounded-xl border border-[var(--parchment-border)] shadow-xs flex flex-col lg:flex-row items-center lg:items-stretch justify-between gap-5 lg:gap-8">
         
-        {/* Mobile/Tablet: Centered Hero Sommelier Seal (160px–192px Majestic Cask Stamp) */}
-        <div className="flex lg:hidden items-center justify-center pt-1 pb-1">
+        {/* Mobile/Tablet: Centered Hero Sommelier Seal */}
+        <div className="flex lg:hidden items-center justify-center pt-2 pb-2">
           <SommelierScoreMedallion score={currentScore} size="lg" />
         </div>
 

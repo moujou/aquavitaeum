@@ -13,6 +13,7 @@ interface SommelierScoreSliderProps {
 }
 
 const SCORE_MILESTONES = [
+  { value: 30, label: '30', mobileVisible: false },
   { value: 50, label: '50', mobileVisible: true },
   { value: 60, label: '60', mobileVisible: false },
   { value: 70, label: '70', mobileVisible: false },
@@ -152,13 +153,17 @@ export function SommelierScoreSlider({
           className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 pointer-events-none transition-all duration-75"
           style={{ left: `${percentage}%` }}
         >
-          {/* Floating Score Tooltip (High contrast on mobile so finger doesn't block score) */}
+          {/* Floating Score Tooltip (Parchment badge styling matching app theme) */}
           {isDraggingState && (
             <div
-              className="absolute -top-9 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-[var(--wood-dark)] text-white text-xs font-display font-black tracking-wider shadow-lg border border-[var(--brass-accent)] animate-fade-in whitespace-nowrap flex items-center gap-1.5 z-30"
+              style={{ transform: `translateX(-${percentage}%)` }}
+              className="absolute -top-9 left-1/2 px-2.5 py-0.5 rounded-full bg-[var(--parchment-bg)] border border-[var(--parchment-border)] text-[var(--sepia-text)] text-xs font-display font-black tracking-wider shadow-[0_4px_16px_rgba(43,30,20,0.22)] animate-fade-in whitespace-nowrap flex items-center gap-1.5 z-30"
             >
-              <span>{safeScore}</span>
-              <span className="text-[9.5px] text-[var(--brass-light)] font-bold uppercase">
+              <span className="font-black text-[var(--sepia-text)]">{safeScore}</span>
+              <span
+                className="text-[9.5px] font-bold uppercase"
+                style={{ color: tier?.colorHex || 'var(--brass-accent)' }}
+              >
                 {language === 'DE' ? tier.badgeDe : tier.badgeEn}
               </span>
             </div>

@@ -191,6 +191,17 @@ Used for all text inputs, textareas, and select elements on the parchment ledger
 - **Crystal Wall Inset**: Scale factor `0.905` creating an authentic ~8px optical light gap between amber liquid and ivory glass contours.
 - **Pure Vector Compliance**: 100% comment-free XML markup with explicit `width="512" height="512"` and standard XML prolog.
 
+### 5.11 Tactile Sommelier Journal Ledger Card (`JournalsOverview`)
+- **Top Header Banner**: Deep Pub Wood (`bg-[var(--wood-dark)]`) with Playfair Display title in ivory (`text-[var(--parchment-bg)]`) and optional journal subtitle description.
+- **100% Full-Bleed Cover Canvas**: Left page displays cover artwork seamlessly edge-to-edge (`object-cover`, no border/padding) with fallback tasting book seal for empty states.
+- **Right Manuscript Ledger**:
+  - *Recent Tastings Log*: Up to 3 most recently tasted drams with warm brass `Clock` (`🕒`) icon and always-visible right-aligned tabular date (`shrink-0 tabular-nums`).
+  - *Top-3 Bestenliste*: Gold 🥇, Silver 🥈, and Bronze 🥉 score medallions (`rating100`).
+- **Grounded 3-Column Footer**:
+  - `📄 Notizen`: Total bottle count.
+  - `⭐ Ø Score`: Average rating across all drams in the journal.
+  - `🧭 Regionen`: Count of unique terroir regions represented in the journal.
+
 ---
 
 ## 🍷 6. Instinctive Sensory Flavor Palette (SWRI Taxonomy)

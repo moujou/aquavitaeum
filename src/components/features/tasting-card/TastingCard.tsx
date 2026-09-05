@@ -40,7 +40,7 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
   const [isHeaderScanModalOpen, setIsHeaderScanModalOpen] = useState(false);
 
   return (
-    <div className={cn('parchment rounded-lg overflow-hidden animate-fade-in', className)}>
+    <div className={cn('parchment rounded-xl overflow-hidden animate-fade-in shadow-md', className)}>
       
       {/* Section 1: Dynamic Banner Header with Gear Page Actions Dropdown */}
       <TastingHeaderSection
@@ -53,10 +53,10 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
         t={t}
       />
 
-      <div className="p-6 flex flex-col gap-6">
+      <div className="p-4 sm:p-6 flex flex-col gap-6 sm:gap-8">
 
-        {/* Mobile-Only Spirit Photos Section (< lg screens) */}
-        <div className="flex lg:hidden flex-col gap-2 border-b border-[var(--parchment-border)]/60 pb-5">
+        {/* Section 1: Spirit Photos Carousel (Unified Desktop & Mobile) */}
+        <div className="flex flex-col gap-2 border-b border-[var(--parchment-border)]/60 pb-5 sm:pb-6">
           <SectionHeader>{t('spiritPhotos')}</SectionHeader>
           <SpiritPhotoCarousel
             images={spirit.images}
@@ -67,29 +67,24 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
           />
         </div>
 
-        {/* Top 2-Column Section: Left Metadata & Right Flavor Visuals */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          
-          {/* Left Column: Metadata Section */}
-          <div className="lg:col-span-6 border-b lg:border-b-0 lg:border-r border-[var(--parchment-border)]/60 pb-6 lg:pb-0 lg:pr-6">
-            <TastingMetadataSection
-              spirit={spirit}
-              update={update}
-              language={language}
-              t={t}
-            />
-          </div>
+        {/* Section 2: Specifications & Metadata Section */}
+        <div className="border-b border-[var(--parchment-border)]/60 pb-6 sm:pb-7">
+          <TastingMetadataSection
+            spirit={spirit}
+            update={update}
+            language={language}
+            t={t}
+          />
+        </div>
 
-          {/* Right Column: Flavor Visuals & Sliders Section */}
-          <div className="lg:col-span-6">
-            <TastingFlavorSection
-              spirit={spirit}
-              update={update}
-              onAnalyzeSpirit={applyScanResult}
-              t={t}
-            />
-          </div>
-
+        {/* Section 3: Dedicated Full-Width Sensory Suite (Tags | Visualizer | Sliders) */}
+        <div className="border-b border-[var(--parchment-border)]/60 pb-6 sm:pb-7">
+          <TastingFlavorSection
+            spirit={spirit}
+            update={update}
+            onAnalyzeSpirit={applyScanResult}
+            t={t}
+          />
         </div>
 
         {/* Full-Width Section 4: Interactive Finish & Notes */}

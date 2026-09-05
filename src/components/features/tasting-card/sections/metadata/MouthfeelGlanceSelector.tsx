@@ -75,10 +75,10 @@ export function MouthfeelGlanceSelector({
               type="button"
               onClick={() => handleToggle(g)}
               className={cn(
-                'px-2.5 py-1 rounded-full border text-xs sm:text-[13px] font-body font-semibold transition-all duration-200 cursor-pointer flex items-center gap-1 min-h-[30px]',
+                'px-3 py-1.5 rounded-full border text-xs sm:text-sm font-body font-semibold transition-all duration-200 cursor-pointer flex items-center gap-1 min-h-[32px]',
                 isActive
                   ? 'bg-[var(--wood-selection)] border-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs'
-                  : 'border-[var(--parchment-border)]/60 bg-[var(--sepia-text)]/5 text-[var(--sepia-muted)] hover:bg-[var(--sepia-text)]/12 hover:border-[var(--parchment-border)]'
+                  : 'border-[var(--parchment-border)] bg-[var(--parchment-bg-alt)]/60 text-[var(--foreground)] hover:bg-[var(--parchment-bg-alt)] hover:border-[var(--brass-accent)]'
               )}
               aria-pressed={isActive}
             >
