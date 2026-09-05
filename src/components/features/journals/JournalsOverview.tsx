@@ -3,7 +3,7 @@ import React, { useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useLanguage } from '@/context/LanguageContext';
 import { JournalWithStats } from '@/hooks/useJournals';
-import { Trash2, Edit3, Star, X, FileText, Calendar, Clock, Compass, CheckCircle2, BookOpen, Download, Upload, AlertCircle, CheckSquare } from 'lucide-react';
+import { Trash2, Edit3, Star, X, FileText, Clock, Compass, CheckCircle2, BookOpen, Download, Upload, AlertCircle, CheckSquare } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { PageActionsDropdown } from '@/components/ui/PageActionsDropdown';
 import { JournalCoverPicker } from './JournalCoverPicker';

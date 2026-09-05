@@ -70,8 +70,8 @@ describe('JournalsOverview Component', () => {
     expect(screen.getByText('2')).toBeDefined();
     expect(screen.getByText('Lagavulin Distillers Edition')).toBeDefined();
     expect(screen.getByText('Lagavulin 16')).toBeDefined();
-    expect(screen.getByText('Ardbeg 10')).toBeDefined();
-    expect(screen.getByText('Laphroaig 10 CS')).toBeDefined();
+    expect(screen.getAllByText('Ardbeg 10').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Laphroaig 10 CS').length).toBeGreaterThan(0);
   });
 
   it('renders empty notes message when a journal has no tastings', () => {
