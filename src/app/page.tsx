@@ -66,31 +66,32 @@ export default function Home() {
   const SCROLL_TRACKED_IDS = [
     'journal-overview-scroll',
     'journal-landing-scroll',
+    'tasting-card-scroll',
     'tasting-card-section',
   ];
 
-  // Mobile smart scroll: hides the bottom nav on downward scroll and reveals on scroll up.
+  // Mobile smart scroll: hides the bottom nav & header on downward scroll and reveals on scroll up.
   useEffect(() => {
     const handleScroll = (e: Event) => {
       if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
         return;
       }
       const target = e.target as HTMLElement;
-      if (!target || typeof target.scrollTop === 'undefined') return;
+      if (!target) return;
 
-      // Guard: only react to scroll events from our designated main-content scrollers.
-      // This prevents filter dropdowns and other inner scrollable containers from
-      // accidentally hiding the bottom nav.
-      const isTrackedScroller = SCROLL_TRACKED_IDS.some((id) => target.id === id);
-      if (!isTrackedScroller) return;
+      const scroller = (target.id && SCROLL_TRACKED_IDS.includes(target.id))
+        ? target
+        : (target.closest?.('[id$="-scroll"]') as HTMLElement | null);
 
-      const scrollTop = target.scrollTop;
+      if (!scroller || typeof scroller.scrollTop === 'undefined') return;
+
+      const scrollTop = scroller.scrollTop;
       if (scrollTop < 0) return;
 
       const delta = scrollTop - lastScrollTop.current;
-      if (Math.abs(delta) < 15) return;
+      if (Math.abs(delta) < 8) return;
 
-      if (delta > 0 && scrollTop > 60) {
+      if (delta > 0 && scrollTop > 40) {
         setIsBottomBarVisible(false);
       } else if (delta < 0) {
         setIsBottomBarVisible(true);
@@ -103,7 +104,7 @@ export default function Home() {
       window.removeEventListener('scroll', handleScroll, true);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
 
   // Reset scroll state on view transition
   useEffect(() => {
@@ -518,6 +519,7 @@ export default function Home() {
         <MobileBottomNav
           activeView={activeView}
           activeJournalId={activeJournalId}
+          layout={layout}
           isBottomBarVisible={isBottomBarVisible}
           isMobileDrawerOpen={isMobileDrawerOpen}
           setActiveView={setActiveView}

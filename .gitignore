@@ -55,6 +55,8 @@ docs/AUDIT_AGENTS.md
 .cursor/
 .claude/
 .windsurf/
-*.agent
-
+# Private Future Feature Backlog & Local Research
+future_features.md
+docs/future_features.md
+future_features/
 

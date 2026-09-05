@@ -91,7 +91,7 @@ export function JournalLandingHeader({
             </span>
           )}
           {!isSelectMode && (
-            <div className="bg-[var(--forest-green)]/10 border border-[var(--forest-green)]/25 px-3 py-1 rounded-full text-xs font-mono text-[var(--forest-green)] font-semibold shrink-0">
+            <div className="bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] px-3 py-1 rounded-full text-xs font-mono text-[var(--sepia-text)] font-semibold shrink-0">
               {noteCount} {noteCount === 1 ? 'note' : 'notes'}
             </div>
           )}
@@ -141,7 +141,7 @@ export function JournalLandingHeader({
                 onClick={onScanNote}
                 className="w-9 h-9 rounded-lg bg-[var(--forest-green)] hover:bg-[#1b5e39] text-white border border-emerald-400/30 flex items-center justify-center transition-all shadow-xs active:scale-95 cursor-pointer"
                 title={language === 'DE' ? 'Cask & Spirit Assistent: Flasche scannen' : 'Cask & Spirit Assistant: Scan bottle'}
-                aria-label={language === 'DE' ? 'Flasche scannen (KI)' : 'Scan bottle (AI)'}
+                aria-label={language === 'DE' ? 'Flasche scannen' : 'Scan bottle'}
               >
                 <Sparkles size={17} />
               </button>

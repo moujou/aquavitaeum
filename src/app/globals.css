@@ -292,6 +292,11 @@ body {
   outline: none;
 }
 
+/* ─── Open Tasting Ledger / Aufgeschlagenes Notizbuch Styles ─────────────── */
+.journal-open-book {
+  background: var(--parchment-bg);
+}
+
 html, body {
   background-color: var(--pub-bg);
   color: var(--foreground);

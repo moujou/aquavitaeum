@@ -99,32 +99,37 @@ export function JournalCoverPicker({
         {t('coverPhotoOptional')}
       </label>
 
-      {/* Preview Area */}
-      <div className="relative w-full h-36 sm:h-40 rounded-xl overflow-hidden border border-[var(--parchment-border)] bg-gradient-to-br from-[var(--pub-bg-alt)] to-[var(--parchment-bg)] shrink-0">
-        {currentCoverImage ? (
-          <>
-            <img
-              src={currentCoverImage}
-              alt="Journal cover preview"
-              className="w-full h-full object-cover"
-            />
-            {/* Remove button */}
-            <button
-              type="button"
-              onClick={handleRemove}
-              title={t('removeCoverPhoto')}
-              aria-label={t('removeCoverPhoto')}
-              className="absolute top-2 right-2 w-8 h-8 rounded-full bg-[var(--pub-bg-panel)]/90 text-[var(--sepia-text)] hover:text-red-500 border border-[var(--parchment-border)] flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95"
-            >
-              <X size={15} />
-            </button>
-          </>
-        ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center gap-1.5 text-[var(--sepia-muted)]/40 select-none">
-            <Camera size={24} strokeWidth={1.5} />
-            <span className="text-[11px] font-body">{t('noCoverSelected')}</span>
-          </div>
-        )}
+      {/* Preview Area (Standard unified canvas preview) */}
+      <div className="relative w-full h-36 sm:h-40 rounded-xl overflow-hidden border border-[var(--parchment-border)] bg-[var(--pub-bg-alt)]/60 shrink-0 flex items-center justify-center p-2.5 shadow-xs">
+        <div className="w-full h-full rounded-lg overflow-hidden border border-[var(--parchment-border)]/60 relative flex items-center justify-center bg-[var(--parchment-bg)]">
+          {currentCoverImage ? (
+            <>
+              <img
+                src={currentCoverImage}
+                alt="Journal cover preview"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#2B1E14]/20 via-transparent to-black/5 pointer-events-none" />
+              {/* Remove button */}
+              <button
+                type="button"
+                onClick={handleRemove}
+                title={t('removeCoverPhoto')}
+                aria-label={t('removeCoverPhoto')}
+                className="absolute top-2 right-2 z-30 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[var(--pub-bg-panel)]/95 text-[var(--sepia-text)] hover:text-red-500 border border-[var(--parchment-border)] flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95"
+              >
+                <X size={14} />
+              </button>
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-1.5 text-[var(--sepia-muted)]/60 select-none p-4">
+              <div className="w-10 h-10 rounded-full bg-[var(--forest-green)]/10 border border-[var(--forest-green)]/30 flex items-center justify-center text-[var(--forest-green)]">
+                <Camera size={18} strokeWidth={1.75} />
+              </div>
+              <span className="text-[11px] font-body text-center">{t('noCoverSelected')}</span>
+            </div>
+          )}
+        </div>
       </div>
 
       {errorMessage && (

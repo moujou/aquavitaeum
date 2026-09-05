@@ -75,9 +75,23 @@ export function NoteListItem({
           : 'hover:border-[var(--forest-green)] hover:shadow-[0_12px_28px_-3px_rgba(35,115,71,0.20),0_4px_12px_rgba(35,20,8,0.08)] hover:-translate-y-0.5'
       )}
     >
-      {/* ── 1. Top Section: Prominent Bottle Image (Left) + Structured Continuous Rows (Right) ── */}
+      {/* ── 1. Signature Clover Green Top Header Banner ── */}
+      <div className="w-full bg-[var(--wood-dark)] px-3 sm:px-4 py-2 sm:py-2.5 border-b border-[var(--wood-dark)]/80 flex items-center justify-between gap-3 min-h-[44px] sm:min-h-[48px] z-10 shrink-0 text-left">
+        <div className="min-w-0 flex-1">
+          <h3 className="font-display text-sm sm:text-base font-bold text-[var(--parchment-bg)] group-hover:text-[var(--brass-light)] transition-colors leading-snug line-clamp-2 break-words tracking-wide">
+            {spirit.name || spirit.distillery}
+          </h3>
+        </div>
+        {spirit.rating100 ? (
+          <div className="shrink-0 flex items-center justify-center self-center">
+            <SommelierScoreMedallion score={spirit.rating100} size="sm" variant="badge" />
+          </div>
+        ) : null}
+      </div>
+
+      {/* ── 2. Showcase Section: Prominent Bottle Image (Left) + Structured Continuous Rows (Right) ── */}
       <div className="w-full flex flex-row items-stretch border-b border-[var(--parchment-divider)]">
-        {/* Generous Flush Bottle Showcase Frame (Top-Left) */}
+        {/* Generous Flush Bottle Showcase Frame (Left) */}
         <div className="w-[80px] sm:w-[145px] md:w-[170px] shrink-0 bg-[var(--pub-bg-alt)]/60 border-r border-[var(--parchment-border)] relative flex items-center justify-center p-0 overflow-hidden min-h-[105px] sm:min-h-[140px]">
           {spirit.thumbnailImage ? (
             <img
@@ -126,32 +140,25 @@ export function NoteListItem({
 
         {/* Editorial Metadata Block (Takes full remaining space) */}
         <div className="flex-1 min-w-0 p-2.5 sm:p-4 md:p-4.5 flex flex-col justify-center gap-1 sm:gap-1.5 z-10">
-          {/* Row 1: Name des Whiskys */}
-          <div className="min-w-0">
-            <h3 className="font-display font-bold text-sm sm:text-lg md:text-xl text-[var(--foreground)] group-hover:text-[var(--brass-accent)] transition-colors truncate leading-tight tracking-wide">
-              {spirit.name || spirit.distillery}
-            </h3>
-          </div>
-
-          {/* Row 2: Typ des Whiskys */}
-          <div className="font-display text-[10px] sm:text-xs md:text-sm uppercase tracking-wider text-[var(--sepia-text)] font-semibold truncate leading-tight">
+          {/* Row 1: Typ des Whiskys */}
+          <div className="font-display text-[11px] sm:text-xs md:text-sm uppercase tracking-wider text-[var(--sepia-text)] font-bold leading-tight line-clamp-2 break-words">
             {spirit.spiritType}
           </div>
 
-          {/* Row 3: Destillerie • Herkunft */}
-          <div className="text-[11px] sm:text-sm md:text-base font-body text-[var(--sepia-text)] font-semibold truncate leading-tight flex items-center gap-1.5 min-w-0">
-            <span className="truncate">{spirit.distillery}</span>
+          {/* Row 2: Destillerie • Herkunft */}
+          <div className="text-[12.5px] sm:text-sm md:text-base font-body text-[var(--sepia-text)] font-bold leading-tight flex items-center gap-1.5 min-w-0 flex-wrap">
+            <span className="break-words">{spirit.distillery}</span>
             {spirit.region && (
               <>
                 <span className="text-[var(--sepia-muted)]/50 select-none">·</span>
-                <span className="truncate font-semibold text-[var(--sepia-text)]">{spirit.region}</span>
+                <span className="font-semibold text-[var(--sepia-text)] break-words">{spirit.region}</span>
               </>
             )}
           </div>
 
-          {/* Row 4: Years · vol · bottle size (Continuous Text) */}
+          {/* Row 3: Years · vol · bottle size (Continuous Text) */}
           {specsRow4.length > 0 && (
-            <div className="text-[10.5px] sm:text-sm md:text-base font-body text-[var(--sepia-text)] font-medium leading-tight flex items-center gap-1 sm:gap-2 flex-wrap">
+            <div className="text-xs sm:text-sm md:text-base font-body text-[var(--sepia-text)] font-medium leading-tight flex items-center gap-1 sm:gap-2 flex-wrap">
               {specsRow4.map((item, idx) => (
                 <React.Fragment key={idx}>
                   {idx > 0 && <span className="text-[var(--sepia-muted)]/50 select-none">·</span>}
@@ -161,8 +168,8 @@ export function NoteListItem({
             </div>
           )}
 
-          {/* Row 5: Strength · Added Colour · Chill Filtered (Continuous Text) */}
-          <div className="text-[10px] sm:text-xs md:text-sm font-body text-[var(--sepia-muted)] font-medium leading-tight flex items-center gap-1 sm:gap-2 flex-wrap">
+          {/* Row 4: Strength · Added Colour · Chill Filtered (Continuous Text) */}
+          <div className="text-[11.5px] sm:text-xs md:text-sm font-body text-[var(--sepia-muted)] font-medium leading-tight flex items-center gap-1 sm:gap-2 flex-wrap">
             {specsRow5.map((item, idx) => (
               <React.Fragment key={idx}>
                 {idx > 0 && <span className="text-[var(--sepia-muted)]/50 select-none">·</span>}
@@ -171,9 +178,9 @@ export function NoteListItem({
             ))}
           </div>
 
-          {/* Row 6: Finish · Cask / Batch No. (Continuous Text, conditional) */}
+          {/* Row 5: Finish · Cask / Batch No. (Continuous Text, conditional) */}
           {specsRow6.length > 0 && (
-            <div className="text-[10px] sm:text-xs md:text-sm font-body text-[var(--sepia-muted)] font-medium leading-tight flex items-center gap-1 sm:gap-2 flex-wrap">
+            <div className="text-[11.5px] sm:text-xs md:text-sm font-body text-[var(--sepia-muted)] font-medium leading-tight flex items-center gap-1 sm:gap-2 flex-wrap">
               {specsRow6.map((item, idx) => (
                 <React.Fragment key={idx}>
                   {idx > 0 && <span className="text-[var(--sepia-muted)]/50 select-none">·</span>}
@@ -183,17 +190,9 @@ export function NoteListItem({
             </div>
           )}
         </div>
-
-        {/* 3. Dedicated Sommelier Medal Box (Right-Aligned, Top-Right Title Height Slot) */}
-        <div className="p-2 sm:p-3 md:p-3.5 shrink-0 flex items-start justify-center self-start z-10">
-          <SommelierScoreMedallion
-            score={spirit.rating100}
-            size="sm"
-          />
-        </div>
       </div>
 
-      {/* ── 2. Middle Section: Dedicated Full-Width Sensory Canvas (Flavor Category Icons & Tasting Notes) ── */}
+      {/* ── 3. Middle Section: Dedicated Full-Width Sensory Canvas (Flavor Category Icons & Tasting Notes) ── */}
       <div className="w-full p-3 sm:p-4 md:p-4.5 flex flex-col gap-2.5 sm:gap-3 z-10">
         {/* Active Flavor Category Badges (Circular Category Icons) */}
         {activeCategories.length > 0 && (
@@ -216,21 +215,21 @@ export function NoteListItem({
 
         {/* Tasting Notes Snippet Quote on Warm Parchment Panel */}
         {tastingQuote && (
-          <p className="text-xs sm:text-sm text-[var(--sepia-text)]/90 italic font-body leading-relaxed bg-[var(--pub-bg-alt)]/40 border border-[var(--parchment-border)]/50 rounded-lg sm:rounded-xl px-3 py-2 sm:px-3.5 sm:py-2.5">
+          <p className="text-[12.5px] sm:text-sm md:text-[15px] text-[var(--sepia-text)]/90 italic font-body leading-relaxed bg-[var(--pub-bg-alt)]/40 border border-[var(--parchment-border)]/50 rounded-lg sm:rounded-xl px-3 py-2 sm:px-3.5 sm:py-2.5">
             „{tastingQuote}“
           </p>
         )}
       </div>
 
-      {/* ── 3. Signature Clover Green Grounded Footer: Stars (Left) & Date (Right) ── */}
-      <div className="w-full bg-[var(--wood-dark)] px-3 sm:px-4 py-1.5 sm:py-2 border-t border-[var(--wood-dark)]/80 flex items-center justify-between gap-2 text-[10px] sm:text-xs shrink-0">
+      {/* ── 4. Light Parchment Grounded Footer: Stars (Left) & Date (Right) ── */}
+      <div className="w-full bg-[var(--pub-bg-alt)]/35 px-3 sm:px-4 py-1.5 sm:py-2 border-t border-[var(--parchment-border)]/60 flex items-center justify-between gap-2 text-[11px] sm:text-xs shrink-0">
         <div className="flex items-center gap-1.5 min-w-0">
           <RatingStars stars={stars} size={13.5} className="shrink-0 gap-0.5" />
         </div>
 
         {formattedDate && (
-          <div className="flex items-center gap-1 font-mono text-[var(--parchment-bg)]/85 whitespace-nowrap text-right shrink-0">
-            <Calendar size={11} className="sm:size-[12px] text-[var(--brass-light)] shrink-0" />
+          <div className="flex items-center gap-1 font-mono text-[var(--sepia-muted)] whitespace-nowrap text-right shrink-0">
+            <Calendar size={11} className="sm:size-[12px] text-[var(--sepia-light)] shrink-0" />
             <span>{formattedDate}</span>
           </div>
         )}

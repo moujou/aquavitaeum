@@ -1,13 +1,15 @@
 'use client';
 
 import React from 'react';
-import { Plus, BookOpen, User } from 'lucide-react';
+import { Plus, BookOpen, User, LayoutGrid, AlignJustify } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
+import { OverviewLayout } from '@/hooks/useLayoutPreference';
 
 interface MobileBottomNavProps {
   activeView: 'welcome' | 'overview' | 'journal-landing' | 'journal-detail' | 'profile';
   activeJournalId: string | null;
+  layout?: OverviewLayout;
   isBottomBarVisible: boolean;
   isMobileDrawerOpen: boolean;
   setActiveView: (view: 'welcome' | 'overview' | 'journal-landing' | 'journal-detail' | 'profile') => void;
@@ -22,6 +24,7 @@ interface MobileBottomNavProps {
 export default function MobileBottomNav({
   activeView,
   activeJournalId,
+  layout = 'grid',
   isBottomBarVisible,
   isMobileDrawerOpen,
   setActiveView,
@@ -32,10 +35,20 @@ export default function MobileBottomNav({
   onEnterProfile,
   onLeaveProfile,
 }: MobileBottomNavProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
-  const isBookshelfActive = activeView === 'overview' || activeView === 'journal-landing';
+  const isDetailView = activeView === 'journal-detail';
+  const isLandingView = activeView === 'journal-landing';
+  const isOverviewView = activeView === 'overview';
+  const isOverviewActive = isOverviewView;
   const isProfileActive = activeView === 'profile';
+
+  const LayoutIcon = layout === 'grid' ? LayoutGrid : AlignJustify;
+  const leftTabTitle = isDetailView
+    ? (language === 'DE' ? 'Zurück zur Flaschenübersicht' : 'Back to Notes')
+    : isLandingView
+    ? (language === 'DE' ? 'Zurück zur Journal-Übersicht' : 'Back to Journals')
+    : t('journalsTitle');
 
   return (
     <nav
@@ -46,11 +59,11 @@ export default function MobileBottomNav({
           : "translate-y-full opacity-0 pointer-events-none"
       )}
     >
-      {/* Left: Journals / Bookshelf Tab */}
+      {/* Left: Adaptive Navigation Tab (Card/List in Detail view, Bookshelf in Landing/Overview) */}
       <button
         type="button"
         onClick={() => {
-          if (activeView === 'journal-detail') {
+          if (isDetailView) {
             setActiveView('journal-landing');
           } else {
             setActiveJournalId(null);
@@ -60,19 +73,28 @@ export default function MobileBottomNav({
         }}
         className={cn(
           "flex flex-col items-center justify-center w-[68px] h-12 transition-all cursor-pointer relative group rounded-xl my-auto",
-          isBookshelfActive
+          isOverviewActive
             ? "bg-[var(--forest-green)]/15 border border-[var(--forest-green)]/35 text-[var(--nav-active)] shadow-[0_2px_12px_rgba(46,148,93,0.22)]"
             : "text-[var(--nav-inactive)] hover:text-[var(--forest-green)] hover:bg-[var(--forest-green)]/10 active:scale-95"
         )}
-        title={t('journalsTitle')}
+        title={leftTabTitle}
+        aria-label={leftTabTitle}
       >
-        <BookOpen
-          size={23}
-          strokeWidth={isBookshelfActive ? 2.2 : 1.75}
-          className="transition-transform group-hover:scale-110 duration-200"
-        />
+        {isDetailView ? (
+          <LayoutIcon
+            size={23}
+            strokeWidth={1.75}
+            className="transition-transform group-hover:scale-110 duration-200"
+          />
+        ) : (
+          <BookOpen
+            size={23}
+            strokeWidth={isOverviewActive ? 2.2 : 1.75}
+            className="transition-transform group-hover:scale-110 duration-200"
+          />
+        )}
         {/* Active High-Contrast Indicator */}
-        {isBookshelfActive && (
+        {isOverviewActive && (
           <div className="absolute bottom-1 w-5 h-0.5 rounded-full bg-[var(--nav-active)] shadow-[0_0_8px_rgba(46,148,93,0.5)]" />
         )}
       </button>

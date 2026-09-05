@@ -41,7 +41,7 @@ npm run build
 | `npm run start` | Serves compiled Next.js application | Production server environment preview |
 | `npm run lint` | Executes ESLint checks | Code style, React hooks rules, and syntax validation |
 | `npm run type-check` | Runs TypeScript compiler (`tsc --noEmit`) | Strict mode type verification across entire codebase |
-| `npm run test` | Executes Vitest test suite once | Runs all 306 unit tests across 53 test files (100% pass rate) |
+| `npm run test` | Executes Vitest test suite once | Runs all 323 unit tests across 54 test files (100% pass rate) |
 | `npm run test:watch` | Runs Vitest in interactive watch mode | Real-time test-driven development (TDD) |
 | `npm run test:coverage` | Generates Vitest coverage reports via v8 | Comprehensive code coverage auditing (>65% coverage) |
 
@@ -54,7 +54,7 @@ Aqua Vitaeum is configured for **Static HTML Export Mode** (`output: "export"` i
 - **Static Bundle Generation**: `npm run build` outputs pure static HTML, CSS, and JavaScript into the `./out` directory.
 - **Client Storage Resilience**: Data persistence uses a high-capacity client-side **IndexedDB database (managed via Dexie.js)**, eliminating browser `localStorage` size limits and allowing unlimited photos and tasting notes.
 - **Canvas Image Compression**: When bottle images are uploaded or captured via camera, the application dynamically scales and compresses them on the client side using a `<canvas>` element (down to a max boundary of 1000px, 85% JPEG quality), shrinking raw 3–5MB uploads down to ~80–150KB before IndexedDB serialization.
-- **Multi-Journal Architecture**: Tasting notes are partitioned by `journalId` and stored in a dedicated `journals` table. A custom `useJournals.ts` React hook coordinates Dexie database transactions to compute aggregated metrics (bottle counts, average ratings, latest tasted timestamps) per journal in real time.
+- **Multi-Journal Architecture**: Tasting notes are partitioned by `journalId` and stored in a dedicated `journals` table. A custom `useJournals.ts` React hook coordinates Dexie database transactions to compute aggregated metrics (bottle counts, average ratings, latest tasted timestamps, recent spirits log, top-3 drams with medals, and unique region counts) per journal in real time.
 - **Automated CI/CD Workflows**:
   - `.github/workflows/ci.yml`: `Build & Code Quality` — Runs ESLint, `tsc --noEmit`, Vitest test suite, and static build validation on every Pull Request.
   - `.github/workflows/deploy.yml`: `Production Deployment` — Deploys static build artifact to GitHub Pages on every push to `main`.

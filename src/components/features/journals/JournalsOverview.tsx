@@ -3,7 +3,7 @@ import React, { useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useLanguage } from '@/context/LanguageContext';
 import { JournalWithStats } from '@/hooks/useJournals';
-import { Trash2, Edit3, Star, X, FileText, Calendar, CheckCircle2, BookOpen, Download, Upload, AlertCircle, CheckSquare } from 'lucide-react';
+import { Trash2, Edit3, Star, X, FileText, Calendar, Clock, Compass, CheckCircle2, BookOpen, Download, Upload, AlertCircle, CheckSquare } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { PageActionsDropdown } from '@/components/ui/PageActionsDropdown';
 import { JournalCoverPicker } from './JournalCoverPicker';
@@ -184,7 +184,7 @@ export function JournalsOverview({
               </span>
             )}
             {!isSelectMode && (
-              <div className="bg-[var(--forest-green)]/10 border border-[var(--forest-green)]/25 px-3 py-1 rounded-full text-xs font-mono text-[var(--forest-green)] font-semibold shrink-0">
+              <div className="bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] px-3 py-1 rounded-full text-xs font-mono text-[var(--sepia-text)] font-semibold shrink-0">
                 {journals.length} {journals.length === 1 ? (language === 'DE' ? 'Journal' : 'journal') : (language === 'DE' ? 'Journale' : 'journals')}
               </div>
             )}
@@ -280,8 +280,8 @@ export function JournalsOverview({
         <div className="divider-clover-glow mt-4" />
       </div>
 
-      {/* Bookshelf Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Open Books Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-7">
         {journals.map((journal) => {
           const isDefault = journal.id === 'default-compendium';
           const isEditing = editingId === journal.id;
@@ -297,165 +297,278 @@ export function JournalsOverview({
               onContextMenu={(e) => {
                 if (!isSelectMode) e.preventDefault();
               }}
-              className={[
-                'group relative flex flex-col justify-between h-auto min-h-[280px] rounded-2xl transition-all duration-300 transform overflow-hidden cursor-pointer select-none',
-                'bg-[var(--parchment-bg)] border border-[var(--parchment-border)] shadow-[0_8px_24px_-3px_rgba(35,20,8,0.14),0_2px_6px_rgba(35,20,8,0.06)]',
+              className={cn(
+                'group relative flex flex-col rounded-xl sm:rounded-2xl border transition-all duration-300 transform overflow-hidden cursor-pointer select-none',
+                'bg-[var(--parchment-bg)] border border-[var(--parchment-border)] shadow-[0_6px_20px_-3px_rgba(35,20,8,0.12),0_2px_6px_rgba(35,20,8,0.06),2px_2px_0_rgba(208,194,171,0.45)]',
                 isSelected
-                  ? 'border-[var(--wood-selection)] ring-2 ring-[var(--wood-selection)]/45 shadow-[0_0_25px_rgba(46,148,93,0.35)] scale-[1.02] opacity-100 bg-[var(--pub-bg-panel)] z-10'
+                  ? 'border-[var(--wood-selection)] ring-2 ring-[var(--wood-selection)]/45 shadow-[0_0_25px_rgba(46,148,93,0.35)] scale-[1.01] opacity-100 bg-[var(--pub-bg-panel)] z-10'
                   : isSelectMode
                     ? 'border-[var(--parchment-border)]/50 scale-[0.98] opacity-40 shadow-xs'
-                    : 'hover:border-[var(--forest-green)] hover:shadow-[0_16px_36px_-4px_rgba(35,115,71,0.22),0_4px_12px_rgba(35,20,8,0.08)] hover:-translate-y-0.5',
-              ].join(' ')}
+                    : 'hover:border-[var(--forest-green)] hover:shadow-[0_14px_30px_-3px_rgba(35,115,71,0.22),0_4px_12px_rgba(35,20,8,0.08),3px_3px_0_rgba(208,194,171,0.6)] hover:-translate-y-0.5',
+              )}
             >
-              {/* Signature Clover Green Top Header Banner with Journal Name & Description */}
-              <div className="w-full bg-[var(--wood-dark)] px-4 py-2.5 sm:py-3 border-b border-[var(--wood-dark)]/80 flex flex-col justify-center z-10 shrink-0">
-                <h3 className="font-display text-lg sm:text-xl font-bold text-[var(--parchment-bg)] group-hover:text-[var(--brass-light)] transition-colors leading-tight truncate tracking-wide">
-                  {journal.name}
-                </h3>
-                {journal.description && (
-                  <p className="font-body text-xs sm:text-[13px] text-[var(--parchment-bg)]/85 italic line-clamp-1 mt-0.5 leading-snug font-normal">
-                    {journal.description}
-                  </p>
+              {/* 1. Signature Irish Forest / Pub Wood Top Header Banner */}
+              <div
+                className={cn(
+                  'w-full bg-[var(--wood-dark)] px-3.5 sm:px-4 border-b border-[var(--wood-dark)]/80 flex items-center justify-between z-10 shrink-0 text-left',
+                  journal.description ? 'py-2 min-h-[48px] sm:min-h-[52px]' : 'h-11 sm:h-12'
                 )}
-              </div>
+              >
+                <div className="flex flex-col justify-center min-w-0 flex-1 pr-2">
+                  <h3 className="font-display text-sm sm:text-base font-bold text-[var(--parchment-bg)] group-hover:text-[var(--brass-light)] transition-colors truncate tracking-wide leading-tight">
+                    {journal.name}
+                  </h3>
+                  {journal.description && (
+                    <p className="text-[11px] sm:text-xs text-[var(--parchment-bg)]/75 italic truncate max-w-full font-body mt-0.5 leading-snug">
+                      {journal.description}
+                    </p>
+                  )}
+                </div>
 
-              {/* Cover Image Container */}
-              <div className="relative w-full h-36 sm:h-44 overflow-hidden bg-gradient-to-br from-[var(--wood-dark)]/10 via-[var(--pub-bg-alt)] to-[var(--parchment-bg)] border-b border-[var(--parchment-border)] flex-1 min-h-[140px]">
-                {!isEditing && journal.coverImage ? (
-                  <img
-                    src={journal.coverImage}
-                    alt={`${journal.name} cover`}
-                    className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden bg-gradient-to-br from-[var(--wood-dark)]/15 via-[var(--pub-bg-alt)] to-[var(--parchment-bg)]">
-                    <div className="w-14 h-14 rounded-full bg-[var(--forest-green)]/15 border border-[var(--forest-green)]/35 flex items-center justify-center text-[var(--forest-green)] shadow-xs transition-transform duration-300 group-hover:scale-110">
-                      <BookOpen className="w-7 h-7 text-[var(--forest-green)] stroke-[1.75]" />
-                    </div>
-                  </div>
-                )}
-
-                {/* Select mode: circular checkbox (top-right) */}
-                {isSelectMode && !isEditing && (
-                  <div className="absolute top-3 right-3 z-30">
+                {/* Right: Action overlay & select checkbox */}
+                <div className="flex items-center gap-2 shrink-0 my-auto">
+                  {/* Select mode checkbox */}
+                  {isSelectMode && !isEditing && (
                     <div
-                      className={[
-                        'w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 shadow-md',
+                      className={cn(
+                        'w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all shadow-md',
                         isSelected
                           ? 'bg-[var(--wood-selection)] border-[var(--wood-selection)]'
                           : 'bg-[var(--pub-bg-panel)]/90 border-[var(--parchment-border)] shadow-xs',
-                      ].join(' ')}
+                      )}
                     >
-                      {isSelected && <CheckCircle2 className="w-4 h-4 text-[var(--parchment-bg)]" />}
+                      {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-[var(--parchment-bg)]" />}
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {/* Desktop hover: Edit & Delete overlay (top-left) */}
-                {!isEditing && !isSelectMode && (
-                  <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setEditingId(journal.id);
-                        setEditName(journal.name);
-                        setEditDescription(journal.description || '');
-                        setEditCoverImage(journal.coverImage);
-                      }}
-                      className="p-1.5 rounded-md bg-[var(--pub-bg-panel)]/90 hover:bg-[var(--fab-bg)] border border-[var(--parchment-border)] hover:border-[var(--brass-accent)] text-[var(--sepia-text)] hover:text-[var(--fab-text)] transition-all cursor-pointer shadow-xs"
-                      title={t('renameAction')}
-                    >
-                      <Edit3 className="w-3.5 h-3.5" />
-                    </button>
-                    {!isDefault && (
+                  {/* Hover action overlay (Edit / Delete) */}
+                  {!isEditing && !isSelectMode && (
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity my-auto">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          setConfirmDeleteId(journal.id);
+                          setEditingId(journal.id);
+                          setEditName(journal.name);
+                          setEditDescription(journal.description || '');
+                          setEditCoverImage(journal.coverImage);
                         }}
-                        className="p-1.5 rounded-md bg-[var(--pub-bg-panel)]/90 hover:bg-red-950/70 border border-[var(--parchment-border)] hover:border-red-500/50 text-[var(--sepia-text)] hover:text-red-400 transition-all cursor-pointer shadow-xs"
-                        title={t('deleteAction')}
+                        className="p-1 rounded bg-black/30 hover:bg-black/50 text-[var(--parchment-bg)] transition-all cursor-pointer"
+                        title={t('renameAction')}
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Edit3 className="w-3.5 h-3.5" />
                       </button>
-                    )}
-                  </div>
-                )}
+                      {!isDefault && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setConfirmDeleteId(journal.id);
+                          }}
+                          className="p-1 rounded bg-black/30 hover:bg-red-900/80 text-[var(--parchment-bg)] hover:text-red-200 transition-all cursor-pointer"
+                          title={t('deleteAction')}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
 
-              {/* Edit Form or Stats Shelf Container */}
-              {isEditing ? (
-                <form
-                  onSubmit={(e) => handleRename(e, journal.id)}
-                  onClick={(e) => e.stopPropagation()}
-                  className="flex flex-col gap-3 w-full p-4 z-10 bg-[var(--pub-bg-panel)]"
-                >
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[10px] font-body text-[var(--sepia-muted)] tracking-wider">{t('journalNameLabel')}</label>
-                    <input
-                      type="text"
-                      required
-                      maxLength={40}
-                      value={editName}
-                      onChange={(e) => setEditName(e.target.value)}
-                      className="w-full h-9 px-2.5 rounded-md bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/60 font-body text-xs focus:outline-none focus:border-[var(--brass-accent)]"
-                    />
+              {/* 2. Journal Content (Left: Image Canvas, Right: Tasting Manuscript) */}
+              <div className="flex flex-row flex-1 min-h-[190px] sm:min-h-[220px]">
+                {/* ─── LINKE SEITE (100% Vollflächiges Bild) ─── */}
+                <div className="flex w-[36%] sm:w-[38%] lg:w-[36%] shrink-0 border-r border-[var(--parchment-border)]/50 min-h-[150px] sm:min-h-full overflow-hidden bg-[var(--pub-bg-alt)]/60">
+                  <div className="flex-1 relative flex flex-col items-center justify-center p-0 m-0 w-full h-full overflow-hidden">
+                    {journal.coverImage ? (
+                      <img
+                        src={journal.coverImage}
+                        alt={`${journal.name} cover`}
+                        className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 pointer-events-none"
+                        draggable={false}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center p-2 sm:p-4 text-center">
+                        <div className="w-11 h-11 sm:w-16 sm:h-16 rounded-full bg-[var(--forest-green)]/10 border border-[var(--forest-green)]/30 flex items-center justify-center text-[var(--forest-green)] shadow-2xs transition-transform duration-300 group-hover:scale-110 mb-1.5 sm:mb-2">
+                          <BookOpen className="w-5 h-5 sm:w-8 sm:h-8 text-[var(--forest-green)] stroke-[1.75]" />
+                        </div>
+                        <span className="text-[10px] sm:text-[11px] font-display font-bold text-[var(--sepia-text)] uppercase tracking-wider text-center leading-tight">
+                          {language === 'DE' ? 'Tasting Buch' : 'Tasting Book'}
+                        </span>
+                      </div>
+                    )}
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[10px] font-body text-[var(--sepia-muted)] tracking-wider">{t('descriptionOptionalLabel')}</label>
-                    <input
-                      type="text"
-                      maxLength={120}
-                      placeholder={t('descriptionPlaceholder')}
-                      value={editDescription}
-                      onChange={(e) => setEditDescription(e.target.value)}
-                      className="w-full h-9 px-2.5 rounded-md bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/60 font-body text-xs focus:outline-none focus:border-[var(--brass-accent)]"
-                    />
-                  </div>
-                  <div onClick={(e) => e.stopPropagation()}>
-                    <JournalCoverPicker
-                      currentCoverImage={editCoverImage}
-                      onChange={setEditCoverImage}
-                    />
-                  </div>
-                  <div className="flex justify-end gap-2 mt-1">
-                    <button
-                      type="submit"
-                      className="min-h-[36px] px-3.5 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] text-[var(--fab-text)] text-xs font-bold transition-all active:scale-95 cursor-pointer"
+                </div>
+
+                {/* ─── RECHTE SEITE (Manuskript & Sommelier-Ledger) ─────────── */}
+                <div className="flex-1 flex flex-col justify-between p-3 sm:p-4 text-left relative min-w-0 bg-[var(--parchment-bg)]">
+                  {isEditing ? (
+                    <form
+                      onSubmit={(e) => handleRename(e, journal.id)}
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex flex-col gap-3 w-full"
                     >
-                      {t('saveAction')}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setEditingId(null)}
-                      className="min-h-[36px] p-2 rounded-lg bg-[var(--pub-bg-alt)] hover:bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] text-[var(--sepia-muted)] hover:text-[var(--foreground)] cursor-pointer"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                /* Stats Shelf */
-                <div className="w-full bg-[var(--pub-bg-alt)]/60 border-t border-[var(--parchment-border)]/60 px-4 py-3 grid grid-cols-3 gap-2 mt-auto text-left">
+                      <div className="flex flex-col gap-1">
+                        <label className="text-[10px] font-body text-[var(--sepia-muted)] tracking-wider">{t('journalNameLabel')}</label>
+                        <input
+                          type="text"
+                          required
+                          maxLength={40}
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          className="w-full h-9 px-2.5 rounded-md bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/60 font-body text-xs focus:outline-none focus:border-[var(--brass-accent)]"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <label className="text-[10px] font-body text-[var(--sepia-muted)] tracking-wider">{t('descriptionOptionalLabel')}</label>
+                        <input
+                          type="text"
+                          maxLength={120}
+                          placeholder={t('descriptionPlaceholder')}
+                          value={editDescription}
+                          onChange={(e) => setEditDescription(e.target.value)}
+                          className="w-full h-9 px-2.5 rounded-md bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/60 font-body text-xs focus:outline-none focus:border-[var(--brass-accent)]"
+                        />
+                      </div>
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <JournalCoverPicker
+                          currentCoverImage={editCoverImage}
+                          onChange={setEditCoverImage}
+                        />
+                      </div>
+                      <div className="flex justify-end gap-2 mt-1">
+                        <button
+                          type="submit"
+                          className="min-h-[36px] px-3.5 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] text-[var(--fab-text)] text-xs font-bold transition-all active:scale-95 cursor-pointer"
+                        >
+                          {t('saveAction')}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditingId(null)}
+                          className="min-h-[36px] p-2 rounded-lg bg-[var(--pub-bg-alt)] hover:bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] text-[var(--sepia-muted)] hover:text-[var(--foreground)] cursor-pointer"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    <div className="flex flex-col justify-between h-full">
+                      {/* Sommelier Tasting Insights (Recent 3 Tastings + Top 3 Drams) */}
+                      {((journal.recentSpirits && journal.recentSpirits.length > 0) || (journal.topDrams && journal.topDrams.length > 0)) ? (
+                        <div className="flex flex-col gap-2.5 my-auto">
+                          {/* 3 Zuletzt verkostete Drams mit Datum */}
+                          {/* 3 Zuletzt verkostete Drams mit sicher sichtbarem Datum */}
+                          {journal.recentSpirits && journal.recentSpirits.length > 0 && (
+                            <div className="flex flex-col gap-1">
+                              <span className="text-[10px] uppercase tracking-wider font-bold text-[var(--sepia-muted)] select-none">
+                                {language === 'DE' ? 'Zuletzt verkostet:' : 'Recently Tasted:'}
+                              </span>
+                              <div className="flex flex-col gap-1">
+                                {journal.recentSpirits.map((item, idx) => (
+                                  <div
+                                    key={`${item.name}-${idx}`}
+                                    className="flex items-center justify-between gap-2 text-xs px-2 py-0.5 rounded-md border border-[var(--parchment-border)] bg-[var(--parchment-bg-alt)]/60 text-[var(--sepia-text)] min-w-0"
+                                  >
+                                    <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                                      <Clock className="w-3.5 h-3.5 text-[var(--brass-accent)] shrink-0" />
+                                      <span className="font-semibold text-xs truncate leading-snug text-[var(--sepia-text)]" title={item.name}>
+                                        {item.name}
+                                      </span>
+                                    </div>
+                                    {item.date ? (
+                                      <span className="text-[10px] text-[var(--sepia-muted)] font-mono shrink-0 select-none text-right tabular-nums">
+                                        {new Date(item.date).toLocaleDateString(language === 'DE' ? 'de-DE' : 'en-US', { day: '2-digit', month: '2-digit', year: '2-digit' })}
+                                      </span>
+                                    ) : (
+                                      <span className="text-[10px] text-[var(--sepia-muted)]/50 font-mono shrink-0 select-none text-right">
+                                        —
+                                      </span>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Top-Bewertungen (Gold, Silver, Bronze) */}
+                          {journal.topDrams && journal.topDrams.length > 0 && (
+                            <div className="flex flex-col gap-1">
+                              <span className="text-[10px] uppercase tracking-wider font-bold text-[var(--sepia-muted)] select-none">
+                                {language === 'DE' ? (journal.topDrams.length === 1 ? 'Top-Bewertung:' : 'Top-Bewertungen:') : (journal.topDrams.length === 1 ? 'Top Rated:' : 'Top Rated:')}
+                              </span>
+                              <div className="flex flex-col gap-1">
+                                {journal.topDrams.slice(0, 3).map((dram, idx) => {
+                                  const medalEmoji = idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉';
+                                  const rankBorder =
+                                    idx === 0
+                                      ? 'bg-amber-500/10 border-amber-500/35'
+                                      : idx === 1
+                                      ? 'bg-slate-400/10 border-slate-400/35'
+                                      : 'bg-amber-700/10 border-amber-700/35';
+
+                                  return (
+                                    <div
+                                      key={`${dram.name}-${idx}`}
+                                      className={`flex items-center justify-between gap-2 text-xs px-2 py-0.5 rounded-md border ${rankBorder} bg-[var(--parchment-bg-alt)]/60 text-[var(--sepia-text)] min-w-0`}
+                                    >
+                                      <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                                        <span className="text-xs shrink-0 select-none">{medalEmoji}</span>
+                                        <span className="font-semibold text-xs truncate leading-snug text-[var(--sepia-text)]" title={dram.name}>
+                                          {dram.name}
+                                        </span>
+                                      </div>
+                                      <span className="font-mono text-[11px] font-bold text-[var(--brass-accent)] shrink-0 select-none text-right tabular-nums">
+                                        {dram.rating}
+                                      </span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center my-auto py-3 text-center">
+                          <p className="font-body text-xs text-[var(--sepia-muted)]/70 italic">
+                            {language === 'DE' ? 'Noch keine Notizen erfasst.' : 'No tasting notes yet.'}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* 3. Dedicated Grounded Ledger Footer Bar */}
+              {!isEditing && (
+                <div className="w-full bg-[var(--pub-bg-alt)]/65 border-t border-[var(--parchment-border)] px-4 py-2 sm:py-2.5 grid grid-cols-3 gap-2 shrink-0">
                   <div className="flex flex-col">
-                    <span className="text-[10px] text-[var(--sepia-muted)] uppercase tracking-wider font-bold">{language === 'DE' ? 'Notizen' : 'Notes'}</span>
-                    <span className="font-bold text-[var(--foreground)] text-xs mt-0.5 flex items-center gap-1">
-                      <FileText className="w-3.5 h-3.5 text-[var(--brass-accent)] shrink-0" />
+                    <span className="text-[10px] sm:text-[10.5px] text-[var(--sepia-muted)] uppercase tracking-wider font-bold">
+                      {language === 'DE' ? 'Notizen' : 'Notes'}
+                    </span>
+                    <span className="font-bold text-[var(--sepia-text)] text-xs sm:text-sm mt-0.5 flex items-center gap-1">
+                      <FileText className="w-3.5 h-3.5 text-[var(--sepia-muted)] shrink-0" />
                       {journal.bottleCount}
                     </span>
                   </div>
+
                   <div className="flex flex-col items-center">
-                    <span className="text-[10px] text-[var(--sepia-muted)] uppercase tracking-wider font-bold">{language === 'DE' ? 'Ø Score' : 'Avg Score'}</span>
-                    <span className="font-bold text-[var(--foreground)] text-xs mt-0.5 flex items-center gap-1">
+                    <span className="text-[10px] sm:text-[10.5px] text-[var(--sepia-muted)] uppercase tracking-wider font-bold">
+                      {language === 'DE' ? 'Ø Score' : 'Avg Score'}
+                    </span>
+                    <span className="font-bold text-[var(--sepia-text)] text-xs sm:text-sm mt-0.5 flex items-center gap-1">
                       <Star className="w-3.5 h-3.5 text-[var(--brass-accent)] fill-[var(--brass-accent)] -mt-0.5" />
                       {journal.averageRating > 0 ? journal.averageRating : '—'}
                     </span>
                   </div>
+
                   <div className="flex flex-col items-end">
-                    <span className="text-[10px] text-[var(--sepia-muted)] uppercase tracking-wider font-bold">{t('statsLatest')}</span>
-                    <span className="font-bold text-[var(--foreground)] text-xs mt-0.5 flex items-center gap-1 truncate max-w-full">
-                      <Calendar className="w-3.5 h-3.5 text-[var(--brass-accent)] shrink-0" />
-                      {journal.latestTastedDate ? new Date(journal.latestTastedDate).toLocaleDateString(language === 'DE' ? 'de-DE' : 'en-US', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '—'}
+                    <span className="text-[10px] sm:text-[10.5px] text-[var(--sepia-muted)] uppercase tracking-wider font-bold">
+                      {language === 'DE' ? 'Regionen' : 'Regions'}
+                    </span>
+                    <span className="font-bold text-[var(--sepia-text)] text-xs sm:text-sm mt-0.5 flex items-center gap-1 truncate max-w-full">
+                      <Compass className="w-3.5 h-3.5 text-[var(--sepia-muted)] shrink-0" />
+                      {journal.regionCount !== undefined && journal.regionCount > 0 ? journal.regionCount : (journal.regionsSummary ? 1 : '—')}
                     </span>
                   </div>
                 </div>

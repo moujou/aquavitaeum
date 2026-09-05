@@ -410,7 +410,7 @@ export const TRANSLATIONS = {
     livePreviewHeader: 'Live Preview',
     scanAgain: 'Scan Again',
     applyToNote: 'Apply to Note',
-    analyzeBottleAi: 'Analyze Bottle (AI)',
+    analyzeBottleAi: 'Analyze Bottle',
     analyzeAndSnapBottle: 'Analyze & Snap Bottle',
   },
   DE: {
@@ -821,7 +821,7 @@ export const TRANSLATIONS = {
     livePreviewHeader: 'Vorschau',
     scanAgain: 'Neu scannen',
     applyToNote: 'In Notiz übernehmen',
-    analyzeBottleAi: 'Flasche analysieren (KI)',
+    analyzeBottleAi: 'Flasche analysieren',
     analyzeAndSnapBottle: 'Flasche analysieren & knipsen',
   },
 } as const;

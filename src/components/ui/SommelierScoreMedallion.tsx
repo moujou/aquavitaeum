@@ -122,13 +122,15 @@ export function getScoreTierConfig(score: number): ScoreTierConfig {
 
 interface SommelierScoreMedallionProps {
   score?: number;
-  size?: 'xs' | 'sm' | 'md' | 'lg';
+  size?: 'xs' | 'sm' | 'card' | 'md' | 'lg';
+  variant?: 'stamp' | 'badge';
   className?: string;
 }
 
 export function SommelierScoreMedallion({
   score = 1,
   size = 'md',
+  variant = 'stamp',
   className,
 }: SommelierScoreMedallionProps) {
   const { language } = useLanguage();
@@ -149,6 +151,8 @@ export function SommelierScoreMedallion({
       ? 'w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11'
       : size === 'sm'
       ? 'w-11 h-11 sm:w-12 sm:h-12 md:w-13 md:h-13'
+      : size === 'card'
+      ? 'w-14 h-14 sm:w-16 sm:h-16 md:w-17 md:h-17'
       : size === 'md'
       ? 'w-18 h-18 sm:w-20 sm:h-20 md:w-22 md:h-22'
       : 'w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40';
@@ -159,7 +163,10 @@ export function SommelierScoreMedallion({
       aria-label={a11yLabel}
       title={a11yLabel}
       className={cn(
-        'relative shrink-0 select-none transition-transform duration-300 hover:scale-105 bg-transparent mix-blend-multiply opacity-95',
+        'relative shrink-0 select-none transition-transform duration-300 hover:scale-105',
+        variant === 'badge'
+          ? 'rounded-full bg-[var(--parchment-bg)] shadow-[0_3px_10px_rgba(0,0,0,0.32)] border border-[var(--brass-accent)]/60 ring-1 ring-black/10'
+          : 'bg-transparent mix-blend-multiply opacity-95',
         'text-[#1f1209]',
         sizeClasses,
         className
@@ -191,6 +198,11 @@ export function SommelierScoreMedallion({
             <stop offset="100%" stopColor="#78350F" stopOpacity="0" />
           </radialGradient>
         </defs>
+
+        {/* ================= MASSIVE PERGAMENT-/GOLDSCHEIBEN-BASIS FÜR VOLLEN KONTRAST ================= */}
+        {variant === 'badge' && (
+          <circle cx="250" cy="250" r="242" fill="var(--parchment-bg, #fdfbf7)" />
+        )}
 
         {/* ================= GEBRANNTER SCHMAUCH- & HITZEHOF (SMOKE VIGNETTE) ================= */}
         <circle cx="250" cy="250" r="248" fill={`url(#${smokeGradId})`} pointerEvents="none" />
