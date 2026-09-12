@@ -115,7 +115,7 @@ describe('Journal Landing Layouts & Header', () => {
         </LanguageProvider>
       );
 
-      expect(screen.getByText('Scotch Collection')).toBeDefined();
+      expect(screen.getByText(/1 ausgewählt|1 selected/i)).toBeDefined();
       const doneBtn = screen.getByTitle('Fertig');
       expect(doneBtn).toBeDefined();
       fireEvent.click(doneBtn);

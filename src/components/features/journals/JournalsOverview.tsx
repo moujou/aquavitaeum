@@ -1,21 +1,26 @@
 /* eslint-disable @next/next/no-img-element */
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useLanguage } from '@/context/LanguageContext';
 import { JournalWithStats } from '@/hooks/useJournals';
 import { Trash2, Edit3, Star, X, FileText, Clock, Compass, CheckCircle2, BookOpen, Download, Upload, AlertCircle, CheckSquare } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { PageActionsDropdown } from '@/components/ui/PageActionsDropdown';
+import { JournalSortDropdown } from './JournalSortDropdown';
 import { JournalCoverPicker } from './JournalCoverPicker';
+import { JournalColorPicker } from './JournalColorPicker';
 import { useMultiSelect } from '@/hooks/useMultiSelect';
 import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 import { exportJournalsToFile, importJournalFile } from '@/lib/google-drive-sync';
+import { JournalShelfLayout } from '@/hooks/useLayoutPreference';
+import { JournalBookshelfView } from './bookshelf/JournalBookshelfView';
 import { cn } from '@/lib/utils';
 
 interface JournalsOverviewProps {
   journals: JournalWithStats[];
-  onCreateJournal: (name: string, description?: string, coverImage?: string) => Promise<unknown>;
-  onRenameJournal: (id: string, name: string, description?: string, coverImage?: string) => Promise<unknown>;
+  journalLayout?: JournalShelfLayout;
+  onCreateJournal: (name: string, description?: string, coverImage?: string, color?: string) => Promise<unknown>;
+  onRenameJournal: (id: string, name: string, description?: string, coverImage?: string, color?: string) => Promise<unknown>;
   onDeleteJournal: (id: string) => Promise<unknown>;
   onSelectJournal: (id: string) => void;
   isCreateOpen?: boolean;
@@ -23,8 +28,11 @@ interface JournalsOverviewProps {
   onSelectModeChange?: (active: boolean) => void;
 }
 
+export type JournalSortOption = 'last_updated' | 'bottle_count' | 'rating' | 'name_asc' | 'name_desc';
+
 export function JournalsOverview({
   journals,
+  journalLayout = 'manuscript',
   onCreateJournal,
   onRenameJournal,
   onDeleteJournal,
@@ -35,11 +43,44 @@ export function JournalsOverview({
 }: JournalsOverviewProps) {
   const { t, language } = useLanguage();
 
+  // Sorting state (persisted in localStorage)
+  const [sortBy, setSortBy] = useState<JournalSortOption>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('aquavitaeum_journal_sort') as JournalSortOption | null;
+      if (saved && ['last_updated', 'bottle_count', 'rating', 'name_asc', 'name_desc'].includes(saved)) {
+        return saved;
+      }
+    }
+    return 'last_updated';
+  });
+
+  const sortedJournals = useMemo(() => {
+    const list = [...journals];
+    switch (sortBy) {
+      case 'bottle_count':
+        return list.sort((a, b) => (b.bottleCount || 0) - (a.bottleCount || 0));
+      case 'rating':
+        return list.sort((a, b) => (b.averageRating || 0) - (a.averageRating || 0));
+      case 'name_asc':
+        return list.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+      case 'name_desc':
+        return list.sort((a, b) => b.name.localeCompare(a.name, undefined, { sensitivity: 'base' }));
+      case 'last_updated':
+      default:
+        return list.sort((a, b) => {
+          const dateA = new Date(a.updatedAt || a.createdAt || 0).getTime();
+          const dateB = new Date(b.updatedAt || b.createdAt || 0).getTime();
+          return dateB - dateA;
+        });
+    }
+  }, [journals, sortBy]);
+
   // Modals & Inline inputs state
   const [isCreateOpenLocal, setIsCreateOpenLocal] = useState(false);
   const [newJournalName, setNewJournalName] = useState('');
   const [newJournalDescription, setNewJournalDescription] = useState('');
   const [newJournalCoverImage, setNewJournalCoverImage] = useState<string | undefined>(undefined);
+  const [newJournalColor, setNewJournalColor] = useState<string>('green');
 
   const isCreateVisible = isCreateOpen !== undefined ? isCreateOpen : isCreateOpenLocal;
   const triggerCloseCreate = onCloseCreate ? onCloseCreate : () => setIsCreateOpenLocal(false);
@@ -48,6 +89,7 @@ export function JournalsOverview({
   const [editName, setEditName] = useState('');
   const [editDescription, setEditDescription] = useState('');
   const [editCoverImage, setEditCoverImage] = useState<string | undefined>(undefined);
+  const [editColor, setEditColor] = useState<string>('green');
 
   useLockBodyScroll(isCreateVisible || !!editingId, () => {
     if (isCreateVisible) triggerCloseCreate();
@@ -124,6 +166,7 @@ export function JournalsOverview({
     setEditName(journal.name);
     setEditDescription(journal.description || '');
     setEditCoverImage(journal.coverImage);
+    setEditColor(journal.color || 'green');
   };
 
   // ── Standard CRUD handlers ─────────────────────────────────────────────────
@@ -131,10 +174,11 @@ export function JournalsOverview({
     e.preventDefault();
     if (!newJournalName.trim()) return;
     try {
-      await onCreateJournal(newJournalName, newJournalDescription, newJournalCoverImage);
+      await onCreateJournal(newJournalName, newJournalDescription, newJournalCoverImage, newJournalColor);
       setNewJournalName('');
       setNewJournalDescription('');
       setNewJournalCoverImage(undefined);
+      setNewJournalColor('green');
       triggerCloseCreate();
     } catch (err) {
       console.error(err);
@@ -145,11 +189,12 @@ export function JournalsOverview({
     e.preventDefault();
     if (!editName.trim()) return;
     try {
-      await onRenameJournal(id, editName, editDescription, editCoverImage);
+      await onRenameJournal(id, editName, editDescription, editCoverImage, editColor);
       setEditingId(null);
       setEditName('');
       setEditDescription('');
       setEditCoverImage(undefined);
+      setEditColor('green');
     } catch (err) {
       console.error(err);
     }
@@ -169,30 +214,39 @@ export function JournalsOverview({
   const canEdit = selectedIds.size === 1;
 
   return (
-    <div className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 pt-8 pb-8 animate-fade-in">
-      {/* Shelf Header — doubles as action bar in select mode */}
-      <div className="relative z-30 pb-2 mb-8 flex flex-col">
-        <div className="flex items-center justify-between gap-3 min-w-0 min-h-[36px]">
-          <div className="flex items-center gap-3 min-w-0 flex-1">
-            <h2 className="font-display text-2xl sm:text-3xl font-bold text-[var(--foreground)] tracking-wide truncate min-w-0">
-              {t('journalsTitle')}
-            </h2>
-            {/* Selection count badge (left, aligned with JournalLandingHeader) */}
-            {isSelectMode && selectedIds.size > 0 && (
-              <span className="text-xs font-body text-[var(--brass-accent)] font-semibold tabular-nums shrink-0 bg-[var(--brass-accent)]/10 px-2.5 py-0.5 rounded-full border border-[var(--brass-accent)]/30">
-                {selectedIds.size} {language === 'DE' ? 'ausgewählt' : 'selected'}
-              </span>
-            )}
-            {!isSelectMode && (
-              <div className="bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] px-3 py-1 rounded-full text-xs font-mono text-[var(--sepia-text)] font-semibold shrink-0">
-                {journals.length} {journals.length === 1 ? (language === 'DE' ? 'Journal' : 'journal') : (language === 'DE' ? 'Journale' : 'journals')}
-              </div>
-            )}
-          </div>
+    <div className="flex-1 w-full max-w-6xl mx-auto px-3 sm:px-6 pt-2 sm:pt-4 pb-6 animate-fade-in">
+      {/* Shelf Header & Action / Sort Bar */}
+      <div className="pb-1 w-full relative z-30">
+        <div className="flex items-center justify-between gap-2 w-full min-h-[36px]">
+          {isSelectMode ? (
+            /* Select mode: Selection count badge */
+            <div className="flex items-center gap-1.5 min-w-0">
+              {selectedIds.size > 0 && (
+                <span className="text-xs font-body text-[var(--brass-accent)] font-semibold tabular-nums shrink-0 bg-[var(--brass-accent)]/10 px-2.5 py-1 rounded-full border border-[var(--brass-accent)]/30">
+                  {selectedIds.size} {language === 'DE' ? 'ausgewählt' : 'selected'}
+                </span>
+              )}
+            </div>
+          ) : (
+            /* Normal mode: Sort selector on the left */
+            <div className="flex items-center gap-2 min-w-0">
+              <JournalSortDropdown
+                value={sortBy}
+                onChange={(val) => {
+                  setSortBy(val);
+                  try {
+                    localStorage.setItem('aquavitaeum_journal_sort', val);
+                  } catch {
+                    // ignore quota issues
+                  }
+                }}
+              />
+            </div>
+          )}
 
           {isSelectMode ? (
             /* Select mode action buttons: Actions Dropdown (Bearbeiten, Exportieren, Löschen) + Done button */
-            <div className="flex items-center gap-2 animate-fade-in shrink-0">
+            <div className="flex items-center gap-1.5 shrink-0">
               {/* Multi-Select Actions Dropdown */}
               <PageActionsDropdown
                 title={language === 'DE' ? 'Aktionen' : 'Actions'}
@@ -224,16 +278,17 @@ export function JournalsOverview({
 
               {/* Done / Cancel */}
               <button
+                type="button"
                 onClick={exitSelectMode}
                 title={language === 'DE' ? 'Fertig' : 'Done'}
-                className="px-2.5 sm:px-3 py-1.5 rounded-lg border border-[var(--parchment-border)] bg-[var(--pub-bg-panel)] hover:bg-[var(--pub-bg-alt)] text-[var(--foreground)] transition-all flex items-center gap-1 text-xs font-display font-bold uppercase tracking-wider shadow-xs active:scale-95 cursor-pointer select-none min-h-[38px]"
+                className="h-9 px-2.5 sm:px-3 rounded-lg border border-[var(--parchment-border)] bg-[var(--pub-bg-panel)] hover:bg-[var(--pub-bg-alt)] text-[var(--foreground)] transition-all flex items-center gap-1 text-xs font-display font-bold uppercase tracking-wider shadow-xs active:scale-95 cursor-pointer select-none min-h-[36px]"
               >
                 <X className="w-3.5 h-3.5 shrink-0" />
                 <span className="hidden sm:inline">{language === 'DE' ? 'Fertig' : 'Done'}</span>
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-1.5 shrink-0">
               <PageActionsDropdown
                 title={language === 'DE' ? 'Aktionen' : 'Actions'}
                 items={[
@@ -265,10 +320,10 @@ export function JournalsOverview({
         {importStatus && (
           <div
             className={cn(
-              'mt-3 flex items-center gap-2 text-xs px-3 py-2 rounded-md border animate-fade-in font-medium',
+              'mt-2 flex items-center gap-2 text-xs px-3 py-1.5 rounded-md border animate-fade-in font-medium z-10 w-fit',
               importStatus.type === 'success'
-                ? 'bg-[var(--forest-green)]/10 text-[var(--forest-green)] border-[var(--forest-green)]/30'
-                : 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950/40 dark:border-red-900'
+                ? 'bg-[var(--forest-green)]/15 text-[var(--forest-green)] border-[var(--forest-green)]/40 dark:text-emerald-300'
+                : 'bg-red-950/40 text-red-700 dark:text-red-300 border-red-500/40'
             )}
           >
             {importStatus.type === 'success' ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />}
@@ -277,23 +332,43 @@ export function JournalsOverview({
         )}
 
         {/* Specular Clover Green Gradient Divider */}
-        <div className="divider-clover-glow mt-4" />
+        <div className="divider-clover-glow mt-1.5 mb-2" />
       </div>
 
-      {/* Open Books Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-7">
-        {journals.map((journal) => {
-          const isDefault = journal.id === 'default-compendium';
-          const isEditing = editingId === journal.id;
-          const isSelected = selectedIds.has(journal.id);
+      {/* Shelf / Bookshelf Mode vs Open Manuscript Grid */}
+      {journalLayout === 'bookshelf' ? (
+        <JournalBookshelfView
+          journals={sortedJournals}
+          selectedIds={selectedIds}
+          isSelectMode={isSelectMode}
+          editingId={editingId}
+          onCardClick={handleCardClick}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          onCancelLongPress={cancelLongPress}
+          onStartEdit={(journal) => {
+            setEditingId(journal.id);
+            setEditName(journal.name);
+            setEditDescription(journal.description || '');
+            setEditCoverImage(journal.coverImage);
+            setEditColor(journal.color || 'green');
+          }}
+          onStartDelete={(id) => setConfirmDeleteId(id)}
+        />
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-7">
+          {sortedJournals.map((journal) => {
+            const isDefault = journal.id === 'default-compendium';
+            const isEditing = editingId === journal.id;
+            const isSelected = selectedIds.has(journal.id);
 
-          return (
-            <div
-              key={journal.id}
-              onClick={() => handleCardClick(journal.id, isEditing)}
-              onTouchStart={(e) => handleTouchStart(e, journal.id)}
-              onTouchEnd={handleTouchEnd}
-              onTouchMove={cancelLongPress}
+            return (
+              <div
+                key={journal.id}
+                onClick={() => handleCardClick(journal.id, isEditing)}
+                onTouchStart={(e) => handleTouchStart(e, journal.id)}
+                onTouchEnd={handleTouchEnd}
+                onTouchMove={cancelLongPress}
               onContextMenu={(e) => {
                 if (!isSelectMode) e.preventDefault();
               }}
@@ -351,6 +426,7 @@ export function JournalsOverview({
                           setEditName(journal.name);
                           setEditDescription(journal.description || '');
                           setEditCoverImage(journal.coverImage);
+                          setEditColor(journal.color || 'green');
                         }}
                         className="p-1 rounded bg-black/30 hover:bg-black/50 text-[var(--parchment-bg)] transition-all cursor-pointer"
                         title={t('renameAction')}
@@ -429,10 +505,14 @@ export function JournalsOverview({
                           className="w-full h-9 px-2.5 rounded-md bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/60 font-body text-xs focus:outline-none focus:border-[var(--brass-accent)]"
                         />
                       </div>
-                      <div onClick={(e) => e.stopPropagation()}>
+                      <div onClick={(e) => e.stopPropagation()} className="flex flex-col gap-2.5">
                         <JournalCoverPicker
                           currentCoverImage={editCoverImage}
                           onChange={setEditCoverImage}
+                        />
+                        <JournalColorPicker
+                          selectedColor={editColor}
+                          onChange={setEditColor}
                         />
                       </div>
                       <div className="flex justify-end gap-2 mt-1">
@@ -577,6 +657,7 @@ export function JournalsOverview({
           );
         })}
       </div>
+      )}
 
       <ConfirmDialog
         isOpen={confirmBulkDelete}
@@ -661,6 +742,10 @@ export function JournalsOverview({
                 currentCoverImage={newJournalCoverImage}
                 onChange={setNewJournalCoverImage}
               />
+              <JournalColorPicker
+                selectedColor={newJournalColor}
+                onChange={setNewJournalColor}
+              />
               <div className="flex justify-end gap-2.5 pt-2">
                 <button
                   type="button"
@@ -669,6 +754,7 @@ export function JournalsOverview({
                     setNewJournalName('');
                     setNewJournalDescription('');
                     setNewJournalCoverImage(undefined);
+                    setNewJournalColor('green');
                   }}
                   className="min-h-[44px] px-4 rounded-lg bg-[var(--pub-bg-alt)] hover:bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] text-[var(--sepia-muted)] hover:text-[var(--foreground)] text-sm font-semibold transition-colors cursor-pointer"
                 >
@@ -679,6 +765,88 @@ export function JournalsOverview({
                   className="min-h-[44px] px-5 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] text-[var(--fab-text)] font-bold text-sm transition-all cursor-pointer shadow-md active:scale-95"
                 >
                   {t('createJournalBtn')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Bookshelf Edit Modal / Dialog Overlay */}
+      {journalLayout === 'bookshelf' && editingId && typeof window !== 'undefined' && createPortal(
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="edit-journal-modal-title"
+          className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in p-4"
+          onClick={() => setEditingId(null)}
+        >
+          <div
+            className="w-full max-w-md bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] rounded-2xl p-6 shadow-2xl max-h-[90dvh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-[var(--parchment-border)]/60 pb-3 mb-4">
+              <h3 id="edit-journal-modal-title" className="font-display text-lg font-bold text-[var(--foreground)] uppercase tracking-wider">
+                {t('renameAction')}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setEditingId(null)}
+                className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-black/5 text-[var(--sepia-muted)] hover:text-[var(--foreground)] transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={(e) => handleRename(e, editingId)} className="space-y-4">
+              <div>
+                <label className="block text-xs font-body text-[var(--sepia-muted)] mb-1.5 tracking-wider">
+                  {t('journalNameLabel')}
+                </label>
+                <input
+                  type="text"
+                  required
+                  autoFocus
+                  maxLength={40}
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-full h-11 px-3 rounded-lg bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/60 font-body text-sm focus:outline-none focus:border-[var(--brass-accent)] mb-4"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-body text-[var(--sepia-muted)] mb-1.5 tracking-wider">
+                  {t('descriptionOptionalLabel')}
+                </label>
+                <input
+                  type="text"
+                  maxLength={120}
+                  placeholder={t('descriptionPlaceholder')}
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  className="w-full h-11 px-3 rounded-lg bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/60 font-body text-sm focus:outline-none focus:border-[var(--brass-accent)]"
+                />
+              </div>
+              <JournalCoverPicker
+                currentCoverImage={editCoverImage}
+                onChange={setEditCoverImage}
+              />
+              <JournalColorPicker
+                selectedColor={editColor}
+                onChange={setEditColor}
+              />
+              <div className="flex justify-end gap-2.5 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingId(null)}
+                  className="min-h-[44px] px-4 rounded-lg bg-[var(--pub-bg-alt)] hover:bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] text-[var(--sepia-muted)] hover:text-[var(--foreground)] text-sm font-semibold transition-colors cursor-pointer"
+                >
+                  {t('cancel')}
+                </button>
+                <button
+                  type="submit"
+                  className="min-h-[44px] px-5 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] text-[var(--fab-text)] font-bold text-sm transition-all cursor-pointer shadow-md active:scale-95"
+                >
+                  {t('saveAction')}
                 </button>
               </div>
             </form>

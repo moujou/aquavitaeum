@@ -1,9 +1,19 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useTastingCardForm } from '../useTastingCardForm';
 import { MOCK_SPIRITS } from '@/data/mock-spirits';
+import { SpiritAnalysisResult } from '@/services/ai-assistant-service';
 
 describe('useTastingCardForm Hook', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
+
   it('initializes with initial spirit and default state', () => {
     const testSpirit = MOCK_SPIRITS[0];
     const { result } = renderHook(() => useTastingCardForm(testSpirit));
@@ -14,8 +24,16 @@ describe('useTastingCardForm Hook', () => {
     expect(result.current.showDeleteModal).toBe(false);
   });
 
-  it('updates a field and marks form as unsaved', () => {
-    const { result } = renderHook(() => useTastingCardForm(MOCK_SPIRITS[0]));
+  it('initializes with blank spirit when no initialSpirit is provided', () => {
+    const { result } = renderHook(() => useTastingCardForm());
+    expect(result.current.spirit).toBeDefined();
+    expect(result.current.displayName).toBe('Untitled Spirit Note');
+    expect(result.current.subtitleLocation).toBe('Tasting Notes');
+  });
+
+  it('updates a field, marks form as unsaved, and debounces save', () => {
+    const onSave = vi.fn();
+    const { result } = renderHook(() => useTastingCardForm(MOCK_SPIRITS[0], onSave));
 
     act(() => {
       result.current.update('distillery', 'New Distillery');
@@ -23,21 +41,50 @@ describe('useTastingCardForm Hook', () => {
 
     expect(result.current.spirit.distillery).toBe('New Distillery');
     expect(result.current.saved).toBe(false);
+
+    // Fast-forward debounce timer (1000ms)
+    act(() => {
+      vi.advanceTimersByTime(1050);
+    });
+
+    expect(onSave).toHaveBeenCalledWith(
+      expect.objectContaining({ distillery: 'New Distillery' })
+    );
+    expect(result.current.saved).toBe(true);
   });
 
-  it('updates nose profile dimension and marks form as unsaved', () => {
+  it('updates nose profile and taste profile dimensions', () => {
     const { result } = renderHook(() => useTastingCardForm(MOCK_SPIRITS[0]));
 
     act(() => {
       result.current.updateProfile('noseProfile', 'peaty', 9);
+      result.current.updateProfile('tasteProfile', 'chocolate', 8);
     });
 
     expect(result.current.spirit.noseProfile.peaty).toBe(9);
+    expect(result.current.spirit.tasteProfile.chocolate).toBe(8);
   });
 
-  it('saves note and calls onSave callback with cleaned tags & calculated star rating', () => {
+  it('handles auto-thumbnail selection when images array is updated', () => {
+    const { result } = renderHook(() => useTastingCardForm(MOCK_SPIRITS[0]));
+
+    act(() => {
+      result.current.update('images', ['img1.jpg', 'img2.jpg']);
+    });
+
+    expect(result.current.spirit.images).toEqual(['img1.jpg', 'img2.jpg']);
+    expect(result.current.spirit.thumbnailImage).toBe('img1.jpg');
+
+    act(() => {
+      result.current.update('images', []);
+    });
+    expect(result.current.spirit.thumbnailImage).toBeUndefined();
+  });
+
+  it('saves note and calls onSave callback immediately on handleSave', () => {
     const onSaveMock = vi.fn();
-    const { result } = renderHook(() => useTastingCardForm(MOCK_SPIRITS[0], onSaveMock));
+    const testSpirit = { ...MOCK_SPIRITS[0], rating100: 95 };
+    const { result } = renderHook(() => useTastingCardForm(testSpirit, onSaveMock));
 
     act(() => {
       result.current.handleSave();
@@ -46,8 +93,9 @@ describe('useTastingCardForm Hook', () => {
     expect(result.current.saved).toBe(true);
     expect(onSaveMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        id: MOCK_SPIRITS[0].id,
-        starRating: 4.5, // 92 / 100 * 5 rounded
+        id: testSpirit.id,
+        rating100: 95,
+        starRating: 5, // 95/100 * 5 = 4.75 -> rounded to 5
       }),
     );
   });
@@ -108,16 +156,22 @@ describe('useTastingCardForm Hook', () => {
     expect(result.current.spirit.currency).toBe('$');
   });
 
-  it('executes delete action via confirmDelete', () => {
+  it('executes delete action via confirmDelete and closes modal', () => {
     const onDeleteMock = vi.fn();
     const { result } = renderHook(() =>
       useTastingCardForm(MOCK_SPIRITS[0], undefined, onDeleteMock),
     );
 
     act(() => {
+      result.current.setShowDeleteModal(true);
+    });
+    expect(result.current.showDeleteModal).toBe(true);
+
+    act(() => {
       result.current.confirmDelete();
     });
 
+    expect(result.current.showDeleteModal).toBe(false);
     expect(onDeleteMock).toHaveBeenCalledWith(MOCK_SPIRITS[0].id);
   });
 
@@ -150,13 +204,81 @@ describe('useTastingCardForm Hook', () => {
       result.current.importSpirit(importedForeignSpirit as never);
     });
 
-    // Form updated with imported data
     expect(result.current.spirit.name).toBe('Pappy Van Winkle 15');
     expect(result.current.spirit.distillery).toBe('Old Rip Van Winkle');
     expect(result.current.spirit.rating100).toBe(98);
-    // Preserved active card ID and journal ID
     expect(result.current.spirit.id).toBe(currentCard.id);
     expect(result.current.spirit.journalId).toBe(currentCard.journalId);
     expect(onSaveMock).toHaveBeenCalled();
+  });
+
+  it('applies scan result in facts-only mode', () => {
+    const { result } = renderHook(() => useTastingCardForm(MOCK_SPIRITS[0]));
+
+    const scanResult: SpiritAnalysisResult = {
+      name: 'Highland Park 18',
+      distillery: 'Highland Park',
+      region: 'Islands',
+      spiritType: 'Single Malt Scotch',
+      abv: 43,
+      age: 18,
+      volumeMl: 700,
+      caskTypes: ['Oloroso Sherry Casks'],
+      characteristics: ['Natural Colour'],
+      colour: 'Deep Gold',
+      glance: ['Oily'],
+      barRole: ['Showcase'],
+    };
+
+    act(() => {
+      result.current.applyScanResult(scanResult, 'bottle.jpg', 'facts-only');
+    });
+
+    expect(result.current.spirit.name).toBe('Highland Park 18');
+    expect(result.current.spirit.distillery).toBe('Highland Park');
+    expect(result.current.spirit.age).toBe(18);
+    expect(result.current.spirit.caskNo).toBe('Oloroso Sherry Casks');
+    expect(result.current.spirit.images).toContain('bottle.jpg');
+    expect(result.current.spirit.thumbnailImage).toBe('bottle.jpg');
+  });
+
+  it('applies scan result in full mode with suggested flavor tags', () => {
+    const { result } = renderHook(() => useTastingCardForm(MOCK_SPIRITS[0]));
+
+    const scanResult: SpiritAnalysisResult = {
+      name: 'Talisker 10',
+      distillery: 'Talisker',
+      region: 'Islands',
+      spiritType: 'Single Malt Scotch',
+      abv: 45.8,
+      finishNotes: 'Peppery maritime finish',
+      suggestedNoseTags: ['Maritime Sea Salt', 'Peat Smoke'],
+      suggestedTasteTags: ['Black Pepper', 'Smoked Malt'],
+    };
+
+    act(() => {
+      result.current.applyScanResult(scanResult, undefined, 'full');
+    });
+
+    expect(result.current.spirit.name).toBe('Talisker 10');
+    expect(result.current.spirit.finishNotes).toBe('Peppery maritime finish');
+    expect(result.current.spirit.noseFlavorTags).toContain('Maritime Sea Salt');
+    expect(result.current.spirit.tasteFlavorTags).toContain('Black Pepper');
+    expect(result.current.spirit.flavorTags).toContain('Black Pepper');
+  });
+
+  it('flushes pending changes on unmount', () => {
+    const onSave = vi.fn();
+    const { result, unmount } = renderHook(() => useTastingCardForm(MOCK_SPIRITS[0], onSave));
+
+    act(() => {
+      result.current.update('distillery', 'Unmount Test Distillery');
+    });
+
+    unmount();
+
+    expect(onSave).toHaveBeenCalledWith(
+      expect.objectContaining({ distillery: 'Unmount Test Distillery' })
+    );
   });
 });

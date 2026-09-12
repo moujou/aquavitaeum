@@ -109,7 +109,7 @@ export function JournalCoverPicker({
                 alt="Journal cover preview"
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#2B1E14]/20 via-transparent to-black/5 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[var(--sepia-text)]/20 via-transparent to-black/5 pointer-events-none" />
               {/* Remove button */}
               <button
                 type="button"

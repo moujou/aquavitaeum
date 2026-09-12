@@ -202,6 +202,16 @@ Used for all text inputs, textareas, and select elements on the parchment ledger
   - `⭐ Ø Score`: Average rating across all drams in the journal.
   - `🧭 Regionen`: Count of unique terroir regions represented in the journal.
 
+### 5.12 Bottle Showcase Standards (`SpiritCard`, `NoteGridView` & `NoteListItem`)
+- **Responsive Card Grid (`NoteGridView`)**: `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3` providing an expansive, legible 3-column desktop and single/dual column mobile/tablet browsing experience.
+- **Generous Bottle Showcase Canvas (`SpiritCard`)**:
+  - *Edge-to-Edge Bottle Display*: Full-width canvas with `aspect-[4/5] sm:aspect-[3/4]` and `object-contain`, ensuring uncropped bottle silhouettes with prominent Sommelier score badges.
+  - *Structured Editorial Body*: 6 distinct data rows with 8 active flavor category chips, tasting quote snippet, and grounded star rating/date footer.
+### 5.13 Twin Dropdowns & Rating Segmented Controls (`NoteSortDropdown` & `NoteFilterDropdown`)
+- **Twin Header Dropdowns**: Compact 36px buttons (`h-9 min-h-[36px] px-2.5 sm:px-3 text-xs`) positioned left-aligned on the ledger header, styled with chamois parchment (`bg-[var(--pub-bg-panel)] border-[var(--forest-green)]/35 text-[var(--forest-green)]`).
+- **Rating Segmented Bar**: 4-column connected toggle pill bar (`[ Alle ] [ 80+ ] [ 85+ ] [ 90+ ]`) styled in `bg-[var(--pub-bg)]` with active Clover Green fill (`bg-[var(--forest-green)] text-white shadow-xs font-bold`) and high-contrast ink labels.
+- **Minimalist Overview Header**: Low-profile, single-row toolbar layout with subtle journal subtitle lockup placed directly beneath the Clover Glow divider.
+
 ---
 
 ## 🍷 6. Instinctive Sensory Flavor Palette (SWRI Taxonomy)

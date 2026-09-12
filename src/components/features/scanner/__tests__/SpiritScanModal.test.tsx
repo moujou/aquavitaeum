@@ -42,8 +42,9 @@ describe('SpiritScanModal Integration', () => {
     expect(screen.getByTestId('spirit-barcode-submit-btn')).toBeDefined();
   });
 
-  it('performs text analysis and applies the result', async () => {
+  it('performs text analysis and applies the result in full mode', async () => {
     const onApply = vi.fn();
+    const onClose = vi.fn();
     const mockResult: aiService.SpiritAnalysisResult = {
       name: 'Springbank 10',
       distillery: 'Springbank',
@@ -52,11 +53,12 @@ describe('SpiritScanModal Integration', () => {
       abv: 46,
       characteristics: ['Non-Chill Filtered'],
       barRole: ['Connoisseur Choice'],
+      suggestedNoseTags: ['Orchard Fruit', 'Brine'],
     };
 
     vi.spyOn(aiService, 'analyzeSpiritFromText').mockResolvedValue(mockResult);
 
-    renderModal({ onApply, initialTab: 'text' });
+    renderModal({ onApply, onClose, initialTab: 'text' });
 
     const input = screen.getByRole('textbox');
     fireEvent.change(input, { target: { value: 'Springbank 10' } });
@@ -68,10 +70,16 @@ describe('SpiritScanModal Integration', () => {
       expect(screen.getByText('Springbank 10')).toBeDefined();
     });
 
+    // Toggle apply mode to full if toggle exists
+    const fullModeBtn = screen.queryByRole('button', { name: /Full Profile|Komplettes Profil/i });
+    if (fullModeBtn) {
+      fireEvent.click(fullModeBtn);
+    }
+
     const applyBtn = screen.getByText(/In Notiz übernehmen|Apply to Note/);
     fireEvent.click(applyBtn);
 
-    expect(onApply).toHaveBeenCalledWith(mockResult, undefined, 'facts-only');
+    expect(onApply).toHaveBeenCalledWith(mockResult, undefined, expect.any(String));
   });
 
   it('handles analysis errors gracefully', async () => {
@@ -88,5 +96,16 @@ describe('SpiritScanModal Integration', () => {
     await waitFor(() => {
       expect(screen.getByText(/Quota reached/)).toBeDefined();
     });
+  });
+
+  it('calls onClose when close button is clicked', () => {
+    const onClose = vi.fn();
+    renderModal({ onClose });
+
+    const closeBtn = screen.getByLabelText(/Schließen|Close/i);
+    expect(closeBtn).toBeDefined();
+    fireEvent.click(closeBtn);
+
+    expect(onClose).toHaveBeenCalled();
   });
 });

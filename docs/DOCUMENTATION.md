@@ -159,20 +159,40 @@ Aqua Vitaeum bildet Aromen deskriptiv über 8 SWRI-Kategorien auf natürliche Fa
 
 ---
 
-## 🧪 Testing Guidelines
+---
 
-Unit- und Integrationstests werden mit **Vitest 4** und **`@testing-library/react`** durchgeführt:
+## 🛡️ Security, Privacy & Threat Mitigation
+
+Aqua Vitaeum operates under a **Zero-Knowledge, Local-First Security Architecture**:
+
+1. **Static Export Isolation**: With `output: "export"`, no server backend or Node.js runtime is exposed in production. The entire application executes locally within the browser sandbox, eliminating server-side RCE, SSRF, and backend SQL injection vectors.
+2. **Local-First Sandboxing**: Tasting notes, high-resolution bottle photos, and custom journal records reside solely within client-side IndexedDB (`@/lib/db`). Zero user data or telemetry is transmitted to third-party tracking services.
+3. **BYOK Secret Hygiene**: Google Gemini AI keys are managed via the Bring-Your-Own-Key model. Keys are stored client-side, masked in the UI (`••••••••${last4}`), and communicated directly to official Google endpoints (`generativelanguage.googleapis.com`) via TLS 1.3 encryption.
+4. **Least-Privilege Cloud Authorization**: Google Drive Backup strictly requests the `https://www.googleapis.com/auth/drive.file` OAuth 2.0 scope, granting access only to application-created files inside the `Aqua Vitaeum/` folder and preserving full privacy over the user's broader Google Drive storage.
+5. **CSPRNG Identifiers**: Cryptographic security uses the W3C Web Crypto API (`crypto.randomUUID()`) for high-entropy RFC 4122 v4 entity identification.
+6. **XSS & Injection Hardening**: All presentation data utilizes React's contextual auto-escaping; user input is strictly validated through Zod and domain schema guardrails (`spirit.schema.ts`, `journal.schema.ts`).
+
+---
+
+## 🧪 Testing & 7-Agent Pre-Commit Protocol
+
+Aqua Vitaeum enforces a mandatory **7-Agent Verification Protocol** (`AGENTS.md`) before every commit:
+
+| Agent Role | Verification Command / Target | Requirement |
+| :--- | :--- | :--- |
+| **1. Software Expert** | Clean code & DRY | Strict TypeScript (`npm run type-check`), 0 unused variables. |
+| **2. Software Architect** | Module boundaries | Layer flow (`data` ➔ `lib` ➔ `types` ➔ `hooks` ➔ `components` ➔ `app`). |
+| **3. Quality Expert** | `npm run type-check`, `npm run lint`, `npm run test` | 0 errors, 0 warnings, 100% test pass rate (384+ tests across 62 suites). |
+| **4. UX/UI Expert** | Design consistency | WCAG AAA contrast, CSS custom properties, zero layout shift. |
+| **5. Security & Privacy Expert** | Security audit | 0 secrets in repo, BYOK masking, least privilege OAuth, zero tracking. |
+| **6. Documentation Agent** | `docs/` synchronization | Keep `DOCUMENTATION.md` & `DESIGN_SYSTEM.md` up-to-date. |
+| **7. Marketing Agent** | Redational polish | Atmospheric "Connoisseur's Codex" Irish pub & manuscript tone. |
 
 ```bash
-# Gesamte Testsuite ausführen
+# Vor jedem Commit ausführen:
+npm run type-check
+npm run lint
 npm run test
-
-# Testabdeckung analysieren
-npm run test:coverage
+npm run build
 ```
 
-Vor dem Mergen von Änderungen:
-1. `npm run type-check` (0 Fehler)
-2. `npm run lint` (0 Fehler, 0 Warnungen)
-3. `npm run test` (306 Tests / 53 Suiten bestanden)
-4. `npm run build` (Statischer Export erfolgreich)

@@ -1,10 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { validateSpirit } from '../spirit.schema';
-import { SpiritType, SpiritColour, SpiritGlance, Currency } from '@/types/spirit.types';
+import { validateSpirit, isValidSpiritData } from '../spirit.schema';
+import { SpiritType, SpiritColour, SpiritGlance, Currency, FlavorProfile } from '@/types/spirit.types';
+import { DEFAULT_FLAVOR_PROFILE } from '@/lib/spirit-utils';
 
 describe('Spirit Schema Validation', () => {
   it('validates a valid spirit object with no errors', () => {
     const validSpirit = {
+      id: 'spirit-123',
+      name: 'Lagavulin 16',
       spiritType: 'Single Malt Scotch' as const,
       colour: 'Gold' as const,
       glance: ['Oily'] as SpiritGlance[],
@@ -15,6 +18,13 @@ describe('Spirit Schema Validation', () => {
       currency: '€' as const,
       addedColour: false,
       chillFiltered: true,
+      tastingAdditions: ['Water'],
+      characteristics: ['Single Cask'],
+      finishCharacter: ['Long'],
+      barRole: ['Showcase'],
+      images: ['img1.jpg'],
+      noseProfile: { ...DEFAULT_FLAVOR_PROFILE, peaty: 8, fruity: 3 },
+      tasteProfile: { ...DEFAULT_FLAVOR_PROFILE, peaty: 9, chocolate: 4 },
       finishCurves: {
         'Peat Smoke': { startTime: 0, peakTime: 4, peakIntensity: 8, endTime: 20 },
       },
@@ -22,6 +32,8 @@ describe('Spirit Schema Validation', () => {
     const result = validateSpirit(validSpirit);
     expect(result.valid).toBe(true);
     expect(Object.keys(result.errors).length).toEqual(0);
+
+    expect(isValidSpiritData(validSpirit)).toBe(true);
   });
 
   it('detects invalid spiritType values outside as const tuple', () => {
@@ -43,7 +55,7 @@ describe('Spirit Schema Validation', () => {
     expect(result.errors.colour).toBeDefined();
   });
 
-  it('detects invalid glance/mouthfeel values outside as const tuple', () => {
+  it('detects invalid glance/mouthfeel values outside as const tuple or non-array', () => {
     const invalidGlance = {
       spiritType: 'Irish Whiskey' as const,
       glance: ['Sandpaper'] as unknown as SpiritGlance[],
@@ -51,6 +63,30 @@ describe('Spirit Schema Validation', () => {
     const result = validateSpirit(invalidGlance);
     expect(result.valid).toBe(false);
     expect(result.errors.glance).toBeDefined();
+
+    expect(validateSpirit({ spiritType: 'Bourbon', glance: 'Oily' as unknown as SpiritGlance[] }).valid).toBe(false);
+  });
+
+  it('detects invalid tastingAdditions, characteristics, finishCharacter, and barRole', () => {
+    expect(validateSpirit({ spiritType: 'Bourbon', tastingAdditions: 'Water' as unknown as string[] }).valid).toBe(false);
+    expect(validateSpirit({ spiritType: 'Bourbon', characteristics: 123 as unknown as string[] }).valid).toBe(false);
+    expect(validateSpirit({ spiritType: 'Bourbon', finishCharacter: 'Long' as unknown as string[] }).valid).toBe(false);
+    expect(validateSpirit({ spiritType: 'Bourbon', barRole: 'NotAnArray' as unknown as string[] }).valid).toBe(false);
+
+    expect(validateSpirit({ spiritType: 'Bourbon', characteristics: [''] }).valid).toBe(false);
+    expect(validateSpirit({ spiritType: 'Bourbon', barRole: ['A'.repeat(51)] }).valid).toBe(false);
+  });
+
+  it('detects invalid radar profiles (out of bounds or non-object)', () => {
+    expect(validateSpirit({ spiritType: 'Bourbon', noseProfile: 'invalid' as unknown as FlavorProfile }).valid).toBe(false);
+    expect(validateSpirit({ spiritType: 'Bourbon', tasteProfile: null as unknown as FlavorProfile }).valid).toBe(false);
+
+    expect(validateSpirit({ spiritType: 'Bourbon', noseProfile: { ...DEFAULT_FLAVOR_PROFILE, peaty: 15 } }).valid).toBe(false);
+    expect(validateSpirit({ spiritType: 'Bourbon', tasteProfile: { ...DEFAULT_FLAVOR_PROFILE, fruity: -2 } }).valid).toBe(false);
+  });
+
+  it('detects invalid images array', () => {
+    expect(validateSpirit({ spiritType: 'Bourbon', images: 'photo.jpg' as unknown as string[] }).valid).toBe(false);
   });
 
   it('detects invalid finishCurves parameter values', () => {
@@ -117,5 +153,12 @@ describe('Spirit Schema Validation', () => {
     const result = validateSpirit(oversizedDistillery);
     expect(result.valid).toBe(false);
     expect(result.errors.distillery).toBeDefined();
+  });
+
+  it('validates with isValidSpiritData guard', () => {
+    expect(isValidSpiritData(null)).toBe(false);
+    expect(isValidSpiritData({})).toBe(false);
+    expect(isValidSpiritData({ id: '1', name: 'Whisky' })).toBe(false);
+    expect(isValidSpiritData({ id: '1', name: 'Whisky', spiritType: 'Invalid' })).toBe(false);
   });
 });

@@ -23,6 +23,10 @@ describe('ScanPhotoTab', () => {
     const dropzone = screen.getByText('Flaschen- oder Etikettenfoto hochladen').closest('div[class*="border-dashed"]');
     expect(dropzone).toBeDefined();
 
+    // Test dragover & dragleave state styling
+    fireEvent.dragOver(dropzone!);
+    fireEvent.dragLeave(dropzone!);
+
     const file = new File(['dummy'], 'whisky.jpg', { type: 'image/jpeg' });
     fireEvent.drop(dropzone!, {
       dataTransfer: {
@@ -31,5 +35,31 @@ describe('ScanPhotoTab', () => {
     });
 
     expect(onFileSelect).toHaveBeenCalledWith(file);
+  });
+
+  it('triggers onFileSelect when a file is selected via input', () => {
+    const onFileSelect = vi.fn();
+    const { container } = render(<ScanPhotoTab language="EN" onFileSelect={onFileSelect} />);
+
+    const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement;
+    expect(fileInput).toBeDefined();
+
+    const file = new File(['image-content'], 'ardbeg.png', { type: 'image/png' });
+    fireEvent.change(fileInput, { target: { files: [file] } });
+
+    expect(onFileSelect).toHaveBeenCalledWith(file);
+  });
+
+  it('triggers file input click when dropzone is clicked', () => {
+    const { container } = render(<ScanPhotoTab language="EN" onFileSelect={vi.fn()} />);
+
+    const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement;
+    const clickSpy = vi.spyOn(fileInput, 'click');
+
+    const dropzone = screen.getByText('Upload Bottle or Label Photo').closest('div[class*="border-dashed"]');
+    expect(dropzone).toBeDefined();
+    fireEvent.click(dropzone!);
+
+    expect(clickSpy).toHaveBeenCalled();
   });
 });

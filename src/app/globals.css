@@ -49,6 +49,40 @@
   /* ── Vibrant Irish Clover Green Accent ───────────────────────────────── */
   --forest-green: #2E945D;   /* Leuchtendes Klee-Grün für Badges & Struktur */
 
+  /* ── Library Bookshelf & Leather Book Spine Tokens ─────────────────────── */
+  --shelf-wood-top:      #885F3D;   /* Matte warm Irish Oak shelf top */
+  --shelf-wood-front:    #6D472B;   /* Solid matte Amber-Oak front moulding */
+  --shelf-wood-bevel:    #A67A50;   /* Subtle golden-oak edge highlight */
+  --shelf-wood-shadow:   rgba(35, 20, 8, 0.18);
+  --shelf-bracket:       #B87222;   /* Muted Antique Brass */
+
+  /* 8 Subdued, Earthy Matte Vintage Spine Palettes (Zero White) */
+  --spine-green:         #385644;   /* Matte Vintage Sage / Moss Green */
+  --spine-ruby:          #6E3F42;   /* Matte Muted Port Wine / Terracotta */
+  --spine-amber:         #885C35;   /* Matte Warm Caramel / Tobacco Leather */
+  --spine-teal:          #34535F;   /* Matte Muted Maritime Slate Teal */
+  --spine-havana:        #5E4434;   /* Matte Antique Walnut / Havana Leather */
+  --spine-indigo:        #2E4057;   /* Matte Muted Atlantic Navy / Indigo Leather */
+  --spine-heather:       #5C4355;   /* Matte Muted Heather / Damson Plum */
+  --spine-slate:         #424953;   /* Matte Muted Graphite Charcoal */
+  --spine-ribbon:        #A86828;   /* Muted Antique Copper Ribbon */
+
+  /* Legacy Aliases for backwards compatibility */
+  --spine-crimson:       var(--spine-ruby);
+  --spine-emerald:       var(--spine-green);
+  --spine-sapphire:      var(--spine-teal);
+  --spine-cognac:        var(--spine-amber);
+  --spine-heather:       var(--spine-heather);
+  --spine-havana:        var(--spine-havana);
+  --spine-ochre:         var(--spine-amber);
+  --spine-parchment:     var(--spine-havana);
+  --spine-charcoal:      var(--spine-slate);
+  --spine-burgundy:      var(--spine-ruby);
+  --spine-forest:        var(--spine-green);
+  --spine-navy:          var(--spine-indigo);
+  --spine-whiskey:       var(--spine-amber);
+  --spine-tobacco:       var(--spine-havana);
+
   /* ── Semantic Aliases ────────────────────────────────────────────────── */
   --background: var(--pub-bg);
 }
@@ -101,6 +135,40 @@
 
   /* ── Forest Green Accent (Journal Cards) ────────────────────────────────── */
   --forest-green: #2A5E3F;
+
+  /* ── Library Bookshelf & Leather Book Spine Tokens ─────────────────────── */
+  --shelf-wood-top:      #72492B;
+  --shelf-wood-front:    #56341C;
+  --shelf-wood-bevel:    #8F633B;
+  --shelf-wood-shadow:   rgba(0, 0, 0, 0.40);
+  --shelf-bracket:       #A86822;
+
+  --spine-green:         #2D4637;
+  --spine-ruby:          #593235;
+  --spine-amber:         #6E492A;
+  --spine-teal:          #28424B;
+  --spine-havana:        #4A3527;
+  --spine-indigo:        #233245;
+  --spine-heather:       #483443;
+  --spine-slate:         #333A42;
+  --spine-ribbon:        #8E5620;
+
+  /* Legacy Aliases for backwards compatibility */
+  --spine-crimson:       var(--spine-ruby);
+  --spine-emerald:       var(--spine-green);
+  --spine-sapphire:      var(--spine-teal);
+  --spine-cognac:        var(--spine-amber);
+  --spine-heather:       var(--spine-heather);
+  --spine-havana:        var(--spine-havana);
+  --spine-ochre:         var(--spine-amber);
+  --spine-parchment:     var(--spine-havana);
+  --spine-charcoal:      var(--spine-slate);
+  --spine-burgundy:      var(--spine-ruby);
+  --spine-forest:        var(--spine-green);
+  --spine-navy:          var(--spine-teal);
+  --spine-whiskey:       var(--spine-amber);
+  --spine-tobacco:       var(--spine-havana);
+
   --background: var(--pub-bg);
 }
 
