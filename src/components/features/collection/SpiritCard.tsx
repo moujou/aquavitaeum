@@ -88,8 +88,8 @@ export function SpiritCard({
         </h3>
       </div>
 
-      {/* 2. Generous Bottle Showcase Frame (Edge-to-edge full canvas) */}
-      <div className="relative w-full aspect-[4/5] sm:aspect-[3/4] bg-[var(--pub-bg-alt)]/60 border-b border-[var(--parchment-border)]/50 overflow-hidden flex items-center justify-center p-0">
+      {/* 2. Generous Bottle Showcase Frame (Edge-to-edge crisp canvas, aspect-[16/10] on mobile, aspect-[3/4] on tablet/desktop) */}
+      <div className="relative w-full aspect-[16/10] sm:aspect-[3/4] bg-[var(--pub-bg-alt)]/60 border-b border-[var(--parchment-border)]/50 overflow-hidden flex items-center justify-center p-0">
         {spirit.thumbnailImage ? (
           <img
             src={spirit.thumbnailImage}
@@ -98,8 +98,8 @@ export function SpiritCard({
             draggable={false}
           />
         ) : (
-          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-[var(--forest-green)]/10 border border-[var(--forest-green)]/30 flex items-center justify-center text-[var(--forest-green)] shadow-xs transition-transform duration-300 group-hover:scale-110">
-            <WhiskyLogo size={44} className="text-[var(--forest-green)] sm:size-[52px]" />
+          <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-[var(--forest-green)]/10 border border-[var(--forest-green)]/30 flex items-center justify-center text-[var(--forest-green)] shadow-xs transition-transform duration-300 group-hover:scale-110">
+            <WhiskyLogo size={36} className="text-[var(--forest-green)] sm:size-[52px]" />
           </div>
         )}
 
