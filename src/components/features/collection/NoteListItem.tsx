@@ -91,8 +91,8 @@ export function NoteListItem({
 
       {/* ── 2. Showcase Section: Prominent Bottle Image (Left) + Structured Continuous Rows (Right) ── */}
       <div className="w-full flex flex-row items-stretch border-b border-[var(--parchment-divider)]">
-        {/* Flush Bottle Showcase Frame (Left, Generous Dimensions, 100% Flush, p-0 m-0) */}
-        <div className="w-[110px] sm:w-[160px] md:w-[190px] shrink-0 bg-[var(--pub-bg-alt)]/35 border-r border-[var(--parchment-border)] relative flex items-center justify-center p-0 m-0 overflow-hidden min-h-[120px] sm:min-h-[155px] md:min-h-[175px]">
+        {/* Flush Bottle Showcase Frame (Left, Proportional ~35% Width matching Journal Open Book, 100% Flush) */}
+        <div className="w-[35%] sm:w-[36%] lg:w-[35%] max-w-[240px] shrink-0 bg-[var(--pub-bg-alt)]/35 border-r border-[var(--parchment-border)] relative flex items-center justify-center p-0 m-0 overflow-hidden min-h-[120px] sm:min-h-[155px] md:min-h-[175px]">
           {spirit.thumbnailImage ? (
             <img
               src={spirit.thumbnailImage}
