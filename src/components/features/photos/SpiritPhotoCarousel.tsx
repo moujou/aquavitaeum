@@ -193,16 +193,6 @@ export function SpiritPhotoCarousel({
                   <Sparkles size={15} />
                 </button>
               )}
-
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--wood-dark)] text-white hover:bg-[var(--wood-accent)] transition-all cursor-pointer shadow-2xs active:scale-95 border border-[var(--wood-dark)]"
-                title={t('addPhoto')}
-                aria-label={t('addPhoto')}
-              >
-                <Plus size={15} />
-              </button>
             </div>
 
             {/* Right: Delete Action */}

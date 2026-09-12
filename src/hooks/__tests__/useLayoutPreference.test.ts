@@ -65,4 +65,33 @@ describe('useLayoutPreference Hook', () => {
     expect(result.current.layout).toBe('list');
     expect(localStorage.getItem(STORAGE_KEY)).toBe('list');
   });
+
+  it('defaults journalLayout to "manuscript" and handles updates', () => {
+    const { result } = renderHook(() => useLayoutPreference());
+    expect(result.current.journalLayout).toBe('manuscript');
+
+    act(() => {
+      result.current.setJournalLayout('bookshelf');
+    });
+
+    expect(result.current.journalLayout).toBe('bookshelf');
+    expect(localStorage.getItem('av-journal-layout')).toBe('bookshelf');
+
+    act(() => {
+      result.current.setJournalLayout('manuscript');
+    });
+
+    expect(result.current.journalLayout).toBe('manuscript');
+    expect(localStorage.getItem('av-journal-layout')).toBe('manuscript');
+  });
+
+  it('initializes journalLayout from localStorage and sanitizes invalid values', () => {
+    localStorage.setItem('av-journal-layout', 'bookshelf');
+    const { result: bookshelfResult } = renderHook(() => useLayoutPreference());
+    expect(bookshelfResult.current.journalLayout).toBe('bookshelf');
+
+    localStorage.setItem('av-journal-layout', 'invalid-mode');
+    const { result: fallbackResult } = renderHook(() => useLayoutPreference());
+    expect(fallbackResult.current.journalLayout).toBe('manuscript');
+  });
 });

@@ -201,6 +201,8 @@ export interface Journal {
   description?: string;
   /** Optional user-selected cover photo for the journal card. Stored as a base64 DataURL. */
   coverImage?: string;
+  /** Optional user-selected book spine color (green, ruby, amber, teal, havana, indigo, heather, slate). */
+  color?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -272,3 +274,11 @@ export interface Spirit {
   createdAt?: string;
   updatedAt?: string;
 }
+
+export type NoteSortOption = 'date_desc' | 'rating_desc' | 'rating_asc' | 'name_asc' | 'name_desc' | 'abv_desc';
+
+export interface NoteFilterState {
+  spiritType: SpiritType | 'All';
+  minRating: number;
+}
+

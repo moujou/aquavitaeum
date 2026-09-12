@@ -2,13 +2,12 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Star, SlidersHorizontal, BookOpen } from 'lucide-react';
+import { Search, Star, BookOpen } from 'lucide-react';
 import { db } from '@/lib/db';
-import { SpiritType, SPIRIT_TYPES } from '@/types/spirit.types';
+import { SpiritType } from '@/types/spirit.types';
 import { JournalWithStats } from '@/hooks/useJournals';
 import { WhiskyLogo } from '@/components/ui/WhiskyLogo';
 import { useLanguage } from '@/context/LanguageContext';
-import { cn } from '@/lib/utils';
 
 interface GlobalSearchProps {
   journals: JournalWithStats[];
@@ -17,8 +16,8 @@ interface GlobalSearchProps {
   selectSpirit: (id: string) => void;
   globalSearchQuery: string;
   setGlobalSearchQuery: (q: string) => void;
-  globalTypeFilter: SpiritType | 'All';
-  setGlobalTypeFilter: (t: SpiritType | 'All') => void;
+  globalTypeFilter?: SpiritType | 'All';
+  setGlobalTypeFilter?: (t: SpiritType | 'All') => void;
   onNavigateToSpirit?: (spiritId: string, journalId: string) => void;
 }
 
@@ -30,12 +29,10 @@ export default function GlobalSearch({
   globalSearchQuery,
   setGlobalSearchQuery,
   globalTypeFilter,
-  setGlobalTypeFilter,
   onNavigateToSpirit,
 }: GlobalSearchProps) {
   const { t } = useLanguage();
   const searchRef = useRef<HTMLDivElement>(null);
-  const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
 
   const [searchResults, setSearchResults] = useState<{
     journals: { id: string; name: string; coverImage?: string; recentImages?: string[]; bottleCount: number; averageRating: number; description?: string }[];
@@ -50,7 +47,6 @@ export default function GlobalSearch({
         return;
       }
       setGlobalSearchQuery('');
-      setIsFilterDropdownOpen(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -85,11 +81,11 @@ export default function GlobalSearch({
         const allSpirits = await db.spirits.toArray();
         const matchingSpirits = allSpirits
           .filter(s => {
-            const matchesType = globalTypeFilter === 'All' || s.spiritType === globalTypeFilter;
-            const matchesText = s.name.toLowerCase().includes(query) ||
-                                s.distillery.toLowerCase().includes(query) ||
-                                s.region.toLowerCase().includes(query) ||
-                                s.spiritType.toLowerCase().includes(query);
+            const matchesType = !globalTypeFilter || globalTypeFilter === 'All' || s.spiritType === globalTypeFilter;
+            const matchesText = (s.name || '').toLowerCase().includes(query) ||
+                                (s.distillery || '').toLowerCase().includes(query) ||
+                                (s.region || '').toLowerCase().includes(query) ||
+                                (s.spiritType || '').toLowerCase().includes(query);
             return matchesType && matchesText;
           })
           .map(s => {
@@ -130,14 +126,12 @@ export default function GlobalSearch({
       setActiveView('journal-detail');
       setGlobalSearchQuery('');
     }
-    setIsFilterDropdownOpen(false);
   };
 
   const handleSelectJournal = (journalId: string) => {
     setActiveJournalId(journalId);
     setActiveView('journal-landing');
     setGlobalSearchQuery('');
-    setIsFilterDropdownOpen(false);
   };
 
   return (
@@ -150,69 +144,9 @@ export default function GlobalSearch({
           value={globalSearchQuery}
           onChange={(e) => setGlobalSearchQuery(e.target.value)}
           placeholder={t('searchPlaceholderGlobal')}
-          className="bg-transparent border-none text-sm text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/70 focus:outline-none focus:ring-0 focus-within:ring-0 w-full pr-10 font-body"
+          className="bg-transparent border-none text-sm text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/70 focus:outline-none focus:ring-0 focus-within:ring-0 w-full font-body"
         />
-
-        {/* Filter Popover Trigger */}
-        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center">
-          <button
-            type="button"
-            onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
-            className={cn(
-              "h-8 w-8 rounded-full flex items-center justify-center border transition-all cursor-pointer",
-              isFilterDropdownOpen
-                ? "bg-[var(--forest-green)]/20 border-[var(--forest-green)]/40 text-[var(--forest-green)] shadow-xs"
-                : globalTypeFilter !== 'All'
-                  ? "bg-[var(--forest-green)]/15 border-[var(--forest-green)] text-[var(--forest-green)] shadow-xs"
-                  : "border-transparent text-[var(--forest-green)] hover:bg-[var(--forest-green)]/15 hover:border-[var(--forest-green)]/30"
-            )}
-            title={t('filterBySpiritType')}
-          >
-            <SlidersHorizontal size={14} />
-          </button>
-
-          {/* Active filter badge dot */}
-          {globalTypeFilter !== 'All' && (
-            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[var(--forest-green)] ring-2 ring-[var(--pub-bg-panel)]" />
-          )}
-        </div>
       </div>
-
-      {/* Filter Dropdown Popover */}
-      {isFilterDropdownOpen && (
-        <div className="absolute top-13 right-0 bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] rounded-2xl shadow-xl z-50 p-1.5 w-52 max-h-[280px] overflow-y-auto divide-y divide-[var(--parchment-divider)]/50 scrollbar-thin animate-fade-in">
-          <div className="px-3 py-1.5 text-[10px] uppercase font-bold text-[var(--forest-green)] tracking-wider">
-            {t('filterByType')}
-          </div>
-          <button
-            type="button"
-            onClick={() => { setGlobalTypeFilter('All'); setIsFilterDropdownOpen(false); }}
-            className={cn(
-              "w-full text-left text-xs px-3.5 py-2 rounded-lg flex items-center transition-colors cursor-pointer",
-              globalTypeFilter === 'All'
-                ? "text-[var(--forest-green)] font-semibold bg-[var(--forest-green)]/10 border-l-2 border-[var(--forest-green)] pl-3"
-                : "text-[var(--foreground)] hover:bg-black/5"
-            )}
-          >
-            {t('allSpirits')}
-          </button>
-          {SPIRIT_TYPES.map((type) => (
-            <button
-              key={type}
-              type="button"
-              onClick={() => { setGlobalTypeFilter(type); setIsFilterDropdownOpen(false); }}
-              className={cn(
-                "w-full text-left text-xs px-3.5 py-2 rounded-lg flex items-center transition-colors cursor-pointer",
-                globalTypeFilter === type
-                  ? "text-[var(--forest-green)] font-semibold bg-[var(--forest-green)]/10 border-l-2 border-[var(--forest-green)] pl-3"
-                  : "text-[var(--foreground)] hover:bg-black/5"
-              )}
-            >
-              {type}
-            </button>
-          ))}
-        </div>
-      )}
 
       {/* Search Results Dropdown */}
       {globalSearchQuery.trim() !== '' && (

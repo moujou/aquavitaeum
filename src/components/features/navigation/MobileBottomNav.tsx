@@ -1,15 +1,15 @@
 'use client';
 
-import React from 'react';
-import { Plus, BookOpen, User, LayoutGrid, AlignJustify } from 'lucide-react';
+import { Plus, BookOpen, Library, User, LayoutGrid, AlignJustify } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
-import { OverviewLayout } from '@/hooks/useLayoutPreference';
+import { OverviewLayout, JournalShelfLayout } from '@/hooks/useLayoutPreference';
 
 interface MobileBottomNavProps {
   activeView: 'welcome' | 'overview' | 'journal-landing' | 'journal-detail' | 'profile';
   activeJournalId: string | null;
   layout?: OverviewLayout;
+  journalLayout?: JournalShelfLayout;
   isBottomBarVisible: boolean;
   isMobileDrawerOpen: boolean;
   setActiveView: (view: 'welcome' | 'overview' | 'journal-landing' | 'journal-detail' | 'profile') => void;
@@ -25,6 +25,7 @@ export default function MobileBottomNav({
   activeView,
   activeJournalId,
   layout = 'grid',
+  journalLayout = 'manuscript',
   isBottomBarVisible,
   isMobileDrawerOpen,
   setActiveView,
@@ -44,6 +45,7 @@ export default function MobileBottomNav({
   const isProfileActive = activeView === 'profile';
 
   const LayoutIcon = layout === 'grid' ? LayoutGrid : AlignJustify;
+  const JournalIcon = journalLayout === 'bookshelf' ? Library : BookOpen;
   const leftTabTitle = isDetailView
     ? (language === 'DE' ? 'Zurück zur Flaschenübersicht' : 'Back to Notes')
     : isLandingView
@@ -87,7 +89,7 @@ export default function MobileBottomNav({
             className="transition-transform group-hover:scale-110 duration-200"
           />
         ) : (
-          <BookOpen
+          <JournalIcon
             size={23}
             strokeWidth={isOverviewActive ? 2.2 : 1.75}
             className="transition-transform group-hover:scale-110 duration-200"

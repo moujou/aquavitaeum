@@ -43,6 +43,12 @@ export function validateJournal(raw: unknown): JournalValidationResult {
     }
   }
 
+  if (j.color !== undefined && j.color !== null) {
+    if (typeof j.color !== 'string') {
+      errors.color = 'Color must be a string.';
+    }
+  }
+
   if (j.createdAt !== undefined && typeof j.createdAt !== 'string') {
     errors.createdAt = 'Created date must be a valid date string.';
   }

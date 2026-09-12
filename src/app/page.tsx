@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef, useCallback, startTransition } from 'react';
-import { Plus, BookOpen, AlignJustify, LayoutGrid } from 'lucide-react';
+import { Plus, BookOpen, Library, AlignJustify, LayoutGrid } from 'lucide-react';
 import { useSpiritCollection } from '@/hooks/useSpiritCollection';
 import { useJournals } from '@/hooks/useJournals';
 import { useLayoutPreference } from '@/hooks/useLayoutPreference';
@@ -22,7 +22,7 @@ import { useSwipeBack } from '@/hooks/useSwipeBack';
 import { NoteEmptyState } from '@/components/features/journals/landing/NoteEmptyState';
 
 export default function Home() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const basePath = process.env.NODE_ENV === 'production' ? '/aquavitaeum' : '';
   
   // Navigation View State: loading | welcome (onboarding) | overview (bookshelf) | journal-landing (note list) | journal-detail (tasting ledger) | profile
@@ -35,7 +35,7 @@ export default function Home() {
   const [globalSearchQuery, setGlobalSearchQuery] = useState('');
   const [globalTypeFilter, setGlobalTypeFilter] = useState<SpiritType | 'All'>('All');
   const [isSelectModeActive, setIsSelectModeActive] = useState(false);
-  const { layout, setLayout } = useLayoutPreference();
+  const { layout, setLayout, journalLayout, setJournalLayout } = useLayoutPreference();
   // Tracks which view the user was on before opening Profile, so toggling
   // Profile off correctly returns to journal-landing vs journal-detail vs overview.
   const [viewBeforeProfile, setViewBeforeProfile] = useState<'overview' | 'journal-landing' | 'journal-detail'>('overview');
@@ -106,30 +106,18 @@ export default function Home() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Reset scroll state on view transition
+  // Reset scroll state on view transition & refresh journals stats on entering overview
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsBottomBarVisible(true);
     setIsSelectModeActive(false);
     lastScrollTop.current = 0;
-  }, [activeView]);
+    if (activeView === 'overview') {
+      refreshJournals();
+    }
+  }, [activeView, refreshJournals]);
 
 
-
-  // Local filtered spirits inside the active journal
-  const filteredSpirits = useMemo(() => {
-    return spirits.filter((s) => {
-      const matchesType = globalTypeFilter === 'All' || s.spiritType === globalTypeFilter;
-      const q = globalSearchQuery.toLowerCase();
-      const matchesSearch =
-        !q ||
-        (s.distillery || '').toLowerCase().includes(q) ||
-        (s.name || '').toLowerCase().includes(q) ||
-        (s.region || '').toLowerCase().includes(q) ||
-        (s.spiritType || '').toLowerCase().includes(q);
-      return matchesType && matchesSearch;
-    });
-  }, [spirits, globalSearchQuery, globalTypeFilter]);
 
   // Automatically refresh journals stats when the active spirits list changes (saved or deleted notes)
   useEffect(() => {
@@ -342,7 +330,12 @@ export default function Home() {
         {/* ── Main Layout View switcher ──────────────────────────────────── */}
         {activeView === 'profile' ? (
           <div className="flex-1 overflow-y-auto bg-[var(--pub-bg)] max-lg:pt-[calc(4.5rem+env(safe-area-inset-top,0px))] lg:pt-0 pb-20 lg:pb-0 flex items-center justify-center">
-            <ProfileView layout={layout} onLayoutChange={setLayout} />
+            <ProfileView
+              layout={layout}
+              onLayoutChange={setLayout}
+              journalLayout={journalLayout}
+              onJournalLayoutChange={setJournalLayout}
+            />
           </div>
         ) : activeView === 'overview' ? (
           <div className="flex-1 h-full relative overflow-hidden flex flex-col">
@@ -359,6 +352,7 @@ export default function Home() {
               ) : (
                 <JournalsOverview
                   journals={journals}
+                  journalLayout={journalLayout}
                   onCreateJournal={createJournal}
                   onRenameJournal={renameJournal}
                   onDeleteJournal={deleteJournal}
@@ -399,7 +393,7 @@ export default function Home() {
               >
                 <JournalLandingPage
                   journal={activeJournal}
-                  spirits={filteredSpirits}
+                  spirits={spirits}
                   layout={layout}
                   isLoading={isLoadingSpirits}
                   onSelectModeChange={setIsSelectModeActive}
@@ -425,14 +419,18 @@ export default function Home() {
               {/* Content-Aligned Desktop Action Layer (Journal Landing) */}
               <div className="hidden lg:block absolute inset-0 pointer-events-none z-30">
                 <div className="w-full max-w-6xl mx-auto h-full relative px-4 sm:px-6">
-                  {/* Back to Journals (BookOpen) FAB */}
+                  {/* Back to Journals (Library / BookOpen) FAB */}
                   <button
                     type="button"
                     onClick={() => { setActiveJournalId(null); setActiveView('overview'); }}
                     className="pointer-events-auto absolute bottom-10 left-4 xl:-left-10 2xl:-left-16 w-16 h-16 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] border border-[var(--brass-accent)]/50 shadow-[0_12px_32px_rgba(0,0,0,0.35)] flex items-center justify-center cursor-pointer hover:scale-108 active:scale-95 transition-all hover:bg-[var(--fab-bg-hover)]"
-                    title="Back to Journals"
+                    title={language === 'DE' ? 'Zurück zur Journal-Übersicht' : 'Back to Journals'}
                   >
-                    <BookOpen size={26} strokeWidth={2} />
+                    {journalLayout === 'bookshelf' ? (
+                      <Library size={26} strokeWidth={2} />
+                    ) : (
+                      <BookOpen size={26} strokeWidth={2} />
+                    )}
                   </button>
                   {/* New Note FAB */}
                   <button
@@ -520,6 +518,7 @@ export default function Home() {
           activeView={activeView}
           activeJournalId={activeJournalId}
           layout={layout}
+          journalLayout={journalLayout}
           isBottomBarVisible={isBottomBarVisible}
           isMobileDrawerOpen={isMobileDrawerOpen}
           setActiveView={setActiveView}

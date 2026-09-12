@@ -80,9 +80,8 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
     );
 
     // Wait for the hydration loading screen to clear and reveal overview
-    const overviewTitle = await screen.findByText('My Journals');
-    expect(overviewTitle).toBeDefined();
-    expect(screen.getByText('My Journal')).toBeDefined();
+    const journalCard = await screen.findByText('My Journal');
+    expect(journalCard).toBeDefined();
     expect(screen.getByText('A mock journal for testing')).toBeDefined();
   });
 
@@ -162,9 +161,9 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
     const journalNavBtns = screen.getAllByTitle(/My Journals/i);
     fireEvent.click(journalNavBtns[0]);
 
-    // 4. Verify we are back at journals overview (journal title visible again)
-    const overviewTitle = await screen.findByText('My Journals');
-    expect(overviewTitle).toBeDefined();
+    // 4. Verify we are back at journals overview (journal card visible again)
+    const overviewCard = await screen.findByText('My Journal');
+    expect(overviewCard).toBeDefined();
   });
 
   it('returns to journal-landing (not journal-detail) when toggling Profile tab off', async () => {

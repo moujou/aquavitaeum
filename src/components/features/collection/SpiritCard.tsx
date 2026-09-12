@@ -94,7 +94,7 @@ export function SpiritCard({
           <img
             src={spirit.thumbnailImage}
             alt={spirit.name}
-            className="w-full h-full object-contain p-0 transition-transform duration-500 ease-out group-hover:scale-105 pointer-events-none"
+            className="w-full h-full object-cover p-0 m-0 transition-transform duration-500 ease-out group-hover:scale-105 pointer-events-none"
             draggable={false}
           />
         ) : (

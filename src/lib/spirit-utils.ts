@@ -320,4 +320,14 @@ export function formatSpiritCardSpecs(
   };
 }
 
+/**
+ * Resolves the primary editorial display name for a spirit.
+ * Prioritizes the spirit/expression name (spirit.name), falling back to distillery or 'Unnamed Spirit'.
+ */
+export function formatSpiritDisplayName(spirit: { name?: string; distillery?: string }): string {
+  const name = (spirit.name || '').trim();
+  const distillery = (spirit.distillery || '').trim();
+  return name || distillery || 'Unnamed Spirit';
+}
+
 

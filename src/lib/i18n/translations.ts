@@ -317,6 +317,34 @@ export const TRANSLATIONS = {
     overviewLayoutDesc: 'Display style for tasting notes in journals',
     layoutList: 'List',
     layoutGrid: 'Grid',
+    journalLayout: 'Journals View Style',
+    journalLayoutDesc: 'Display journals as open manuscripts or compact bookshelf',
+    layoutManuscript: 'Manuscript',
+    layoutBookshelf: 'Bookshelf',
+
+    // Journal Sorting
+    sortJournals: 'Sort',
+    sortLastEdited: 'Last Edited',
+    sortBottleCount: 'Note Count',
+    sortRating: 'Avg Rating',
+    sortNameAsc: 'Name (A–Z)',
+    sortNameDesc: 'Name (Z–A)',
+
+    // Note Sorting & Filtering (JournalLandingPage)
+    sortNotes: 'Sort',
+    sortTastedDate: 'Last Tasted',
+    sortRatingHigh: 'Highest Rating',
+    sortRatingLow: 'Lowest Rating',
+    sortAbv: 'ABV / Strength',
+    filterNotes: 'Filter',
+    filterAllTypes: 'All Categories',
+    filterRatingMin: 'Min Rating',
+    filterAllRatings: 'All Ratings',
+    filterRegion: 'Region',
+    filterAllRegions: 'All Regions',
+    resetFilters: 'Reset Filters',
+    showingNotesCount: 'of',
+    noFilteredNotes: 'No notes match the active filters.',
 
     // Bulk Tasting Note Delete (JournalLandingPage)
     deleteBulkNotesConfirm: 'notes will be permanently deleted. This action cannot be undone.',
@@ -363,6 +391,7 @@ export const TRANSLATIONS = {
 
     // Journal Cover Picker & Welcome
     coverPhotoOptional: 'Cover Photo (optional)',
+    bookColorLabel: 'Book Spine Color',
     noCoverSelected: 'No cover selected',
     uploadFromDevice: 'Upload from Device',
     removeCoverPhoto: 'Remove cover photo',
@@ -728,6 +757,34 @@ export const TRANSLATIONS = {
     overviewLayoutDesc: 'Anzeigestil der Notizen im Journal',
     layoutList: 'Liste',
     layoutGrid: 'Raster',
+    journalLayout: 'Journal-Ansicht',
+    journalLayoutDesc: 'Journale als aufgeschlagene Bücher oder kompaktes Bücherregal',
+    layoutManuscript: 'Manuskript',
+    layoutBookshelf: 'Bücherregal',
+
+    // Journal Sorting
+    sortJournals: 'Sortieren',
+    sortLastEdited: 'Zuletzt bearbeitet',
+    sortBottleCount: 'Menge (Notizen)',
+    sortRating: 'Ø Bewertung',
+    sortNameAsc: 'Name (A–Z)',
+    sortNameDesc: 'Name (Z–A)',
+
+    // Note Sorting & Filtering (JournalLandingPage)
+    sortNotes: 'Sortieren',
+    sortTastedDate: 'Zuletzt verkostet',
+    sortRatingHigh: 'Höchste Bewertung',
+    sortRatingLow: 'Niedrigste Bewertung',
+    sortAbv: 'Alkoholgehalt (ABV)',
+    filterNotes: 'Filter',
+    filterAllTypes: 'Alle Kategorien',
+    filterRatingMin: 'Mindestbewertung',
+    filterAllRatings: 'Alle Bewertungen',
+    filterRegion: 'Region',
+    filterAllRegions: 'Alle Regionen',
+    resetFilters: 'Filter zurücksetzen',
+    showingNotesCount: 'von',
+    noFilteredNotes: 'Keine Notizen entsprechen den aktiven Filtern.',
 
     // Bulk Tasting Note Delete (JournalLandingPage)
     deleteBulkNotesConfirm: 'Notizen werden unwiderruflich gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.',
@@ -774,6 +831,7 @@ export const TRANSLATIONS = {
 
     // Journal Cover Picker & Welcome
     coverPhotoOptional: 'Cover-Foto (optional)',
+    bookColorLabel: 'Buchfarbe (Einband)',
     noCoverSelected: 'Kein Cover ausgewählt',
     uploadFromDevice: 'Vom Gerät hochladen',
     removeCoverPhoto: 'Cover-Foto entfernen',

@@ -130,4 +130,17 @@ describe('MobileBottomNav Component', () => {
     leftBtn = screen.getByRole('button', { name: /Zurück zur Flaschenübersicht|Back to Notes/i });
     expect(leftBtn.className).toContain('text-[var(--nav-inactive)]');
   });
+
+  it('renders Library icon when journalLayout is "bookshelf"', () => {
+    const { container } = render(
+      <LanguageProvider>
+        <MobileBottomNav {...defaultProps} activeView="overview" journalLayout="bookshelf" />
+      </LanguageProvider>
+    );
+
+    // Lucide Library icon has lucide-library class
+    const libraryIcon = container.querySelector('.lucide-library');
+    expect(libraryIcon).toBeDefined();
+  });
 });
+

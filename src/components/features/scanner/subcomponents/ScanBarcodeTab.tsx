@@ -144,7 +144,7 @@ export function ScanBarcodeTab({
           <button
             type="button"
             onClick={onStartCamera}
-            className="h-12 px-3.5 sm:px-4 rounded-full bg-[var(--forest-green)] text-white hover:bg-[#1b5e39] font-display font-bold text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-[0_3px_12px_rgba(35,115,71,0.28)] hover:shadow-[0_5px_16px_rgba(35,115,71,0.38)] hover:scale-[1.02] active:scale-[0.98] border border-emerald-400/30 flex items-center gap-1.5 sm:gap-2 shrink-0 select-none"
+            className="h-12 px-3.5 sm:px-4 rounded-full bg-[var(--forest-green)] text-white hover:bg-[var(--fab-bg-hover)] font-display font-bold text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-[0_3px_12px_rgba(35,115,71,0.28)] hover:shadow-[0_5px_16px_rgba(35,115,71,0.38)] hover:scale-[1.02] active:scale-[0.98] border border-emerald-400/30 flex items-center gap-1.5 sm:gap-2 shrink-0 select-none"
             title={language === 'DE' ? 'Live-Kamera Barcode-Scanner starten' : 'Start Live Camera Scanner'}
             aria-label={language === 'DE' ? 'Live-Kamera Barcode-Scanner starten' : 'Start Live Camera Scanner'}
           >

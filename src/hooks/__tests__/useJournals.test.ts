@@ -120,9 +120,9 @@ describe('useJournals Hook', () => {
     expect(defaultComp?.bottleCount).toBe(2);
     expect(defaultComp?.averageRating).toBe(85); // (90 + 80) / 2 = 85
     expect(defaultComp?.latestTastedDate).toBe('2026-08-03');
-    expect(defaultComp?.latestSpiritName).toBe('Makers Mark');
+    expect(defaultComp?.latestSpiritName).toBe('Mark');
     expect(defaultComp?.recentSpirits?.length).toBe(2);
-    expect(defaultComp?.recentSpirits?.[0].name).toBe('Makers Mark');
+    expect(defaultComp?.recentSpirits?.[0].name).toBe('Mark');
     expect(defaultComp?.topScore).toBe(90);
     expect(defaultComp?.topDram?.name).toBe('10');
     expect(defaultComp?.topDram?.rating).toBe(90);

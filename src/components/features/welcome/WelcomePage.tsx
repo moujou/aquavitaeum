@@ -74,7 +74,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-80">
         {/* Shifting Emerald Fluid Glow Spot 1 */}
         <div
-          className="absolute rounded-full bg-gradient-to-tr from-[#164E2F] via-[#237347] to-[#3AB472] w-[60vw] h-[60vw] lg:w-[650px] lg:h-[650px] opacity-75"
+          className="absolute rounded-full bg-gradient-to-tr from-[var(--wood-dark)] via-[var(--forest-green)] to-[var(--wood-light)] w-[60vw] h-[60vw] lg:w-[650px] lg:h-[650px] opacity-75"
           style={{
             top: '-15%',
             left: '-15%',
@@ -85,7 +85,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
 
         {/* Shifting Irish Clover Fluid Glow Spot 2 */}
         <div
-          className="absolute rounded-full bg-gradient-to-br from-[#2E945D] via-[#237347] to-[#164E2F] w-[70vw] h-[70vw] lg:w-[750px] lg:h-[750px] opacity-75"
+          className="absolute rounded-full bg-gradient-to-br from-[var(--wood-accent)] via-[var(--wood-dark)] to-[var(--forest-green)] w-[70vw] h-[70vw] lg:w-[750px] lg:h-[750px] opacity-75"
           style={{
             bottom: '-20%',
             right: '-15%',
@@ -96,7 +96,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
 
         {/* Shifting Central Highland Malt Glow Spot 3 */}
         <div
-          className="absolute rounded-full bg-gradient-to-br from-[#C97A1E]/40 via-[#FFD166]/25 to-transparent w-[50vw] h-[50vw] lg:w-[500px] lg:h-[500px] opacity-60"
+          className="absolute rounded-full bg-gradient-to-br from-[var(--brass-accent)]/40 via-[var(--brass-light)]/25 to-transparent w-[50vw] h-[50vw] lg:w-[500px] lg:h-[500px] opacity-60"
           style={{
             top: '25%',
             left: '25%',
@@ -136,13 +136,13 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
       <svg className="hidden">
         <defs>
           <linearGradient id="emeraldWave1" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#164E2F" stopOpacity="0.7" />
-            <stop offset="60%" stopColor="#237347" stopOpacity="0.85" />
+            <stop offset="0%" stopColor="var(--wood-dark)" stopOpacity="0.7" />
+            <stop offset="60%" stopColor="var(--forest-green)" stopOpacity="0.85" />
             <stop offset="100%" stopColor="var(--pub-bg)" stopOpacity="0.98" />
           </linearGradient>
           <linearGradient id="emeraldWave2" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#2E945D" stopOpacity="0.8" />
-            <stop offset="60%" stopColor="#237347" stopOpacity="0.9" />
+            <stop offset="0%" stopColor="var(--wood-accent)" stopOpacity="0.8" />
+            <stop offset="60%" stopColor="var(--wood-dark)" stopOpacity="0.9" />
             <stop offset="100%" stopColor="var(--pub-bg)" stopOpacity="0.98" />
           </linearGradient>
         </defs>

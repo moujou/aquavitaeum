@@ -84,25 +84,25 @@ export function NoteListItem({
         </div>
         {spirit.rating100 ? (
           <div className="shrink-0 flex items-center justify-center self-center">
-            <SommelierScoreMedallion score={spirit.rating100} size="sm" variant="badge" />
+            <SommelierScoreMedallion score={spirit.rating100} size="xs" variant="badge" />
           </div>
         ) : null}
       </div>
 
       {/* ── 2. Showcase Section: Prominent Bottle Image (Left) + Structured Continuous Rows (Right) ── */}
       <div className="w-full flex flex-row items-stretch border-b border-[var(--parchment-divider)]">
-        {/* Generous Flush Bottle Showcase Frame (Left) */}
-        <div className="w-[80px] sm:w-[145px] md:w-[170px] shrink-0 bg-[var(--pub-bg-alt)]/60 border-r border-[var(--parchment-border)] relative flex items-center justify-center p-0 overflow-hidden min-h-[105px] sm:min-h-[140px]">
+        {/* Flush Bottle Showcase Frame (Left, Generous Dimensions, 100% Flush, p-0 m-0) */}
+        <div className="w-[110px] sm:w-[160px] md:w-[190px] shrink-0 bg-[var(--pub-bg-alt)]/35 border-r border-[var(--parchment-border)] relative flex items-center justify-center p-0 m-0 overflow-hidden min-h-[120px] sm:min-h-[155px] md:min-h-[175px]">
           {spirit.thumbnailImage ? (
             <img
               src={spirit.thumbnailImage}
               alt={spirit.name}
-              className="w-full h-full object-contain p-0 transition-transform duration-500 ease-out group-hover:scale-105 pointer-events-none z-10"
+              className="w-full h-full object-cover p-0 m-0 transition-transform duration-500 ease-out group-hover:scale-105 pointer-events-none z-10"
               draggable={false}
             />
           ) : (
-            <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-[var(--forest-green)]/10 border border-[var(--forest-green)]/30 flex items-center justify-center text-[var(--forest-green)] shadow-xs transition-transform duration-300 group-hover:scale-110 z-10">
-              <WhiskyLogo size={32} className="text-[var(--forest-green)] sm:size-[48px]" />
+            <div className="w-16 h-16 sm:w-22 sm:h-22 rounded-full bg-[var(--forest-green)]/10 border border-[var(--forest-green)]/30 flex items-center justify-center text-[var(--forest-green)] shadow-xs transition-transform duration-300 group-hover:scale-110 z-10">
+              <WhiskyLogo size={36} className="text-[var(--forest-green)] sm:size-[52px]" />
             </div>
           )}
 
@@ -138,8 +138,8 @@ export function NoteListItem({
           )}
         </div>
 
-        {/* Editorial Metadata Block (Takes full remaining space) */}
-        <div className="flex-1 min-w-0 p-2.5 sm:p-4 md:p-4.5 flex flex-col justify-center gap-1 sm:gap-1.5 z-10">
+        {/* Editorial Metadata Block (All Specs, Flavor Badges & Tasting Quote) */}
+        <div className="flex-1 min-w-0 p-2.5 sm:p-3.5 md:p-4 flex flex-col justify-start gap-1 sm:gap-1.5 z-10">
           {/* Row 1: Typ des Whiskys */}
           <div className="font-display text-[11px] sm:text-xs md:text-sm uppercase tracking-wider text-[var(--sepia-text)] font-bold leading-tight line-clamp-2 break-words">
             {spirit.spiritType}
@@ -189,39 +189,36 @@ export function NoteListItem({
               ))}
             </div>
           )}
+
+          {/* Row 6: Active Flavor Category Badges (Circular Category Icons) */}
+          {activeCategories.length > 0 && (
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap pt-1">
+              {activeCategories.map((cat) => (
+                <span
+                  key={cat.id}
+                  title={`${cat.name[language] ?? cat.name.EN} (${cat.count})`}
+                  style={{
+                    backgroundColor: `${cat.color}20`,
+                    borderColor: `${cat.color}50`,
+                  }}
+                  className="w-6 h-6 sm:w-7 sm:h-7 rounded-full border flex items-center justify-center text-xs sm:text-sm shadow-2xs shrink-0 select-none cursor-default transition-transform hover:scale-110"
+                >
+                  <span>{cat.emoji}</span>
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Row 7: Tasting Notes Snippet Quote */}
+          {tastingQuote && (
+            <p className="text-[11.5px] sm:text-xs md:text-[13px] text-[var(--sepia-text)]/90 italic font-body leading-relaxed bg-[var(--pub-bg-alt)]/40 border border-[var(--parchment-border)]/50 rounded-lg px-2.5 py-1.5 sm:px-3 sm:py-2 mt-0.5">
+              „{tastingQuote}“
+            </p>
+          )}
         </div>
       </div>
 
-      {/* ── 3. Middle Section: Dedicated Full-Width Sensory Canvas (Flavor Category Icons & Tasting Notes) ── */}
-      <div className="w-full p-3 sm:p-4 md:p-4.5 flex flex-col gap-2.5 sm:gap-3 z-10">
-        {/* Active Flavor Category Badges (Circular Category Icons) */}
-        {activeCategories.length > 0 && (
-          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-            {activeCategories.map((cat) => (
-              <span
-                key={cat.id}
-                title={`${cat.name[language] ?? cat.name.EN} (${cat.count})`}
-                style={{
-                  backgroundColor: `${cat.color}20`,
-                  borderColor: `${cat.color}50`,
-                }}
-                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border flex items-center justify-center text-sm sm:text-base shadow-2xs shrink-0 select-none cursor-default transition-transform hover:scale-110"
-              >
-                <span>{cat.emoji}</span>
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* Tasting Notes Snippet Quote on Warm Parchment Panel */}
-        {tastingQuote && (
-          <p className="text-[12.5px] sm:text-sm md:text-[15px] text-[var(--sepia-text)]/90 italic font-body leading-relaxed bg-[var(--pub-bg-alt)]/40 border border-[var(--parchment-border)]/50 rounded-lg sm:rounded-xl px-3 py-2 sm:px-3.5 sm:py-2.5">
-            „{tastingQuote}“
-          </p>
-        )}
-      </div>
-
-      {/* ── 4. Light Parchment Grounded Footer: Stars (Left) & Date (Right) ── */}
+      {/* ── 3. Light Parchment Grounded Footer: Stars (Left) & Date (Right) ── */}
       <div className="w-full bg-[var(--pub-bg-alt)]/35 px-3 sm:px-4 py-1.5 sm:py-2 border-t border-[var(--parchment-border)]/60 flex items-center justify-between gap-2 text-[11px] sm:text-xs shrink-0">
         <div className="flex items-center gap-1.5 min-w-0">
           <RatingStars stars={stars} size={13.5} className="shrink-0 gap-0.5" />

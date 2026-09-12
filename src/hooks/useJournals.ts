@@ -7,7 +7,7 @@ import {
   REMOTE_SYNC_COMPLETED_EVENT,
 } from '@/lib/sync-events';
 import { recordTombstone, removeTombstone } from '@/lib/sync-tombstones';
-import { generateUuid } from '@/lib/spirit-utils';
+import { generateUuid, formatSpiritDisplayName } from '@/lib/spirit-utils';
 import { getCategoryByDescriptorId, getFlavorColor } from '@/data/spirit-flavor-taxonomy';
 
 export interface TopDramItem {
@@ -77,19 +77,11 @@ export function useJournals() {
             .filter((img): img is string => !!img)
             .slice(0, 3);
 
-          const recentSpirits: RecentSpiritItem[] = sortedSpirits.slice(0, 3).map((s) => {
-            const name =
-              s.distillery && s.name
-                ? s.name.toLowerCase().includes(s.distillery.toLowerCase())
-                  ? s.name
-                  : `${s.distillery} ${s.name}`
-                : s.name || s.distillery || 'Unnamed Spirit';
-            return {
-              name,
-              date: s.dateTasted || null,
-              rating: s.rating100,
-            };
-          });
+          const recentSpirits: RecentSpiritItem[] = sortedSpirits.slice(0, 3).map((s) => ({
+            name: formatSpiritDisplayName(s),
+            date: s.dateTasted || null,
+            rating: s.rating100,
+          }));
 
           const latestSpiritName = recentSpirits.length > 0 ? recentSpirits[0].name : null;
 
@@ -101,7 +93,7 @@ export function useJournals() {
           const topScore = ratedSpirits.length > 0 ? (ratedSpirits[0].rating100 || 0) : 0;
 
           const topDrams: TopDramItem[] = ratedSpirits.slice(0, 3).map((s) => ({
-            name: s.name || s.distillery,
+            name: formatSpiritDisplayName(s),
             rating: s.rating100,
           }));
 
@@ -210,12 +202,13 @@ export function useJournals() {
   }, [loadJournals]);
 
   // Create a new journal
-  const createJournal = useCallback(async (name: string, description?: string, coverImage?: string) => {
+  const createJournal = useCallback(async (name: string, description?: string, coverImage?: string, color?: string) => {
     const newJournal: Journal = {
       id: generateUuid(),
       name: name.trim() || 'New Journal',
       description,
       coverImage,
+      color,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -232,13 +225,14 @@ export function useJournals() {
     }
   }, [loadJournals]);
 
-  // Rename an existing journal
-  const renameJournal = useCallback(async (id: string, newName: string, newDescription?: string, newCoverImage?: string) => {
+  // Rename / update an existing journal
+  const renameJournal = useCallback(async (id: string, newName: string, newDescription?: string, newCoverImage?: string, newColor?: string) => {
     try {
       await db.journals.update(id, {
         name: newName.trim(),
         description: newDescription !== undefined ? newDescription.trim() : undefined,
         ...(newCoverImage !== undefined && { coverImage: newCoverImage }),
+        ...(newColor !== undefined && { color: newColor }),
         updatedAt: new Date().toISOString(),
       });
       removeTombstone(id);

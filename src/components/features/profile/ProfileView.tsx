@@ -4,21 +4,26 @@ import React from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { LanguageToggle } from '@/components/ui/LanguageToggle';
 import { LayoutToggle } from '@/components/ui/LayoutToggle';
+import { JournalLayoutToggle } from '@/components/ui/JournalLayoutToggle';
 import { GoogleDriveSyncSection } from '@/components/features/profile/GoogleDriveSyncSection';
 import { AiAssistantSettingsSection } from '@/components/features/profile/AiAssistantSettingsSection';
-import { User, Globe, LayoutGrid, ShieldCheck } from 'lucide-react';
+import { User, Globe, LayoutGrid, BookOpen, Library, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { OverviewLayout } from '@/hooks/useLayoutPreference';
+import { OverviewLayout, JournalShelfLayout } from '@/hooks/useLayoutPreference';
 
 interface ProfileViewProps {
   layout: OverviewLayout;
   onLayoutChange: (l: OverviewLayout) => void;
+  journalLayout?: JournalShelfLayout;
+  onJournalLayoutChange?: (l: JournalShelfLayout) => void;
   className?: string;
 }
 
 export function ProfileView({
   layout,
   onLayoutChange,
+  journalLayout = 'manuscript',
+  onJournalLayoutChange,
   className,
 }: ProfileViewProps) {
   const { t } = useLanguage();
@@ -65,7 +70,27 @@ export function ProfileView({
             <LanguageToggle className="shrink-0" />
           </div>
 
-          {/* Row 2: Tasting Cards Overview Layout */}
+          {/* Row 2: Journals Shelf Layout (Manuskript vs Bücherregal) */}
+          <div className="flex items-center justify-between gap-3 p-3.5 sm:p-5 hover:bg-black/[0.02] transition-colors">
+            <div className="flex items-center gap-3 sm:gap-4 min-w-0 pr-2">
+              <div className="w-9 h-9 rounded-lg bg-[var(--forest-green)]/10 border border-[var(--forest-green)]/30 flex items-center justify-center text-[var(--forest-green)] shrink-0">
+                {journalLayout === 'bookshelf' ? <Library size={18} /> : <BookOpen size={18} />}
+              </div>
+              <div className="min-w-0">
+                <p className="font-display text-sm sm:text-base font-semibold text-[var(--foreground)] truncate">
+                  {t('journalLayout')}
+                </p>
+                <p className="font-body text-xs text-[var(--sepia-muted)] mt-0.5 truncate">
+                  {t('journalLayoutDesc')}
+                </p>
+              </div>
+            </div>
+            {onJournalLayoutChange && (
+              <JournalLayoutToggle value={journalLayout} onChange={onJournalLayoutChange} className="shrink-0" />
+            )}
+          </div>
+
+          {/* Row 3: Tasting Cards Overview Layout */}
           <div className="flex items-center justify-between gap-3 p-3.5 sm:p-5 hover:bg-black/[0.02] transition-colors">
             <div className="flex items-center gap-3 sm:gap-4 min-w-0 pr-2">
               <div className="w-9 h-9 rounded-lg bg-[var(--forest-green)]/10 border border-[var(--forest-green)]/30 flex items-center justify-center text-[var(--forest-green)] shrink-0">
