@@ -38,4 +38,28 @@ describe('Modular SpiritCard Component', () => {
     fireEvent.click(button);
     expect(clickFn).toHaveBeenCalled();
   });
+
+  it('renders independent bottler when distinct from distillery', () => {
+    const independentBottling = {
+      ...sampleSpirit,
+      id: 'ib-test',
+      distillery: 'Caol Ila',
+      bottler: 'Signatory Vintage',
+      region: 'Islay',
+    };
+
+    render(
+      <LanguageProvider>
+        <SpiritCard
+          spirit={independentBottling}
+          isSelected={false}
+          onClick={vi.fn()}
+        />
+      </LanguageProvider>
+    );
+
+    expect(screen.getByText('Caol Ila')).toBeDefined();
+    expect(screen.getByText('Signatory Vintage')).toBeDefined();
+    expect(screen.getByText('Islay')).toBeDefined();
+  });
 });

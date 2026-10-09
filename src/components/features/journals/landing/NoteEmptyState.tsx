@@ -39,7 +39,7 @@ export function NoteEmptyState({ onNewNote, onScanNote }: NoteEmptyStateProps) {
                 'bg-[var(--wood-dark)] text-white border-[var(--brass-accent)]/50 hover:bg-[var(--wood-accent)] transition-all duration-250 cursor-pointer shadow-md hover:scale-[1.02] active:scale-[0.98]'
               )}
             >
-              <Sparkles size={16} className="text-[var(--brass-accent)]" />
+              <Sparkles size={16} className="text-amber-200" />
               <span>{language === 'DE' ? 'Flasche scannen (KI-Assistent)' : 'Scan Bottle (AI Assistant)'}</span>
             </button>
           )}

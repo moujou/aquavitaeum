@@ -166,7 +166,7 @@ export function JournalLandingHeader({
                   title={activeLang === 'DE' ? 'Cask & Spirit Assistent: Flasche scannen' : 'Cask & Spirit Assistant: Scan bottle'}
                   aria-label={activeLang === 'DE' ? 'Flasche scannen' : 'Scan bottle'}
                 >
-                  <Sparkles size={16} />
+                  <Sparkles size={16} className="text-amber-200" />
                 </button>
               )}
 

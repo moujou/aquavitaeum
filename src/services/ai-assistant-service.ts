@@ -17,6 +17,7 @@ import {
   SpiritFinishDuration,
   SpiritFinishCharacter,
   SpiritBarRole,
+  FlavorProfile,
   SPIRIT_TYPES,
   SPIRIT_COLOURS,
   SPIRIT_CHARACTERISTICS,
@@ -43,11 +44,13 @@ export const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta
 export interface SpiritAnalysisResult {
   name: string;
   distillery: string;
+  bottler?: string;
   region?: string;
   spiritType: SpiritType;
   abv: number;
   age?: number;
   volumeMl?: number;
+  caskNo?: string;
   caskFinish?: string;
   caskTypes?: string[];
   characteristics?: SpiritCharacteristic[];
@@ -63,6 +66,10 @@ export interface SpiritAnalysisResult {
   barRole?: SpiritBarRole[];
   suggestedNoseTags?: string[];
   suggestedTasteTags?: string[];
+  noseTagIntensities?: Record<string, number>;
+  tasteTagIntensities?: Record<string, number>;
+  noseProfile?: Partial<FlavorProfile>;
+  tasteProfile?: Partial<FlavorProfile>;
   confidence?: number;
 }
 
@@ -199,45 +206,86 @@ export async function testAiAssistantConnection(
 // ─── Prompt Engineering ──────────────────────────────────────────────────────
 
 function buildSystemPrompt(language: 'DE' | 'EN' = 'DE', includeTastingNotes = true): string {
-  const langInstruction =
-    language === 'DE'
-      ? 'Gib alle Notizen (Nase, Geschmack, Abgang, Servierempfehlung) in eleganter, deutscher Fachsprache für Spirituosen-Liebhaber an.'
-      : 'Provide all notes (nose, palate, finish, serving notes) in elegant, sommelier-grade English.';
+  const isGerman = language === 'DE';
+  const langInstruction = isGerman
+    ? 'WICHTIG ZUR SPRACHE: Gib alle Notizen (Nase, Geschmack, Abgang, Servierempfehlung), Cask-Finish-Beschreibungen und Aroma-Tags (suggestedNoseTags, suggestedTasteTags, noseTagIntensities, tasteTagIntensities) AUSSCHLIESSLICH auf DEUTSCH in eleganter Sommelier-Fachsprache für Spirituosen-Liebhaber an.'
+    : 'LANGUAGE DIRECTIVE: Provide all notes (nose, palate, finish, serving notes), cask finish descriptions, and flavor tags (suggestedNoseTags, suggestedTasteTags, noseTagIntensities, tasteTagIntensities) in elegant, sommelier-grade English.';
 
-  return `You are the master blender and spirit archivist for Aqua Vitaeum, a fine spirits journal.
-Your task is to analyze a spirit (from a photo of the bottle/label, or from a name/barcode text) and extract factual specifications and official distillery tasting notes.
-
-${langInstruction}
-
-Rules for field mapping:
-- "ANTI-HALLUCINATION & BARCODE RULE": If the user query is a numerical barcode (EAN/UPC) or an unknown bottling that you cannot identify with high factual certainty, DO NOT GUESS, GUESSWORK, OR HALLUCINATE A RANDOM DISTILLERY (e.g. do not invent Lagavulin, Ardbeg, Macallan). Return {"notFound": true, "name": "NOT_FOUND"}.
-- "spiritType" MUST match one of the standard categories if applicable: ${JSON.stringify(SPIRIT_TYPES)}.
-- "volumeMl": Bottle volume in ml as an integer (e.g. 700, 750, 500, 1000, 50). Extract from label or bottle text (e.g. "70cl" or "700ml" -> 700, "750ml" or "75cl" -> 750, "0.7L" -> 700, "1L" -> 1000, "5cl" -> 50). Default to 700 for European bottlings or 750 for US bottlings if unspecified.
-- "caskFinish": The cask finishing and wood maturation type (e.g. "Oloroso Sherry Finish", "Port Wood Finish", "Ex-Bourbon & Quarter Cask", "Red Wine Cask Finish", "PX Sherry Cask", "Virgin Oak"). This is the WOOD FINISH specification, NOT sensory tasting notes.
-- "colour" SHOULD match one of the 21 classic sommelier shades: ${JSON.stringify(SPIRIT_COLOURS)}. Default to realistic whisky colors like "Amber", "Deep Gold", "Chestnut", "Russet".
-- "characteristics" CAN include values from: ${JSON.stringify(SPIRIT_CHARACTERISTICS)}.
-- "glance" CAN include values from: ${JSON.stringify(SPIRIT_GLANCES)}.
-- "finishDuration" MUST be one of: ${JSON.stringify(SPIRIT_FINISH_DURATIONS)}.
-- "finishCharacter" CAN include values from: ${JSON.stringify(SPIRIT_FINISH_CHARACTERS)}.
-- "barRole" CAN include values from: ${JSON.stringify(SPIRIT_BAR_ROLES)}.
-- "suggestedNoseTags" should be 3-6 individual aroma descriptors (e.g. "Peat Smoke", "Vanilla", "Dried Fig", "Iodine", "Green Apple").
-- "suggestedTasteTags" should be 3-6 individual palate descriptors (e.g. "Sherry", "Salted Caramel", "Dark Chocolate", "Oak Spice").
-
-${
-  includeTastingNotes
-    ? 'Provide evocative, authentic official distillery tasting notes for noseNotes, tasteNotes, and finishNotes (the sensory finish on palate).'
-    : 'Leave noseNotes, tasteNotes, finishNotes, suggestedNoseTags, and suggestedTasteTags empty or concise, focusing primarily on factual metadata.'
-}
-
-Return ONLY valid JSON matching this schema:
-{
-  "name": "Full official bottling name (e.g. Ardbeg Uigeadail)",
-  "distillery": "Distillery name (e.g. Ardbeg)",
-  "region": "Region and Country (e.g. Islay, Scotland)",
+  const exampleJson = isGerman
+    ? `{
+  "name": "Ardbeg Uigeadail",
+  "distillery": "Ardbeg",
+  "bottler": "",
+  "region": "Islay, Schottland",
   "spiritType": "Single Malt Scotch",
   "abv": 54.2,
   "age": null,
   "volumeMl": 700,
+  "caskNo": "",
+  "caskFinish": "Oloroso Sherry Fass-Finish",
+  "caskTypes": ["Ex-Bourbon", "Oloroso Sherry Butts"],
+  "characteristics": ["Cask Strength", "Non-Chill Filtered", "Peated"],
+  "colour": "Deep Gold",
+  "glance": ["Oily", "Viscous"],
+  "noseNotes": "Kräftiger Torfrauch mit dunklen Rosinen, Leder und intensivem Espresso.",
+  "tasteNotes": "Süße Sherrynoten explodieren in intensivem Rauch, winterlichen Gewürzen und Teer.",
+  "finishNotes": "Langanhaltend, wärmend und tief torfig mit verbleibender Zartbitterschokolade.",
+  "finishDuration": "Very Long",
+  "finishCharacter": ["Warming", "Peated", "Smoky"],
+  "servingNotes": "Pur bei Raumtemperatur genießen; wenige Tropfen Quellwasser öffnen die fruchtigen Sherrynoten.",
+  "barRole": ["Showcase Bottle", "Buy Again"],
+  "suggestedNoseTags": ["Torfrauch", "Rosine", "Leder", "Kaffee"],
+  "suggestedTasteTags": ["Sherry", "Rauch", "Zartbitterschokolade", "Eichenwürze"],
+  "noseTagIntensities": {
+    "Torfrauch": 9,
+    "Rosine": 7,
+    "Leder": 6,
+    "Kaffee": 5
+  },
+  "tasteTagIntensities": {
+    "Sherry": 8,
+    "Rauch": 9,
+    "Zartbitterschokolade": 7,
+    "Eichenwürze": 6
+  },
+  "noseProfile": {
+    "fruity": 4,
+    "floral": 1,
+    "spicy": 6,
+    "cereal": 2,
+    "peaty": 9,
+    "sulphury": 0,
+    "feinty": 2,
+    "nutty": 4,
+    "woody": 7,
+    "winey": 6,
+    "chocolate": 5
+  },
+  "tasteProfile": {
+    "fruity": 5,
+    "floral": 1,
+    "spicy": 7,
+    "cereal": 2,
+    "peaty": 10,
+    "sulphury": 0,
+    "feinty": 2,
+    "nutty": 5,
+    "woody": 7,
+    "winey": 7,
+    "chocolate": 6
+  },
+  "confidence": 0.95
+}`
+    : `{
+  "name": "Ardbeg Uigeadail",
+  "distillery": "Ardbeg",
+  "bottler": "",
+  "region": "Islay, Scotland",
+  "spiritType": "Single Malt Scotch",
+  "abv": 54.2,
+  "age": null,
+  "volumeMl": 700,
+  "caskNo": "",
   "caskFinish": "Oloroso Sherry Finish",
   "caskTypes": ["Ex-Bourbon", "Oloroso Sherry Butts"],
   "characteristics": ["Cask Strength", "Non-Chill Filtered", "Peated"],
@@ -252,8 +300,83 @@ Return ONLY valid JSON matching this schema:
   "barRole": ["Showcase Bottle", "Buy Again"],
   "suggestedNoseTags": ["Peat Smoke", "Raisin", "Leather", "Coffee"],
   "suggestedTasteTags": ["Sherry", "Smoke", "Dark Chocolate", "Oak Spice"],
+  "noseTagIntensities": {
+    "Peat Smoke": 9,
+    "Raisin": 7,
+    "Leather": 6,
+    "Coffee": 5
+  },
+  "tasteTagIntensities": {
+    "Sherry": 8,
+    "Smoke": 9,
+    "Dark Chocolate": 7,
+    "Oak Spice": 6
+  },
+  "noseProfile": {
+    "fruity": 4,
+    "floral": 1,
+    "spicy": 6,
+    "cereal": 2,
+    "peaty": 9,
+    "sulphury": 0,
+    "feinty": 2,
+    "nutty": 4,
+    "woody": 7,
+    "winey": 6,
+    "chocolate": 5
+  },
+  "tasteProfile": {
+    "fruity": 5,
+    "floral": 1,
+    "spicy": 7,
+    "cereal": 2,
+    "peaty": 10,
+    "sulphury": 0,
+    "feinty": 2,
+    "nutty": 5,
+    "woody": 7,
+    "winey": 7,
+    "chocolate": 6
+  },
   "confidence": 0.95
 }`;
+
+  return `You are the master blender and spirit archivist for Aqua Vitaeum, a fine spirits journal.
+Your task is to analyze a spirit (from a photo of the bottle/label, or from a name/barcode text) and extract factual specifications and official distillery tasting notes.
+
+${langInstruction}
+
+Rules for field mapping:
+- "ANTI-HALLUCINATION & BARCODE RULE": If the user query is a numerical barcode (EAN/UPC) or an unknown bottling that you cannot identify with high factual certainty, DO NOT GUESS, GUESSWORK, OR HALLUCINATE A RANDOM DISTILLERY (e.g. do not invent Lagavulin, Ardbeg, Macallan). Return {"notFound": true, "name": "NOT_FOUND"}.
+- "spiritType" MUST match one of the standard categories if applicable: ${JSON.stringify(SPIRIT_TYPES)}.
+- "volumeMl": Bottle volume in ml as an integer (e.g. 700, 750, 500, 1000, 50). Extract from label or bottle text (e.g. "70cl" or "700ml" -> 700, "750ml" or "75cl" -> 750, "0.7L" -> 700, "1L" -> 1000, "5cl" -> 50). Default to 700 for European bottlings or 750 for US bottlings if unspecified.
+- "caskNo": Specific Cask, Single Cask, or Batch number if stated on label/release (e.g. "Batch 12", "Cask #4582", "Batch 014", or leave empty if general release). DO NOT put wood types here.
+- "caskFinish": The cask finishing and wood maturation type (e.g. "Oloroso Sherry Finish", "Port Wood Finish", "Ex-Bourbon & Quarter Cask", "Red Wine Cask Finish", "PX Sherry Cask", "Virgin Oak"). This is the WOOD MATURATION specification, NOT sensory tasting notes.
+- "colour" SHOULD match one of the 21 classic sommelier shades: ${JSON.stringify(SPIRIT_COLOURS)}. Default to realistic whisky colors like "Amber", "Deep Gold", "Chestnut", "Russet".
+- "characteristics" CAN include values from: ${JSON.stringify(SPIRIT_CHARACTERISTICS)}.
+- "glance" CAN include values from: ${JSON.stringify(SPIRIT_GLANCES)}.
+- "finishDuration" MUST be one of: ${JSON.stringify(SPIRIT_FINISH_DURATIONS)}.
+- "finishCharacter" CAN include values from: ${JSON.stringify(SPIRIT_FINISH_CHARACTERS)}.
+- "barRole" CAN include values from: ${JSON.stringify(SPIRIT_BAR_ROLES)}.
+- "suggestedNoseTags": 3-6 individual aroma descriptors${isGerman ? ' auf Deutsch (z. B. "Torfrauch", "Vanille", "Getrocknete Feige", "Jod", "Grüner Apfel")' : ' (e.g. "Peat Smoke", "Vanilla", "Dried Fig", "Iodine", "Green Apple")'}.
+- "suggestedTasteTags": 3-6 individual palate descriptors${isGerman ? ' auf Deutsch (z. B. "Sherry", "Salzkaramell", "Zartbitterschokolade", "Eichenwürze")' : ' (e.g. "Sherry", "Salted Caramel", "Dark Chocolate", "Oak Spice")'}.
+- "noseTagIntensities": Object mapping each suggested nose tag to its perceived sensory intensity (integer 1 to 10).
+- "tasteTagIntensities": Object mapping each suggested taste tag to its perceived sensory intensity (integer 1 to 10).
+- "noseProfile": Estimated 11-dimension SWRI sensory profile for nose (integers 0 to 10 for: fruity, floral, spicy, cereal, peaty, sulphury, feinty, nutty, woody, winey, chocolate).
+- "tasteProfile": Estimated 11-dimension SWRI sensory profile for taste/palate (integers 0 to 10 for: fruity, floral, spicy, cereal, peaty, sulphury, feinty, nutty, woody, winey, chocolate).
+
+${
+  includeTastingNotes
+    ? isGerman
+      ? 'Gib stimmungsvolle, authentische Brennerei-Verkostungsnotizen für noseNotes, tasteNotes und finishNotes (den geschmacklichen Nachklang) auf Deutsch an. Schätze realistische Intensitätswerte (1-10) für noseTagIntensities, tasteTagIntensities sowie das 11-Achsen-Profil (noseProfile, tasteProfile) ein.'
+      : 'Provide evocative, authentic official distillery tasting notes for noseNotes, tasteNotes, and finishNotes (the sensory finish on palate). Estimate realistic sensory intensities (1-10) for noseTagIntensities, tasteTagIntensities, and the 11-axis profile (noseProfile, tasteProfile).'
+    : isGerman
+      ? 'Lasse noseNotes, tasteNotes, finishNotes, suggestedNoseTags, suggestedTasteTags, Tag-Intensitäten und Profile leer oder prägnant und konzentriere dich primär auf die sachlichen Metadaten.'
+      : 'Leave noseNotes, tasteNotes, finishNotes, suggestedNoseTags, suggestedTasteTags, tag intensities, and profiles empty or concise, focusing primarily on factual metadata.'
+}
+
+Return ONLY valid JSON matching this schema:
+${exampleJson}`;
 }
 
 // ─── Sanitizer & Validator ──────────────────────────────────────────────────
@@ -272,6 +395,7 @@ function sanitizeAnalysisResult(raw: Record<string, unknown>): SpiritAnalysisRes
 
   const name = raw.name.trim();
   const distillery = typeof raw.distillery === 'string' ? raw.distillery.trim() : '';
+  const bottler = typeof raw.bottler === 'string' && raw.bottler.trim().length > 0 ? raw.bottler.trim() : undefined;
   const region = typeof raw.region === 'string' ? raw.region.trim() : '';
   const spiritType =
     typeof raw.spiritType === 'string' && raw.spiritType.trim()
@@ -309,6 +433,11 @@ function sanitizeAnalysisResult(raw: Record<string, unknown>): SpiritAnalysisRes
       if (!isNaN(mlVal) && mlVal > 0) volumeMl = Math.round(mlVal);
     }
   }
+
+  const caskNo =
+    typeof raw.caskNo === 'string' && raw.caskNo.trim().length > 0
+      ? raw.caskNo.trim()
+      : undefined;
 
   const caskTypes = Array.isArray(raw.caskTypes)
     ? raw.caskTypes.filter((c): c is string => typeof c === 'string' && c.trim().length > 0)
@@ -358,6 +487,41 @@ function sanitizeAnalysisResult(raw: Record<string, unknown>): SpiritAnalysisRes
     ? raw.suggestedTasteTags.filter((t): t is string => typeof t === 'string' && t.trim().length > 0)
     : [];
 
+  const sanitizeIntensities = (obj: unknown): Record<string, number> => {
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return {};
+    const result: Record<string, number> = {};
+    for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
+      if (typeof k === 'string' && k.trim().length > 0) {
+        const num = typeof v === 'number' ? v : typeof v === 'string' ? parseFloat(v) : NaN;
+        if (!isNaN(num)) {
+          result[k.trim()] = Math.max(1, Math.min(10, Math.round(num)));
+        }
+      }
+    }
+    return result;
+  };
+
+  const sanitizeFlavorProfile = (obj: unknown): Partial<FlavorProfile> | undefined => {
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return undefined;
+    const profile: Partial<FlavorProfile> = {};
+    const keys: (keyof FlavorProfile)[] = [
+      'fruity', 'floral', 'spicy', 'cereal', 'peaty', 'sulphury', 'feinty', 'nutty', 'woody', 'winey', 'chocolate'
+    ];
+    for (const key of keys) {
+      const val = (obj as Record<string, unknown>)[key];
+      const num = typeof val === 'number' ? val : typeof val === 'string' ? parseFloat(val) : NaN;
+      if (!isNaN(num)) {
+        profile[key] = Math.max(0, Math.min(10, Math.round(num)));
+      }
+    }
+    return Object.keys(profile).length > 0 ? profile : undefined;
+  };
+
+  const noseTagIntensities = sanitizeIntensities(raw.noseTagIntensities);
+  const tasteTagIntensities = sanitizeIntensities(raw.tasteTagIntensities);
+  const noseProfile = sanitizeFlavorProfile(raw.noseProfile);
+  const tasteProfile = sanitizeFlavorProfile(raw.tasteProfile);
+
   let finishNotes: string | undefined = undefined;
   if (typeof raw.finishNotes === 'string' && raw.finishNotes.trim().length > 0) {
     finishNotes = raw.finishNotes.trim();
@@ -368,11 +532,13 @@ function sanitizeAnalysisResult(raw: Record<string, unknown>): SpiritAnalysisRes
   return {
     name,
     distillery,
+    bottler,
     region,
     spiritType,
     abv,
     age,
     volumeMl,
+    caskNo,
     caskFinish,
     caskTypes,
     characteristics,
@@ -388,6 +554,10 @@ function sanitizeAnalysisResult(raw: Record<string, unknown>): SpiritAnalysisRes
     barRole,
     suggestedNoseTags,
     suggestedTasteTags,
+    noseTagIntensities: Object.keys(noseTagIntensities).length > 0 ? noseTagIntensities : undefined,
+    tasteTagIntensities: Object.keys(tasteTagIntensities).length > 0 ? tasteTagIntensities : undefined,
+    noseProfile,
+    tasteProfile,
     confidence: typeof raw.confidence === 'number' ? raw.confidence : 0.9,
   };
 }

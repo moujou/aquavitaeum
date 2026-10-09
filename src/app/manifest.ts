@@ -18,22 +18,34 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: '#ECE5D8',      // matches --nav-bg and top-menu searchbar
     icons: [
       {
-        src: `${prefix}/whisky-logo-with-circle-v5.svg`,
-        sizes: 'any',
-        type: 'image/svg+xml',
+        src: `${prefix}/icons/icon-192x192.png`,
+        sizes: '192x192',
+        type: 'image/png',
         purpose: 'any',
       },
       {
-        src: `${prefix}/whisky-logo-maskable-v5.svg`,
-        sizes: 'any',
-        type: 'image/svg+xml',
+        src: `${prefix}/icons/icon-512x512.png`,
+        sizes: '512x512',
+        type: 'image/png',
+        purpose: 'any',
+      },
+      {
+        src: `${prefix}/icons/icon-maskable-192x192.png`,
+        sizes: '192x192',
+        type: 'image/png',
         purpose: 'maskable',
       },
       {
-        src: `${prefix}/whisky-logo-with-circle-v5.svg`,
+        src: `${prefix}/icons/icon-maskable-512x512.png`,
+        sizes: '512x512',
+        type: 'image/png',
+        purpose: 'maskable',
+      },
+      {
+        src: `${prefix}/favicon.svg`,
         sizes: 'any',
         type: 'image/svg+xml',
-        purpose: 'monochrome',
+        purpose: 'any',
       },
     ],
   };

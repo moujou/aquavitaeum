@@ -180,6 +180,10 @@ export function validateSpirit(spirit: Partial<Spirit>): ValidationResult {
     errors.distillery = 'Distillery name cannot exceed 150 characters.';
   }
 
+  if (spirit.bottler && (typeof spirit.bottler !== 'string' || spirit.bottler.length > 150)) {
+    errors.bottler = 'Bottler name cannot exceed 150 characters.';
+  }
+
   if (spirit.name && spirit.name.length > 150) {
     errors.name = 'Spirit name cannot exceed 150 characters.';
   }

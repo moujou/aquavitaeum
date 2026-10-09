@@ -59,6 +59,11 @@ describe('Modular OO Tasting Card Sections', () => {
       fireEvent.change(distilleryInput, { target: { value: 'Ardbeg' } });
       expect(updateFn).toHaveBeenCalledWith('distillery', 'Ardbeg');
 
+      const bottlerInput = screen.getByLabelText(/bottler/i);
+      expect(bottlerInput).toBeDefined();
+      fireEvent.change(bottlerInput, { target: { value: 'Signatory Vintage' } });
+      expect(updateFn).toHaveBeenCalledWith('bottler', 'Signatory Vintage');
+
       const distDateInput = screen.getByLabelText(/distillationDate/i);
       expect(distDateInput).toBeDefined();
       fireEvent.change(distDateInput, { target: { value: '1998' } });

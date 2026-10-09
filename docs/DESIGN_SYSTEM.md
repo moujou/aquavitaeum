@@ -111,6 +111,17 @@ graph LR
 
 ## ⚡ 5. Compound Utility Classes & Component Standards
 
+### 5.0 The 4-Tier Action & Button Hierarchy System
+
+To ensure crystal-clear visual guidance and prevent action clutter ("Action Competition"), all buttons and interactive triggers across Aqua Vitaeum follow a strict 4-tier system:
+
+| Tier | Name | Visual Styling | Rule & Usage | Examples |
+| :--- | :--- | :--- | :--- | :--- |
+| **Tier 1** | **Primary Action / CTA** | Solid Pub Dark Green (`bg-[var(--wood-dark)]` / `bg-[var(--fab-bg)]`), crisp ivory text, optional gold brass outline (`border-[var(--brass-accent)]/50`). | **Max 1 per section/screen.** The single most important forward action. | `[ + Neue Spirituose ]` (FAB), `[ ✨ KI-Flaschenanalyse ]`, `[ Notiz Speichern ]`, `[ Spirituose scannen ]`. |
+| **Tier 2** | **Secondary / Utility Tools** | Warm Chamois Parchment (`bg-[var(--pub-bg-panel)]` / `bg-[var(--parchment-bg)]`), hairline border (`border-[var(--parchment-border)]`), forest green icon (`text-[var(--forest-green)]`). | Supporting tools that must **not** steal visual focus from the Primary CTA. | `[ 📷 Kamera ]`, `[ 📤 Foto hochladen ]`, `[ 📖 Aromen-Kompass ]`, `[ + Eigenes Aroma ]`, `[ 🔽 Sortieren ]`, `[ 🔍 Filtern ]`. |
+| **Tier 3** | **Interactive Toggles & Tabs** | Inactive: Sand/Muted (`bg-[var(--pub-bg-alt)]`, `text-[var(--sepia-muted)]`).<br/>Active: State Clover Green (`bg-[var(--wood-selection)] text-white`) + Amber Gold accents (`border-[var(--brass-accent)]`, `text-amber-200` sparkles). | State-driven segmented controls, view switchers, filter pills, and selected diagram chips. | `[ 🧭 Netzdiagramm ]` vs `[ 🥧 Aromenrad ]`, `[ Alle / Nase / Geschmack ]`, Aroma Category & Note chips (when active). |
+| **Tier 4** | **Tertiary / Ghost / Danger** | Ghost/Borderless (`text-[var(--sepia-muted)] hover:bg-black/5`).<br/>Danger: Red fill (`bg-red-600 text-white`) strictly reserved for destructive deletion. | Non-intrusive actions (cancel, clear, dismiss, delete). | `[ ✕ Abbrechen ]`, `[ Alle leeren ]`, `[ ✕ Schließen ]`, Confirm Delete modal. |
+
 ### 5.1 Floating Action Button (`.btn-fab`)
 Used for all desktop circular action buttons and mobile primary triggers:
 ```css

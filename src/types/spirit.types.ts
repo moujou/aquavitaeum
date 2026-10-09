@@ -214,6 +214,8 @@ export interface Spirit {
   journalId: string; // Associated journal folder ID
   spiritType: SpiritType;
   distillery: string;
+  /** Optional Bottler / Independent Bottler (e.g. 'Signatory Vintage', 'Gordon & MacPhail', 'Cadenhead\'s') */
+  bottler?: string;
   name: string;
   region: string;
   age?: number;

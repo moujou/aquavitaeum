@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./public/whisky-logo-with-circle-v5.svg" width="96" height="96" alt="Aqua Vitaeum Logo" />
+<img src="public/favicon.svg" width="96" height="96" alt="Aqua Vitaeum Logo" />
 
 # Aqua Vitaeum
 

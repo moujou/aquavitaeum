@@ -115,6 +115,7 @@ export function createBlankSpirit(journalId: string = 'default-compendium'): Spi
     journalId,
     spiritType: 'Single Malt Scotch',
     distillery: '',
+    bottler: '',
     name: '',
     region: '',
     abv: 0,
@@ -322,12 +323,36 @@ export function formatSpiritCardSpecs(
 
 /**
  * Resolves the primary editorial display name for a spirit.
- * Prioritizes the spirit/expression name (spirit.name), falling back to distillery or 'Unnamed Spirit'.
+ * Prioritizes the spirit/expression name (spirit.name), falling back to distillery, bottler, or 'Unnamed Spirit'.
  */
-export function formatSpiritDisplayName(spirit: { name?: string; distillery?: string }): string {
+export function formatSpiritDisplayName(spirit: { name?: string; distillery?: string; bottler?: string }): string {
   const name = (spirit.name || '').trim();
   const distillery = (spirit.distillery || '').trim();
-  return name || distillery || 'Unnamed Spirit';
+  const bottler = (spirit.bottler || '').trim();
+  return name || distillery || bottler || 'Unnamed Spirit';
+}
+
+/**
+ * Formats the spirit provenance subtitle (Distillery, Bottler, Region) cleanly.
+ * Handles deduplication when bottler is identical to distillery, and omission of empty values.
+ */
+export function formatSpiritProvenance(spirit: {
+  distillery?: string;
+  bottler?: string;
+  region?: string;
+}): string {
+  const distillery = (spirit.distillery || '').trim();
+  const bottler = (spirit.bottler || '').trim();
+  const region = (spirit.region || '').trim();
+
+  const parts: string[] = [];
+  if (distillery) parts.push(distillery);
+  if (bottler && bottler.toLowerCase() !== distillery.toLowerCase()) {
+    parts.push(bottler);
+  }
+  if (region) parts.push(region);
+
+  return parts.join(' · ') || 'Tasting Notes';
 }
 
 

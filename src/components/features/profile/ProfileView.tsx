@@ -1,13 +1,14 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { LanguageToggle } from '@/components/ui/LanguageToggle';
 import { LayoutToggle } from '@/components/ui/LayoutToggle';
 import { JournalLayoutToggle } from '@/components/ui/JournalLayoutToggle';
 import { GoogleDriveSyncSection } from '@/components/features/profile/GoogleDriveSyncSection';
 import { AiAssistantSettingsSection } from '@/components/features/profile/AiAssistantSettingsSection';
-import { User, Globe, LayoutGrid, BookOpen, Library, ShieldCheck } from 'lucide-react';
+import { IosInstallGuideModal } from '@/components/features/pwa/IosInstallGuideModal';
+import { User, Globe, LayoutGrid, BookOpen, Library, ShieldCheck, Smartphone } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { OverviewLayout, JournalShelfLayout } from '@/hooks/useLayoutPreference';
 
@@ -26,7 +27,8 @@ export function ProfileView({
   onJournalLayoutChange,
   className,
 }: ProfileViewProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
 
   return (
     <div
@@ -108,11 +110,35 @@ export function ProfileView({
             <LayoutToggle value={layout} onChange={onLayoutChange} className="shrink-0" />
           </div>
 
-          {/* Row 3: Google Drive Cloud Sync & Backup */}
+          {/* Row 4: Google Drive Cloud Sync & Backup */}
           <GoogleDriveSyncSection />
 
-          {/* Row 4: Cask & Spirit AI Assistant Settings */}
+          {/* Row 5: Cask & Spirit AI Assistant Settings */}
           <AiAssistantSettingsSection />
+
+          {/* Row 6: Install App on Home Screen (PWA Guide) */}
+          <div className="flex items-center justify-between gap-3 p-3.5 sm:p-5 hover:bg-black/[0.02] transition-colors">
+            <div className="flex items-center gap-3 sm:gap-4 min-w-0 pr-2">
+              <div className="w-9 h-9 rounded-lg bg-[var(--forest-green)]/10 border border-[var(--forest-green)]/30 flex items-center justify-center text-[var(--forest-green)] shrink-0">
+                <Smartphone size={18} />
+              </div>
+              <div className="min-w-0">
+                <p className="font-display text-sm sm:text-base font-semibold text-[var(--foreground)] truncate">
+                  {language === 'DE' ? 'App auf Homescreen installieren' : 'Install on Home Screen'}
+                </p>
+                <p className="font-body text-xs text-[var(--sepia-muted)] mt-0.5 truncate">
+                  {language === 'DE' ? 'PWA-Anleitung für iPhone, Android & Desktop' : 'PWA Guide for iPhone, Android & Desktop'}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsInstallModalOpen(true)}
+              className="px-3.5 py-1.5 rounded-lg border border-[var(--parchment-border)] bg-[var(--pub-bg-alt)] hover:bg-black/5 text-[var(--sepia-text)] font-semibold text-xs transition-all cursor-pointer active:scale-95 shrink-0 shadow-2xs"
+            >
+              {language === 'DE' ? 'Anleitung' : 'Guide'}
+            </button>
+          </div>
 
           {/* Privacy Guarantee Banner: Always at the very bottom of Profile settings */}
           <div className="p-3.5 sm:p-4 bg-[var(--forest-green)]/10 border-t border-[var(--forest-green)]/25 flex items-start gap-2.5 text-xs text-[var(--sepia-text)] leading-relaxed">
@@ -126,6 +152,12 @@ export function ProfileView({
           Aqua Vitaeum · Beta v0.1.0
         </p>
       </div>
+
+      {/* PWA Install Guide Modal */}
+      <IosInstallGuideModal
+        isOpen={isInstallModalOpen}
+        onClose={() => setIsInstallModalOpen(false)}
+      />
     </div>
   );
 }

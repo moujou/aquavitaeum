@@ -165,8 +165,8 @@ export function SpiritScanModal({
         await videoRef.current.play().catch(() => {});
       }
 
-      // Check if native BarcodeDetector is available
-      if (typeof window !== 'undefined' && 'BarcodeDetector' in window) {
+      // Check if native BarcodeDetector is available ONLY on barcode tab
+      if (activeTab === 'barcode' && typeof window !== 'undefined' && 'BarcodeDetector' in window) {
         const BarcodeDetectorConstructor = (
           window as unknown as {
             BarcodeDetector: new (options?: { formats: string[] }) => BarcodeDetectorInstance;
@@ -210,6 +210,29 @@ export function SpiritScanModal({
     const nextFacing = cameraFacingMode === 'environment' ? 'user' : 'environment';
     setCameraFacingMode(nextFacing);
     await startCameraScan(nextFacing);
+  };
+
+  const handleCapturePhoto = async () => {
+    if (!videoRef.current) return;
+    const video = videoRef.current;
+    if (video.videoWidth === 0 || video.videoHeight === 0) return;
+
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const base64 = canvas.toDataURL('image/jpeg', 0.85);
+
+      stopCameraScan();
+      setSelectedImage(base64);
+      await runImageAnalysis(base64);
+    } catch (err) {
+      console.error('Aqua Vitaeum: Snapshot capture failed', err);
+    }
   };
 
   const handleFileChange = (file: File) => {
@@ -418,6 +441,13 @@ export function SpiritScanModal({
                 <ScanPhotoTab
                   language={language}
                   onFileSelect={handleFileChange}
+                  isCameraActive={isCameraActive}
+                  cameraError={cameraError}
+                  videoRef={videoRef}
+                  onStartCamera={() => startCameraScan()}
+                  onStopCamera={stopCameraScan}
+                  onToggleCameraFacing={toggleCameraFacing}
+                  onCapturePhoto={handleCapturePhoto}
                 />
               )}
 

@@ -21,7 +21,7 @@ const mockResult: SpiritAnalysisResult = {
 };
 
 describe('ScanResultPreview', () => {
-  it('renders spirit specifications and detected badges', () => {
+  it('renders spirit specifications and detected badges in German', () => {
     render(
       <ScanResultPreview
         language="DE"
@@ -34,14 +34,31 @@ describe('ScanResultPreview', () => {
     expect(screen.getByText('Highland Park 18')).toBeDefined();
     expect(screen.getByText(/Islands \/ Orkney/)).toBeDefined();
     expect(screen.getByText('43% vol')).toBeDefined();
-    expect(screen.getByText(/Jahre|Years/)).toBeDefined();
-    expect(screen.getByText('🪵 Sherry Oak Casks')).toBeDefined();
-    expect(screen.getByText('✓ Natural Colour')).toBeDefined();
+    expect(screen.getByText(/18\s+Jahre/)).toBeDefined();
+    expect(screen.getByText(/Sherry Oak Casks/)).toBeDefined();
+    expect(screen.getByText(/Ohne Farbstoff/)).toBeDefined();
+    expect(screen.getByText(/Altgold/)).toBeDefined();
+  });
+
+  it('renders spirit specifications and detected badges in English', () => {
+    render(
+      <ScanResultPreview
+        language="EN"
+        analysisResult={mockResult}
+        applyMode="facts-only"
+        onApplyModeChange={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText('Highland Park 18')).toBeDefined();
+    expect(screen.getByText(/18\s+Years/)).toBeDefined();
+    expect(screen.getByText(/Natural Colour/)).toBeDefined();
+    expect(screen.getByText(/Old Gold/)).toBeDefined();
   });
 
   it('allows switching between facts-only and full tasting notes modes', () => {
     const onApplyModeChange = vi.fn();
-    render(
+    const { rerender } = render(
       <ScanResultPreview
         language="DE"
         analysisResult={mockResult}
@@ -50,8 +67,25 @@ describe('ScanResultPreview', () => {
       />
     );
 
-    const fullOption = screen.getByText('Mit Destillerie-Notizen');
+    const fullOption = screen.getByText('Mit Tasting-Notizen');
     fireEvent.click(fullOption);
     expect(onApplyModeChange).toHaveBeenCalledWith('full');
+
+    rerender(
+      <ScanResultPreview
+        language="DE"
+        analysisResult={{
+          ...mockResult,
+          noseNotes: 'Torf und Honig',
+          noseTagIntensities: { 'Peat Smoke': 9 },
+        }}
+        applyMode="full"
+        onApplyModeChange={onApplyModeChange}
+      />
+    );
+
+    expect(screen.getByText('Vorschau der Tasting-Notizen')).toBeDefined();
+    expect(screen.getByText(/Torf und Honig/)).toBeDefined();
+    expect(screen.getByText('(9/10)')).toBeDefined();
   });
 });

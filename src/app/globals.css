@@ -56,6 +56,16 @@
   --shelf-wood-shadow:   rgba(35, 20, 8, 0.18);
   --shelf-bracket:       #B87222;   /* Muted Antique Brass */
 
+  /* ── Antique Rustic Irish Pub Cabinet Tokens ───────────────────────────── */
+  --cabinet-cornice-top:    #8F633B;   /* Warm oak crown highlight */
+  --cabinet-cornice-mid:    #6D472B;   /* Rich aged oak fascia */
+  --cabinet-cornice-dark:   #4A2E1A;   /* Deep cellar walnut shadow */
+  --cabinet-cornice-deep:   #341F10;   /* Deepest antique crevice shadow */
+  --cabinet-wood-stile:     #5E3A1F;   /* Upright cabinet column oak */
+  --cabinet-backing:        #D8CEBC;   /* Warm vintage tongue-and-groove plank backing */
+  --cabinet-backing-groove: rgba(43, 30, 20, 0.15); /* Seam between vertical planks */
+  --cabinet-brass:          #C97A1E;   /* Antique pub brass hardware */
+
   /* 8 Subdued, Earthy Matte Vintage Spine Palettes (Zero White) */
   --spine-green:         #385644;   /* Matte Vintage Sage / Moss Green */
   --spine-ruby:          #6E3F42;   /* Matte Muted Port Wine / Terracotta */
@@ -142,6 +152,16 @@
   --shelf-wood-bevel:    #8F633B;
   --shelf-wood-shadow:   rgba(0, 0, 0, 0.40);
   --shelf-bracket:       #A86822;
+ 
+  /* ── Antique Rustic Irish Pub Cabinet Tokens ───────────────────────────── */
+  --cabinet-cornice-top:    #72492B;
+  --cabinet-cornice-mid:    #56341C;
+  --cabinet-cornice-dark:   #3B2211;
+  --cabinet-cornice-deep:   #25140A;
+  --cabinet-wood-stile:     #422714;
+  --cabinet-backing:        #1A2B1E;
+  --cabinet-groove:         rgba(0, 0, 0, 0.35);
+  --cabinet-brass:          #C59B27;
 
   --spine-green:         #2D4637;
   --spine-ruby:          #593235;
