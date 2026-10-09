@@ -84,6 +84,27 @@ graph TD
 | `--fab-text` | `#FDFBF7` | FAB icon and typography color (Crisp Ivory). |
 | `--fab-border` | `rgba(255, 209, 102, 0.5)` | Subtle amber-gold ring outline on FABs. |
 
+### 3.5 Moonlight Night & Irish Accents (`[data-theme="pub-dark"]`)
+
+Activated via `document.documentElement.setAttribute('data-theme', 'pub-dark')` or the theme switcher in Settings.
+
+| Token Name | Hex Value / RGBA | Role & Surface |
+| :--- | :--- | :--- |
+| `--pub-bg` | `#0D1115` | Modern deep midnight slate canvas (like GitHub/Reddit Dark). |
+| `--pub-bg-alt` | `#151B22` | Subtle elevated dark charcoal for headers, chips, and bars. |
+| `--pub-bg-panel` | `#1A212A` | Elevated modal surfaces & dialogs. |
+| `--nav-bg` | `#0D1115` | Seamless midnight navigation bar. |
+| `--parchment-bg` | `#141A21` | Sleek dark charcoal slate tasting cards & ledger bodies. |
+| `--parchment-bg-alt` | `#0E1318` | Inset card panels & input backgrounds. |
+| `--parchment-border` | `#252F3B` | Subtle dark hairline borders. |
+| `--parchment-divider` | `rgba(229, 150, 50, 0.20)` | Amber copper divider lines. |
+| `--sepia-text` / `--foreground` | `#F5EFE1` | Warm Ivory primary text (**14.5 : 1 WCAG AAA**). |
+| `--sepia-muted` / `--nav-inactive` | `#8D9BA6` | Moonlit Slate secondary labels & inactive tabs (**5.8 : 1 WCAG AA**). |
+| `--brass-accent` | `#E59632` | Luminous amber pot-still copper for stars & score medallions. |
+| `--wood-dark` | `#1B5436` | Deep Irish forest green card & modal header wood. |
+| `--wood-selection` / `--fab-bg` | `#236E46` | Deep clover green active toggle buttons & primary CTAs. |
+| `--fab-text` | `#FDFBF7` | Crisp ivory white button text and icons. |
+
 ---
 
 ## 🔤 4. Typography Scale & Font Pairings
@@ -256,6 +277,9 @@ All text color combinations are calibrated against **WCAG 2.2 Level AAA / AA**:
 | `--sepia-muted` (`#6D5949`) | `--parchment-bg` (`#F5EFE1`) | **5.4 : 1** | Double-A (AA) |
 | `--fab-text` (`#FDFBF7`) | `--fab-bg` (`#2E945D`) | **5.4 : 1** | Double-A (AA+) |
 | `--parchment-bg` (`#F5EFE1`) | `--wood-selection` (`#2E945D`) | **4.6 : 1** | Double-A (AA) |
+| *Pub-Dark* `--sepia-text` (`#F5EFE1`) | *Pub-Dark* `--parchment-bg` (`#141A21`) | **14.5 : 1** | Triple-A (AAA) |
+| *Pub-Dark* `--sepia-muted` (`#8D9BA6`) | *Pub-Dark* `--parchment-bg` (`#141A21`) | **5.8 : 1** | Double-A (AA) |
+| *Pub-Dark* `--fab-text` (`#FDFBF7`) | *Pub-Dark* `--fab-bg` (`#2E945D`) | **5.4 : 1** | Double-A (AA+) |
 
 ---
 

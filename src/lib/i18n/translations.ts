@@ -328,9 +328,9 @@ export const TRANSLATIONS = {
     layoutList: 'List',
     layoutGrid: 'Grid',
     journalLayout: 'Journals View Style',
-    journalLayoutDesc: 'Display journals as open manuscripts or compact bookshelf',
-    layoutManuscript: 'Manuscript',
-    layoutBookshelf: 'Bookshelf',
+    journalLayoutDesc: 'Display journals as open manuscripts or 3D hardcover books',
+    layoutManuscript: 'Open Manuscript',
+    layoutBookshelf: 'Hardcover Books',
 
     // Journal Sorting
     sortJournals: 'Sort',
@@ -452,6 +452,12 @@ export const TRANSLATIONS = {
     analyzeBottleAi: 'AI Bottle Analysis',
     analyzeAndSnapBottle: 'AI Bottle Analysis',
     uploadPhoto: 'Upload Photo',
+
+    // Theme & Appearance
+    themeAppearance: 'Appearance',
+    themeAppearanceDesc: 'Warm Linen Atelier or atmospheric Irish Pub Night Mode',
+    themeLight: 'Light',
+    themeDark: 'Dark',
   },
   DE: {
     // Header & Brand
@@ -779,9 +785,9 @@ export const TRANSLATIONS = {
     layoutList: 'Liste',
     layoutGrid: 'Raster',
     journalLayout: 'Journal-Ansicht',
-    journalLayoutDesc: 'Journale als aufgeschlagene Bücher oder kompaktes Bücherregal',
-    layoutManuscript: 'Manuskript',
-    layoutBookshelf: 'Bücherregal',
+    journalLayoutDesc: 'Journale als aufgeschlagene Manuskripte oder 3D-Hardcover-Bände',
+    layoutManuscript: 'Aufgeschlagenes Manuskript',
+    layoutBookshelf: 'Hardcover-Bände',
 
     // Journal Sorting
     sortJournals: 'Sortieren',
@@ -903,6 +909,12 @@ export const TRANSLATIONS = {
     analyzeBottleAi: 'KI-Flaschenanalyse',
     analyzeAndSnapBottle: 'KI-Flaschenanalyse',
     uploadPhoto: 'Foto hochladen',
+
+    // Theme & Appearance
+    themeAppearance: 'Erscheinungsbild',
+    themeAppearanceDesc: 'Helles Leinen-Atelier oder irischer Pub-Nachtmodus',
+    themeLight: 'Hell',
+    themeDark: 'Dunkel',
   },
 } as const;
 

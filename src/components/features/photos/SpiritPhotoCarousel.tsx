@@ -108,12 +108,12 @@ export function SpiritPhotoCarousel({
                 type="button"
                 onClick={() => setIsScanModalOpen(true)}
                 className={cn(
-                  'flex items-center gap-2 px-4.5 py-2.5 rounded-full border border-[var(--brass-accent)]/50',
-                  'bg-[var(--wood-dark)] text-white text-xs sm:text-sm font-display font-bold uppercase tracking-wider',
-                  'hover:bg-[var(--wood-accent)] transition-all cursor-pointer shadow-md active:scale-95'
+                  'flex items-center gap-2 px-4.5 py-2.5 rounded-full border border-[var(--fab-border)]',
+                  'bg-[var(--fab-bg)] text-[var(--fab-text)] text-xs sm:text-sm font-display font-bold uppercase tracking-wider',
+                  'hover:bg-[var(--fab-bg-hover)] transition-all cursor-pointer shadow-md active:scale-95'
                 )}
               >
-                <Sparkles size={16} className="text-amber-200" />
+                <Sparkles size={16} className="text-[var(--fab-text)]" />
                 <span>{t('analyzeBottleAi')}</span>
               </button>
             )}

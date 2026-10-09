@@ -490,12 +490,12 @@ export function FlavorRadarChart({
             className={cn(
               'flex items-center gap-1.5 px-3 py-1.5 rounded-md font-display font-bold text-xs uppercase tracking-wider transition-all duration-150 cursor-pointer h-[28px]',
               viewMode === 'radar'
-                ? 'bg-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs'
+                ? 'bg-[var(--wood-selection)] text-[var(--fab-text)] shadow-xs'
                 : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
             )}
             title={language === 'DE' ? 'Netzdiagramm (Spider)' : 'Radar Chart (Spider)'}
           >
-            <Compass size={14} className={viewMode === 'radar' ? 'text-amber-200' : 'text-[var(--sepia-muted)]'} />
+            <Compass size={14} className={viewMode === 'radar' ? 'text-[var(--fab-text)]' : 'text-[var(--sepia-muted)]'} />
             <span>{translate('visualizerMode_radar', language)}</span>
           </button>
 
@@ -508,12 +508,12 @@ export function FlavorRadarChart({
             className={cn(
               'flex items-center gap-1.5 px-3 py-1.5 rounded-md font-display font-bold text-xs uppercase tracking-wider transition-all duration-150 cursor-pointer h-[28px]',
               viewMode === 'wheel'
-                ? 'bg-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs'
+                ? 'bg-[var(--wood-selection)] text-[var(--fab-text)] shadow-xs'
                 : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
             )}
             title={language === 'DE' ? 'Aromenrad (Sunburst)' : 'Aroma Wheel (Sunburst)'}
           >
-            <PieChart size={14} className={viewMode === 'wheel' ? 'text-amber-200' : 'text-[var(--sepia-muted)]'} />
+            <PieChart size={14} className={viewMode === 'wheel' ? 'text-[var(--fab-text)]' : 'text-[var(--sepia-muted)]'} />
             <span>{translate('visualizerMode_wheel', language)}</span>
           </button>
         </div>
@@ -529,7 +529,7 @@ export function FlavorRadarChart({
             className={cn(
               'flex items-center justify-center px-3 py-1.5 rounded-md font-display font-bold text-xs uppercase tracking-wider transition-all duration-150 cursor-pointer h-[28px]',
               sensoryMode === 'both'
-                ? 'bg-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs'
+                ? 'bg-[var(--wood-selection)] text-[var(--fab-text)] shadow-xs'
                 : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
             )}
           >
@@ -545,7 +545,7 @@ export function FlavorRadarChart({
             className={cn(
               'flex items-center gap-1.5 px-3 py-1.5 rounded-md font-display font-bold text-xs uppercase tracking-wider transition-all duration-150 cursor-pointer h-[28px]',
               sensoryMode === 'nose'
-                ? 'bg-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs'
+                ? 'bg-[var(--wood-selection)] text-[var(--fab-text)] shadow-xs'
                 : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
             )}
           >
@@ -569,7 +569,7 @@ export function FlavorRadarChart({
             className={cn(
               'flex items-center gap-1.5 px-3 py-1.5 rounded-md font-display font-bold text-xs uppercase tracking-wider transition-all duration-150 cursor-pointer h-[28px]',
               sensoryMode === 'taste'
-                ? 'bg-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs'
+                ? 'bg-[var(--wood-selection)] text-[var(--fab-text)] shadow-xs'
                 : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
             )}
           >

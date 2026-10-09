@@ -115,7 +115,7 @@ export function TastingHeaderSection({
       </span>
 
       {/* Big Spirit Name - Full Width with generous breathing room */}
-      <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold tracking-wide sm:tracking-widest text-[var(--parchment-bg)] uppercase leading-tight w-full max-w-4xl mx-auto break-words px-1">
+      <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold tracking-wide sm:tracking-widest text-[var(--fab-text)] uppercase leading-tight w-full max-w-4xl mx-auto break-words px-1">
         {displayName}
       </h1>
 

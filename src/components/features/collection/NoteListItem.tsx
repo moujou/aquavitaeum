@@ -78,7 +78,7 @@ export function NoteListItem({
       {/* ── 1. Signature Clover Green Top Header Banner ── */}
       <div className="w-full bg-[var(--wood-dark)] px-3 sm:px-4 py-2 sm:py-2.5 border-b border-[var(--wood-dark)]/80 flex items-center justify-between gap-3 min-h-[44px] sm:min-h-[48px] z-10 shrink-0 text-left">
         <div className="min-w-0 flex-1">
-          <h3 className="font-display text-sm sm:text-base font-bold text-[var(--parchment-bg)] group-hover:text-[var(--brass-light)] transition-colors leading-snug line-clamp-2 break-words tracking-wide">
+          <h3 className="font-display text-sm sm:text-base font-bold text-[var(--fab-text)] group-hover:text-[var(--brass-light)] transition-colors leading-snug line-clamp-2 break-words tracking-wide">
             {spirit.name || spirit.distillery || spirit.bottler}
           </h3>
         </div>
@@ -132,7 +132,7 @@ export function NoteListItem({
                     : 'bg-[var(--pub-bg-panel)]/90 border-[var(--parchment-border)] shadow-xs'
                 )}
               >
-                {isSelected && <Check size={11} strokeWidth={3} className="text-[var(--parchment-bg)]" />}
+                {isSelected && <Check size={11} strokeWidth={3} className="text-[var(--fab-text)]" />}
               </div>
             </div>
           )}

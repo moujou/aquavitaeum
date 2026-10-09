@@ -32,7 +32,7 @@ export function IosInstallGuideModal({ isOpen, onClose }: IosInstallGuideModalPr
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 sm:px-6 py-4 bg-gradient-to-r from-[var(--wood-dark)] to-[var(--wood-selection)] text-white border-b border-black/10 shadow-sm shrink-0">
+        <div className="flex items-center justify-between px-5 sm:px-6 py-4 bg-[var(--wood-dark)] text-white border-b border-black/10 shadow-sm shrink-0">
           <div className="flex items-center gap-2.5">
             <Smartphone className="w-5 h-5 text-amber-200 shrink-0" />
             <h2

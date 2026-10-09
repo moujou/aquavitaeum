@@ -41,7 +41,7 @@ npm run build
 | `npm run start` | Serves compiled Next.js application | Production server environment preview |
 | `npm run lint` | Executes ESLint checks | Code style, React hooks rules, and syntax validation |
 | `npm run type-check` | Runs TypeScript compiler (`tsc --noEmit`) | Strict mode type verification across entire codebase |
-| `npm run test` | Executes Vitest test suite once | Runs all 392 unit tests across 62 test files (100% pass rate) |
+| `npm run test` | Executes Vitest test suite once | Runs all 403 unit tests across 64 test files (100% pass rate) |
 | `npm run test:watch` | Runs Vitest in interactive watch mode | Real-time test-driven development (TDD) |
 | `npm run test:coverage` | Generates Vitest coverage reports via v8 | Comprehensive code coverage auditing (>65% coverage) |
 
@@ -100,6 +100,11 @@ The application provides two complementary viewing modes tailored for different 
 - **Long-Press Selektionsmodus**: Durch langes Drücken (500ms Timer mit haptischem Vibrations-Feedback `navigator.vibrate(40)`) wird der Mehrfachauswahl-Modus aktiviert.
 - **Bulk Actions**: Ermöglicht das gemeinsame Exportieren oder Löschen mehrerer ausgewählter Tasting-Notizen über das Aktionen-Menü.
 - **Swipe-Back Navigation (`useSwipeBack.ts`)**: Natürliche Wischgeste vom rechten Bildschirmrand zur schnellen Navigation zurück zur Übersicht.
+
+### 4. 🌙 Mondschein-Nacht & Irische Akzente (`ThemeContext.tsx` & `ThemeToggle.tsx`)
+- **Modernes Dark-Theme**: Beruhigende, tiefe Mitternachts-Schieferflächen (`#0D1115` Canvas, `#141A21` Tasting Cards & Ledgers wie bei GitHub/Reddit Dark) kombiniert mit lebendigen irischen Pub-Akzenten (`#2E945D` Kleegrün für Buttons/Toggles, `#E59632` Pot-Still Bernstein für Medaillen und `#F5EFE1` Elfenbein-Schrift mit 14.5:1 AAA-Kontrast).
+- **Zero-FOUC & 0ms Latenz**: Ein inline-ausgeführter Pre-Paint-Script im `<head>` setzt das `data-theme="pub-dark"` Attribut vor dem ersten Frame-Render; keine separaten CSS-Dateien, kein Flackern, vollständige Offline-Verfügbarkeit.
+- **Ergonomischer Icon-Schalter**: Kompakter 2-Zustands-Umschalter (☀️ Sonne / 🌙 Mond) ohne störenden Text, diskret zentriert im Einstellungsbereich (*Erscheinungsbild / Appearance*).
 
 ---
 
@@ -182,7 +187,7 @@ Aqua Vitaeum enforces a mandatory **7-Agent Verification Protocol** (`AGENTS.md`
 | :--- | :--- | :--- |
 | **1. Software Expert** | Clean code & DRY | Strict TypeScript (`npm run type-check`), 0 unused variables. |
 | **2. Software Architect** | Module boundaries | Layer flow (`data` ➔ `lib` ➔ `types` ➔ `hooks` ➔ `components` ➔ `app`). |
-| **3. Quality Expert** | `npm run type-check`, `npm run lint`, `npm run test` | 0 errors, 0 warnings, 100% test pass rate (384+ tests across 62 suites). |
+| **3. Quality Expert** | `npm run type-check`, `npm run lint`, `npm run test` | 0 errors, 0 warnings, 100% test pass rate (403+ tests across 64 suites). |
 | **4. UX/UI Expert** | Design consistency | WCAG AAA contrast, CSS custom properties, zero layout shift. |
 | **5. Security & Privacy Expert** | Security audit | 0 secrets in repo, BYOK masking, least privilege OAuth, zero tracking. |
 | **6. Documentation Agent** | `docs/` synchronization | Keep `DOCUMENTATION.md` & `DESIGN_SYSTEM.md` up-to-date. |

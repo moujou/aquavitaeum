@@ -1,6 +1,6 @@
 'use client';
 
-import { Plus, BookOpen, Library, User, LayoutGrid, AlignJustify } from 'lucide-react';
+import { Plus, BookOpen, Book, User, LayoutGrid, AlignJustify } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
 import { OverviewLayout, JournalShelfLayout } from '@/hooks/useLayoutPreference';
@@ -45,7 +45,7 @@ export default function MobileBottomNav({
   const isProfileActive = activeView === 'profile';
 
   const LayoutIcon = layout === 'grid' ? LayoutGrid : AlignJustify;
-  const JournalIcon = journalLayout === 'bookshelf' ? Library : BookOpen;
+  const JournalIcon = journalLayout === 'bookshelf' ? Book : BookOpen;
   const leftTabTitle = isDetailView
     ? (language === 'DE' ? 'Zurück zur Flaschenübersicht' : 'Back to Notes')
     : isLandingView

@@ -162,11 +162,11 @@ export function JournalLandingHeader({
                 <button
                   type="button"
                   onClick={onScanNote}
-                  className="w-9 h-9 rounded-lg bg-[var(--forest-green)] hover:bg-[var(--fab-bg-hover)] text-white border border-emerald-400/30 flex items-center justify-center transition-all shadow-xs active:scale-95 cursor-pointer shrink-0 min-h-[36px]"
+                  className="w-9 h-9 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] text-[var(--fab-text)] border border-[var(--fab-border)] flex items-center justify-center transition-all shadow-xs active:scale-95 cursor-pointer shrink-0 min-h-[36px]"
                   title={activeLang === 'DE' ? 'Cask & Spirit Assistent: Flasche scannen' : 'Cask & Spirit Assistant: Scan bottle'}
                   aria-label={activeLang === 'DE' ? 'Flasche scannen' : 'Scan bottle'}
                 >
-                  <Sparkles size={16} className="text-amber-200" />
+                  <Sparkles size={16} className="text-[var(--fab-text)]" />
                 </button>
               )}
 

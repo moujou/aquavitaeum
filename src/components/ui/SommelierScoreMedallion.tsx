@@ -166,8 +166,8 @@ export function SommelierScoreMedallion({
         'relative shrink-0 select-none transition-transform duration-300 hover:scale-105',
         variant === 'badge'
           ? 'rounded-full bg-[var(--parchment-bg)] shadow-[0_3px_10px_rgba(0,0,0,0.32)] border border-[var(--brass-accent)]/60 ring-1 ring-black/10'
-          : 'bg-transparent mix-blend-multiply opacity-95',
-        'text-[var(--sepia-text)]',
+          : 'bg-transparent mix-blend-multiply dark:mix-blend-normal opacity-95',
+        'text-[var(--sepia-text)] dark:text-[var(--brass-light)]',
         sizeClasses,
         className
       )}

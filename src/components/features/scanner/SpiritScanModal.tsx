@@ -331,7 +331,7 @@ export function SpiritScanModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* ── Flavor-Compass-Harmonized Top Header ── */}
-        <div className="flex items-center justify-between px-4 sm:px-7 py-3 sm:py-3.5 bg-gradient-to-r from-[var(--wood-dark)] to-[var(--wood-selection)] text-white border-b border-black/10 shadow-sm shrink-0 gap-3">
+        <div className="flex items-center justify-between px-4 sm:px-7 py-3 sm:py-3.5 bg-[var(--wood-dark)] text-white border-b border-black/10 shadow-sm shrink-0 gap-3">
           {/* Left: Branding & Title */}
           <div className="flex items-center gap-3 min-w-0 pr-2">
             <Sparkles className="w-6 h-6 text-amber-200 shrink-0" />
@@ -502,7 +502,7 @@ export function SpiritScanModal({
               <button
                 type="button"
                 onClick={handleApply}
-                className="min-h-[44px] px-5 py-2.5 rounded-xl bg-[var(--wood-dark)] text-white hover:bg-[var(--wood-accent)] font-display font-bold text-xs sm:text-sm uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 shadow-md active:scale-95 border border-[var(--forest-green)]/40"
+                className="min-h-[44px] px-5 py-2.5 rounded-xl bg-[var(--fab-bg)] text-[var(--fab-text)] hover:bg-[var(--fab-bg-hover)] font-display font-bold text-xs sm:text-sm uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 shadow-md active:scale-95 border border-[var(--fab-border)]"
               >
                 <span>{t('applyToNote')}</span>
                 <ChevronRight size={16} />

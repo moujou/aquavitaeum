@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next';
+import Script from 'next/script';
 import './globals.css';
+import { ThemeProvider } from '@/context/ThemeContext';
 import { LanguageProvider } from '@/context/LanguageContext';
 import { GoogleDriveSyncProvider } from '@/context/GoogleDriveSyncContext';
 
@@ -43,31 +45,47 @@ export default function RootLayout({
         <link rel="icon" type="image/svg+xml" href={`${basePath}/favicon.svg`} />
         <link rel="shortcut icon" href={`${basePath}/favicon.svg`} />
         <link rel="apple-touch-icon" sizes="180x180" href={`${basePath}/apple-touch-icon.png`} />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                  const isProd = window.location.hostname !== 'localhost';
-                  const prefix = isProd ? '/aquavitaeum' : '';
-                  navigator.serviceWorker.register(prefix + '/sw.js').then(
-                    function(reg) {
-
-                    },
-                    function(err) {
-                      console.warn('Aqua Vitaeum: ServiceWorker registration failed: ', err);
-                    }
-                  );
-                });
-              }
-            `,
-          }}
-        />
       </head>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
-        <LanguageProvider>
-          <GoogleDriveSyncProvider>{children}</GoogleDriveSyncProvider>
-        </LanguageProvider>
+        <Script
+          id="theme-initializer"
+          strategy="beforeInteractive"
+        >
+          {`
+            (function() {
+              try {
+                var theme = localStorage.getItem('av-theme');
+                if (theme === 'pub-dark') {
+                  document.documentElement.setAttribute('data-theme', 'pub-dark');
+                }
+              } catch (e) {}
+            })();
+          `}
+        </Script>
+        <Script
+          id="sw-registration"
+          strategy="afterInteractive"
+        >
+          {`
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', function() {
+                var isProd = window.location.hostname !== 'localhost';
+                var prefix = isProd ? '/aquavitaeum' : '';
+                navigator.serviceWorker.register(prefix + '/sw.js').then(
+                  function(reg) {},
+                  function(err) {
+                    console.warn('Aqua Vitaeum: ServiceWorker registration failed: ', err);
+                  }
+                );
+              });
+            }
+          `}
+        </Script>
+        <ThemeProvider>
+          <LanguageProvider>
+            <GoogleDriveSyncProvider>{children}</GoogleDriveSyncProvider>
+          </LanguageProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

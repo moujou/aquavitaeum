@@ -170,40 +170,74 @@ export function JournalBookshelfView({
           return (
             <div
               key={journal.id}
-              onClick={() => onCardClick(journal.id, isEditing)}
-              onTouchStart={(e) => onTouchStart(e, journal.id)}
-              onTouchEnd={onTouchEnd}
-              onTouchMove={onCancelLongPress}
-              onContextMenu={(e) => {
-                if (!isSelectMode) e.preventDefault();
-              }}
-              style={{ backgroundColor: `var(--spine-${palette.key})` }}
-              className={cn(
-                'group relative flex flex-col justify-between w-full max-w-[320px] min-h-[390px] sm:min-h-[420px]',
-                'rounded-r-xl rounded-l-xs border transition-all duration-300 transform select-none cursor-pointer overflow-hidden',
-                palette.bg,
-                'border-black/40 dark:border-white/10',
-                palette.foilGlow,
-                // Tactile Hardcover book volume shadow
-                'shadow-[0_12px_30px_rgba(25,12,5,0.22),inset_0_1px_1px_rgba(255,255,255,0.20)]',
-                isSelected
-                  ? 'ring-2 ring-[var(--wood-selection)] -translate-y-3 shadow-[0_20px_42px_rgba(46,148,93,0.40)] z-20'
-                  : isSelectMode
-                    ? 'opacity-40 scale-95'
-                    : 'hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(25,12,5,0.32)] z-10',
-              )}
+              className="relative group w-full max-w-[320px] [perspective:1200px]"
             >
-              {/* Left Leather Spine Hinge (Charakteristischer Buchfalz mit Goldprägungen) */}
-              <div className="w-5 sm:w-6 h-full absolute left-0 top-0 bottom-0 z-20 bg-gradient-to-r from-black/55 via-black/25 to-black/45 border-r border-amber-300/35 shadow-[2px_0_4px_rgba(0,0,0,0.35)] pointer-events-none flex flex-col justify-between py-3.5 items-center">
-                <div className="w-2 h-2 rounded-full bg-amber-300/70 shadow-2xs" />
-                <div className="w-1 h-3 rounded-full bg-amber-300/40" />
-                <div className="w-0.5 h-16 bg-amber-300/30 rounded-full" />
-                <div className="w-1 h-3 rounded-full bg-amber-300/40" />
-                <div className="w-2 h-2 rounded-full bg-amber-300/70 shadow-2xs" />
-              </div>
+              {/* ─── 3D Fore-Edge Paper Block (Schnittkante der Buchseiten rechts) ─── */}
+              <div
+                aria-hidden="true"
+                className={cn(
+                  'absolute right-1 top-2 bottom-2 w-3 rounded-r-xs pointer-events-none transition-all duration-500 ease-out z-0',
+                  'bg-gradient-to-r from-[#DFD6C6] via-[#F3EDE2] to-[#D5CABB] border-y border-r border-[#C5B7A0]/60',
+                  'dark:from-[#151D25] dark:via-[#212C38] dark:to-[#12181F] dark:border-white/10',
+                  'shadow-[3px_2px_7px_rgba(20,10,4,0.18)] dark:shadow-[3px_2px_8px_rgba(0,0,0,0.45)]',
+                  'group-hover:translate-x-1.5 group-hover:scale-y-[0.99]',
+                  isSelected && 'translate-x-1.5'
+                )}
+                style={{
+                  backgroundImage:
+                    'repeating-linear-gradient(to bottom, transparent, transparent 2px, rgba(0,0,0,0.05) 2px, rgba(0,0,0,0.05) 4px)',
+                }}
+              />
 
-              {/* ─── UPPER HALF: Full Cover Artwork Canvas ─── */}
-              <div className="flex-1 ml-5 sm:ml-6 relative overflow-hidden bg-black/20 flex flex-col justify-between p-3 min-h-[230px] sm:min-h-[250px]">
+              {/* ─── Main Hardcover Book Volume ─── */}
+              <div
+                onClick={() => onCardClick(journal.id, isEditing)}
+                onTouchStart={(e) => onTouchStart(e, journal.id)}
+                onTouchEnd={onTouchEnd}
+                onTouchMove={onCancelLongPress}
+                onContextMenu={(e) => {
+                  if (!isSelectMode) e.preventDefault();
+                }}
+                style={{ backgroundColor: `var(--spine-${palette.key})` }}
+                className={cn(
+                  'relative flex flex-col justify-between w-full min-h-[390px] sm:min-h-[420px]',
+                  'rounded-r-xl rounded-l-xs border transition-all duration-500 ease-out transform-gpu select-none cursor-pointer overflow-hidden origin-left z-10',
+                  palette.bg,
+                  'border-black/40 dark:border-white/10',
+                  palette.foilGlow,
+                  // Tactile Hardcover book volume shadow
+                  'shadow-[0_12px_28px_rgba(25,12,5,0.22),-2px_2px_8px_rgba(25,12,5,0.12),inset_0_1px_1px_rgba(255,255,255,0.25)]',
+                  'dark:shadow-[0_14px_32px_rgba(0,0,0,0.55),-2px_2px_8px_rgba(0,0,0,0.40),inset_0_1px_1px_rgba(255,255,255,0.10)]',
+                  isSelected
+                    ? 'ring-2 ring-[var(--wood-selection)] [transform:rotateY(-3deg)_translateY(-10px)] shadow-[14px_22px_45px_rgba(46,148,93,0.40)] z-20'
+                    : isSelectMode
+                      ? 'opacity-40 scale-95'
+                      : 'hover:[transform:rotateY(-5deg)_translateY(-8px)] hover:shadow-[16px_24px_42px_rgba(25,12,5,0.32),-3px_4px_12px_rgba(25,12,5,0.16)] dark:hover:shadow-[16px_24px_44px_rgba(0,0,0,0.70)] z-10',
+                )}
+              >
+                {/* Left Leather Spine Hinge (Charakteristischer gerundeter Buchrücken mit Goldprägungen) */}
+                <div className="w-5 sm:w-6 h-full absolute left-0 top-0 bottom-0 z-20 bg-gradient-to-r from-black/60 via-black/25 to-black/50 border-r border-amber-300/35 shadow-[2px_0_5px_rgba(0,0,0,0.40)] pointer-events-none flex flex-col justify-between py-3.5 items-center">
+                  <div className="w-2 h-2 rounded-full bg-amber-300/70 shadow-2xs" />
+                  <div className="w-1 h-3 rounded-full bg-amber-300/40" />
+                  <div className="w-0.5 h-16 bg-amber-300/30 rounded-full" />
+                  <div className="w-1 h-3 rounded-full bg-amber-300/40" />
+                  <div className="w-2 h-2 rounded-full bg-amber-300/70 shadow-2xs" />
+                </div>
+
+                {/* Falzrille / Hinge Groove (Physikalische Buchfalz-Vertiefung zwischen Rücken und Deckel) */}
+                <div
+                  aria-hidden="true"
+                  className="w-[3px] h-full absolute left-5 sm:left-6 top-0 bottom-0 z-20 bg-gradient-to-r from-black/55 via-black/20 to-transparent pointer-events-none shadow-[-1px_0_3px_rgba(0,0,0,0.50)]"
+                />
+
+                {/* Ambient Front Cover Specular Sheen (Subtiler diagonaler Glanzreflex auf dem Buchdeckel) */}
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 ml-5 sm:ml-6 pointer-events-none z-15 bg-gradient-to-tr from-black/15 via-white/5 to-transparent opacity-70 group-hover:opacity-100 transition-opacity"
+                />
+
+                {/* ─── UPPER HALF: Full Cover Artwork Canvas ─── */}
+                <div className="flex-1 ml-5 sm:ml-6 relative overflow-hidden bg-black/20 flex flex-col justify-between p-3 min-h-[230px] sm:min-h-[250px]">
                 {/* Background Artwork */}
                 {journal.coverImage ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -238,7 +272,7 @@ export function JournalBookshelfView({
                           : 'bg-[var(--pub-bg-panel)] border-[var(--parchment-border)]',
                       )}
                     >
-                      {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-[var(--parchment-bg)]" />}
+                      {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-[var(--fab-text)]" />}
                     </div>
                   ) : (
                     <span className="w-1" />
@@ -325,7 +359,8 @@ export function JournalBookshelfView({
                 </div>
               </div>
             </div>
-          );
+          </div>
+        );
         })}
       </div>
     </div>

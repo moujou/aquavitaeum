@@ -3,12 +3,13 @@
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { LanguageToggle } from '@/components/ui/LanguageToggle';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { LayoutToggle } from '@/components/ui/LayoutToggle';
 import { JournalLayoutToggle } from '@/components/ui/JournalLayoutToggle';
 import { GoogleDriveSyncSection } from '@/components/features/profile/GoogleDriveSyncSection';
 import { AiAssistantSettingsSection } from '@/components/features/profile/AiAssistantSettingsSection';
 import { IosInstallGuideModal } from '@/components/features/pwa/IosInstallGuideModal';
-import { User, Globe, LayoutGrid, BookOpen, Library, ShieldCheck, Smartphone } from 'lucide-react';
+import { User, Globe, Moon, LayoutGrid, BookOpen, Book, ShieldCheck, Smartphone } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { OverviewLayout, JournalShelfLayout } from '@/hooks/useLayoutPreference';
 
@@ -38,9 +39,9 @@ export function ProfileView({
       )}
     >
       {/* Main Profile Card Container */}
-      <div className="w-full rounded-2xl border border-[var(--forest-green)]/25 bg-[var(--parchment-bg)] p-4 sm:p-8 md:p-10 text-center shadow-[0_10px_32px_-4px_rgba(35,20,8,0.13),0_2px_8px_rgba(35,115,71,0.08)] relative overflow-hidden">
-        {/* Subtle Ambient Glow */}
-        <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-56 h-56 rounded-full bg-[var(--forest-green)]/10 blur-3xl pointer-events-none" />
+      <div className="w-full rounded-2xl border border-[var(--parchment-border)] bg-[var(--parchment-bg)] p-4 sm:p-8 md:p-10 text-center shadow-[0_10px_32px_-4px_rgba(35,20,8,0.13),0_2px_8px_rgba(35,115,71,0.08)] relative overflow-hidden">
+        {/* Subtle Ambient Glow (Hidden in dark mode to avoid foggy green halos) */}
+        <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-56 h-56 rounded-full bg-[var(--forest-green)]/10 dark:hidden blur-3xl pointer-events-none" />
 
         {/* Circular Avatar Placeholder */}
         <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-2 border-[var(--forest-green)]/40 flex items-center justify-center bg-[var(--forest-green)]/10 mx-auto mb-4 shadow-xs text-[var(--forest-green)] relative z-10">
@@ -72,11 +73,29 @@ export function ProfileView({
             <LanguageToggle className="shrink-0" />
           </div>
 
-          {/* Row 2: Journals Shelf Layout (Manuskript vs Bücherregal) */}
+          {/* Row 2: Theme / Appearance */}
           <div className="flex items-center justify-between gap-3 p-3.5 sm:p-5 hover:bg-black/[0.02] transition-colors">
             <div className="flex items-center gap-3 sm:gap-4 min-w-0 pr-2">
               <div className="w-9 h-9 rounded-lg bg-[var(--forest-green)]/10 border border-[var(--forest-green)]/30 flex items-center justify-center text-[var(--forest-green)] shrink-0">
-                {journalLayout === 'bookshelf' ? <Library size={18} /> : <BookOpen size={18} />}
+                <Moon size={18} />
+              </div>
+              <div className="min-w-0">
+                <p className="font-display text-sm sm:text-base font-semibold text-[var(--foreground)] truncate">
+                  {t('themeAppearance')}
+                </p>
+                <p className="font-body text-xs text-[var(--sepia-muted)] mt-0.5 truncate">
+                  {t('themeAppearanceDesc')}
+                </p>
+              </div>
+            </div>
+            <ThemeToggle className="shrink-0" />
+          </div>
+
+          {/* Row 3: Journals Shelf Layout (Manuskript vs Bücherregal) */}
+          <div className="flex items-center justify-between gap-3 p-3.5 sm:p-5 hover:bg-black/[0.02] transition-colors">
+            <div className="flex items-center gap-3 sm:gap-4 min-w-0 pr-2">
+              <div className="w-9 h-9 rounded-lg bg-[var(--forest-green)]/10 border border-[var(--forest-green)]/30 flex items-center justify-center text-[var(--forest-green)] shrink-0">
+                {journalLayout === 'bookshelf' ? <Book size={18} /> : <BookOpen size={18} />}
               </div>
               <div className="min-w-0">
                 <p className="font-display text-sm sm:text-base font-semibold text-[var(--foreground)] truncate">

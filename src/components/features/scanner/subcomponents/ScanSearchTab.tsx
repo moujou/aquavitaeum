@@ -53,7 +53,7 @@ export function ScanSearchTab({
             type="submit"
             data-testid="spirit-search-submit-btn"
             disabled={!textQuery.trim()}
-            className="ml-2 px-4 py-2 rounded-full bg-[var(--wood-dark)] text-white hover:bg-[var(--wood-accent)] transition-all font-semibold text-xs sm:text-sm shadow-xs cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+            className="ml-2 px-4 py-2 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] transition-all font-semibold text-xs sm:text-sm shadow-xs cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
           >
             {language === 'DE' ? 'Suchen' : 'Search'}
           </button>
