@@ -111,7 +111,7 @@ export function NoteSortDropdown({ value, onChange, className }: NoteSortDropdow
         <div
           role="listbox"
           aria-label={t('sortNotes')}
-          className="absolute right-0 sm:left-0 sm:right-auto top-full mt-2 w-52 sm:w-56 bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] shadow-[0_12px_36px_rgba(40,28,15,0.24)] rounded-xl p-1.5 z-[100] animate-fade-in flex flex-col gap-0.5 select-none"
+          className="absolute left-0 top-full mt-2 w-56 sm:w-60 bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] shadow-[0_12px_36px_rgba(40,28,15,0.24)] rounded-xl p-1.5 z-[100] animate-fade-in flex flex-col gap-0.5 select-none"
         >
           {sortOptions.map((option) => {
             const isSelected = option.value === value;
@@ -126,19 +126,19 @@ export function NoteSortDropdown({ value, onChange, className }: NoteSortDropdow
                   setIsOpen(false);
                 }}
                 className={cn(
-                  'flex items-center justify-between gap-2 w-full px-2.5 py-2 text-xs font-display font-semibold rounded-lg transition-colors text-left cursor-pointer active:scale-[0.99] min-h-[34px]',
+                  'flex items-center justify-between gap-2.5 w-full px-3 py-2.5 text-xs font-display font-semibold rounded-lg transition-colors text-left cursor-pointer active:scale-[0.99] min-h-[38px]',
                   isSelected
                     ? 'bg-[var(--forest-green)]/15 text-[var(--forest-green)] font-bold'
                     : 'text-[var(--foreground)] hover:bg-[var(--forest-green)]/10 hover:text-[var(--forest-green)]'
                 )}
               >
-                <div className="flex items-center gap-2 min-w-0">
+                <div className="flex items-center gap-2.5 min-w-0">
                   <span className={cn('shrink-0', isSelected ? 'text-[var(--forest-green)]' : 'text-[var(--sepia-muted)]')}>
                     {option.icon}
                   </span>
                   <span className="truncate">{option.label}</span>
                 </div>
-                {isSelected && <Check size={14} className="text-[var(--brass-accent)] shrink-0" />}
+                {isSelected && <Check size={15} className="text-[var(--brass-accent)] shrink-0" />}
               </button>
             );
           })}

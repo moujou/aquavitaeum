@@ -108,7 +108,7 @@ export function NoteFilterDropdown({
         <div
           role="dialog"
           aria-label={t('filterNotes')}
-          className="absolute right-0 sm:left-0 sm:right-auto top-full mt-2 w-64 sm:w-72 bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] shadow-[0_12px_36px_rgba(40,28,15,0.24)] rounded-xl p-3 z-[100] animate-fade-in flex flex-col gap-2.5 select-none text-xs"
+          className="absolute left-0 sm:left-0 top-full mt-2 w-64 sm:w-72 max-w-[calc(100vw-32px)] bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] shadow-[0_12px_36px_rgba(40,28,15,0.24)] rounded-xl p-3 z-[100] animate-fade-in flex flex-col gap-2.5 select-none text-xs"
         >
           {/* Header & Reset shortcut */}
           <div className="flex items-center justify-between pb-1 border-b border-[var(--parchment-border)]/50">
