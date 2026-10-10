@@ -2,6 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Home from '../page';
 import { LanguageProvider } from '@/context/LanguageContext';
+import { ThemeProvider } from '@/context/ThemeContext';
 
 // Mock IndexedDB Dexie db object
 vi.mock('@/lib/db', () => {
@@ -58,13 +59,17 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
     localStorage.setItem('aqua-vitaeum-seeded', 'true');
   });
 
+  const renderWithProviders = (ui: React.ReactElement) => {
+    return render(
+      <ThemeProvider>
+        <LanguageProvider>{ui}</LanguageProvider>
+      </ThemeProvider>
+    );
+  };
+
   it('renders welcome onboarding page when session is not started', () => {
     // Leave sessionStorage empty to trigger first-load launch screen
-    render(
-      <LanguageProvider>
-        <Home />
-      </LanguageProvider>,
-    );
+    renderWithProviders(<Home />);
 
     // Should display welcome screen branding
     expect(screen.getByText('Your Fine Spirits Tasting Journal')).toBeDefined();
@@ -73,11 +78,7 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
   it('navigates to bookshelf overview when welcome onboarding is completed', async () => {
     localStorage.setItem('aqua-vitaeum-welcome-completed', 'true');
 
-    render(
-      <LanguageProvider>
-        <Home />
-      </LanguageProvider>,
-    );
+    renderWithProviders(<Home />);
 
     // Wait for the hydration loading screen to clear and reveal overview
     const journalCard = await screen.findByText('My Journal');
@@ -88,11 +89,7 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
   it('renders the empty cellar state UI when the active journal has 0 spirits', async () => {
     localStorage.setItem('aqua-vitaeum-welcome-completed', 'true');
 
-    render(
-      <LanguageProvider>
-        <Home />
-      </LanguageProvider>,
-    );
+    renderWithProviders(<Home />);
 
     // Click journal → now navigates to journal-landing (not detail directly)
     const journalCard = await screen.findByText('My Journal');
@@ -106,11 +103,7 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
   it('renders New Note desktop FAB in journal-landing view', async () => {
     localStorage.setItem('aqua-vitaeum-welcome-completed', 'true');
 
-    render(
-      <LanguageProvider>
-        <Home />
-      </LanguageProvider>,
-    );
+    renderWithProviders(<Home />);
 
     // Click journal → lands on journal-landing
     const journalCard = await screen.findByText('My Journal');
@@ -125,11 +118,7 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
   it('renders floating Plus button in Bookshelf Overview view', async () => {
     localStorage.setItem('aqua-vitaeum-welcome-completed', 'true');
 
-    render(
-      <LanguageProvider>
-        <Home />
-      </LanguageProvider>,
-    );
+    renderWithProviders(<Home />);
 
     // Verify presence of creation FAB on bookshelf overview
     const createBtn = screen.getByTitle(/Create Journal/i);
@@ -140,11 +129,7 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
   it('redirects from Profile view back to journals overview when tapping Journals in bottom navigation', async () => {
     localStorage.setItem('aqua-vitaeum-welcome-completed', 'true');
 
-    render(
-      <LanguageProvider>
-        <Home />
-      </LanguageProvider>,
-    );
+    renderWithProviders(<Home />);
 
     // 1. Enter a journal → lands on journal-landing
     const journalCard = await screen.findByText('My Journal');
@@ -169,11 +154,7 @@ describe('Home Page Component & Multi-Journal Navigation', () => {
   it('returns to journal-landing (not journal-detail) when toggling Profile tab off', async () => {
     localStorage.setItem('aqua-vitaeum-welcome-completed', 'true');
 
-    render(
-      <LanguageProvider>
-        <Home />
-      </LanguageProvider>,
-    );
+    renderWithProviders(<Home />);
 
     // 1. Click journal → journal-landing (NoteEmptyState visible with 0 spirits)
     const journalCard = await screen.findByText('My Journal');

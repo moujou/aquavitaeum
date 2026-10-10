@@ -136,20 +136,24 @@ describe('AI Assistant Service (ai-assistant-service.ts)', () => {
     it('analyzes text query and parses complete spirit specifications', async () => {
       setStoredAiApiKey('test_key');
       const mockResponse = {
-        name: 'Ardbeg Uigeadail',
-        distillery: 'Ardbeg',
+        name: 'Caol Ila 2010',
+        distillery: 'Caol Ila',
+        bottler: 'Signatory Vintage',
         spiritType: 'Single Malt Scotch',
         region: 'Islay',
-        abv: 54.2,
-        age: 10,
+        abv: 57.1,
+        age: 12,
         volumeMl: 700,
         characteristics: ['Cask Strength', 'Non-Chill Filtered'],
         colour: 'Deep Gold',
         barRole: ['Connoisseur Choice', 'Showcase Bottle'],
+        caskNo: 'Cask #1024',
         caskTypes: ['Bourbon', 'Sherry Butt'],
         caskFinish: 'Oloroso Sherry Casks',
         suggestedNoseTags: ['Peat Smoke', 'Dark Chocolate'],
         suggestedTasteTags: ['Espresso', 'Brine'],
+        noseTagIntensities: { 'Peat Smoke': 9, 'Dark Chocolate': 7 },
+        tasteTagIntensities: { Espresso: 8, Brine: 6 },
         noseProfile: { peaty: 9, fruity: 6 },
         tasteProfile: { peaty: 10, spicy: 7 },
       };
@@ -167,13 +171,19 @@ describe('AI Assistant Service (ai-assistant-service.ts)', () => {
         }),
       });
 
-      const result = await analyzeSpiritFromText('Ardbeg Uigeadail');
-      expect(result.name).toBe('Ardbeg Uigeadail');
-      expect(result.distillery).toBe('Ardbeg');
-      expect(result.abv).toBe(54.2);
+      const result = await analyzeSpiritFromText('Caol Ila 2010 Signatory Vintage');
+      expect(result.name).toBe('Caol Ila 2010');
+      expect(result.distillery).toBe('Caol Ila');
+      expect(result.bottler).toBe('Signatory Vintage');
+      expect(result.caskNo).toBe('Cask #1024');
+      expect(result.abv).toBe(57.1);
       expect(result.characteristics).toContain('Cask Strength');
       expect(result.barRole).toContain('Connoisseur Choice');
       expect(result.suggestedNoseTags).toEqual(['Peat Smoke', 'Dark Chocolate']);
+      expect(result.noseTagIntensities).toEqual({ 'Peat Smoke': 9, 'Dark Chocolate': 7 });
+      expect(result.tasteTagIntensities).toEqual({ Espresso: 8, Brine: 6 });
+      expect(result.noseProfile?.peaty).toBe(9);
+      expect(result.tasteProfile?.peaty).toBe(10);
       expect(result.caskFinish).toBe('Oloroso Sherry Casks');
     });
 
@@ -212,6 +222,55 @@ describe('AI Assistant Service (ai-assistant-service.ts)', () => {
       expect(result.barRole).toContain('Beginner Friendly');
       expect(result.barRole).toContain('Daily Sipper');
       expect(result.colour).toBe('Pale Gold');
+    });
+
+    it('sends German directives and examples when language is DE', async () => {
+      setStoredAiApiKey('test_key');
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          candidates: [
+            {
+              content: {
+                parts: [{ text: JSON.stringify({ name: 'Lagavulin 16', distillery: 'Lagavulin', spiritType: 'Single Malt Scotch', abv: 43 }) }],
+              },
+            },
+          ],
+        }),
+      });
+      global.fetch = mockFetch;
+
+      await analyzeSpiritFromText('Lagavulin 16', { language: 'DE' });
+
+      const requestBody = JSON.parse(mockFetch.mock.calls[0][1].body);
+      const promptText = requestBody.contents[0].parts[0].text;
+      expect(promptText).toContain('WICHTIG ZUR SPRACHE: Gib alle Notizen');
+      expect(promptText).toContain('Kräftiger Torfrauch mit dunklen Rosinen');
+      expect(promptText).toContain('Torfrauch');
+    });
+
+    it('sends English directives and examples when language is EN', async () => {
+      setStoredAiApiKey('test_key');
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          candidates: [
+            {
+              content: {
+                parts: [{ text: JSON.stringify({ name: 'Lagavulin 16', distillery: 'Lagavulin', spiritType: 'Single Malt Scotch', abv: 43 }) }],
+              },
+            },
+          ],
+        }),
+      });
+      global.fetch = mockFetch;
+
+      await analyzeSpiritFromText('Lagavulin 16', { language: 'EN' });
+
+      const requestBody = JSON.parse(mockFetch.mock.calls[0][1].body);
+      const promptText = requestBody.contents[0].parts[0].text;
+      expect(promptText).toContain('LANGUAGE DIRECTIVE: Provide all notes');
+      expect(promptText).toContain('Rich peat smoke with dark raisins');
     });
   });
 

@@ -193,7 +193,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
           <div className="relative w-32 h-32 sm:w-36 sm:h-36 flex items-center justify-center mb-6 drop-shadow-[0_12px_32px_rgba(35,115,71,0.30)] animate-fade-in">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={`${basePath}/whisky-logo-with-circle-v5.svg`}
+              src={`${basePath}/favicon.svg`}
               alt="Aqua Vitaeum Logo"
               className="w-full h-full select-none pointer-events-none"
               width={144}
@@ -315,7 +315,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
                 <input
                   type="text"
                   maxLength={120}
-                  placeholder="e.g. My collection of Single Malts..."
+                  placeholder={t('journalDescriptionPlaceholder')}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   className="w-full h-11 px-3 rounded-lg bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/60 font-body text-sm focus:outline-none focus:border-[var(--brass-accent)]"

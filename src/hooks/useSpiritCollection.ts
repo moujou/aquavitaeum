@@ -121,6 +121,7 @@ export function useSpiritCollection(activeJournalId: string | null) {
 
       const matchesSearch =
         s.distillery.toLowerCase().includes(q) ||
+        (s.bottler || '').toLowerCase().includes(q) ||
         s.name.toLowerCase().includes(q) ||
         s.region.toLowerCase().includes(q) ||
         s.spiritType.toLowerCase().includes(q) ||
@@ -234,12 +235,13 @@ export function useSpiritCollection(activeJournalId: string | null) {
           ...blank,
           name: result.name || 'Unknown Spirit',
           distillery: result.distillery || '',
+          bottler: result.bottler || '',
           region: result.region || '',
           spiritType: result.spiritType || 'Single Malt Scotch',
           abv: result.abv || 40.0,
           age: result.age !== undefined ? result.age : undefined,
           volumeMl: result.volumeMl ?? 700,
-          caskNo: result.caskTypes && result.caskTypes.length > 0 ? result.caskTypes.join(', ') : undefined,
+          caskNo: result.caskNo || undefined,
           characteristics:
             result.characteristics && result.characteristics.length > 0
               ? result.characteristics
@@ -267,6 +269,24 @@ export function useSpiritCollection(activeJournalId: string | null) {
           }
           if (result.suggestedTasteTags && result.suggestedTasteTags.length > 0) {
             newSpirit.tasteFlavorTags = [...result.suggestedTasteTags];
+          }
+          if (result.noseTagIntensities && Object.keys(result.noseTagIntensities).length > 0) {
+            newSpirit.noseTagIntensities = { ...result.noseTagIntensities };
+          }
+          if (result.tasteTagIntensities && Object.keys(result.tasteTagIntensities).length > 0) {
+            newSpirit.tasteTagIntensities = { ...result.tasteTagIntensities };
+          }
+          if (result.noseProfile) {
+            newSpirit.noseProfile = {
+              ...newSpirit.noseProfile,
+              ...result.noseProfile,
+            };
+          }
+          if (result.tasteProfile) {
+            newSpirit.tasteProfile = {
+              ...newSpirit.tasteProfile,
+              ...result.tasteProfile,
+            };
           }
           newSpirit.flavorTags = deduplicateTags([
             ...(newSpirit.noseFlavorTags ?? []),

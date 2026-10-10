@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { PieChart } from 'lucide-react';
+import { PieChart, Sparkles } from 'lucide-react';
 import {
   SPIRIT_FLAVOR_TAXONOMY,
   FlavorCategory,
@@ -307,7 +307,7 @@ export function SommelierCategoryLegendAndInspector({
               className={cn(
                 'flex items-center justify-between gap-2 px-3 py-2 rounded-lg border text-[var(--foreground)] shadow-xs text-left transition-all duration-150 cursor-pointer min-h-[38px]',
                 isSelected
-                  ? 'bg-[var(--wood-selection)] text-white border-[var(--wood-selection)] ring-2 ring-[var(--wood-selection)]/35 scale-[1.02] shadow-sm font-bold'
+                  ? 'bg-[var(--wood-selection)] text-white border-[var(--brass-accent)] ring-2 ring-[var(--brass-accent)]/50 scale-[1.02] shadow-sm font-bold'
                   : 'bg-[var(--pub-bg-panel)] border-[var(--parchment-border)] hover:border-[var(--sepia-muted)] hover:bg-[var(--pub-bg-alt)]'
               )}
               title={cat.name[language]}
@@ -315,12 +315,13 @@ export function SommelierCategoryLegendAndInspector({
               <div className="flex items-center gap-2 min-w-0 truncate">
                 <span className="text-sm sm:text-base shrink-0 select-none">{cat.emoji}</span>
                 <span className="truncate text-xs sm:text-sm font-semibold">{cat.name[language]}</span>
+                {isSelected && <Sparkles size={13} className="text-amber-200 shrink-0 animate-pulse" />}
               </div>
               <span
                 className={cn(
-                  'ml-auto text-xs font-mono font-bold px-2 py-0.5 rounded-full shrink-0',
+                  'ml-auto text-xs font-mono font-bold px-2 py-0.5 rounded-full shrink-0 transition-colors',
                   isSelected
-                    ? 'bg-black/25 text-white'
+                    ? 'bg-black/35 text-amber-200 border border-[var(--brass-accent)]/50'
                     : 'bg-[var(--parchment-border)]/60 text-[var(--sepia-text)]'
                 )}
               >
@@ -349,6 +350,7 @@ export function SommelierCategoryLegendAndInspector({
                     <span className="text-[var(--sepia-muted)] text-xs truncate">{activeNode.subcategoryName}</span>
                   </>
                 )}
+                <Sparkles size={12} className="text-amber-200 shrink-0 animate-pulse" />
               </div>
 
               <div className="flex items-center gap-1.5 shrink-0">
@@ -404,16 +406,19 @@ export function SommelierCategoryLegendAndInspector({
                         className={cn(
                           'flex items-center justify-between gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs sm:text-[13px] font-body font-semibold transition-all cursor-pointer shadow-2xs min-w-0 text-left min-h-[32px]',
                           isSelected
-                            ? 'bg-[var(--wood-selection)] text-white font-bold ring-2 ring-[var(--wood-selection)]/35 scale-[1.02] shadow-xs'
+                            ? 'bg-[var(--wood-selection)] text-white font-bold border border-[var(--brass-accent)] ring-2 ring-[var(--brass-accent)]/50 scale-[1.02] shadow-xs'
                             : 'bg-[var(--parchment-bg)] text-[var(--foreground)] border border-[var(--parchment-border)] hover:border-[var(--sepia-muted)] hover:bg-[var(--pub-bg-alt)]'
                         )}
                         title={descName}
                       >
-                        <span className="truncate">{descName}</span>
+                        <div className="flex items-center gap-1.5 min-w-0 truncate">
+                          {isSelected && <Sparkles size={11} className="text-amber-200 shrink-0 animate-pulse" />}
+                          <span className="truncate">{descName}</span>
+                        </div>
                         <span
                           className={cn(
                             'text-[10px] font-mono font-bold shrink-0 ml-auto pl-1',
-                            isSelected ? 'text-white/90' : 'text-[var(--sepia-muted)]'
+                            isSelected ? 'text-amber-200 font-extrabold' : 'text-[var(--sepia-muted)]'
                           )}
                         >
                           {d.intensity}/10
@@ -738,7 +743,7 @@ export function WhiskyAromaWheel({
                   d={slice.innerPath}
                   fill={slice.colorConfig.base}
                   fillOpacity={isCatActive ? 0.98 : 0.88}
-                  stroke={isCatActive ? 'var(--wood-selection)' : slice.colorConfig.stroke}
+                  stroke={isCatActive ? 'var(--brass-accent)' : slice.colorConfig.stroke}
                   strokeWidth={isCatActive ? '2.5' : '1'}
                   strokeLinejoin="round"
                   filter={isCatActive ? 'url(#activeGlow)' : undefined}
@@ -781,7 +786,7 @@ export function WhiskyAromaWheel({
                   d={subSlice.path}
                   fill={slice.colorConfig.light}
                   fillOpacity={isSubActive ? 0.95 : 0.76}
-                  stroke={isSubActive ? 'var(--wood-selection)' : slice.colorConfig.stroke}
+                  stroke={isSubActive ? 'var(--brass-accent)' : slice.colorConfig.stroke}
                   strokeWidth={isSubActive ? '2.2' : '0.8'}
                   strokeLinejoin="round"
                   opacity={isDimmed ? 0.38 : 1}
@@ -831,7 +836,7 @@ export function WhiskyAromaWheel({
                     d={petal.path}
                     fill={slice.colorConfig.base}
                     fillOpacity={isPetalActive ? 1 : 0.92}
-                    stroke={isPetalActive ? 'var(--wood-selection)' : slice.colorConfig.stroke}
+                    stroke={isPetalActive ? 'var(--brass-accent)' : slice.colorConfig.stroke}
                     strokeWidth={isPetalActive ? '2.5' : '1.2'}
                     strokeLinejoin="round"
                     filter={isPetalActive ? 'url(#activeGlow)' : undefined}
@@ -843,7 +848,7 @@ export function WhiskyAromaWheel({
                     cy={petal.tipPoint.y}
                     r={isPetalActive ? 4.5 : 2.5}
                     fill={isPetalActive ? 'var(--brass-accent)' : '#FFFFFF'}
-                    stroke={isPetalActive ? 'var(--wood-selection)' : slice.colorConfig.stroke}
+                    stroke={isPetalActive ? 'var(--brass-accent)' : slice.colorConfig.stroke}
                     strokeWidth={isPetalActive ? '2' : '1'}
                     className="pointer-events-none drop-shadow-xs"
                   />

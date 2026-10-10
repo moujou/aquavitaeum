@@ -36,7 +36,7 @@ export default function GlobalSearch({
 
   const [searchResults, setSearchResults] = useState<{
     journals: { id: string; name: string; coverImage?: string; recentImages?: string[]; bottleCount: number; averageRating: number; description?: string }[];
-    spirits: { id: string; name: string; distillery: string; journalId: string; journalName: string; thumbnailImage?: string; region: string; rating100: number; spiritType: string }[];
+    spirits: { id: string; name: string; distillery: string; bottler?: string; journalId: string; journalName: string; thumbnailImage?: string; region: string; rating100: number; spiritType: string }[];
   }>({ journals: [], spirits: [] });
 
   // Close search dropdown on click outside, immune to multi-instance desktop/mobile cross-firing
@@ -84,6 +84,7 @@ export default function GlobalSearch({
             const matchesType = !globalTypeFilter || globalTypeFilter === 'All' || s.spiritType === globalTypeFilter;
             const matchesText = (s.name || '').toLowerCase().includes(query) ||
                                 (s.distillery || '').toLowerCase().includes(query) ||
+                                (s.bottler || '').toLowerCase().includes(query) ||
                                 (s.region || '').toLowerCase().includes(query) ||
                                 (s.spiritType || '').toLowerCase().includes(query);
             return matchesType && matchesText;
@@ -96,6 +97,7 @@ export default function GlobalSearch({
               id: s.id,
               name: s.name,
               distillery: s.distillery,
+              bottler: s.bottler,
               journalId: targetJournalId,
               journalName: targetJournalName,
               thumbnailImage: s.thumbnailImage,
@@ -251,7 +253,7 @@ export default function GlobalSearch({
                             {s.name}
                           </p>
                           <p className="font-body text-[12px] text-[var(--sepia-muted)] line-clamp-1 italic mt-0.5">
-                            {s.distillery} • {s.region} ({s.spiritType})
+                            {[s.distillery, s.bottler && s.bottler.toLowerCase() !== s.distillery.toLowerCase() ? s.bottler : null, s.region].filter(Boolean).join(' • ')} ({s.spiritType})
                           </p>
                           <p className="text-[11px] text-[var(--forest-green)] font-medium truncate mt-0.5">
                             {t('inJournalPrefix')} {s.journalName}

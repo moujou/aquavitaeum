@@ -7,6 +7,8 @@ import {
   formatDateByLanguage,
   parseDateInputToIso,
   calculateAgeFromDates,
+  formatSpiritDisplayName,
+  formatSpiritProvenance,
 } from '../spirit-utils';
 import { MOCK_SPIRITS } from '@/data/mock-spirits';
 
@@ -28,6 +30,7 @@ describe('Spirit Utilities', () => {
       expect(blank.spiritType).toBe('Single Malt Scotch');
       expect(blank.name).toBe('');
       expect(blank.distillery).toBe('');
+      expect(blank.bottler).toBe('');
       expect(blank.isCaskStrength).toBe(false);
       expect(blank.addedColour).toBe(false);
       expect(blank.chillFiltered).toBe(false);
@@ -37,6 +40,51 @@ describe('Spirit Utilities', () => {
       expect(blank.currency).toBe('€');
       expect(blank.createdAt).toBeDefined();
       expect(blank.updatedAt).toBeDefined();
+    });
+  });
+
+  describe('formatSpiritDisplayName', () => {
+    it('prioritizes spirit name, falling back to distillery, bottler, or Unnamed Spirit', () => {
+      expect(formatSpiritDisplayName({ name: 'Quarter Cask', distillery: 'Laphroaig' })).toBe('Quarter Cask');
+      expect(formatSpiritDisplayName({ name: '', distillery: 'Laphroaig' })).toBe('Laphroaig');
+      expect(formatSpiritDisplayName({ name: '', distillery: '', bottler: 'Signatory Vintage' })).toBe('Signatory Vintage');
+      expect(formatSpiritDisplayName({ name: '', distillery: '', bottler: '' })).toBe('Unnamed Spirit');
+    });
+  });
+
+  describe('formatSpiritProvenance', () => {
+    it('formats distillery, bottler, and region without duplicates', () => {
+      expect(
+        formatSpiritProvenance({
+          distillery: 'Caol Ila',
+          bottler: 'Signatory Vintage',
+          region: 'Islay, Scotland',
+        })
+      ).toBe('Caol Ila · Signatory Vintage · Islay, Scotland');
+
+      expect(
+        formatSpiritProvenance({
+          distillery: 'Laphroaig',
+          bottler: 'Laphroaig',
+          region: 'Islay, Scotland',
+        })
+      ).toBe('Laphroaig · Islay, Scotland');
+
+      expect(
+        formatSpiritProvenance({
+          distillery: 'Laphroaig',
+          region: 'Islay, Scotland',
+        })
+      ).toBe('Laphroaig · Islay, Scotland');
+
+      expect(
+        formatSpiritProvenance({
+          bottler: 'Gordon & MacPhail',
+          region: 'Speyside',
+        })
+      ).toBe('Gordon & MacPhail · Speyside');
+
+      expect(formatSpiritProvenance({})).toBe('Tasting Notes');
     });
   });
 

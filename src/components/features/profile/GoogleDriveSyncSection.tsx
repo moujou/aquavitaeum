@@ -137,7 +137,7 @@ export function GoogleDriveSyncSection() {
               <button
                 type="button"
                 onClick={disconnect}
-                className="w-10 h-10 rounded-lg bg-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs flex items-center justify-center transition-all cursor-pointer hover:bg-[var(--wood-dark)] active:scale-95 min-h-[40px]"
+                className="w-10 h-10 rounded-lg bg-[var(--wood-selection)] text-[var(--fab-text)] shadow-xs flex items-center justify-center transition-all cursor-pointer hover:bg-[var(--wood-dark)] active:scale-95 min-h-[40px]"
                 title={`${t('googleSyncConnected')} · ${t('googleSyncDisconnect')}`}
                 aria-label={t('googleSyncConnected')}
               >

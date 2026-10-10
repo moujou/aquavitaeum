@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Spirit, FlavorProfile } from '@/types/spirit.types';
-import { createBlankSpirit, deduplicateTags, scoreToStars } from '@/lib/spirit-utils';
+import { createBlankSpirit, deduplicateTags, scoreToStars, formatSpiritProvenance } from '@/lib/spirit-utils';
 import { SpiritAnalysisResult } from '@/services/ai-assistant-service';
 import { SpiritApplyMode } from '@/components/features/scanner/SpiritScanModal';
 
@@ -200,12 +200,13 @@ export function useTastingCardForm(
           ...prev,
           name: result.name || prev.name,
           distillery: result.distillery || prev.distillery,
+          bottler: result.bottler || prev.bottler,
           region: result.region || prev.region,
           spiritType: result.spiritType || prev.spiritType,
           abv: result.abv || prev.abv,
           age: result.age !== undefined ? result.age : prev.age,
           volumeMl: result.volumeMl !== undefined ? result.volumeMl : (prev.volumeMl || 700),
-          caskNo: result.caskTypes && result.caskTypes.length > 0 ? result.caskTypes.join(', ') : prev.caskNo,
+          caskNo: result.caskNo || prev.caskNo,
           characteristics:
             result.characteristics && result.characteristics.length > 0
               ? result.characteristics
@@ -238,6 +239,30 @@ export function useTastingCardForm(
               new Set([...(prev.tasteFlavorTags ?? []), ...result.suggestedTasteTags])
             );
           }
+          if (result.noseTagIntensities && Object.keys(result.noseTagIntensities).length > 0) {
+            nextSpirit.noseTagIntensities = {
+              ...(prev.noseTagIntensities ?? {}),
+              ...result.noseTagIntensities,
+            };
+          }
+          if (result.tasteTagIntensities && Object.keys(result.tasteTagIntensities).length > 0) {
+            nextSpirit.tasteTagIntensities = {
+              ...(prev.tasteTagIntensities ?? {}),
+              ...result.tasteTagIntensities,
+            };
+          }
+          if (result.noseProfile) {
+            nextSpirit.noseProfile = {
+              ...prev.noseProfile,
+              ...result.noseProfile,
+            };
+          }
+          if (result.tasteProfile) {
+            nextSpirit.tasteProfile = {
+              ...prev.tasteProfile,
+              ...result.tasteProfile,
+            };
+          }
           nextSpirit.flavorTags = deduplicateTags([
             ...(nextSpirit.noseFlavorTags ?? []),
             ...(nextSpirit.tasteFlavorTags ?? []),
@@ -253,8 +278,7 @@ export function useTastingCardForm(
 
   const stars = scoreToStars(spirit.rating100);
   const displayName = spirit.name.trim() || 'Untitled Spirit Note';
-  const subtitleLocation =
-    [spirit.distillery, spirit.region].filter(Boolean).join(' · ') || 'Tasting Notes';
+  const subtitleLocation = formatSpiritProvenance(spirit);
 
   return {
     spirit,

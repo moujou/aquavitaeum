@@ -57,4 +57,28 @@ describe('NoteListItem Component', () => {
     const button = screen.getByRole('button');
     expect(button.getAttribute('aria-pressed')).toBe('true');
   });
+
+  it('renders independent bottler when distinct from distillery in list view', () => {
+    const independentBottling = {
+      ...sampleSpirit,
+      id: 'ib-list-test',
+      distillery: 'Caol Ila',
+      bottler: 'Signatory Vintage',
+      region: 'Islay',
+    };
+
+    render(
+      <LanguageProvider>
+        <NoteListItem
+          spirit={independentBottling}
+          isSelected={false}
+          onClick={vi.fn()}
+        />
+      </LanguageProvider>
+    );
+
+    expect(screen.getByText('Caol Ila')).toBeDefined();
+    expect(screen.getByText('Signatory Vintage')).toBeDefined();
+    expect(screen.getByText('Islay')).toBeDefined();
+  });
 });

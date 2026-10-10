@@ -44,7 +44,7 @@ export function ConfirmDialog({
         onClick={(e) => e.stopPropagation()}
       >
         {/* ── Dialog Header Banner ── */}
-        <div className="flex items-center justify-between px-5 py-3.5 bg-gradient-to-r from-[var(--wood-dark)] to-[var(--wood-selection)] text-white border-b border-black/10 shadow-sm shrink-0">
+        <div className="flex items-center justify-between px-5 py-3.5 bg-[var(--wood-dark)] text-white border-b border-black/10 shadow-sm shrink-0">
           <div className="flex items-center gap-2.5 min-w-0 pr-2">
             <AlertTriangle size={18} className="text-amber-300 shrink-0" aria-hidden="true" />
             <h3
@@ -68,8 +68,8 @@ export function ConfirmDialog({
         {/* ── Modal Body Content on Warm Parchment ── */}
         <div className="p-5 sm:p-6 flex flex-col gap-4">
           {subtitle && (
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-950 bg-amber-500/15 border border-amber-600/30 px-3 py-1.5 rounded-lg shadow-2xs">
-              <AlertTriangle size={14} className="shrink-0 text-amber-900" />
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-900 dark:text-amber-200 bg-amber-500/15 dark:bg-amber-500/20 border border-amber-600/30 dark:border-amber-500/40 px-3 py-1.5 rounded-lg shadow-2xs">
+              <AlertTriangle size={14} className="shrink-0 text-amber-800 dark:text-amber-300" />
               <span>{subtitle}</span>
             </div>
           )}
@@ -95,7 +95,7 @@ export function ConfirmDialog({
               id="confirm-dialog-submit"
               type="button"
               onClick={onConfirm}
-              className="w-full sm:w-auto min-h-[42px] px-5 rounded-lg bg-red-800 hover:bg-red-900 border border-red-700 text-white font-bold text-sm transition-all active:scale-95 cursor-pointer shadow-md flex items-center justify-center"
+              className="w-full sm:w-auto min-h-[42px] px-5 rounded-lg bg-red-700 hover:bg-red-800 dark:bg-red-700 dark:hover:bg-red-600 border border-red-600 text-white font-bold text-sm transition-all active:scale-95 cursor-pointer shadow-md flex items-center justify-center"
             >
               {confirmLabel}
             </button>

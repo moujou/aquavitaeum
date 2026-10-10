@@ -83,8 +83,8 @@ export function SpiritCard({
     >
       {/* 1. Signature Clover Green Top Header Banner */}
       <div className="w-full bg-[var(--wood-dark)] px-3 sm:px-3.5 py-2 sm:py-2.5 border-b border-[var(--wood-dark)]/80 flex flex-col justify-center min-h-[44px] sm:min-h-[48px] z-10 shrink-0 text-left">
-        <h3 className="font-display text-sm sm:text-base font-bold text-[var(--parchment-bg)] group-hover:text-[var(--brass-light)] transition-colors leading-snug line-clamp-2 break-words tracking-wide">
-          {spirit.name || spirit.distillery}
+        <h3 className="font-display text-sm sm:text-base font-bold text-[var(--fab-text)] group-hover:text-[var(--brass-light)] transition-colors leading-snug line-clamp-2 break-words tracking-wide">
+          {spirit.name || spirit.distillery || spirit.bottler}
         </h3>
       </div>
 
@@ -121,7 +121,7 @@ export function SpiritCard({
                   : 'bg-[var(--pub-bg-panel)]/90 border-[var(--parchment-border)] shadow-xs',
               )}
             >
-              {isSelectChecked && <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[var(--parchment-bg)]" />}
+              {isSelectChecked && <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[var(--fab-text)]" />}
             </div>
           </div>
         )}
@@ -149,12 +149,20 @@ export function SpiritCard({
           {spirit.spiritType}
         </div>
 
-        {/* Row 2: Destillerie • Herkunft */}
+        {/* Row 2: Destillerie • Abfüller • Herkunft */}
         <div className="text-[12.5px] sm:text-[13.5px] font-body text-[var(--sepia-text)] font-bold leading-tight flex items-center gap-1.5 min-w-0 flex-wrap">
-          <span className="break-words">{spirit.distillery}</span>
+          {spirit.distillery && <span className="break-words">{spirit.distillery}</span>}
+          {spirit.bottler && spirit.bottler.toLowerCase() !== spirit.distillery?.toLowerCase() && (
+            <>
+              {spirit.distillery && <span className="text-[var(--sepia-muted)]/50 select-none">·</span>}
+              <span className="font-semibold text-[var(--sepia-text)] break-words">{spirit.bottler}</span>
+            </>
+          )}
           {spirit.region && (
             <>
-              <span className="text-[var(--sepia-muted)]/50 select-none">·</span>
+              {(spirit.distillery || (spirit.bottler && spirit.bottler.toLowerCase() !== spirit.distillery?.toLowerCase())) && (
+                <span className="text-[var(--sepia-muted)]/50 select-none">·</span>
+              )}
               <span className="font-semibold text-[var(--sepia-text)] break-words">{spirit.region}</span>
             </>
           )}

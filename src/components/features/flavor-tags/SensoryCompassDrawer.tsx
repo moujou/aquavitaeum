@@ -176,7 +176,7 @@ export function SensoryCompassDrawer({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Drawer Header with distinct Sensory Mode Switcher and well-separated Close button */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 sm:px-7 py-3 sm:py-3.5 bg-gradient-to-r from-[var(--wood-dark)] to-[var(--wood-selection)] text-white border-b border-black/10 shadow-sm shrink-0 gap-2.5 sm:gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 sm:px-7 py-3 sm:py-3.5 bg-[var(--wood-dark)] text-white border-b border-black/10 shadow-sm shrink-0 gap-2.5 sm:gap-3">
           {/* Top row on mobile / Left & Right split on desktop */}
           <div className="flex items-center justify-between w-full sm:w-auto">
             {/* Branding & Title */}

@@ -41,7 +41,7 @@ npm run build
 | `npm run start` | Serves compiled Next.js application | Production server environment preview |
 | `npm run lint` | Executes ESLint checks | Code style, React hooks rules, and syntax validation |
 | `npm run type-check` | Runs TypeScript compiler (`tsc --noEmit`) | Strict mode type verification across entire codebase |
-| `npm run test` | Executes Vitest test suite once | Runs all 323 unit tests across 54 test files (100% pass rate) |
+| `npm run test` | Executes Vitest test suite once | Runs all 403 unit tests across 64 test files (100% pass rate) |
 | `npm run test:watch` | Runs Vitest in interactive watch mode | Real-time test-driven development (TDD) |
 | `npm run test:coverage` | Generates Vitest coverage reports via v8 | Comprehensive code coverage auditing (>65% coverage) |
 
@@ -61,25 +61,25 @@ Aqua Vitaeum is configured for **Static HTML Export Mode** (`output: "export"` i
 
 ---
 
-## 🧠 Cask & Spirit AI Assistant & Scanner (Google Gemini 2.5)
+## 🧠 Cask & Spirit AI Assistant & Scanner (Google Gemini 2.5 / 3.x)
 
 Aqua Vitaeum includes a powerful, **100% free and serverless AI Assistant** powered by Google Gemini:
 
 ### 1. 100% Client-Side BYOK (Bring Your Own Key) Security Model
-- **Direct Browser-to-Google Communication**: The API key is stored strictly in the user's browser `localStorage` (`aqua-vitaeum-gemini-key`).
+- **Direct Browser-to-Google Communication**: The API key is stored strictly in the user's browser `localStorage` (`aqua_gemini_api_key`).
 - **Zero Intermediary Servers**: No developer or proxy servers ever intercept API keys, images, or tasting notes.
 - **Free Tier Compatible**: Users obtain a free personal API key directly from Google AI Studio.
 
 ### 2. Multimodal Label & Barcode Scanner
 - **Dual Recognition Pipeline**:
   - **Barcode Scanning**: Reads UPC-A, EAN-13, and QR codes directly in-browser using native `BarcodeDetector` (with automatic fallback to `zxing-wasm`).
-  - **Bottle Photo & Label OCR**: Analyzes label photos via Google Gemini 2.5 Flash Vision.
-- **Automated Domain Autopopulation**:
-  - Automatically identifies spirit name, distillery, country/region, spirit category, ABV, age statement, and cask maturation types.
+  - **Bottle Photo & Label OCR**: Analyzes label photos via Google Gemini Flash models.
+- **Automated Domain Autopopulation & Multilingual Sommelier Notes**:
+  - Automatically identifies spirit name, distillery, bottler / independent bottler (e.g. Signatory Vintage, Gordon & MacPhail), country/region, spirit category, ABV, age statement, and cask maturation types.
+  - Fully localized in the user's active UI language (German / English), generating authentic German tasting notes, cask finish specifications, and German aroma descriptors (`Torfrauch`, `Rosine`, `Leder`, `Kaffee`, etc.) when in German mode.
   - Generates structured 11-dimension sensory radar scores (Nose and Palate) and extracts curated flavor tags from the 8 SWRI taxonomy categories.
 - **Model Flexibility**:
-  - Defaults to **Gemini 2.5 Flash** for rapid (~1.5s) analysis and minimal token consumption.
-  - Supports switching to **Gemini 2.5 Pro** for complex vintage bottlings and deep historical provenance lookups.
+  - Automatically falls back across Gemini 3.5 / 3.1 Flash-Lite and Gemini 2.5 Flash for rapid (~1.5s) analysis and minimal token consumption.
 
 ---
 
@@ -100,6 +100,11 @@ The application provides two complementary viewing modes tailored for different 
 - **Long-Press Selektionsmodus**: Durch langes Drücken (500ms Timer mit haptischem Vibrations-Feedback `navigator.vibrate(40)`) wird der Mehrfachauswahl-Modus aktiviert.
 - **Bulk Actions**: Ermöglicht das gemeinsame Exportieren oder Löschen mehrerer ausgewählter Tasting-Notizen über das Aktionen-Menü.
 - **Swipe-Back Navigation (`useSwipeBack.ts`)**: Natürliche Wischgeste vom rechten Bildschirmrand zur schnellen Navigation zurück zur Übersicht.
+
+### 4. 🌙 Mondschein-Nacht & Irische Akzente (`ThemeContext.tsx` & `ThemeToggle.tsx`)
+- **Modernes Dark-Theme**: Beruhigende, tiefe Mitternachts-Schieferflächen (`#0D1115` Canvas, `#141A21` Tasting Cards & Ledgers wie bei GitHub/Reddit Dark) kombiniert mit lebendigen irischen Pub-Akzenten (`#2E945D` Kleegrün für Buttons/Toggles, `#E59632` Pot-Still Bernstein für Medaillen und `#F5EFE1` Elfenbein-Schrift mit 14.5:1 AAA-Kontrast).
+- **Zero-FOUC & 0ms Latenz**: Ein inline-ausgeführter Pre-Paint-Script im `<head>` setzt das `data-theme="pub-dark"` Attribut vor dem ersten Frame-Render; keine separaten CSS-Dateien, kein Flackern, vollständige Offline-Verfügbarkeit.
+- **Ergonomischer Icon-Schalter**: Kompakter 2-Zustands-Umschalter (☀️ Sonne / 🌙 Mond) ohne störenden Text, diskret zentriert im Einstellungsbereich (*Erscheinungsbild / Appearance*).
 
 ---
 
@@ -182,7 +187,7 @@ Aqua Vitaeum enforces a mandatory **7-Agent Verification Protocol** (`AGENTS.md`
 | :--- | :--- | :--- |
 | **1. Software Expert** | Clean code & DRY | Strict TypeScript (`npm run type-check`), 0 unused variables. |
 | **2. Software Architect** | Module boundaries | Layer flow (`data` ➔ `lib` ➔ `types` ➔ `hooks` ➔ `components` ➔ `app`). |
-| **3. Quality Expert** | `npm run type-check`, `npm run lint`, `npm run test` | 0 errors, 0 warnings, 100% test pass rate (384+ tests across 62 suites). |
+| **3. Quality Expert** | `npm run type-check`, `npm run lint`, `npm run test` | 0 errors, 0 warnings, 100% test pass rate (403+ tests across 64 suites). |
 | **4. UX/UI Expert** | Design consistency | WCAG AAA contrast, CSS custom properties, zero layout shift. |
 | **5. Security & Privacy Expert** | Security audit | 0 secrets in repo, BYOK masking, least privilege OAuth, zero tracking. |
 | **6. Documentation Agent** | `docs/` synchronization | Keep `DOCUMENTATION.md` & `DESIGN_SYSTEM.md` up-to-date. |

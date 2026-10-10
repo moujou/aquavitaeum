@@ -134,21 +134,21 @@ export function ScanBarcodeTab({
               type="submit"
               data-testid="spirit-barcode-submit-btn"
               disabled={barcodeQuery.trim().length < 8}
-              className="ml-1 sm:ml-2 px-3.5 sm:px-4 py-2 rounded-full bg-[var(--wood-dark)] text-white hover:bg-[var(--wood-accent)] transition-all font-semibold text-xs sm:text-sm shadow-xs cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+              className="ml-1 sm:ml-2 px-3.5 sm:px-4 py-2 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] transition-all font-semibold text-xs sm:text-sm shadow-xs cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
             >
               {language === 'DE' ? 'Erkennen' : 'Scan'}
             </button>
           </div>
 
-          {/* Compact Clover Green Live Camera Button */}
+          {/* Compact Tier 2 Secondary Camera Button */}
           <button
             type="button"
             onClick={onStartCamera}
-            className="h-12 px-3.5 sm:px-4 rounded-full bg-[var(--forest-green)] text-white hover:bg-[var(--fab-bg-hover)] font-display font-bold text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-[0_3px_12px_rgba(35,115,71,0.28)] hover:shadow-[0_5px_16px_rgba(35,115,71,0.38)] hover:scale-[1.02] active:scale-[0.98] border border-emerald-400/30 flex items-center gap-1.5 sm:gap-2 shrink-0 select-none"
-            title={language === 'DE' ? 'Live-Kamera Barcode-Scanner starten' : 'Start Live Camera Scanner'}
-            aria-label={language === 'DE' ? 'Live-Kamera Barcode-Scanner starten' : 'Start Live Camera Scanner'}
+            className="h-12 px-3.5 sm:px-4 rounded-full bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] hover:border-[var(--forest-green)] hover:bg-black/5 text-[var(--sepia-text)] font-semibold text-xs sm:text-sm transition-all duration-200 cursor-pointer shadow-xs active:scale-[0.98] flex items-center gap-1.5 sm:gap-2 shrink-0 select-none"
+            title={language === 'DE' ? 'Kamera-Barcode-Scanner starten' : 'Start Camera Scanner'}
+            aria-label={language === 'DE' ? 'Kamera-Barcode-Scanner starten' : 'Start Camera Scanner'}
           >
-            <Camera size={17} className="text-white shrink-0" />
+            <Camera size={17} className="text-[var(--forest-green)] shrink-0" />
             <span className="hidden sm:inline-block">
               {language === 'DE' ? 'Kamera' : 'Camera'}
             </span>

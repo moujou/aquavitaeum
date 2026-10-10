@@ -4,23 +4,62 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { ScanPhotoTab } from '../subcomponents/ScanPhotoTab';
 
 describe('ScanPhotoTab', () => {
-  it('renders photo upload instructions in German and English', () => {
+  it('renders camera and choose file buttons in German and English', () => {
+    const onStartCamera = vi.fn();
     const { rerender } = render(
-      <ScanPhotoTab language="DE" onFileSelect={vi.fn()} />
+      <ScanPhotoTab language="DE" onFileSelect={vi.fn()} onStartCamera={onStartCamera} />
     );
-    expect(screen.getByText('Flaschen- oder Etikettenfoto hochladen')).toBeDefined();
-    expect(screen.getByText(/Tipp:/)).toBeDefined();
+    expect(screen.getByText('Kamera')).toBeDefined();
+    expect(screen.getByText('Datei wählen')).toBeDefined();
+    expect(screen.getByText(/Hinweis zur Etikett-Erkennung:/)).toBeDefined();
 
-    rerender(<ScanPhotoTab language="EN" onFileSelect={vi.fn()} />);
-    expect(screen.getByText('Upload Bottle or Label Photo')).toBeDefined();
-    expect(screen.getByText(/Tip:/)).toBeDefined();
+    fireEvent.click(screen.getByText('Kamera'));
+    expect(onStartCamera).toHaveBeenCalledTimes(1);
+
+    rerender(<ScanPhotoTab language="EN" onFileSelect={vi.fn()} onStartCamera={onStartCamera} />);
+    expect(screen.getByText('Camera')).toBeDefined();
+    expect(screen.getByText('Choose File')).toBeDefined();
+    expect(screen.getByText(/Label Recognition Note:/)).toBeDefined();
+  });
+
+  it('renders active camera viewfinder with shutter and controls', () => {
+    const videoRef = { current: document.createElement('video') };
+    const onCapturePhoto = vi.fn();
+    const onToggleFacing = vi.fn();
+    const onStopCamera = vi.fn();
+
+    render(
+      <ScanPhotoTab
+        language="DE"
+        onFileSelect={vi.fn()}
+        isCameraActive={true}
+        videoRef={videoRef}
+        onCapturePhoto={onCapturePhoto}
+        onToggleCameraFacing={onToggleFacing}
+        onStopCamera={onStopCamera}
+      />
+    );
+
+    expect(screen.getByText('Etikett im Rahmen zentrieren')).toBeDefined();
+    expect(screen.getByTestId('shutter-capture-btn')).toBeDefined();
+
+    fireEvent.click(screen.getByTestId('shutter-capture-btn'));
+    expect(onCapturePhoto).toHaveBeenCalledTimes(1);
+
+    const switchBtn = screen.getByTitle('Kamera wechseln');
+    fireEvent.click(switchBtn);
+    expect(onToggleFacing).toHaveBeenCalledTimes(1);
+
+    const closeBtn = screen.getByTitle('Kamera schließen');
+    fireEvent.click(closeBtn);
+    expect(onStopCamera).toHaveBeenCalledTimes(1);
   });
 
   it('triggers onFileSelect when a file is dropped', () => {
     const onFileSelect = vi.fn();
     render(<ScanPhotoTab language="DE" onFileSelect={onFileSelect} />);
 
-    const dropzone = screen.getByText('Flaschen- oder Etikettenfoto hochladen').closest('div[class*="border-dashed"]');
+    const dropzone = screen.getByText(/Oder Bild hierher ziehen/i).closest('div[class*="border-dashed"]');
     expect(dropzone).toBeDefined();
 
     // Test dragover & dragleave state styling
@@ -50,15 +89,15 @@ describe('ScanPhotoTab', () => {
     expect(onFileSelect).toHaveBeenCalledWith(file);
   });
 
-  it('triggers file input click when dropzone is clicked', () => {
+  it('triggers file input click when choose file button is clicked', () => {
     const { container } = render(<ScanPhotoTab language="EN" onFileSelect={vi.fn()} />);
 
     const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement;
     const clickSpy = vi.spyOn(fileInput, 'click');
 
-    const dropzone = screen.getByText('Upload Bottle or Label Photo').closest('div[class*="border-dashed"]');
-    expect(dropzone).toBeDefined();
-    fireEvent.click(dropzone!);
+    const chooseBtn = screen.getByText('Choose File');
+    expect(chooseBtn).toBeDefined();
+    fireEvent.click(chooseBtn);
 
     expect(clickSpy).toHaveBeenCalled();
   });

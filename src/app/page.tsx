@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef, useCallback, startTransition } from 'react';
-import { Plus, BookOpen, Library, AlignJustify, LayoutGrid } from 'lucide-react';
+import { Plus, BookOpen, Book, AlignJustify, LayoutGrid } from 'lucide-react';
 import { useSpiritCollection } from '@/hooks/useSpiritCollection';
 import { useJournals } from '@/hooks/useJournals';
 import { useLayoutPreference } from '@/hooks/useLayoutPreference';
@@ -427,7 +427,7 @@ export default function Home() {
                     title={language === 'DE' ? 'Zurück zur Journal-Übersicht' : 'Back to Journals'}
                   >
                     {journalLayout === 'bookshelf' ? (
-                      <Library size={26} strokeWidth={2} />
+                      <Book size={26} strokeWidth={2} />
                     ) : (
                       <BookOpen size={26} strokeWidth={2} />
                     )}

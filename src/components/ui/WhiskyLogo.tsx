@@ -1,11 +1,12 @@
 import React from 'react';
 
-interface WhiskyLogoProps extends React.SVGProps<SVGSVGElement> {
+interface WhiskyLogoProps extends Omit<React.SVGProps<SVGSVGElement>, 'title'> {
   size?: number | string;
   hasCircle?: boolean;
+  title?: string;
 }
 
-export function WhiskyLogo({ size = 24, className, hasCircle = false, ...props }: WhiskyLogoProps) {
+export function WhiskyLogo({ size = 24, className, hasCircle = false, title, ...props }: WhiskyLogoProps) {
   if (hasCircle) {
     return (
       <svg
@@ -16,6 +17,7 @@ export function WhiskyLogo({ size = 24, className, hasCircle = false, ...props }
         className={className}
         {...props}
       >
+        {title && <title>{title}</title>}
         <g
           fill="none"
           stroke="currentColor"
@@ -73,6 +75,7 @@ export function WhiskyLogo({ size = 24, className, hasCircle = false, ...props }
       className={className}
       {...props}
     >
+      {title && <title>{title}</title>}
       <g
         fill="none"
         stroke="currentColor"

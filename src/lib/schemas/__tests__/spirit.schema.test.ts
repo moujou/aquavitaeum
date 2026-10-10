@@ -153,6 +153,20 @@ describe('Spirit Schema Validation', () => {
     const result = validateSpirit(oversizedDistillery);
     expect(result.valid).toBe(false);
     expect(result.errors.distillery).toBeDefined();
+
+    const oversizedBottler = {
+      spiritType: 'Single Malt Scotch' as const,
+      bottler: 'B'.repeat(151),
+    };
+    const bottlerResult = validateSpirit(oversizedBottler);
+    expect(bottlerResult.valid).toBe(false);
+    expect(bottlerResult.errors.bottler).toBeDefined();
+
+    const validBottler = {
+      spiritType: 'Single Malt Scotch' as const,
+      bottler: 'Signatory Vintage',
+    };
+    expect(validateSpirit(validBottler).valid).toBe(true);
   });
 
   it('validates with isValidSpiritData guard', () => {

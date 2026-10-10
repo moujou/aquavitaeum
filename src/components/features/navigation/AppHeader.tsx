@@ -61,7 +61,7 @@ export default function AppHeader({
         <div className="hidden lg:flex items-center gap-3.5 w-60 shrink-0 select-none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={`${basePath}/whisky-logo-with-circle-v5.svg`}
+            src={`${basePath}/favicon.svg`}
             alt="Aqua Vitaeum Logo"
             className="w-11 h-11 sm:w-12 sm:h-12 select-none pointer-events-none drop-shadow-xs"
             width={48}
@@ -126,7 +126,7 @@ export default function AppHeader({
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={`${basePath}/whisky-logo-with-circle-v5.svg`}
+              src={`${basePath}/favicon.svg`}
               alt="Aqua Vitaeum"
               className="w-8 h-8 select-none pointer-events-none drop-shadow-xs"
               width={32}

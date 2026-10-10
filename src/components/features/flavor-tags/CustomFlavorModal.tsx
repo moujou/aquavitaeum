@@ -119,7 +119,7 @@ function CustomFlavorDialog({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Top Header (Flavor Compass Unified Standard) */}
-        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 bg-gradient-to-r from-[var(--wood-dark)] to-[var(--wood-selection)] text-white border-b border-black/10 shadow-sm shrink-0 gap-3">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 bg-[var(--wood-dark)] text-white border-b border-black/10 shadow-sm shrink-0 gap-3">
           <div className="flex items-center gap-2.5 min-w-0 pr-2">
             <Sparkles className="w-6 h-6 text-amber-200 shrink-0" />
             <h3 className="font-display font-bold text-base sm:text-xl tracking-wide text-white drop-shadow-xs truncate">

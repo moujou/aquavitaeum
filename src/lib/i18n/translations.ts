@@ -19,10 +19,17 @@ export const TRANSLATIONS = {
 
     // Card Header
     spiritType: 'Spirit Type',
+    spiritTypePlaceholder: 'e.g. Single Malt Scotch, Bourbon, etc.',
     distilleryProducer: 'Distillery / Producer',
+    distilleryPlaceholder: 'e.g. Laphroaig, Caol Ila, Macallan',
+    bottler: 'Bottler',
+    bottlerPlaceholder: 'e.g. Signatory Vintage, Gordon & MacPhail, or Original',
     spiritName: 'Name',
+    spiritNamePlaceholder: 'e.g. 10 Year Old Original Cask Strength',
     regionOrigin: 'Region / Origin',
+    regionPlaceholder: 'e.g. Islay, Scotland',
     ageYears: 'Age',
+    agePlaceholder: 'Years',
     distillationDate: 'Distillation Date',
     bottlingDate: 'Bottling Date',
     distillationDatePlaceholder: 'e.g. 1996 or 15.03.1996',
@@ -30,7 +37,9 @@ export const TRANSLATIONS = {
     calculatedAgeHelper: 'Calculated Age',
     applyCalculatedAge: 'Apply',
     caskBatchNo: 'Cask / Batch No.',
+    caskPlaceholder: 'Optional, e.g. #4281',
     abvPercent: 'ABV %',
+    abvPlaceholder: '40.0',
     dateTasted: 'Date Tasted',
     finishType: 'Cask Finish',
     finishPlaceholder: 'e.g. Oloroso Sherry Finish, Red Wine Cask',
@@ -304,6 +313,7 @@ export const TRANSLATIONS = {
     journalsTitle: 'My Journals',
     createJournalBtn: 'Create Journal',
     journalNamePlaceholder: 'e.g. Islay Malts, Caribbean Rums...',
+    journalDescriptionPlaceholder: 'e.g. My collection of Single Malts...',
     deleteJournalConfirm: 'Are you sure you want to delete this journal? All associated tasting notes will be permanently removed.',
     statsBottles: 'Bottles',
     statsAvgRating: 'Rating',
@@ -318,9 +328,9 @@ export const TRANSLATIONS = {
     layoutList: 'List',
     layoutGrid: 'Grid',
     journalLayout: 'Journals View Style',
-    journalLayoutDesc: 'Display journals as open manuscripts or compact bookshelf',
-    layoutManuscript: 'Manuscript',
-    layoutBookshelf: 'Bookshelf',
+    journalLayoutDesc: 'Display journals as open manuscripts or 3D hardcover books',
+    layoutManuscript: 'Open Manuscript',
+    layoutBookshelf: 'Hardcover Books',
 
     // Journal Sorting
     sortJournals: 'Sort',
@@ -439,8 +449,15 @@ export const TRANSLATIONS = {
     livePreviewHeader: 'Live Preview',
     scanAgain: 'Scan Again',
     applyToNote: 'Apply to Note',
-    analyzeBottleAi: 'Analyze Bottle',
-    analyzeAndSnapBottle: 'Analyze & Snap Bottle',
+    analyzeBottleAi: 'AI Bottle Analysis',
+    analyzeAndSnapBottle: 'AI Bottle Analysis',
+    uploadPhoto: 'Upload Photo',
+
+    // Theme & Appearance
+    themeAppearance: 'Appearance',
+    themeAppearanceDesc: 'Warm Linen Atelier or atmospheric Irish Pub Night Mode',
+    themeLight: 'Light',
+    themeDark: 'Dark',
   },
   DE: {
     // Header & Brand
@@ -459,10 +476,17 @@ export const TRANSLATIONS = {
 
     // Card Header
     spiritType: 'Spirituosen-Typ',
+    spiritTypePlaceholder: 'z.B. Single Malt Scotch, Bourbon, Rum etc.',
     distilleryProducer: 'Destillerie / Hersteller',
+    distilleryPlaceholder: 'z.B. Laphroaig, Caol Ila, Macallan',
+    bottler: 'Abfüller',
+    bottlerPlaceholder: 'z.B. Signatory Vintage, Gordon & MacPhail, Eigentümerabfüllung',
     spiritName: 'Name',
+    spiritNamePlaceholder: 'z.B. 10 Jahre Original Cask Strength',
     regionOrigin: 'Herkunft / Region',
+    regionPlaceholder: 'z.B. Islay, Schottland',
     ageYears: 'Alter',
+    agePlaceholder: 'Jahre',
     distillationDate: 'Destillationsdatum',
     bottlingDate: 'Abfülldatum',
     distillationDatePlaceholder: 'z.B. 1996 oder 15.03.1996',
@@ -470,7 +494,9 @@ export const TRANSLATIONS = {
     calculatedAgeHelper: 'Errechnetes Alter',
     applyCalculatedAge: 'Übernehmen',
     caskBatchNo: 'Fass / Batch-Nr.',
+    caskPlaceholder: 'Optional, z.B. #4281',
     abvPercent: 'Alk. %',
+    abvPlaceholder: '40.0',
     dateTasted: 'Verkostungsdatum',
     finishType: 'Cask Finish / Fass-Veredelung',
     finishPlaceholder: 'z. B. Oloroso Sherry Finish, Red Wine Cask',
@@ -744,6 +770,7 @@ export const TRANSLATIONS = {
     journalsTitle: 'Meine Journals',
     createJournalBtn: 'Journal erstellen',
     journalNamePlaceholder: 'z.B. Islay Malts, Karibischer Rum...',
+    journalDescriptionPlaceholder: 'z.B. Meine Sammlung von Single Malts...',
     deleteJournalConfirm: 'Bist du sicher, dass du dieses Journal löschen möchtest? Alle zugehörigen Verkostungsnotizen werden unwiderruflich gelöscht.',
     statsBottles: 'Flaschen',
     statsAvgRating: 'Bewertung',
@@ -758,9 +785,9 @@ export const TRANSLATIONS = {
     layoutList: 'Liste',
     layoutGrid: 'Raster',
     journalLayout: 'Journal-Ansicht',
-    journalLayoutDesc: 'Journale als aufgeschlagene Bücher oder kompaktes Bücherregal',
-    layoutManuscript: 'Manuskript',
-    layoutBookshelf: 'Bücherregal',
+    journalLayoutDesc: 'Journale als aufgeschlagene Manuskripte oder 3D-Hardcover-Bände',
+    layoutManuscript: 'Aufgeschlagenes Manuskript',
+    layoutBookshelf: 'Hardcover-Bände',
 
     // Journal Sorting
     sortJournals: 'Sortieren',
@@ -879,8 +906,15 @@ export const TRANSLATIONS = {
     livePreviewHeader: 'Vorschau',
     scanAgain: 'Neu scannen',
     applyToNote: 'In Notiz übernehmen',
-    analyzeBottleAi: 'Flasche analysieren',
-    analyzeAndSnapBottle: 'Flasche analysieren & knipsen',
+    analyzeBottleAi: 'KI-Flaschenanalyse',
+    analyzeAndSnapBottle: 'KI-Flaschenanalyse',
+    uploadPhoto: 'Foto hochladen',
+
+    // Theme & Appearance
+    themeAppearance: 'Erscheinungsbild',
+    themeAppearanceDesc: 'Helles Leinen-Atelier oder irischer Pub-Nachtmodus',
+    themeLight: 'Hell',
+    themeDark: 'Dunkel',
   },
 } as const;
 

@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Camera, ChevronLeft, ChevronRight, Trash2, Plus, Star, Sparkles } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Camera, ChevronLeft, ChevronRight, Trash2, Plus, Star, Sparkles, Upload } from 'lucide-react';
 import { WhiskyLogo } from '@/components/ui/WhiskyLogo';
 import { usePhotoUpload } from '@/hooks/usePhotoUpload';
 import { useLanguage } from '@/context/LanguageContext';
@@ -30,6 +30,7 @@ export function SpiritPhotoCarousel({
   const { language, t } = useLanguage();
   const { hasAiKey } = useAiAssistantConfig();
   const [isScanModalOpen, setIsScanModalOpen] = useState(false);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const {
     activeIndex,
@@ -58,11 +59,22 @@ export function SpiritPhotoCarousel({
 
   return (
     <div className={cn('space-y-4', className)}>
-      {/* Hidden native file input */}
+      {/* Hidden native camera capture input */}
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        onChange={handleFileUpload}
+        className="hidden"
+        id="spirit-photo-camera"
+      />
+
+      {/* Hidden native file/gallery input */}
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept="image/jpeg,image/png,image/webp,image/*"
         onChange={handleFileUpload}
         className="hidden"
         id="spirit-photo-upload"
@@ -81,42 +93,55 @@ export function SpiritPhotoCarousel({
             <p className="font-body text-xs text-[var(--sepia-muted)] mt-0.5">
               {language === 'DE'
                 ? hasAiKey
-                  ? 'Knipse das Etikett für automatische Erkennung oder lade eigene Fotos hoch.'
+                  ? 'Analysiere das Etikett mit KI oder füge eigene Fotos der Flasche hinzu.'
                   : 'Füge Fotos deiner Flasche oder des Etiketts hinzu.'
                 : hasAiKey
-                  ? 'Snap the label for automatic identification or upload your own photos.'
+                  ? 'Analyze the label with AI or add your own bottle photos.'
                   : 'Add photos of your bottle or label.'}
             </p>
           </div>
 
-          {/* Action Buttons: 1. AI Scan & Snap (Primary) | 2. Simple Photo Upload (Secondary) */}
+          {/* Action Buttons: 1. AI Analysis (Primary) | 2. Direct Camera (Secondary) | 3. File Upload (Secondary) */}
           <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
             {hasAiKey && (
               <button
                 type="button"
                 onClick={() => setIsScanModalOpen(true)}
                 className={cn(
-                  'flex items-center gap-2 px-4.5 py-2.5 rounded-lg border border-[var(--brass-accent)]/50',
-                  'bg-[var(--wood-dark)] text-white text-xs sm:text-sm font-display font-bold uppercase tracking-wider',
-                  'hover:bg-[var(--wood-accent)] transition-all cursor-pointer shadow-md active:scale-95'
+                  'flex items-center gap-2 px-4.5 py-2.5 rounded-full border border-[var(--fab-border)]',
+                  'bg-[var(--fab-bg)] text-[var(--fab-text)] text-xs sm:text-sm font-display font-bold uppercase tracking-wider',
+                  'hover:bg-[var(--fab-bg-hover)] transition-all cursor-pointer shadow-md active:scale-95'
                 )}
               >
-                <Sparkles size={16} className="text-[var(--brass-accent)]" />
-                <span>{language === 'DE' ? 'Flasche analysieren & knipsen' : 'Analyze & Snap Bottle'}</span>
+                <Sparkles size={16} className="text-[var(--fab-text)]" />
+                <span>{t('analyzeBottleAi')}</span>
               </button>
             )}
 
             <button
               type="button"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => cameraInputRef.current?.click()}
               className={cn(
-                'flex items-center gap-2 px-4 py-2.5 rounded-lg border border-[var(--parchment-border)]',
+                'flex items-center gap-2 px-4 py-2.5 rounded-full border border-[var(--parchment-border)]',
                 'bg-[var(--pub-bg-panel)] text-[var(--sepia-text)] text-xs sm:text-sm font-body font-medium',
                 'hover:bg-[var(--pub-bg-alt)] transition-all cursor-pointer shadow-xs active:scale-95'
               )}
             >
-              <Camera size={16} />
-              <span>{t('addPhoto')}</span>
+              <Camera size={16} className="text-[var(--forest-green)]" />
+              <span>{language === 'DE' ? 'Kamera' : 'Camera'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className={cn(
+                'flex items-center gap-2 px-4 py-2.5 rounded-full border border-[var(--parchment-border)]',
+                'bg-[var(--pub-bg-panel)] text-[var(--sepia-text)] text-xs sm:text-sm font-body font-medium',
+                'hover:bg-[var(--pub-bg-alt)] transition-all cursor-pointer shadow-xs active:scale-95'
+              )}
+            >
+              <Upload size={16} className="text-[var(--forest-green)]" />
+              <span>{t('uploadPhoto')}</span>
             </button>
           </div>
         </div>

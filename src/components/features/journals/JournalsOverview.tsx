@@ -374,12 +374,12 @@ export function JournalsOverview({
               }}
               className={cn(
                 'group relative flex flex-col rounded-xl sm:rounded-2xl border transition-all duration-300 transform overflow-hidden cursor-pointer select-none',
-                'bg-[var(--parchment-bg)] border border-[var(--parchment-border)] shadow-[0_6px_20px_-3px_rgba(35,20,8,0.12),0_2px_6px_rgba(35,20,8,0.06),2px_2px_0_rgba(208,194,171,0.45)]',
+                'bg-[var(--parchment-bg)] border border-[var(--parchment-border)] shadow-[0_6px_20px_-3px_rgba(35,20,8,0.12),0_2px_6px_rgba(35,20,8,0.06)]',
                 isSelected
                   ? 'border-[var(--wood-selection)] ring-2 ring-[var(--wood-selection)]/45 shadow-[0_0_25px_rgba(46,148,93,0.35)] scale-[1.01] opacity-100 bg-[var(--pub-bg-panel)] z-10'
                   : isSelectMode
                     ? 'border-[var(--parchment-border)]/50 scale-[0.98] opacity-40 shadow-xs'
-                    : 'hover:border-[var(--forest-green)] hover:shadow-[0_14px_30px_-3px_rgba(35,115,71,0.22),0_4px_12px_rgba(35,20,8,0.08),3px_3px_0_rgba(208,194,171,0.6)] hover:-translate-y-0.5',
+                    : 'hover:border-[var(--forest-green)] hover:shadow-[0_12px_28px_-3px_rgba(35,115,71,0.20),0_4px_12px_rgba(35,20,8,0.08)] hover:-translate-y-0.5',
               )}
             >
               {/* 1. Signature Irish Forest / Pub Wood Top Header Banner */}
@@ -390,11 +390,11 @@ export function JournalsOverview({
                 )}
               >
                 <div className="flex flex-col justify-center min-w-0 flex-1 pr-2">
-                  <h3 className="font-display text-sm sm:text-base font-bold text-[var(--parchment-bg)] group-hover:text-[var(--brass-light)] transition-colors truncate tracking-wide leading-tight">
+                  <h3 className="font-display text-sm sm:text-base font-bold text-[var(--fab-text)] group-hover:text-[var(--brass-light)] transition-colors truncate tracking-wide leading-tight">
                     {journal.name}
                   </h3>
                   {journal.description && (
-                    <p className="text-[11px] sm:text-xs text-[var(--parchment-bg)]/75 italic truncate max-w-full font-body mt-0.5 leading-snug">
+                    <p className="text-[11px] sm:text-xs text-[var(--fab-text)]/75 italic truncate max-w-full font-body mt-0.5 leading-snug">
                       {journal.description}
                     </p>
                   )}
@@ -412,7 +412,7 @@ export function JournalsOverview({
                           : 'bg-[var(--pub-bg-panel)]/90 border-[var(--parchment-border)] shadow-xs',
                       )}
                     >
-                      {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-[var(--parchment-bg)]" />}
+                      {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-[var(--fab-text)]" />}
                     </div>
                   )}
 
@@ -428,7 +428,7 @@ export function JournalsOverview({
                           setEditCoverImage(journal.coverImage);
                           setEditColor(journal.color || 'green');
                         }}
-                        className="p-1 rounded bg-black/30 hover:bg-black/50 text-[var(--parchment-bg)] transition-all cursor-pointer"
+                        className="p-1 rounded bg-black/30 hover:bg-black/50 text-[var(--fab-text)] transition-all cursor-pointer"
                         title={t('renameAction')}
                       >
                         <Edit3 className="w-3.5 h-3.5" />
@@ -439,7 +439,7 @@ export function JournalsOverview({
                             e.stopPropagation();
                             setConfirmDeleteId(journal.id);
                           }}
-                          className="p-1 rounded bg-black/30 hover:bg-red-900/80 text-[var(--parchment-bg)] hover:text-red-200 transition-all cursor-pointer"
+                          className="p-1 rounded bg-black/30 hover:bg-red-900/80 text-[var(--fab-text)] hover:text-red-200 transition-all cursor-pointer"
                           title={t('deleteAction')}
                         >
                           <Trash2 className="w-3.5 h-3.5" />

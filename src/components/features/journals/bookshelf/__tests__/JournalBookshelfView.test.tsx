@@ -26,7 +26,7 @@ const createMockJournals = (count: number): JournalWithStats[] => {
 };
 
 describe('JournalBookshelfView', () => {
-  it('renders all book titles and splits >4 books into multiple tiers', () => {
+  it('renders all book titles in a responsive grid with max 3 books per row on desktop', () => {
     const journals = createMockJournals(9);
     const onCardClick = vi.fn();
 
@@ -52,9 +52,13 @@ describe('JournalBookshelfView', () => {
     expect(screen.getByText('Whisky Journal Vol. 2')).toBeDefined();
     expect(screen.getByText('Whisky Journal Vol. 9')).toBeDefined();
 
-    // 9 books with 4 per tier = 3 shelf tiers
-    const shelfTiers = container.querySelectorAll('[class*="shelf-wood-top"]');
-    expect(shelfTiers.length).toBe(3);
+    // Responsive grid with max 3 on desktop
+    const gridEl = container.querySelector('.grid');
+    expect(gridEl?.className).toContain('lg:grid-cols-3');
+
+    // Faux wooden shelf planks are eliminated
+    const shelfPlanks = container.querySelectorAll('[class*="shelf-wood-top"]');
+    expect(shelfPlanks.length).toBe(0);
 
     // Clicking a book fires onCardClick
     fireEvent.click(screen.getByText('Whisky Journal Vol. 2'));
@@ -85,7 +89,7 @@ describe('JournalBookshelfView', () => {
     const titleEl = screen.getByText('Extremely Long Book Title That Will Wrap Into Multiple Lines');
     expect(titleEl.className).toContain('break-words');
     expect(titleEl.className).toContain('line-clamp-2');
-    expect(titleEl.className).toContain('[writing-mode:vertical-rl]');
+    expect(titleEl.className).toContain('font-display');
 
     // Ruby spine is rendered for journal 2
     const rubySpines = container.querySelectorAll('[class*="bg-[var(--spine-ruby)]"]');
@@ -107,6 +111,40 @@ describe('JournalBookshelfView', () => {
     const paletteAfter = getSpinePalette(targetInReversed);
 
     expect(paletteAfter.key).toBe(paletteBefore.key);
+  });
+
+  it('atomically separates sommelier rating score and bottle note count into distinct elements', () => {
+    const journals = createMockJournals(1);
+    journals[0].averageRating = 93;
+    journals[0].bottleCount = 14;
+
+    render(
+      <LanguageProvider>
+        <JournalBookshelfView
+          journals={journals}
+          selectedIds={new Set()}
+          isSelectMode={false}
+          editingId={null}
+          onCardClick={vi.fn()}
+          onTouchStart={vi.fn()}
+          onTouchEnd={vi.fn()}
+          onCancelLongPress={vi.fn()}
+          onStartEdit={vi.fn()}
+          onStartDelete={vi.fn()}
+        />
+      </LanguageProvider>
+    );
+
+    // Score element is rendered with 93
+    const scoreText = screen.getByText('93');
+    expect(scoreText).toBeDefined();
+
+    // Bottle count is rendered with 14
+    const countText = screen.getByText('14');
+    expect(countText).toBeDefined();
+
+    // They do not share the same immediate parent element (atomic separation)
+    expect(scoreText.parentElement).not.toBe(countText.parentElement);
   });
 });
 

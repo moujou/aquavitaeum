@@ -14,10 +14,11 @@ describe('SpiritPhotoCarousel Component', () => {
 
     expect(screen.getByText('No Photos Added')).toBeDefined();
     expect(
-      screen.getByText(/Snap the label for automatic identification|Knipse das Etikett/i),
+      screen.getByText(/Analyze the label with AI|Analysiere das Etikett/i),
     ).toBeDefined();
-    expect(screen.getByRole('button', { name: /Analyze & Snap|Flasche analysieren/i })).toBeDefined();
-    expect(screen.getByRole('button', { name: /Add Photo|Foto/i })).toBeDefined();
+    expect(screen.getByRole('button', { name: /AI Bottle Analysis|KI-Flaschenanalyse/i })).toBeDefined();
+    expect(screen.getByRole('button', { name: /Camera|Kamera/i })).toBeDefined();
+    expect(screen.getByRole('button', { name: /Upload Photo|Foto hochladen/i })).toBeDefined();
   });
 
   it('renders empty placeholder state without AI button when no key is configured', () => {
@@ -29,8 +30,9 @@ describe('SpiritPhotoCarousel Component', () => {
     );
 
     expect(screen.getByText('No Photos Added')).toBeDefined();
-    expect(screen.queryByRole('button', { name: /Analyze & Snap|Flasche analysieren/i })).toBeNull();
-    expect(screen.getByRole('button', { name: /Add Photo|Foto/i })).toBeDefined();
+    expect(screen.queryByRole('button', { name: /AI Bottle Analysis|KI-Flaschenanalyse/i })).toBeNull();
+    expect(screen.getByRole('button', { name: /Camera|Kamera/i })).toBeDefined();
+    expect(screen.getByRole('button', { name: /Upload Photo|Foto hochladen/i })).toBeDefined();
   });
 
   it('renders populated carousel when images are present and shows re-analyze button if key exists', () => {

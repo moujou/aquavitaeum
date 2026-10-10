@@ -212,17 +212,19 @@ describe('useTastingCardForm Hook', () => {
     expect(onSaveMock).toHaveBeenCalled();
   });
 
-  it('applies scan result in facts-only mode', () => {
+  it('applies scan result in facts-only mode including bottler', () => {
     const { result } = renderHook(() => useTastingCardForm(MOCK_SPIRITS[0]));
 
     const scanResult: SpiritAnalysisResult = {
-      name: 'Highland Park 18',
-      distillery: 'Highland Park',
-      region: 'Islands',
+      name: 'Caol Ila 2010',
+      distillery: 'Caol Ila',
+      bottler: 'Signatory Vintage',
+      region: 'Islay',
       spiritType: 'Single Malt Scotch',
-      abv: 43,
-      age: 18,
+      abv: 57.1,
+      age: 12,
       volumeMl: 700,
+      caskNo: 'Cask #1024',
       caskTypes: ['Oloroso Sherry Casks'],
       characteristics: ['Natural Colour'],
       colour: 'Deep Gold',
@@ -234,15 +236,17 @@ describe('useTastingCardForm Hook', () => {
       result.current.applyScanResult(scanResult, 'bottle.jpg', 'facts-only');
     });
 
-    expect(result.current.spirit.name).toBe('Highland Park 18');
-    expect(result.current.spirit.distillery).toBe('Highland Park');
-    expect(result.current.spirit.age).toBe(18);
-    expect(result.current.spirit.caskNo).toBe('Oloroso Sherry Casks');
+    expect(result.current.spirit.name).toBe('Caol Ila 2010');
+    expect(result.current.spirit.distillery).toBe('Caol Ila');
+    expect(result.current.spirit.bottler).toBe('Signatory Vintage');
+    expect(result.current.subtitleLocation).toBe('Caol Ila · Signatory Vintage · Islay');
+    expect(result.current.spirit.age).toBe(12);
+    expect(result.current.spirit.caskNo).toBe('Cask #1024');
     expect(result.current.spirit.images).toContain('bottle.jpg');
     expect(result.current.spirit.thumbnailImage).toBe('bottle.jpg');
   });
 
-  it('applies scan result in full mode with suggested flavor tags', () => {
+  it('applies scan result in full mode with suggested flavor tags, intensities and radar profiles', () => {
     const { result } = renderHook(() => useTastingCardForm(MOCK_SPIRITS[0]));
 
     const scanResult: SpiritAnalysisResult = {
@@ -254,6 +258,10 @@ describe('useTastingCardForm Hook', () => {
       finishNotes: 'Peppery maritime finish',
       suggestedNoseTags: ['Maritime Sea Salt', 'Peat Smoke'],
       suggestedTasteTags: ['Black Pepper', 'Smoked Malt'],
+      noseTagIntensities: { 'Maritime Sea Salt': 8, 'Peat Smoke': 9 },
+      tasteTagIntensities: { 'Black Pepper': 9 },
+      noseProfile: { peaty: 8, spicy: 6 },
+      tasteProfile: { peaty: 9, spicy: 8 },
     };
 
     act(() => {
@@ -265,6 +273,10 @@ describe('useTastingCardForm Hook', () => {
     expect(result.current.spirit.noseFlavorTags).toContain('Maritime Sea Salt');
     expect(result.current.spirit.tasteFlavorTags).toContain('Black Pepper');
     expect(result.current.spirit.flavorTags).toContain('Black Pepper');
+    expect(result.current.spirit.noseTagIntensities?.['Peat Smoke']).toBe(9);
+    expect(result.current.spirit.tasteTagIntensities?.['Black Pepper']).toBe(9);
+    expect(result.current.spirit.noseProfile.peaty).toBe(8);
+    expect(result.current.spirit.tasteProfile.spicy).toBe(8);
   });
 
   it('flushes pending changes on unmount', () => {

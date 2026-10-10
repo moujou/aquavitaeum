@@ -245,11 +245,11 @@ function ActiveSensoryShape({
                 <circle
                   cx={pt.x}
                   cy={pt.y}
-                  r={15}
+                  r={16}
                   fill="none"
-                  stroke={stroke}
-                  strokeWidth={1.5}
-                  opacity={0.5}
+                  stroke="var(--brass-accent)"
+                  strokeWidth={1.8}
+                  opacity={0.65}
                   strokeDasharray="3,3"
                   className="animate-spin-slow"
                 />
@@ -258,9 +258,9 @@ function ActiveSensoryShape({
                   cy={pt.y}
                   r={11}
                   fill="none"
-                  stroke={stroke}
+                  stroke="var(--brass-accent)"
                   strokeWidth={2}
-                  opacity={0.8}
+                  opacity={0.9}
                   className="animate-pulse"
                 />
               </>
@@ -271,7 +271,7 @@ function ActiveSensoryShape({
               cx={pt.x}
               cy={pt.y}
               r={isPointActive ? 7.5 : 5}
-              fill={stroke}
+              fill={isPointActive ? 'var(--brass-accent)' : stroke}
               stroke="#FFFFFF"
               strokeWidth={isPointActive ? 2.5 : 1.8}
               opacity={isFocusMode && !isPointActive ? 0.15 : 1}
@@ -298,7 +298,7 @@ function ActiveSensoryShape({
                   height={20}
                   rx={10}
                   fill="var(--pub-bg-panel)"
-                  stroke={stroke}
+                  stroke="var(--brass-accent)"
                   strokeWidth={2}
                 />
                 <text
@@ -309,7 +309,7 @@ function ActiveSensoryShape({
                   fontSize="10"
                   fontWeight="900"
                   fontFamily="'Inter', system-ui, sans-serif"
-                  fill="var(--foreground)"
+                  fill="var(--brass-accent)"
                   className="tabular-nums select-none tracking-tight"
                 >
                   Ø {pt.value}
@@ -490,12 +490,12 @@ export function FlavorRadarChart({
             className={cn(
               'flex items-center gap-1.5 px-3 py-1.5 rounded-md font-display font-bold text-xs uppercase tracking-wider transition-all duration-150 cursor-pointer h-[28px]',
               viewMode === 'radar'
-                ? 'bg-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs'
+                ? 'bg-[var(--wood-selection)] text-[var(--fab-text)] shadow-xs'
                 : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
             )}
             title={language === 'DE' ? 'Netzdiagramm (Spider)' : 'Radar Chart (Spider)'}
           >
-            <Compass size={14} className={viewMode === 'radar' ? 'text-[var(--brass-accent)]' : 'text-[var(--sepia-muted)]'} />
+            <Compass size={14} className={viewMode === 'radar' ? 'text-[var(--fab-text)]' : 'text-[var(--sepia-muted)]'} />
             <span>{translate('visualizerMode_radar', language)}</span>
           </button>
 
@@ -508,12 +508,12 @@ export function FlavorRadarChart({
             className={cn(
               'flex items-center gap-1.5 px-3 py-1.5 rounded-md font-display font-bold text-xs uppercase tracking-wider transition-all duration-150 cursor-pointer h-[28px]',
               viewMode === 'wheel'
-                ? 'bg-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs'
+                ? 'bg-[var(--wood-selection)] text-[var(--fab-text)] shadow-xs'
                 : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
             )}
             title={language === 'DE' ? 'Aromenrad (Sunburst)' : 'Aroma Wheel (Sunburst)'}
           >
-            <PieChart size={14} className={viewMode === 'wheel' ? 'text-[var(--brass-accent)]' : 'text-[var(--sepia-muted)]'} />
+            <PieChart size={14} className={viewMode === 'wheel' ? 'text-[var(--fab-text)]' : 'text-[var(--sepia-muted)]'} />
             <span>{translate('visualizerMode_wheel', language)}</span>
           </button>
         </div>
@@ -529,7 +529,7 @@ export function FlavorRadarChart({
             className={cn(
               'flex items-center justify-center px-3 py-1.5 rounded-md font-display font-bold text-xs uppercase tracking-wider transition-all duration-150 cursor-pointer h-[28px]',
               sensoryMode === 'both'
-                ? 'bg-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs'
+                ? 'bg-[var(--wood-selection)] text-[var(--fab-text)] shadow-xs'
                 : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
             )}
           >
@@ -545,7 +545,7 @@ export function FlavorRadarChart({
             className={cn(
               'flex items-center gap-1.5 px-3 py-1.5 rounded-md font-display font-bold text-xs uppercase tracking-wider transition-all duration-150 cursor-pointer h-[28px]',
               sensoryMode === 'nose'
-                ? 'bg-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs'
+                ? 'bg-[var(--wood-selection)] text-[var(--fab-text)] shadow-xs'
                 : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
             )}
           >
@@ -569,7 +569,7 @@ export function FlavorRadarChart({
             className={cn(
               'flex items-center gap-1.5 px-3 py-1.5 rounded-md font-display font-bold text-xs uppercase tracking-wider transition-all duration-150 cursor-pointer h-[28px]',
               sensoryMode === 'taste'
-                ? 'bg-[var(--wood-selection)] text-[var(--parchment-bg)] shadow-xs'
+                ? 'bg-[var(--wood-selection)] text-[var(--fab-text)] shadow-xs'
                 : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
             )}
           >
@@ -773,7 +773,7 @@ export function FlavorRadarChart({
                                 y1={cRelY}
                                 x2={tipRelX}
                                 y2={tipRelY}
-                                stroke="var(--wood-selection)"
+                                stroke="var(--brass-accent)"
                                 strokeWidth={3}
                                 strokeLinecap="round"
                                 strokeOpacity={0.95}
@@ -792,9 +792,9 @@ export function FlavorRadarChart({
                                       y1={ny + ux * 4}
                                       x2={nx + uy * 4}
                                       y2={ny - ux * 4}
-                                      stroke="var(--wood-selection)"
+                                      stroke="var(--brass-accent)"
                                       strokeWidth={1.5}
-                                      strokeOpacity={0.7}
+                                      strokeOpacity={0.8}
                                     />
                                     <text
                                       x={nx + uy * 8}
@@ -804,7 +804,7 @@ export function FlavorRadarChart({
                                       fontSize="7.5"
                                       fontWeight="bold"
                                       fill="var(--sepia-muted)"
-                                      opacity={0.75}
+                                      opacity={0.85}
                                       className="select-none font-mono"
                                     >
                                       {v}
@@ -904,7 +904,7 @@ export function FlavorRadarChart({
                             y={0}
                             textAnchor={anchor}
                             dominantBaseline={baseline}
-                            fill={isSelected ? 'var(--wood-selection)' : isActive ? 'var(--foreground)' : 'var(--sepia-muted)'}
+                            fill={isSelected ? 'var(--brass-accent)' : isActive ? 'var(--foreground)' : 'var(--sepia-muted)'}
                             opacity={isSelected ? 1 : activeNode ? 0.15 : isActive ? 1 : 0.35}
                             fontSize={isSelected ? '13' : isActive ? '12' : '10.5'}
                             fontFamily="'Inter', system-ui, sans-serif"

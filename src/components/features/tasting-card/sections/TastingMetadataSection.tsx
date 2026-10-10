@@ -72,7 +72,7 @@ export function TastingMetadataSection({
             id="name-input"
             value={spirit.name}
             onChange={(v) => update('name', v)}
-            placeholder="e.g. Laphroaig Quarter Cask"
+            placeholder={t('spiritNamePlaceholder')}
           />
         </div>
 
@@ -83,18 +83,27 @@ export function TastingMetadataSection({
             id="spirit-type-input"
             value={spirit.spiritType}
             onChange={(v) => update('spiritType', v)}
-            placeholder="e.g. Single Malt Scotch, Bourbon, etc."
+            placeholder={t('spiritTypePlaceholder')}
           />
         </div>
 
-        {/* Row 3: Destillerie / Hersteller (Full Width) */}
-        <div className="col-span-2 flex flex-col gap-1">
+        {/* Row 3: Destillerie / Hersteller (Links) & Abfüller / Bottler (Rechts) */}
+        <div className="flex flex-col gap-1">
           <FieldLabel htmlFor="distillery-input">{t('distilleryProducer')}</FieldLabel>
           <TextInput
             id="distillery-input"
             value={spirit.distillery}
             onChange={(v) => update('distillery', v)}
-            placeholder="e.g. Laphroaig"
+            placeholder={t('distilleryPlaceholder')}
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <FieldLabel htmlFor="bottler-input">{t('bottler')}</FieldLabel>
+          <TextInput
+            id="bottler-input"
+            value={spirit.bottler ?? ''}
+            onChange={(v) => update('bottler', v)}
+            placeholder={t('bottlerPlaceholder')}
           />
         </div>
 
@@ -105,7 +114,7 @@ export function TastingMetadataSection({
             id="region-input"
             value={spirit.region}
             onChange={(v) => update('region', v)}
-            placeholder="e.g. Islay, Scotland"
+            placeholder={t('regionPlaceholder')}
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -116,7 +125,7 @@ export function TastingMetadataSection({
             min={0}
             max={100}
             value={spirit.age ?? ''}
-            placeholder="Years"
+            placeholder={t('agePlaceholder')}
             onChange={(e) => update('age', e.target.value ? Number(e.target.value) : undefined)}
             className="w-full bg-transparent border-b border-[var(--parchment-border)] pb-1 text-sm sm:text-base text-[var(--sepia-text)] font-body focus:outline-none focus:border-[var(--sepia-muted)] placeholder:text-[var(--parchment-border)]"
           />
@@ -129,7 +138,7 @@ export function TastingMetadataSection({
             id="cask-input"
             value={spirit.caskNo ?? ''}
             onChange={(v) => update('caskNo', v)}
-            placeholder="Optional"
+            placeholder={t('caskPlaceholder')}
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -152,7 +161,7 @@ export function TastingMetadataSection({
             max={100}
             step={0.1}
             value={spirit.abv === 0 ? '' : spirit.abv}
-            placeholder="40.0"
+            placeholder={t('abvPlaceholder')}
             onChange={(e) => {
               const val = e.target.value;
               update('abv', val === '' ? 0 : parseFloat(val) || 0);

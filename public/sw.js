@@ -1,9 +1,14 @@
-const CACHE_NAME = 'aquavitaeum-cache-v5';
+const CACHE_NAME = 'aquavitaeum-cache-v6';
 
 const PRECACHE_ASSETS = [
   './',
-  './whisky-logo-with-circle-v5.svg',
-  './whisky-logo-maskable-v5.svg',
+  './favicon.svg',
+  './favicon.ico',
+  './apple-touch-icon.png',
+  './icons/icon-192x192.png',
+  './icons/icon-512x512.png',
+  './icons/icon-maskable-192x192.png',
+  './icons/icon-maskable-512x512.png',
 ];
 
 // Install event: cache shell assets

@@ -112,11 +112,40 @@ describe('GlobalSearch Component', () => {
       </LanguageProvider>
     );
 
-    await waitFor(() => {
-      expect(screen.getByText('Laphroaig 10')).toBeDefined();
-    });
-
-    fireEvent.click(screen.getByText('Laphroaig 10'));
+    const spiritResult = await screen.findByText('Laphroaig 10');
+    fireEvent.click(spiritResult);
     expect(onNavigateToSpirit).toHaveBeenCalledWith('s-1', 'j-1');
+  });
+
+  it('filters spirits by independent bottler', async () => {
+    const ibSpirit: Spirit = {
+      ...mockSpirit,
+      id: 's-ib',
+      name: 'Caol Ila 2010',
+      distillery: 'Caol Ila',
+      bottler: 'Signatory Vintage',
+      region: 'Islay',
+    };
+    vi.mocked(db.spirits.toArray).mockResolvedValue([ibSpirit]);
+
+    render(
+      <LanguageProvider>
+        <GlobalSearch
+          journals={[mockJournal]}
+          setActiveJournalId={vi.fn()}
+          setActiveView={vi.fn()}
+          selectSpirit={vi.fn()}
+          globalSearchQuery="Signatory"
+          setGlobalSearchQuery={vi.fn()}
+          globalTypeFilter="All"
+          setGlobalTypeFilter={vi.fn()}
+        />
+      </LanguageProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Caol Ila 2010')).toBeDefined();
+      expect(screen.getByText(/Signatory Vintage/)).toBeDefined();
+    });
   });
 });

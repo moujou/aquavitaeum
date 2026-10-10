@@ -1,6 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&display=swap');
 @import "tailwindcss";
 
+@custom-variant dark (&:where([data-theme="pub-dark"], [data-theme="pub-dark"] *));
+
 /* ─── Design Tokens ─────────────────────────────────────────────────────────── */
 :root {
   /* ── Canvas & Surfaces (2026 Unified Editorial Atelier) ──────────────── */
@@ -56,6 +58,16 @@
   --shelf-wood-shadow:   rgba(35, 20, 8, 0.18);
   --shelf-bracket:       #B87222;   /* Muted Antique Brass */
 
+  /* ── Antique Rustic Irish Pub Cabinet Tokens ───────────────────────────── */
+  --cabinet-cornice-top:    #8F633B;   /* Warm oak crown highlight */
+  --cabinet-cornice-mid:    #6D472B;   /* Rich aged oak fascia */
+  --cabinet-cornice-dark:   #4A2E1A;   /* Deep cellar walnut shadow */
+  --cabinet-cornice-deep:   #341F10;   /* Deepest antique crevice shadow */
+  --cabinet-wood-stile:     #5E3A1F;   /* Upright cabinet column oak */
+  --cabinet-backing:        #D8CEBC;   /* Warm vintage tongue-and-groove plank backing */
+  --cabinet-backing-groove: rgba(43, 30, 20, 0.15); /* Seam between vertical planks */
+  --cabinet-brass:          #C97A1E;   /* Antique pub brass hardware */
+
   /* 8 Subdued, Earthy Matte Vintage Spine Palettes (Zero White) */
   --spine-green:         #385644;   /* Matte Vintage Sage / Moss Green */
   --spine-ruby:          #6E3F42;   /* Matte Muted Port Wine / Terracotta */
@@ -88,70 +100,80 @@
 }
 
 [data-theme="pub-dark"] {
-  /* ── Pub Atmosphere ──────────────────────────────────────────────────────── */
-  --pub-bg:          #122616;   /* Main app background — dark forest green */
-  --pub-bg-alt:      #1c3822;   /* Secondary green depth */
-  --pub-bg-panel:    #224229;   /* Elevated panels, dialogs, modals */
-  --nav-bg:          #1E120B;   /* Dark mahogany navigation */
+  /* ── Pub Atmosphere & Moonlight Night Canvas ─────────────────────────────── */
+  --pub-bg:          #0D1115;   /* Modern deep midnight slate canvas (like GitHub/Reddit Dark) */
+  --pub-bg-alt:      #151B22;   /* Subtle elevated dark charcoal for headers, chips, and bars */
+  --pub-bg-panel:    #1A212A;   /* Elevated panels, dialogs, modals */
+  --nav-bg:          #0D1115;   /* Seamless midnight navigation */
 
-  /* ── Wood Chrome (Navigation bars) ──────────────────────────────────────── */
-  --wood-accent:     #311e15;   /* Darkest walnut */
-  --wood-light:      #442a1e;   /* Lighter wood trim */
-  --wood-dark:       #311e15;   /* Dark mahogany */
-  --wood-selection:  #2E945D;   /* Active/selected state bg on parchment cards */
-  --nav-active:      #2E945D;   /* Signature Clover Green on dark */
-  --nav-inactive:    rgba(232, 213, 183, 0.6);
+  /* ── Wood Chrome & Irish Accents ────────────────────────────────────────── */
+  --wood-accent:     #236E46;   /* Rich deep clover green accent */
+  --wood-light:      #2B8052;   /* Deeper clover trim */
+  --wood-dark:       #1B5436;   /* Deep Irish forest green header wood */
+  --wood-selection:  #236E46;   /* Deeper clover green for active toggles, pills, and tabs */
+  --nav-active:      #287C50;   /* Calmer Clover Green active indicator */
+  --nav-inactive:    #8D9BA6;   /* Moonlit slate for inactive tabs */
 
   /* ── Sensory Profiling Radar Palette ─────────────────────────────────── */
   --sensory-nose:        #E59632;   /* Luminous Amber on dark */
   --sensory-taste:       #2B8FA6;   /* Maritime Teal on dark */
   --sensory-taste-light: #38A4BD;
 
-  /* ── Brass Fittings (Primary Accent) ────────────────────────────────────── */
-  --brass-accent:    #C59B27;   /* Primary gold */
-  --brass-muted:     #a07d1a;   /* Secondary brass */
-  --brass-light:     #e8c247;   /* Hover state */
+  /* ── Brass Fittings (Amber-Copper Accent) ────────────────────────────────── */
+  --brass-accent:    #E59632;   /* Warm pot-still amber copper for rating stars & medals */
+  --brass-muted:     #C97A1E;   /* Secondary pot-still brass */
+  --brass-light:     #F3B55A;   /* Lighter warm amber highlight */
 
-  /* ── Parchment Surface (Tasting Card) ───────────────────────────────────── */
-  --parchment-bg:      #F5EEDC;
-  --parchment-bg-alt:  #EDE0C4;
-  --parchment-border:  #C4A87A;
-  --parchment-divider: #D4C3A3;
-  --parchment-shadow:  rgba(42, 27, 18, 0.35);
+  /* ── Tasting Card & Manuscript Surfaces ─────────────────────────────────── */
+  --parchment-bg:      #141A21;   /* Sleek dark charcoal slate card body */
+  --parchment-bg-alt:  #0E1318;   /* Inset card panels / input surfaces */
+  --parchment-border:  #252F3B;   /* Subtle dark hairline border */
+  --parchment-divider: rgba(229, 150, 50, 0.20); /* Subtle amber copper line */
+  --parchment-shadow:  rgba(0, 0, 0, 0.55);
 
-  /* ── Aged Ink (Parchment Text) ───────────────────────────────────────────── */
-  --sepia-text:  #1A120B;
-  --sepia-muted: #5c3d22;
-  --sepia-light: #755030;
+  /* ── Typography & Letterpress Ink ───────────────────────────────────────── */
+  --sepia-text:  #F5EFE1;   /* Warm Ivory typography (14.5:1 AAA contrast) */
+  --sepia-muted: #8D9BA6;   /* Moonlit Slate secondary labels (5.8:1 AA) */
+  --sepia-light: #B4C0C9;   /* Light moonlit slate */
 
   /* ── Foreground (Dark Surface Text) ─────────────────────────────────────── */
-  --foreground:  #e8d5b7;
+  --foreground:  #F5EFE1;
 
   /* ── Floating Action Buttons & Primary CTAs ─────────────────────────────── */
-  --fab-bg:       #E8D5B7;
-  --fab-bg-hover: #F5F2EB;
-  --fab-text:     #311e15;
-  --fab-border:   rgba(197, 155, 39, 0.4);
+  --fab-bg:       #236E46;   /* Deep clover green CTA */
+  --fab-bg-hover: #2B8052;
+  --fab-text:     #FDFBF7;   /* Crisp ivory white button text and icons */
+  --fab-border:   rgba(229, 150, 50, 0.5); /* Amber brass ring */
 
-  /* ── Forest Green Accent (Journal Cards) ────────────────────────────────── */
-  --forest-green: #2A5E3F;
+  /* ── Forest Green Accent (Badges & Placeholders) ────────────────────────── */
+  --forest-green: #287C50;
 
   /* ── Library Bookshelf & Leather Book Spine Tokens ─────────────────────── */
-  --shelf-wood-top:      #72492B;
-  --shelf-wood-front:    #56341C;
-  --shelf-wood-bevel:    #8F633B;
-  --shelf-wood-shadow:   rgba(0, 0, 0, 0.40);
-  --shelf-bracket:       #A86822;
+  --shelf-wood-top:      #261F1A;
+  --shelf-wood-front:    #1B1511;
+  --shelf-wood-bevel:    #332B25;
+  --shelf-wood-shadow:   rgba(0, 0, 0, 0.65);
+  --shelf-bracket:       #E59632;
+ 
+  /* ── Antique Rustic Irish Pub Cabinet Tokens ───────────────────────────── */
+  --cabinet-cornice-top:    #261F1A;
+  --cabinet-cornice-mid:    #1E1814;
+  --cabinet-cornice-dark:   #16110D;
+  --cabinet-cornice-deep:   #0D0A08;
+  --cabinet-wood-stile:     #1B1511;
+  --cabinet-backing:        #0E1318;
+  --cabinet-groove:         rgba(0, 0, 0, 0.55);
+  --cabinet-brass:          #E59632;
 
-  --spine-green:         #2D4637;
-  --spine-ruby:          #593235;
-  --spine-amber:         #6E492A;
-  --spine-teal:          #28424B;
-  --spine-havana:        #4A3527;
-  --spine-indigo:        #233245;
-  --spine-heather:       #483443;
-  --spine-slate:         #333A42;
-  --spine-ribbon:        #8E5620;
+  --spine-green:         #1C3B29;
+  --spine-ruby:          #4A1E23;
+  --spine-amber:         #55341A;
+  --spine-teal:          #16343D;
+  --spine-havana:        #36281C;
+  --spine-indigo:        #192433;
+  --spine-heather:       #362232;
+  --spine-slate:         #222A33;
+  --spine-ribbon:        #E59632;
 
   /* Legacy Aliases for backwards compatibility */
   --spine-crimson:       var(--spine-ruby);
@@ -191,9 +213,9 @@ body {
 
 [data-theme="pub-dark"] body {
   background-image:
-    radial-gradient(ellipse at 50% -10%, rgba(197, 155, 39, 0.08) 0%, transparent 60%),
-    radial-gradient(ellipse at 85% 25%, rgba(32, 48, 35, 0.20) 0%, transparent 50%),
-    radial-gradient(ellipse at 15% 85%, rgba(45, 26, 17, 0.40) 0%, transparent 60%);
+    radial-gradient(ellipse at 50% -10%, rgba(229, 150, 50, 0.05) 0%, transparent 60%),
+    radial-gradient(ellipse at 85% 25%, rgba(46, 148, 93, 0.07) 0%, transparent 50%),
+    radial-gradient(ellipse at 15% 85%, rgba(13, 17, 21, 0.50) 0%, transparent 60%);
 }
 
 /* ─── Scrollbar ──────────────────────────────────────────────────────────────── */
@@ -239,6 +261,19 @@ body {
     transparent 100%
   );
   box-shadow: 0 1px 5px rgba(46, 148, 93, 0.28);
+}
+
+[data-theme="pub-dark"] .divider-clover-glow {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(46, 148, 93, 0.06) 20%,
+    rgba(46, 148, 93, 0.28) 50%,
+    rgba(46, 148, 93, 0.06) 80%,
+    transparent 100%
+  );
+  box-shadow: none;
 }
 
 /* ─── Animations ─────────────────────────────────────────────────────────────── */
@@ -333,17 +368,18 @@ body {
 
 /* Parchment card toggle button — Cask Strength, Added Colour, Glance, Finish pills, etc. */
 .card-toggle {
-  border-color: rgba(196, 168, 122, 0.6); /* --parchment-border at 60% */
-  background-color: rgba(26, 18, 11, 0.05); /* --sepia-text at 5% */
+  border-color: var(--parchment-border);
+  background-color: var(--parchment-bg-alt);
   color: var(--sepia-muted);
 }
 .card-toggle:hover {
-  background-color: rgba(26, 18, 11, 0.10); /* --sepia-text at 10% */
+  background-color: var(--pub-bg-alt);
+  color: var(--foreground);
 }
 .card-toggle[aria-pressed="true"] {
   background-color: var(--wood-selection);
-  border-color: var(--brass-accent);
-  color: var(--parchment-bg);
+  border-color: var(--wood-selection);
+  color: var(--fab-text);
 }
 
 /* Parchment text input — transparent underline inputs on the tasting card */

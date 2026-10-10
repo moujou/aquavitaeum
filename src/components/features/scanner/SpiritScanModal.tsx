@@ -165,8 +165,8 @@ export function SpiritScanModal({
         await videoRef.current.play().catch(() => {});
       }
 
-      // Check if native BarcodeDetector is available
-      if (typeof window !== 'undefined' && 'BarcodeDetector' in window) {
+      // Check if native BarcodeDetector is available ONLY on barcode tab
+      if (activeTab === 'barcode' && typeof window !== 'undefined' && 'BarcodeDetector' in window) {
         const BarcodeDetectorConstructor = (
           window as unknown as {
             BarcodeDetector: new (options?: { formats: string[] }) => BarcodeDetectorInstance;
@@ -210,6 +210,29 @@ export function SpiritScanModal({
     const nextFacing = cameraFacingMode === 'environment' ? 'user' : 'environment';
     setCameraFacingMode(nextFacing);
     await startCameraScan(nextFacing);
+  };
+
+  const handleCapturePhoto = async () => {
+    if (!videoRef.current) return;
+    const video = videoRef.current;
+    if (video.videoWidth === 0 || video.videoHeight === 0) return;
+
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const base64 = canvas.toDataURL('image/jpeg', 0.85);
+
+      stopCameraScan();
+      setSelectedImage(base64);
+      await runImageAnalysis(base64);
+    } catch (err) {
+      console.error('Aqua Vitaeum: Snapshot capture failed', err);
+    }
   };
 
   const handleFileChange = (file: File) => {
@@ -308,7 +331,7 @@ export function SpiritScanModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* ── Flavor-Compass-Harmonized Top Header ── */}
-        <div className="flex items-center justify-between px-4 sm:px-7 py-3 sm:py-3.5 bg-gradient-to-r from-[var(--wood-dark)] to-[var(--wood-selection)] text-white border-b border-black/10 shadow-sm shrink-0 gap-3">
+        <div className="flex items-center justify-between px-4 sm:px-7 py-3 sm:py-3.5 bg-[var(--wood-dark)] text-white border-b border-black/10 shadow-sm shrink-0 gap-3">
           {/* Left: Branding & Title */}
           <div className="flex items-center gap-3 min-w-0 pr-2">
             <Sparkles className="w-6 h-6 text-amber-200 shrink-0" />
@@ -418,6 +441,13 @@ export function SpiritScanModal({
                 <ScanPhotoTab
                   language={language}
                   onFileSelect={handleFileChange}
+                  isCameraActive={isCameraActive}
+                  cameraError={cameraError}
+                  videoRef={videoRef}
+                  onStartCamera={() => startCameraScan()}
+                  onStopCamera={stopCameraScan}
+                  onToggleCameraFacing={toggleCameraFacing}
+                  onCapturePhoto={handleCapturePhoto}
                 />
               )}
 
@@ -472,7 +502,7 @@ export function SpiritScanModal({
               <button
                 type="button"
                 onClick={handleApply}
-                className="min-h-[44px] px-5 py-2.5 rounded-xl bg-[var(--wood-dark)] text-white hover:bg-[var(--wood-accent)] font-display font-bold text-xs sm:text-sm uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 shadow-md active:scale-95 border border-[var(--forest-green)]/40"
+                className="min-h-[44px] px-5 py-2.5 rounded-xl bg-[var(--fab-bg)] text-[var(--fab-text)] hover:bg-[var(--fab-bg-hover)] font-display font-bold text-xs sm:text-sm uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 shadow-md active:scale-95 border border-[var(--fab-border)]"
               >
                 <span>{t('applyToNote')}</span>
                 <ChevronRight size={16} />
