@@ -209,7 +209,7 @@ export function JournalsOverview({
     }
   };
 
-  const deletableSelected = [...selectedIds].filter((id) => id !== 'default-compendium');
+  const deletableSelected = [...selectedIds];
   const canDelete = deletableSelected.length > 0;
   const canEdit = selectedIds.size === 1;
 
@@ -336,7 +336,27 @@ export function JournalsOverview({
       </div>
 
       {/* Shelf / Bookshelf Mode vs Open Manuscript Grid */}
-      {journalLayout === 'bookshelf' ? (
+      {sortedJournals.length === 0 ? (
+        <div className="flex flex-col items-center justify-center p-8 sm:p-12 text-center bg-[var(--parchment-bg)] border border-[var(--parchment-border)] rounded-2xl shadow-inner max-w-md mx-auto my-8 animate-fade-in">
+          <BookOpen className="w-12 h-12 text-[var(--brass-accent)] mb-3 opacity-80" />
+          <h3 className="font-display text-lg font-bold text-[var(--foreground)] uppercase tracking-wider mb-2">
+            {language === 'DE' ? 'Keine Notizbücher vorhanden' : 'No Notebooks Found'}
+          </h3>
+          <p className="font-body text-xs sm:text-sm text-[var(--sepia-muted)] max-w-xs mb-5 leading-relaxed">
+            {language === 'DE'
+              ? 'Erstelle dein erstes Verkostungs-Journal, um deine Whiskys und Drams festzuhalten.'
+              : 'Create your first tasting journal to record your whiskies and drams.'}
+          </p>
+          <button
+            type="button"
+            onClick={() => setIsCreateOpenLocal(true)}
+            className="min-h-[44px] px-5 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] text-[var(--fab-text)] font-bold text-sm transition-all cursor-pointer shadow-md active:scale-95 flex items-center gap-2"
+          >
+            <BookOpen className="w-4 h-4" />
+            <span>{t('createJournalBtn')}</span>
+          </button>
+        </div>
+      ) : journalLayout === 'bookshelf' ? (
         <JournalBookshelfView
           journals={sortedJournals}
           selectedIds={selectedIds}
@@ -358,7 +378,6 @@ export function JournalsOverview({
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-7">
           {sortedJournals.map((journal) => {
-            const isDefault = journal.id === 'default-compendium';
             const isEditing = editingId === journal.id;
             const isSelected = selectedIds.has(journal.id);
 
@@ -433,18 +452,16 @@ export function JournalsOverview({
                       >
                         <Edit3 className="w-3.5 h-3.5" />
                       </button>
-                      {!isDefault && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setConfirmDeleteId(journal.id);
-                          }}
-                          className="p-1 rounded bg-black/30 hover:bg-red-900/80 text-[var(--fab-text)] hover:text-red-200 transition-all cursor-pointer"
-                          title={t('deleteAction')}
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setConfirmDeleteId(journal.id);
+                        }}
+                        className="p-1 rounded bg-black/30 hover:bg-red-900/80 text-[var(--fab-text)] hover:text-red-200 transition-all cursor-pointer"
+                        title={t('deleteAction')}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   )}
                 </div>
@@ -491,7 +508,7 @@ export function JournalsOverview({
                           maxLength={40}
                           value={editName}
                           onChange={(e) => setEditName(e.target.value)}
-                          className="w-full h-9 px-2.5 rounded-md bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/60 font-body text-xs focus:outline-none focus:border-[var(--brass-accent)]"
+                          className="w-full h-9 px-2.5 rounded-md bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--placeholder-text)] font-body text-xs focus:outline-none focus:border-[var(--brass-accent)]"
                         />
                       </div>
                       <div className="flex flex-col gap-1">
@@ -502,7 +519,7 @@ export function JournalsOverview({
                           placeholder={t('descriptionPlaceholder')}
                           value={editDescription}
                           onChange={(e) => setEditDescription(e.target.value)}
-                          className="w-full h-9 px-2.5 rounded-md bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/60 font-body text-xs focus:outline-none focus:border-[var(--brass-accent)]"
+                          className="w-full h-9 px-2.5 rounded-md bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--placeholder-text)] font-body text-xs focus:outline-none focus:border-[var(--brass-accent)]"
                         />
                       </div>
                       <div onClick={(e) => e.stopPropagation()} className="flex flex-col gap-2.5">
@@ -689,13 +706,17 @@ export function JournalsOverview({
           }}
         >
           <div
-            className="w-full max-w-md bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] rounded-2xl p-6 shadow-2xl max-h-[90dvh] overflow-y-auto"
+            className="relative w-full max-w-md bg-[var(--parchment-bg)] border border-[var(--parchment-border)] rounded-2xl shadow-2xl overflow-hidden flex flex-col my-auto max-h-[90dvh]"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-[var(--parchment-border)]/60 pb-3 mb-4">
-              <h3 id="create-journal-modal-title" className="font-display text-lg font-bold text-[var(--foreground)] uppercase tracking-wider">
-                {t('createJournalBtn')}
-              </h3>
+            {/* Modal Top Header (Unified Irish Pub Standard) */}
+            <div className="flex items-center justify-between px-5 py-3.5 bg-[var(--wood-dark)] text-white border-b border-black/10 shadow-sm shrink-0 gap-3">
+              <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                <BookOpen className="w-5 h-5 text-amber-200 shrink-0" />
+                <h3 id="create-journal-modal-title" className="font-display font-bold text-base sm:text-lg tracking-wide text-white drop-shadow-xs truncate uppercase">
+                  {t('createJournalBtn')}
+                </h3>
+              </div>
               <button
                 type="button"
                 onClick={() => {
@@ -704,70 +725,75 @@ export function JournalsOverview({
                   setNewJournalDescription('');
                   setNewJournalCoverImage(undefined);
                 }}
-                className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-black/5 text-[var(--sepia-muted)] hover:text-[var(--foreground)] transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-lg text-white/80 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 transition-all cursor-pointer shadow-xs flex items-center justify-center active:scale-95 shrink-0"
+                title={t('cancel')}
+                aria-label={t('cancel')}
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
-            <form onSubmit={handleCreate} className="space-y-4">
-              <div>
-                <label className="block text-xs font-body text-[var(--sepia-muted)] mb-1.5 tracking-wider">
-                  {t('journalNameLabel')}
-                </label>
-                <input
-                  type="text"
-                  required
-                  autoFocus
-                  maxLength={40}
-                  placeholder={t('journalNamePlaceholder')}
-                  value={newJournalName}
-                  onChange={(e) => setNewJournalName(e.target.value)}
-                  className="w-full h-11 px-3 rounded-lg bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/60 font-body text-sm focus:outline-none focus:border-[var(--brass-accent)] mb-4"
+
+            <div className="p-5 sm:p-6 overflow-y-auto flex-1">
+              <form onSubmit={handleCreate} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-body text-[var(--sepia-muted)] mb-1.5 tracking-wider">
+                    {t('journalNameLabel')}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    autoFocus
+                    maxLength={40}
+                    placeholder={t('journalNamePlaceholder')}
+                    value={newJournalName}
+                    onChange={(e) => setNewJournalName(e.target.value)}
+                    className="w-full h-11 px-3 rounded-lg bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--placeholder-text)] font-body text-sm focus:outline-none focus:border-[var(--brass-accent)] mb-4"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-body text-[var(--sepia-muted)] mb-1.5 tracking-wider">
+                    {t('descriptionOptionalLabel')}
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={120}
+                    placeholder={t('descriptionPlaceholder')}
+                    value={newJournalDescription}
+                    onChange={(e) => setNewJournalDescription(e.target.value)}
+                    className="w-full h-11 px-3 rounded-lg bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--placeholder-text)] font-body text-sm focus:outline-none focus:border-[var(--brass-accent)]"
+                  />
+                </div>
+                <JournalCoverPicker
+                  currentCoverImage={newJournalCoverImage}
+                  onChange={setNewJournalCoverImage}
                 />
-              </div>
-              <div>
-                <label className="block text-xs font-body text-[var(--sepia-muted)] mb-1.5 tracking-wider">
-                  {t('descriptionOptionalLabel')}
-                </label>
-                <input
-                  type="text"
-                  maxLength={120}
-                  placeholder={t('descriptionPlaceholder')}
-                  value={newJournalDescription}
-                  onChange={(e) => setNewJournalDescription(e.target.value)}
-                  className="w-full h-11 px-3 rounded-lg bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/60 font-body text-sm focus:outline-none focus:border-[var(--brass-accent)]"
+                <JournalColorPicker
+                  selectedColor={newJournalColor}
+                  onChange={setNewJournalColor}
                 />
-              </div>
-              <JournalCoverPicker
-                currentCoverImage={newJournalCoverImage}
-                onChange={setNewJournalCoverImage}
-              />
-              <JournalColorPicker
-                selectedColor={newJournalColor}
-                onChange={setNewJournalColor}
-              />
-              <div className="flex justify-end gap-2.5 pt-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    triggerCloseCreate();
-                    setNewJournalName('');
-                    setNewJournalDescription('');
-                    setNewJournalCoverImage(undefined);
-                    setNewJournalColor('green');
-                  }}
-                  className="min-h-[44px] px-4 rounded-lg bg-[var(--pub-bg-alt)] hover:bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] text-[var(--sepia-muted)] hover:text-[var(--foreground)] text-sm font-semibold transition-colors cursor-pointer"
-                >
-                  {t('cancel')}
-                </button>
-                <button
-                  type="submit"
-                  className="min-h-[44px] px-5 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] text-[var(--fab-text)] font-bold text-sm transition-all cursor-pointer shadow-md active:scale-95"
-                >
-                  {t('createJournalBtn')}
-                </button>
-              </div>
-            </form>
+                <div className="flex justify-end gap-2.5 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      triggerCloseCreate();
+                      setNewJournalName('');
+                      setNewJournalDescription('');
+                      setNewJournalCoverImage(undefined);
+                      setNewJournalColor('green');
+                    }}
+                    className="min-h-[44px] px-4 rounded-lg bg-[var(--pub-bg-alt)] hover:bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] text-[var(--sepia-muted)] hover:text-[var(--foreground)] text-sm font-semibold transition-colors cursor-pointer"
+                  >
+                    {t('cancel')}
+                  </button>
+                  <button
+                    type="submit"
+                    className="min-h-[44px] px-5 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] text-[var(--fab-text)] font-bold text-sm transition-all cursor-pointer shadow-md active:scale-95"
+                  >
+                    {t('createJournalBtn')}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>,
         document.body
@@ -783,73 +809,82 @@ export function JournalsOverview({
           onClick={() => setEditingId(null)}
         >
           <div
-            className="w-full max-w-md bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] rounded-2xl p-6 shadow-2xl max-h-[90dvh] overflow-y-auto"
+            className="relative w-full max-w-md bg-[var(--parchment-bg)] border border-[var(--parchment-border)] rounded-2xl shadow-2xl overflow-hidden flex flex-col my-auto max-h-[90dvh]"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-[var(--parchment-border)]/60 pb-3 mb-4">
-              <h3 id="edit-journal-modal-title" className="font-display text-lg font-bold text-[var(--foreground)] uppercase tracking-wider">
-                {t('renameAction')}
-              </h3>
+            {/* Modal Top Header (Unified Irish Pub Standard) */}
+            <div className="flex items-center justify-between px-5 py-3.5 bg-[var(--wood-dark)] text-white border-b border-black/10 shadow-sm shrink-0 gap-3">
+              <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                <Edit3 className="w-5 h-5 text-amber-200 shrink-0" />
+                <h3 id="edit-journal-modal-title" className="font-display font-bold text-base sm:text-lg tracking-wide text-white drop-shadow-xs truncate uppercase">
+                  {t('renameAction')}
+                </h3>
+              </div>
               <button
                 type="button"
                 onClick={() => setEditingId(null)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-black/5 text-[var(--sepia-muted)] hover:text-[var(--foreground)] transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-lg text-white/80 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 transition-all cursor-pointer shadow-xs flex items-center justify-center active:scale-95 shrink-0"
+                title={t('cancel')}
+                aria-label={t('cancel')}
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
-            <form onSubmit={(e) => handleRename(e, editingId)} className="space-y-4">
-              <div>
-                <label className="block text-xs font-body text-[var(--sepia-muted)] mb-1.5 tracking-wider">
-                  {t('journalNameLabel')}
-                </label>
-                <input
-                  type="text"
-                  required
-                  autoFocus
-                  maxLength={40}
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  className="w-full h-11 px-3 rounded-lg bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/60 font-body text-sm focus:outline-none focus:border-[var(--brass-accent)] mb-4"
+
+            <div className="p-5 sm:p-6 overflow-y-auto flex-1">
+              <form onSubmit={(e) => handleRename(e, editingId)} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-body text-[var(--sepia-muted)] mb-1.5 tracking-wider">
+                    {t('journalNameLabel')}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    autoFocus
+                    maxLength={40}
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="w-full h-11 px-3 rounded-lg bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--placeholder-text)] font-body text-sm focus:outline-none focus:border-[var(--brass-accent)] mb-4"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-body text-[var(--sepia-muted)] mb-1.5 tracking-wider">
+                    {t('descriptionOptionalLabel')}
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={120}
+                    placeholder={t('descriptionPlaceholder')}
+                    value={editDescription}
+                    onChange={(e) => setEditDescription(e.target.value)}
+                    className="w-full h-11 px-3 rounded-lg bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--placeholder-text)] font-body text-sm focus:outline-none focus:border-[var(--brass-accent)]"
+                  />
+                </div>
+                <JournalCoverPicker
+                  currentCoverImage={editCoverImage}
+                  onChange={setEditCoverImage}
                 />
-              </div>
-              <div>
-                <label className="block text-xs font-body text-[var(--sepia-muted)] mb-1.5 tracking-wider">
-                  {t('descriptionOptionalLabel')}
-                </label>
-                <input
-                  type="text"
-                  maxLength={120}
-                  placeholder={t('descriptionPlaceholder')}
-                  value={editDescription}
-                  onChange={(e) => setEditDescription(e.target.value)}
-                  className="w-full h-11 px-3 rounded-lg bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/60 font-body text-sm focus:outline-none focus:border-[var(--brass-accent)]"
+                <JournalColorPicker
+                  selectedColor={editColor}
+                  onChange={setEditColor}
                 />
-              </div>
-              <JournalCoverPicker
-                currentCoverImage={editCoverImage}
-                onChange={setEditCoverImage}
-              />
-              <JournalColorPicker
-                selectedColor={editColor}
-                onChange={setEditColor}
-              />
-              <div className="flex justify-end gap-2.5 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setEditingId(null)}
-                  className="min-h-[44px] px-4 rounded-lg bg-[var(--pub-bg-alt)] hover:bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] text-[var(--sepia-muted)] hover:text-[var(--foreground)] text-sm font-semibold transition-colors cursor-pointer"
-                >
-                  {t('cancel')}
-                </button>
-                <button
-                  type="submit"
-                  className="min-h-[44px] px-5 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] text-[var(--fab-text)] font-bold text-sm transition-all cursor-pointer shadow-md active:scale-95"
-                >
-                  {t('saveAction')}
-                </button>
-              </div>
-            </form>
+                <div className="flex justify-end gap-2.5 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditingId(null)}
+                    className="min-h-[44px] px-4 rounded-lg bg-[var(--pub-bg-alt)] hover:bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] text-[var(--sepia-muted)] hover:text-[var(--foreground)] text-sm font-semibold transition-colors cursor-pointer"
+                  >
+                    {t('cancel')}
+                  </button>
+                  <button
+                    type="submit"
+                    className="min-h-[44px] px-5 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] text-[var(--fab-text)] font-bold text-sm transition-all cursor-pointer shadow-md active:scale-95"
+                  >
+                    {t('saveAction')}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>,
         document.body

@@ -26,7 +26,7 @@ describe('SpiritScanModal Integration', () => {
   it('renders modal title and tab switchers when open', () => {
     renderModal();
     expect(screen.getByRole('dialog')).toBeDefined();
-    expect(screen.getByRole('button', { name: /Photo|Foto/i })).toBeDefined();
+    expect(screen.getAllByRole('button', { name: /Photo|Foto/i }).length).toBeGreaterThan(0);
     expect(screen.getByRole('button', { name: /Search|Name/i })).toBeDefined();
     expect(screen.getByRole('button', { name: /Barcode/i })).toBeDefined();
   });

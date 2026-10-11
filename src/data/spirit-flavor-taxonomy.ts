@@ -541,10 +541,88 @@ export function getAllFlavorDescriptors(customFlavors?: CustomFlavorDescriptor[]
   return merged;
 }
 
-export function getDescriptorsByCategory(categoryId: string): FlavorDescriptor[] {
+export function getCategoryForRadarDimension(
+  dimension: keyof FlavorProfile
+): FlavorCategory | undefined {
+  if (dimension === 'chocolate') {
+    return SPIRIT_FLAVOR_TAXONOMY.find((c) => c.id === 'suesse');
+  }
+  if (dimension === 'nutty') {
+    return SPIRIT_FLAVOR_TAXONOMY.find((c) => c.id === 'holzig');
+  }
+  return SPIRIT_FLAVOR_TAXONOMY.find((cat) => cat.radarDimension === dimension);
+}
+
+export function inferCategoryFromTagName(name: string): FlavorCategory | undefined {
+  if (!name) return undefined;
+  const q = name.toLowerCase();
+
+  // 1. Peat & Smoke
+  if (/(torf|rauch|smoke|peat|asche|kamin|teer|phenol|jod|barbecue|charcoal|glow)/i.test(q)) {
+    return SPIRIT_FLAVOR_TAXONOMY.find((c) => c.id === 'torf');
+  }
+  // 2. Fruit & Citrus
+  if (/(apfel|birne|frucht|beere|zitrone|orange|banane|ananas|mango|kirsche|pfirsich|maracuja|aprikose|grape|berry|apple|citrus|fruit|plum|pear|lemon|cherry)/i.test(q)) {
+    return SPIRIT_FLAVOR_TAXONOMY.find((c) => c.id === 'fruchtig');
+  }
+  // 3. Sweets & Cereal
+  if (/(honig|vanille|karamell|zucker|toffee|malz|schokolade|kakao|getreide|butter|fudge|biskuit|keks|sweet|honey|vanilla|caramel|malt|cocoa|chocolate)/i.test(q)) {
+    return SPIRIT_FLAVOR_TAXONOMY.find((c) => c.id === 'suesse');
+  }
+  // 4. Oak & Wood
+  if (/(eiche|fass|holz|oak|wood|zeder|sawdust|tannin|toast|cask)/i.test(q)) {
+    return SPIRIT_FLAVOR_TAXONOMY.find((c) => c.id === 'holzig');
+  }
+  // 5. Spices & Pepper
+  if (/(pfeffer|zimt|nelke|ingwer|muskat|kardamom|würz|spice|pepper|cinnamon|clove|ginger|nutmeg|würzig|anise)/i.test(q)) {
+    return SPIRIT_FLAVOR_TAXONOMY.find((c) => c.id === 'wuerzig');
+  }
+  // 6. Dried Fruit & Wine
+  if (/(sherry|port|wein|rosine|dörrobst|feige|sultana|dattel|raisin|wine|fig|date|prune)/i.test(q)) {
+    return SPIRIT_FLAVOR_TAXONOMY.find((c) => c.id === 'weinartig');
+  }
+  // 7. Herbal & Green
+  if (/(blume|heide|gras|kraut|tee|minze|lavendel|floral|herb|grass|heather|mint|eukalyptus|leaf|foliage)/i.test(q)) {
+    return SPIRIT_FLAVOR_TAXONOMY.find((c) => c.id === 'pflanzlich');
+  }
+  // 8. Maritime & Mineral
+  if (/(salz|meer|sole|maritim|alge|brine|salt|sea|maritime|seaweed|mineral|küste)/i.test(q)) {
+    return SPIRIT_FLAVOR_TAXONOMY.find((c) => c.id === 'maritim');
+  }
+  // 9. Leather & Feinty
+  if (/(leder|tabak|zigarre|wachs|leather|tobacco|wax|fleisch|meaty|umami)/i.test(q)) {
+    return SPIRIT_FLAVOR_TAXONOMY.find((c) => c.id === 'feinty');
+  }
+
+  return undefined;
+}
+
+export function getDescriptorsByCategory(
+  categoryId: string,
+  customFlavors?: CustomFlavorDescriptor[]
+): FlavorDescriptor[] {
   const category = SPIRIT_FLAVOR_TAXONOMY.find((cat) => cat.id.toLowerCase() === categoryId.toLowerCase());
   if (!category) return [];
-  return category.subcategories.flatMap((sub) => sub.descriptors);
+
+  const baseDescriptors = category.subcategories.flatMap((sub) => sub.descriptors);
+  const customList = customFlavors ?? getStoredCustomFlavors();
+
+  const matchingCustom: FlavorDescriptor[] = customList
+    .filter((cf) => {
+      if (category.radarDimension === cf.radarDimension) return true;
+      if (category.id === 'suesse' && cf.radarDimension === 'chocolate') return true;
+      if (category.id === 'holzig' && cf.radarDimension === 'nutty') return true;
+      return false;
+    })
+    .map((cf) => ({
+      id: cf.id,
+      name: { EN: cf.name, DE: cf.name },
+      radarDimension: cf.radarDimension,
+      color: cf.color ?? RADAR_DIMENSION_COLORS[cf.radarDimension] ?? '#C59B27',
+      aliases: [cf.name, cf.id, ...(cf.emoji ? [`${cf.emoji} ${cf.name}`] : [])],
+    }));
+
+  return [...baseDescriptors, ...matchingCustom];
 }
 
 export const getDescriptorsByCategoryId = getDescriptorsByCategory;
@@ -602,13 +680,25 @@ export function getCategoryByDescriptorId(
   customFlavors?: CustomFlavorDescriptor[]
 ): FlavorCategory | undefined {
   const desc = findFlavorDescriptor(tagNameOrId, customFlavors);
-  if (!desc) return undefined;
 
-  return SPIRIT_FLAVOR_TAXONOMY.find((cat) =>
-    cat.subcategories.some((sub) =>
-      sub.descriptors.some((d) => d.id === desc.id)
-    )
-  );
+  // 1. Direct standard subcategory match
+  if (desc) {
+    const directMatch = SPIRIT_FLAVOR_TAXONOMY.find((cat) =>
+      cat.subcategories.some((sub) =>
+        sub.descriptors.some((d) => d.id === desc.id)
+      )
+    );
+    if (directMatch) return directMatch;
+
+    // 2. Custom flavor or descriptor with radarDimension
+    if (desc.radarDimension) {
+      const dimensionCategory = getCategoryForRadarDimension(desc.radarDimension);
+      if (dimensionCategory) return dimensionCategory;
+    }
+  }
+
+  // 3. Heuristic keyword fallback for arbitrary or unmapped tags
+  return inferCategoryFromTagName(tagNameOrId);
 }
 
 export interface ActiveFlavorCategory {
@@ -624,42 +714,20 @@ export function getActiveFlavorCategories(
   customFlavors?: CustomFlavorDescriptor[]
 ): ActiveFlavorCategory[] {
   if (!tags || tags.length === 0) return [];
-  const categoryMap = new Map<string, { category: FlavorCategory | { id: string; name: { EN: string; DE: string }; emoji: string; radarDimension: keyof FlavorProfile }; count: number }>();
+  const categoryMap = new Map<
+    string,
+    { category: FlavorCategory; count: number }
+  >();
 
   for (const tag of tags) {
-    const desc = findFlavorDescriptor(tag, customFlavors);
-    if (!desc) continue;
+    const category = getCategoryByDescriptorId(tag, customFlavors);
+    if (!category) continue;
 
-    const category = SPIRIT_FLAVOR_TAXONOMY.find((cat) =>
-      cat.subcategories.some((sub) =>
-        sub.descriptors.some((d) => d.id === desc.id)
-      )
-    );
-
-    if (category) {
-      const existing = categoryMap.get(category.id);
-      if (existing) {
-        existing.count++;
-      } else {
-        categoryMap.set(category.id, { category, count: 1 });
-      }
+    const existing = categoryMap.get(category.id);
+    if (existing) {
+      existing.count++;
     } else {
-      // Custom flavor mapped to radar dimension
-      const dimKey = desc.radarDimension;
-      const existing = categoryMap.get(dimKey);
-      if (existing) {
-        existing.count++;
-      } else {
-        categoryMap.set(dimKey, {
-          category: {
-            id: dimKey,
-            name: { EN: dimKey.charAt(0).toUpperCase() + dimKey.slice(1), DE: dimKey.charAt(0).toUpperCase() + dimKey.slice(1) },
-            emoji: '✨',
-            radarDimension: dimKey,
-          },
-          count: 1,
-        });
-      }
+      categoryMap.set(category.id, { category, count: 1 });
     }
   }
 
@@ -667,7 +735,47 @@ export function getActiveFlavorCategories(
     id: category.id,
     name: category.name,
     emoji: category.emoji,
-    color: RADAR_DIMENSION_COLORS[category.radarDimension] || '#C59B27',
+    color: RADAR_DIMENSION_COLORS[category.radarDimension] ?? '#C59B27',
     count,
   }));
+}
+
+export function registerCustomFlavorIfMissing(
+  name: string,
+  preferredDimension?: keyof FlavorProfile
+): CustomFlavorDescriptor {
+  const trimmed = name.trim();
+  const existing = findFlavorDescriptor(trimmed);
+  if (existing) {
+    return {
+      id: existing.id,
+      name: typeof existing.name === 'string' ? existing.name : existing.name.DE || existing.name.EN,
+      radarDimension: existing.radarDimension,
+      color: existing.color,
+    };
+  }
+
+  const dim: keyof FlavorProfile =
+    preferredDimension ||
+    inferCategoryFromTagName(trimmed)?.radarDimension ||
+    'fruity';
+
+  const slug = `custom_${trimmed
+    .toLowerCase()
+    .replace(/ä/g, 'ae')
+    .replace(/ö/g, 'oe')
+    .replace(/ü/g, 'ue')
+    .replace(/ß/g, 'ss')
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '') || Date.now().toString(36)}`;
+
+  const customFlavor: CustomFlavorDescriptor = {
+    id: slug,
+    name: trimmed,
+    radarDimension: dim,
+    color: RADAR_DIMENSION_COLORS[dim] ?? '#C59B27',
+  };
+
+  registerCustomFlavor(customFlavor);
+  return customFlavor;
 }

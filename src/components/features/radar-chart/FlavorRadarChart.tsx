@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from 'recharts';
-import { FlavorProfile } from '@/types/spirit.types';
+import { FlavorProfile, CustomFlavorDescriptor } from '@/types/spirit.types';
 import { useLanguage } from '@/context/LanguageContext';
 import { t as translate } from '@/lib/i18n/translations';
 import {
@@ -92,25 +92,73 @@ export function computeRadarDimensionScore(
   activeTags: string[],
   tagIntensities: Record<string, number>,
   taxonomyId?: string,
+  customFlavors?: CustomFlavorDescriptor[]
 ): number {
   const dimDescriptors = taxonomyId
-    ? getDescriptorsByCategory(taxonomyId)
-    : getDescriptorsByRadarDimension(dimKey);
+    ? getDescriptorsByCategory(taxonomyId, customFlavors)
+    : getDescriptorsByRadarDimension(dimKey, customFlavors);
   const activeForDim = dimDescriptors.filter((d) => isTagSelected(d, activeTags));
 
-  if (activeForDim.length === 0) {
+  // Find any active tags that map to this category/dimension via getCategoryByDescriptorId
+  const matchedDescriptorTags = new Set<string>();
+  activeForDim.forEach((d) => {
+    activeTags.forEach((t) => {
+      if (
+        t.toLowerCase() === d.id.toLowerCase() ||
+        t.toLowerCase() === d.name.EN.toLowerCase() ||
+        t.toLowerCase() === d.name.DE.toLowerCase() ||
+        (d.aliases && d.aliases.some((a) => a.toLowerCase() === t.toLowerCase()))
+      ) {
+        matchedDescriptorTags.add(t.toLowerCase());
+      }
+    });
+  });
+
+  const additionalUnmatchedForDim = activeTags.filter((t) => {
+    if (matchedDescriptorTags.has(t.toLowerCase())) return false;
+    const cat = getCategoryByDescriptorId(t, customFlavors);
+    if (cat) {
+      if (taxonomyId && cat.id === taxonomyId) return true;
+      if (
+        !taxonomyId &&
+        (cat.radarDimension === dimKey ||
+          (dimKey === 'cereal' && cat.id === 'suesse') ||
+          (dimKey === 'woody' && cat.id === 'holzig'))
+      ) {
+        return true;
+      }
+    }
+    return false;
+  });
+
+  if (activeForDim.length === 0 && additionalUnmatchedForDim.length === 0) {
     return 0;
   }
 
-  const scores = activeForDim.map((d) => {
+  const scores: number[] = [];
+
+  activeForDim.forEach((d) => {
     const tagName = d.name.EN;
     const deName = d.name.DE;
-    return (
+    const matchedTag = activeTags.find(
+      (t) =>
+        t.toLowerCase() === d.id.toLowerCase() ||
+        t.toLowerCase() === d.name.EN.toLowerCase() ||
+        t.toLowerCase() === d.name.DE.toLowerCase() ||
+        (d.aliases && d.aliases.some((a) => a.toLowerCase() === t.toLowerCase()))
+    );
+
+    const val =
+      (matchedTag ? tagIntensities[matchedTag] : undefined) ??
       tagIntensities[tagName] ??
       tagIntensities[deName] ??
       tagIntensities[d.id] ??
-      5
-    );
+      5;
+    scores.push(val);
+  });
+
+  additionalUnmatchedForDim.forEach((t) => {
+    scores.push(tagIntensities[t] ?? 5);
   });
 
   const sum = scores.reduce((a, b) => a + b, 0);
@@ -605,9 +653,10 @@ export function FlavorRadarChart({
         ) : (
           <div className="w-full flex flex-col items-center gap-3">
             <div className="w-full h-[380px] xs:h-[400px] sm:h-[500px] md:h-[580px] lg:h-[640px] flex items-center justify-center relative">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 500, height: 500 }}>
                 <RadarChart
                   data={chartData}
+                  innerRadius={isMobile ? 32 : 40}
                   outerRadius={isMobile ? '92%' : '88%'}
                   margin={
                     isMobile
@@ -765,59 +814,66 @@ export function FlavorRadarChart({
                           }}
                         >
                           {/* ─── Active Spotlight Measuring Spoke with Scale Notches & Clean Numeric Flavor Beads ─── */}
-                          {isSelected && (
-                            <g className="pointer-events-none">
-                              {/* 1. Glowing Continuous Beam from Center (0) to Perimeter (10) */}
-                              <line
-                                x1={cRelX}
-                                y1={cRelY}
-                                x2={tipRelX}
-                                y2={tipRelY}
-                                stroke="var(--brass-accent)"
-                                strokeWidth={3}
-                                strokeLinecap="round"
-                                strokeOpacity={0.95}
-                                className="drop-shadow-md"
-                              />
+                          {isSelected && (() => {
+                            const innerR = isMobile ? 32 : 40;
+                            const u0 = Math.min(innerR / len, 0.4);
+                            const beamStartX = cRelX + u0 * (tipRelX - cRelX);
+                            const beamStartY = cRelY + u0 * (tipRelY - cRelY);
 
-                              {/* 2. Precision Scale Notches at 2.5, 5.0, 7.5 / 10 with mini numbers */}
-                              {[2.5, 5.0, 7.5].map((v) => {
-                                const t = v / 10;
-                                const nx = cRelX + t * (tipRelX - cRelX);
-                                const ny = cRelY + t * (tipRelY - cRelY);
-                                return (
-                                  <g key={`notch-${v}`}>
-                                    <line
-                                      x1={nx - uy * 4}
-                                      y1={ny + ux * 4}
-                                      x2={nx + uy * 4}
-                                      y2={ny - ux * 4}
-                                      stroke="var(--brass-accent)"
-                                      strokeWidth={1.5}
-                                      strokeOpacity={0.8}
-                                    />
-                                    <text
-                                      x={nx + uy * 8}
-                                      y={ny - ux * 8}
-                                      textAnchor="middle"
-                                      dominantBaseline="central"
-                                      fontSize="7.5"
-                                      fontWeight="bold"
-                                      fill="var(--sepia-muted)"
-                                      opacity={0.85}
-                                      className="select-none font-mono"
-                                    >
-                                      {v}
-                                    </text>
-                                  </g>
-                                );
-                              })}
+                            return (
+                              <g className="pointer-events-none">
+                                {/* 1. Glowing Continuous Beam from Inner Baseline (0) to Perimeter (10) */}
+                                <line
+                                  x1={beamStartX}
+                                  y1={beamStartY}
+                                  x2={tipRelX}
+                                  y2={tipRelY}
+                                  stroke="var(--brass-accent)"
+                                  strokeWidth={3}
+                                  strokeLinecap="round"
+                                  strokeOpacity={0.95}
+                                  className="drop-shadow-md"
+                                />
 
-                              {/* 3. Individual Clean Flavor Beads on the active measuring line */}
-                              {clusteredBeads.map((cluster, cIdx) => {
-                                const t = Math.min(Math.max(cluster.intensity / 10, 0.08), 0.95);
-                                const bx = cRelX + t * (tipRelX - cRelX);
-                                const by = cRelY + t * (tipRelY - cRelY);
+                                {/* 2. Precision Scale Notches at 0, 2.5, 5.0, 7.5 / 10 with mini numbers */}
+                                {[0, 2.5, 5.0, 7.5].map((v) => {
+                                  const t = u0 + (v / 10) * (1 - u0);
+                                  const nx = cRelX + t * (tipRelX - cRelX);
+                                  const ny = cRelY + t * (tipRelY - cRelY);
+                                  return (
+                                    <g key={`notch-${v}`}>
+                                      <line
+                                        x1={nx - uy * 4}
+                                        y1={ny + ux * 4}
+                                        x2={nx + uy * 4}
+                                        y2={ny - ux * 4}
+                                        stroke="var(--brass-accent)"
+                                        strokeWidth={1.5}
+                                        strokeOpacity={0.8}
+                                      />
+                                      <text
+                                        x={nx + uy * 8}
+                                        y={ny - ux * 8}
+                                        textAnchor="middle"
+                                        dominantBaseline="central"
+                                        fontSize="7.5"
+                                        fontWeight="bold"
+                                        fill="var(--sepia-muted)"
+                                        opacity={0.85}
+                                        className="select-none font-mono"
+                                      >
+                                        {v}
+                                      </text>
+                                    </g>
+                                  );
+                                })}
+
+                                {/* 3. Individual Clean Flavor Beads on the active measuring line */}
+                                {clusteredBeads.map((cluster, cIdx) => {
+                                  const tNorm = Math.min(Math.max(cluster.intensity / 10, 0), 0.98);
+                                  const t = u0 + tNorm * (1 - u0);
+                                  const bx = cRelX + t * (tipRelX - cRelX);
+                                  const by = cRelY + t * (tipRelY - cRelY);
 
                                 const hasNose = cluster.notes.some((n) => n.sensoryType === 'nose');
                                 const hasTaste = cluster.notes.some((n) => n.sensoryType === 'taste');
@@ -881,7 +937,8 @@ export function FlavorRadarChart({
                                 );
                               })}
                             </g>
-                          )}
+                          );
+                        })()}
 
                           {/* Mobile: Pure Category Emoji (Borderless & Enlarged) */}
                           <g className="sm:hidden">
@@ -920,6 +977,7 @@ export function FlavorRadarChart({
                   <PolarRadiusAxis
                     angle={30}
                     domain={[0, 10]}
+                    ticks={[0, 2.5, 5, 7.5, 10]}
                     tick={false}
                     axisLine={false}
                   />
@@ -1125,9 +1183,19 @@ export function DynamicProfileSliders({
     }
   });
 
-  // Collect any custom or uncategorized tags
+  // Ensure any unmapped tags fallback into a canonical category rather than an isolated section
   const categorizedTagSet = new Set(categoriesWithTags.flatMap((c) => c.tags));
-  const uncategorizedTags = activeTags.filter((t) => !categorizedTagSet.has(t));
+  const remainingTags = activeTags.filter((t) => !categorizedTagSet.has(t));
+  if (remainingTags.length > 0) {
+    const fallbackCategory =
+      SPIRIT_FLAVOR_TAXONOMY.find((c) => c.id === 'fruchtig') ?? SPIRIT_FLAVOR_TAXONOMY[0];
+    const existingGroup = categoriesWithTags.find((c) => c.category.id === fallbackCategory.id);
+    if (existingGroup) {
+      existingGroup.tags.push(...remainingTags);
+    } else {
+      categoriesWithTags.push({ category: fallbackCategory, tags: remainingTags });
+    }
+  }
 
   return (
     <div className={cn('flex flex-col gap-3 w-full', className)}>
@@ -1194,54 +1262,6 @@ export function DynamicProfileSliders({
             </div>
           );
         })}
-
-        {/* Fallback group for custom tags */}
-        {uncategorizedTags.length > 0 && (
-          <div className="flex flex-col gap-2 bg-[var(--parchment-bg)] border border-[var(--parchment-border)] rounded-lg p-2.5 sm:p-3 shadow-2xs">
-            <div className="flex items-center justify-between border-b border-[var(--parchment-border)]/50 pb-1 px-0.5">
-              <span className="font-display font-bold text-xs uppercase tracking-wider text-[var(--sepia-text)]">
-                {language === 'DE' ? 'Weitere Aromen' : 'Additional Notes'}
-              </span>
-              <span className="text-[11px] font-bold text-[var(--sepia-muted)]">
-                {uncategorizedTags.length}
-              </span>
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              {uncategorizedTags.map((tagName) => {
-                const val = tagIntensities[tagName] ?? 5;
-                const displayTagName = translateFlavorTag(tagName, language);
-
-                return (
-                  <div
-                    key={tagName}
-                    className="grid grid-cols-[90px_1fr_24px] sm:grid-cols-[130px_1fr_28px] items-center gap-2 sm:gap-3 bg-[var(--parchment-bg)] px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-md border border-[var(--parchment-border)]/50"
-                  >
-                    <span
-                      className="font-body text-xs sm:text-[13px] font-bold text-[var(--sepia-text)] truncate"
-                      title={displayTagName}
-                    >
-                      {displayTagName}
-                    </span>
-                    <input
-                      type="range"
-                      min={0}
-                      max={10}
-                      step={1}
-                      value={val}
-                      onChange={(e) => onIntensityChange(tagName, Number(e.target.value))}
-                      className={cn('h-2 rounded-full cursor-pointer w-full touch-none bg-[var(--parchment-border)]/60 accent-[var(--wood-selection)]', accentClass)}
-                      aria-label={`${title} ${tagName}`}
-                    />
-                    <span className={cn('text-right text-xs sm:text-sm font-bold', valueColorClass)}>
-                      {val}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

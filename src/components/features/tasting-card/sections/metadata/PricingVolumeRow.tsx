@@ -80,7 +80,7 @@ export function PricingVolumeRow({
               value={volumeMl ?? ''}
               placeholder="ml"
               onChange={(e) => onChangeVolume(e.target.value ? parseInt(e.target.value, 10) : undefined)}
-              className="w-16 bg-transparent pb-1 text-sm sm:text-base text-[var(--sepia-text)] font-mono font-bold focus:outline-none text-right placeholder:text-[var(--sepia-muted)]/50"
+              className="w-16 bg-transparent pb-1 text-sm sm:text-base text-[var(--sepia-text)] font-mono font-normal focus:outline-none text-right placeholder:text-[var(--placeholder-text)] placeholder:italic placeholder:font-light"
             />
           )}
         </div>
@@ -99,13 +99,13 @@ export function PricingVolumeRow({
             value={price ?? ''}
             placeholder="0.00"
             onChange={(e) => onChangePrice(e.target.value ? Number(e.target.value) : undefined)}
-            className="w-full bg-transparent pb-1 text-sm sm:text-base text-[var(--sepia-text)] font-body focus:outline-none placeholder:text-[var(--parchment-border)]"
+            className="w-full bg-transparent pb-1 text-sm sm:text-base text-[var(--sepia-text)] font-body font-normal focus:outline-none placeholder:text-[var(--placeholder-text)] placeholder:italic placeholder:font-light"
           />
           <select
             id="currency-select"
             value={currency ?? '€'}
             onChange={(e) => onChangeCurrency(e.target.value as Currency)}
-            className="bg-transparent text-sm sm:text-base text-[var(--sepia-light)] font-body font-bold focus:outline-none cursor-pointer border-none pb-1 pr-0.5"
+            className="bg-transparent text-sm sm:text-base text-[var(--sepia-light)] font-body font-medium focus:outline-none cursor-pointer border-none pb-1 pr-0.5"
             aria-label="Currency"
           >
             {SUPPORTED_CURRENCIES.map((curr) => (

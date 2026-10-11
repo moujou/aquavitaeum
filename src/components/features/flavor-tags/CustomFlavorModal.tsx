@@ -153,7 +153,7 @@ function CustomFlavorDialog({
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder={t('flavorNamePlaceholder')}
-                  className="w-full bg-white/70 dark:bg-black/20 border border-[var(--parchment-border)] rounded-lg px-3.5 py-2.5 text-sm sm:text-base font-body text-[var(--foreground)] focus:outline-none focus:border-[var(--wood-selection)] placeholder:text-[var(--parchment-border)] transition-colors shadow-inner"
+                  className="w-full bg-white/70 dark:bg-black/20 border border-[var(--parchment-border)] rounded-lg px-3.5 py-2.5 text-sm sm:text-base font-body text-[var(--foreground)] focus:outline-none focus:border-[var(--wood-selection)] placeholder:text-[var(--placeholder-text)] transition-colors shadow-inner"
                   required
                 />
               </div>

@@ -135,7 +135,7 @@ export function ProductionCharacteristicsSelector({
               }}
               onBlur={handleAddCustom}
               placeholder={t('customCharacteristicPlaceholder')}
-              className="bg-transparent text-xs sm:text-[13px] font-body text-[var(--sepia-text)] focus:outline-none w-full sm:w-44 max-w-[calc(100vw-140px)] placeholder:text-[var(--parchment-border)] placeholder:truncate"
+              className="bg-transparent text-xs sm:text-[13px] font-body font-normal text-[var(--sepia-text)] focus:outline-none w-full sm:w-44 max-w-[calc(100vw-140px)] placeholder:text-[var(--placeholder-text)] placeholder:italic placeholder:font-light placeholder:truncate"
             />
             <button
               type="button"

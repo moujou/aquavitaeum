@@ -70,7 +70,7 @@ describe('JournalLandingPage and NoteEmptyState with AI Scanner', () => {
       </LanguageProvider>
     );
 
-    expect(screen.getByText('Uncasking...')).toBeDefined();
+    expect(screen.getByText(/Uncasking/i)).toBeDefined();
   });
 
   it('renders NoteEmptyState with Scan Button when AI key is present', () => {

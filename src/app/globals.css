@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap');
 @import "tailwindcss";
 
 @custom-variant dark (&:where([data-theme="pub-dark"], [data-theme="pub-dark"] *));
@@ -12,11 +12,11 @@
   --nav-bg:          #ECE5D8;   /* Nahtlose schwebende Navigation */
 
   /* ── Structural Secondary & Accent Color (Irish Clover Green) ────────── */
-  --wood-accent:     #2E945D;   /* Klee-Grün als tragende Strukturfarbe */
-  --wood-light:      #3AB472;   /* Helleres Klee-Grün */
-  --wood-dark:       #237347;   /* Tiefes Klee-Grün */
-  --wood-selection:  #2E945D;   /* Signature Clover Green für aktive Toggles & Auswahlen */
-  --nav-active:      #2E945D;   /* Signature Clover Green für aktive Navigation */
+  --wood-accent:     #237347;   /* Einheitliches Pub-Waldgrün für Buttons & Struktur */
+  --wood-light:      #1E633C;   /* Sanfterer Wood Trim / Hover */
+  --wood-dark:       #237347;   /* Tiefes Klee-Grün für Topper & Header */
+  --wood-selection:  #237347;   /* Einheitliches Grün für aktive Toggles & Auswahlen */
+  --nav-active:      #237347;   /* Einheitliches Grün für aktive Navigation */
   --nav-inactive:    #8A7360;   /* Muted Warm Sepia Slate */
 
   /* ── Sensory Profiling Radar Palette ─────────────────────────────────── */
@@ -40,16 +40,17 @@
   --sepia-text:  #2B1E14;   /* Warmes Buchbinder-Nussbaum-Sepia (13.8:1 AAA) */
   --sepia-muted: #6D5949;   /* Sekundäre Beschriftungen */
   --sepia-light: #74563E;   /* Sektions-Überschriften (4.7:1 WCAG AA konform auf Parchment) */
+  --placeholder-text: #9E9080; /* Muted warm sepia watermark */
   --foreground:  #2B1E14;   /* Standard-Schrift (organisch, nicht stechend) */
 
   /* ── Action Buttons & Primary CTAs ──────────────────────────────────── */
-  --fab-bg:       #2E945D;              /* Leuchtendes Irisch-Klee */
-  --fab-bg-hover: #237347;              /* Hover-Zustand */
+  --fab-bg:       #237347;              /* Einheitliches Grün für Buttons & CTAs */
+  --fab-bg-hover: #1E633C;              /* Hover-Zustand */
   --fab-text:     #FDFBF7;              /* Helle Elfenbein-Schrift */
   --fab-border:   rgba(255, 209, 102, 0.5); /* Feiner Bernsteingold-Rand */
 
   /* ── Vibrant Irish Clover Green Accent ───────────────────────────────── */
-  --forest-green: #2E945D;   /* Leuchtendes Klee-Grün für Badges & Struktur */
+  --forest-green: #237347;   /* Einheitliches Klee-Grün für Badges & Struktur */
 
   /* ── Library Bookshelf & Leather Book Spine Tokens ─────────────────────── */
   --shelf-wood-top:      #885F3D;   /* Matte warm Irish Oak shelf top */
@@ -107,11 +108,11 @@
   --nav-bg:          #0D1115;   /* Seamless midnight navigation */
 
   /* ── Wood Chrome & Irish Accents ────────────────────────────────────────── */
-  --wood-accent:     #236E46;   /* Rich deep clover green accent */
-  --wood-light:      #2B8052;   /* Deeper clover trim */
-  --wood-dark:       #1B5436;   /* Deep Irish forest green header wood */
-  --wood-selection:  #236E46;   /* Deeper clover green for active toggles, pills, and tabs */
-  --nav-active:      #287C50;   /* Calmer Clover Green active indicator */
+  --wood-accent:     #185E37;   /* Einheitliches, sattes Irisch-Klee-Grün (1-2 Ticken dunkler) */
+  --wood-light:      #1F7546;   /* Ausgewogener Klee-Grün Hover & Trim */
+  --wood-dark:       #185E37;   /* Einheitliches, sattes Klee-Grün für Topper & Header */
+  --wood-selection:  #185E37;   /* Einheitliches Klee-Grün für aktive Toggles, Pills & Tabs */
+  --nav-active:      #185E37;   /* 100% identisches Klee-Grün für die Navigation */
   --nav-inactive:    #8D9BA6;   /* Moonlit slate for inactive tabs */
 
   /* ── Sensory Profiling Radar Palette ─────────────────────────────────── */
@@ -135,18 +136,19 @@
   --sepia-text:  #F5EFE1;   /* Warm Ivory typography (14.5:1 AAA contrast) */
   --sepia-muted: #8D9BA6;   /* Moonlit Slate secondary labels (5.8:1 AA) */
   --sepia-light: #B4C0C9;   /* Light moonlit slate */
+  --placeholder-text: #68737D; /* Subdued moonlit slate guide ink (~2.0:1) */
 
   /* ── Foreground (Dark Surface Text) ─────────────────────────────────────── */
   --foreground:  #F5EFE1;
 
   /* ── Floating Action Buttons & Primary CTAs ─────────────────────────────── */
-  --fab-bg:       #236E46;   /* Deep clover green CTA */
-  --fab-bg-hover: #2B8052;
+  --fab-bg:       #185E37;   /* Einheitliches Klee-Grün für Buttons & CTAs */
+  --fab-bg-hover: #1F7546;
   --fab-text:     #FDFBF7;   /* Crisp ivory white button text and icons */
   --fab-border:   rgba(229, 150, 50, 0.5); /* Amber brass ring */
 
   /* ── Forest Green Accent (Badges & Placeholders) ────────────────────────── */
-  --forest-green: #287C50;
+  --forest-green: #185E37;
 
   /* ── Library Bookshelf & Leather Book Spine Tokens ─────────────────────── */
   --shelf-wood-top:      #261F1A;
@@ -202,6 +204,15 @@
 html {
   font-family: 'Inter', system-ui, sans-serif;
   scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+input, textarea, select {
+  font-family: inherit;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
@@ -382,14 +393,27 @@ body {
   color: var(--fab-text);
 }
 
+/* ─── Global Input & Textarea Placeholder Defaults ───────────────────────── */
+input::placeholder,
+textarea::placeholder {
+  color: var(--placeholder-text);
+  font-style: italic;
+  font-weight: 300;
+  opacity: 0.85;
+}
+
 /* Parchment text input — transparent underline inputs on the tasting card */
 .input-parchment {
   background: transparent;
   border-bottom: 1px solid var(--parchment-border);
   color: var(--sepia-text);
+  font-weight: 400;
 }
 .input-parchment::placeholder {
-  color: var(--parchment-border);
+  color: var(--placeholder-text);
+  font-style: italic;
+  font-weight: 300;
+  opacity: 0.85;
 }
 .input-parchment:focus {
   border-bottom-color: var(--sepia-muted);

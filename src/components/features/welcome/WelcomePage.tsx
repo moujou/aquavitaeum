@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useGoogleDriveSync } from '@/hooks/useGoogleDriveSync';
 import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
-import { X, RefreshCw } from 'lucide-react';
+import { X, RefreshCw, BookOpen } from 'lucide-react';
 
 interface WelcomePageProps {
   hasJournals: boolean;
@@ -273,75 +273,84 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
 
       {/* Creation Modal Popup */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fade-in p-4">
-          <div className="w-full max-w-md bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] rounded-2xl p-6 sm:p-8 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-[var(--parchment-border)]/60 pb-3 mb-5">
-              <h3 className="font-display text-base sm:text-lg font-bold text-[var(--foreground)] uppercase tracking-wider">
-                {t('createFirstJournal')}
-              </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in p-4">
+          <div className="relative w-full max-w-md bg-[var(--parchment-bg)] border border-[var(--parchment-border)] rounded-2xl shadow-2xl overflow-hidden flex flex-col my-auto max-h-[90dvh]">
+            {/* Modal Top Header (Unified Irish Pub Standard) */}
+            <div className="flex items-center justify-between px-5 py-3.5 bg-[var(--wood-dark)] text-white border-b border-black/10 shadow-sm shrink-0 gap-3">
+              <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                <BookOpen className="w-5 h-5 text-amber-200 shrink-0" />
+                <h3 className="font-display text-base sm:text-lg font-bold text-white drop-shadow-xs uppercase tracking-wider">
+                  {t('createFirstJournal')}
+                </h3>
+              </div>
               <button
+                type="button"
                 onClick={() => {
                   setIsModalOpen(false);
                   setName('');
                   setDescription('');
                 }}
-                className="p-1 rounded hover:bg-black/5 text-[var(--sepia-muted)] hover:text-[var(--foreground)] transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-lg text-white/80 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 transition-all cursor-pointer shadow-xs flex items-center justify-center active:scale-95 shrink-0"
+                title={t('cancel')}
+                aria-label={t('cancel')}
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-body text-[var(--sepia-muted)] mb-2 tracking-wider">
-                  {t('journalNameLabel')}
-                </label>
-                <input
-                  type="text"
-                  required
-                  autoFocus
-                  maxLength={40}
-                  placeholder={t('journalNamePlaceholder')}
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full h-11 px-3 rounded-lg bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/60 font-body text-sm focus:outline-none focus:border-[var(--brass-accent)] mb-4"
-                />
-              </div>
+            <div className="p-5 sm:p-6 overflow-y-auto flex-1">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-body text-[var(--sepia-muted)] mb-2 tracking-wider">
+                    {t('journalNameLabel')}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    autoFocus
+                    maxLength={40}
+                    placeholder={t('journalNamePlaceholder')}
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full h-11 px-3 rounded-lg bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--placeholder-text)] font-body text-sm focus:outline-none focus:border-[var(--brass-accent)] mb-4"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-xs font-body text-[var(--sepia-muted)] mb-2 tracking-wider">
-                  {t('descriptionOptionalLabel')}
-                </label>
-                <input
-                  type="text"
-                  maxLength={120}
-                  placeholder={t('journalDescriptionPlaceholder')}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full h-11 px-3 rounded-lg bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/60 font-body text-sm focus:outline-none focus:border-[var(--brass-accent)]"
-                />
-              </div>
+                <div>
+                  <label className="block text-xs font-body text-[var(--sepia-muted)] mb-2 tracking-wider">
+                    {t('descriptionOptionalLabel')}
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={120}
+                    placeholder={t('journalDescriptionPlaceholder')}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="w-full h-11 px-3 rounded-lg bg-[var(--pub-bg)] border border-[var(--parchment-border)] text-[var(--foreground)] placeholder:text-[var(--placeholder-text)] font-body text-sm focus:outline-none focus:border-[var(--brass-accent)]"
+                  />
+                </div>
 
-              <div className="flex justify-end gap-2.5 pt-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsModalOpen(false);
-                    setName('');
-                    setDescription('');
-                  }}
-                  className="min-h-[44px] px-4 rounded-lg bg-[var(--pub-bg-alt)] hover:bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] text-[var(--sepia-muted)] hover:text-[var(--foreground)] text-sm font-semibold transition-colors cursor-pointer"
-                >
-                  {t('cancel')}
-                </button>
-                <button
-                  type="submit"
-                  className="min-h-[44px] px-5 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] text-[var(--fab-text)] font-semibold text-sm transition-all cursor-pointer shadow-md active:scale-[0.98]"
-                >
-                  {t('createJournalBtn')}
-                </button>
-              </div>
-            </form>
+                <div className="flex justify-end gap-2.5 pt-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsModalOpen(false);
+                      setName('');
+                      setDescription('');
+                    }}
+                    className="min-h-[44px] px-4 rounded-lg bg-[var(--pub-bg-alt)] hover:bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] text-[var(--sepia-muted)] hover:text-[var(--foreground)] text-sm font-semibold transition-colors cursor-pointer"
+                  >
+                    {t('cancel')}
+                  </button>
+                  <button
+                    type="submit"
+                    className="min-h-[44px] px-5 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] text-[var(--fab-text)] font-semibold text-sm transition-all cursor-pointer shadow-md active:scale-[0.98]"
+                  >
+                    {t('createJournalBtn')}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}

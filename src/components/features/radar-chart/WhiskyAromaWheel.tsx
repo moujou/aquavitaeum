@@ -2,11 +2,16 @@
 
 import React, { useState, useMemo } from 'react';
 import { PieChart, Sparkles } from 'lucide-react';
+import { CustomFlavorDescriptor } from '@/types/spirit.types';
 import {
   SPIRIT_FLAVOR_TAXONOMY,
   FlavorCategory,
   FlavorSubcategory,
   FlavorDescriptor,
+  getStoredCustomFlavors,
+  findFlavorDescriptor,
+  getCategoryByDescriptorId,
+  RADAR_DIMENSION_COLORS,
 } from '@/data/spirit-flavor-taxonomy';
 import { isTagSelected } from '@/components/features/flavor-tags/FlavorTagSelector';
 import { useLanguage } from '@/context/LanguageContext';
@@ -179,8 +184,10 @@ export interface ActiveCategoryData {
 
 export function computeActiveCategoriesData(
   activeTags: string[],
-  tagIntensities: Record<string, number>
+  tagIntensities: Record<string, number>,
+  customFlavors?: CustomFlavorDescriptor[]
 ): ActiveCategoryData[] {
+  const customList = customFlavors ?? getStoredCustomFlavors();
   return SPIRIT_FLAVOR_TAXONOMY.map((cat) => {
     const activeDescriptorsInCat: {
       descriptor: FlavorDescriptor;
@@ -196,6 +203,8 @@ export function computeActiveCategoriesData(
         intensity: number;
       }[];
     }[] = [];
+
+    const matchedActiveTags = new Set<string>();
 
     cat.subcategories.forEach((sub) => {
       const activeInSub: {
@@ -215,6 +224,10 @@ export function computeActiveCategoriesData(
               t.toLowerCase() === desc.name.DE.toLowerCase() ||
               (desc.aliases && desc.aliases.some((a) => a.toLowerCase() === t.toLowerCase()))
           );
+
+          if (matchedTag) {
+            matchedActiveTags.add(matchedTag.toLowerCase());
+          }
 
           const intensity =
             (matchedTag ? tagIntensities[matchedTag] : undefined) ??
@@ -240,6 +253,61 @@ export function computeActiveCategoriesData(
         });
       }
     });
+
+    // Check for any active custom flavors or unmapped tags that belong to this category
+    const remainingInCat = activeTags.filter((tag) => {
+      if (matchedActiveTags.has(tag.toLowerCase())) return false;
+      const catForTag = getCategoryByDescriptorId(tag, customList);
+      return catForTag?.id === cat.id;
+    });
+
+    if (remainingInCat.length > 0) {
+      const customSubcat: FlavorSubcategory = {
+        id: `${cat.id}_custom`,
+        name: { EN: cat.name.EN, DE: cat.name.DE },
+        descriptors: [],
+      };
+      const activeInCustomSub: {
+        descriptor: FlavorDescriptor;
+        subcategory: FlavorSubcategory;
+        intensity: number;
+      }[] = [];
+
+      remainingInCat.forEach((tag) => {
+        matchedActiveTags.add(tag.toLowerCase());
+        const found = findFlavorDescriptor(tag, customList);
+        const desc: FlavorDescriptor = found ?? {
+          id: tag.toLowerCase().replace(/\s+/g, '_'),
+          name: { EN: tag, DE: tag },
+          radarDimension: cat.radarDimension,
+          color: RADAR_DIMENSION_COLORS[cat.radarDimension] ?? '#C59B27',
+          aliases: [tag],
+        };
+
+        const intensity =
+          tagIntensities[tag] ??
+          tagIntensities[desc.id] ??
+          tagIntensities[desc.name.EN] ??
+          tagIntensities[desc.name.DE] ??
+          5;
+
+        const item = {
+          descriptor: desc,
+          subcategory: customSubcat,
+          intensity,
+        };
+        activeDescriptorsInCat.push(item);
+        activeInCustomSub.push(item);
+        customSubcat.descriptors.push(desc);
+      });
+
+      if (activeInCustomSub.length > 0) {
+        activeSubcats.push({
+          subcategory: customSubcat,
+          activeDescriptors: activeInCustomSub,
+        });
+      }
+    }
 
     return {
       category: cat,

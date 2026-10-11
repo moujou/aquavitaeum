@@ -292,19 +292,17 @@ export function JournalBookshelfView({
                       >
                         <Edit3 className="w-3.5 h-3.5 text-amber-200" />
                       </button>
-                      {!isDefault && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onStartDelete(journal.id);
-                          }}
-                          className="p-1.5 rounded-md bg-black/80 hover:bg-red-950 text-red-300 hover:text-red-100 transition-all cursor-pointer shadow-md border border-red-400/40 active:scale-90"
-                          title={language === 'DE' ? 'Löschen' : 'Delete'}
-                        >
-                          <Trash2 className="w-3.5 h-3.5 text-red-300" />
-                        </button>
-                      )}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onStartDelete(journal.id);
+                        }}
+                        className="p-1.5 rounded-md bg-black/80 hover:bg-red-950 text-red-300 hover:text-red-100 transition-all cursor-pointer shadow-md border border-red-400/40 active:scale-90"
+                        title={language === 'DE' ? 'Löschen' : 'Delete'}
+                      >
+                        <Trash2 className="w-3.5 h-3.5 text-red-300" />
+                      </button>
                     </div>
                   )}
                 </div>

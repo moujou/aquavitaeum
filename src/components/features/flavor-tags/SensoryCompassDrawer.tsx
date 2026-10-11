@@ -269,7 +269,7 @@ export function SensoryCompassDrawer({
                   ? 'Aromen durchsuchen (z.B. Banane, Vanille, Honig, Karamell, Malz, Rauch, Eiche)...'
                   : 'Search aromas (e.g. Banana, Vanilla, Honey, Caramel, Malt, Smoke, Oak)...'
               }
-              className="bg-transparent border-none text-xs sm:text-sm text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/70 focus:outline-none focus:ring-0 focus-within:ring-0 w-full pr-8 font-body"
+              className="bg-transparent border-none text-xs sm:text-sm text-[var(--foreground)] placeholder:text-[var(--placeholder-text)] focus:outline-none focus:ring-0 focus-within:ring-0 w-full pr-8 font-body"
             />
             {searchQuery && (
               <button

@@ -1,13 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useRef } from 'react';
 import {
   Barcode,
   Camera,
+  Upload,
   Info,
   AlertCircle,
-  SwitchCamera,
-  X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Language } from '@/lib/i18n/translations';
@@ -17,12 +16,13 @@ interface ScanBarcodeTabProps {
   barcodeQuery: string;
   onBarcodeChange: (digits: string) => void;
   onSubmit: (e?: React.FormEvent) => void;
-  isCameraActive: boolean;
-  cameraError: string | null;
-  videoRef: React.RefObject<HTMLVideoElement | null>;
-  onStartCamera: () => void;
-  onStopCamera: () => void;
-  onToggleCameraFacing: () => void;
+  onFileSelect?: (file: File) => void;
+  isCameraActive?: boolean;
+  cameraError?: string | null;
+  videoRef?: React.RefObject<HTMLVideoElement | null>;
+  onStartCamera?: () => void;
+  onStopCamera?: () => void;
+  onToggleCameraFacing?: () => void;
 }
 
 export function ScanBarcodeTab({
@@ -30,77 +30,51 @@ export function ScanBarcodeTab({
   barcodeQuery,
   onBarcodeChange,
   onSubmit,
-  isCameraActive,
-  cameraError,
-  videoRef,
+  onFileSelect,
+  cameraError = null,
   onStartCamera,
-  onStopCamera,
-  onToggleCameraFacing,
 }: ScanBarcodeTabProps) {
-  if (isCameraActive) {
-    return (
-      <div className="flex flex-col gap-3.5 w-full animate-fade-in py-1">
-        <div className="relative w-full h-64 sm:h-72 rounded-2xl overflow-hidden bg-black border-2 border-[var(--forest-green)] shadow-lg flex items-center justify-center">
-          <video
-            ref={videoRef}
-            playsInline
-            muted
-            autoPlay
-            className="w-full h-full object-cover"
-          />
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-          {/* Aiming Reticle Frame with Soft Dimmed Vignette */}
-          <div className="absolute inset-x-8 inset-y-8 sm:inset-x-16 sm:inset-y-10 border-2 border-dashed border-[var(--brass-accent)]/90 rounded-xl pointer-events-none flex flex-col justify-center items-center shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]">
-            {/* Animated Laser Beam */}
-            <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-emerald-400 to-transparent shadow-[0_0_12px_#34d399] animate-pulse" />
-          </div>
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && onFileSelect) onFileSelect(file);
+    e.target.value = '';
+  };
 
-          {/* Top Status Pill */}
-          <div className="absolute top-3 inset-x-0 flex justify-center pointer-events-none">
-            <span className="px-3.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-white text-xs font-mono font-semibold flex items-center gap-2 border border-white/20 shadow-md">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-              {language === 'DE'
-                ? 'Barcode im Zielrahmen zentrieren...'
-                : 'Align barcode within target frame...'}
-            </span>
-          </div>
+  const handleCameraClick = () => {
+    onStartCamera?.();
+    cameraInputRef.current?.click();
+  };
 
-          {/* Switch Camera Button (Front/Back) */}
-          <button
-            type="button"
-            onClick={onToggleCameraFacing}
-            className="absolute top-3 right-3 p-2 rounded-xl bg-black/60 text-white hover:bg-black/80 border border-white/20 backdrop-blur-sm cursor-pointer transition-all shadow-xs"
-            title={language === 'DE' ? 'Kamera wechseln' : 'Switch camera'}
-          >
-            <SwitchCamera size={18} />
-          </button>
-
-          {/* Bottom Close Camera Scanner Button */}
-          <button
-            type="button"
-            onClick={onStopCamera}
-            className="absolute bottom-3 inset-x-auto px-4 py-1.5 rounded-full bg-black/80 text-white hover:bg-black border border-white/25 text-xs font-semibold backdrop-blur-sm cursor-pointer shadow-md transition-all active:scale-95 flex items-center gap-1.5"
-          >
-            <X size={14} />
-            <span>{language === 'DE' ? 'Kamera schließen' : 'Close camera'}</span>
-          </button>
-        </div>
-
-        {/* Live Camera Tip */}
-        <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] text-xs text-[var(--sepia-text)] shadow-xs">
-          <span className="text-amber-500 font-bold shrink-0">💡 {language === 'DE' ? 'Tipp:' : 'Tip:'}</span>
-          <span>
-            {language === 'DE'
-              ? 'Halte den Flaschen-Barcode parallel zur Kamera. Bei ausreichendem Licht wird der Code automatisch erfasst.'
-              : 'Hold the barcode level with the camera. In sufficient lighting, it will be detected automatically.'}
-          </span>
-        </div>
-      </div>
-    );
-  }
+  const handleFileClick = () => {
+    fileInputRef.current?.click();
+  };
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col justify-between flex-1 gap-4 w-full py-1 animate-fade-in">
+      {/* Hidden native camera capture input (Switches to phone's native camera app) */}
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        onChange={handleInputChange}
+        className="hidden"
+        id="scan-barcode-camera"
+      />
+
+      {/* Hidden native file/gallery input (Opens phone's photo library/storage) */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/*"
+        onChange={handleInputChange}
+        className="hidden"
+        id="scan-barcode-upload"
+      />
+
       <div className="flex flex-col gap-3">
         <label
           htmlFor="spirit-barcode-query"
@@ -109,58 +83,34 @@ export function ScanBarcodeTab({
           {language === 'DE' ? 'EAN / UPC Barcode-Nummer' : 'EAN / UPC Barcode'}
         </label>
 
-        {/* Search Bar + Clover Green Camera Scanner Button on the right */}
-        <div className="flex items-center gap-2 sm:gap-2.5">
-          {/* Numeric Search Bar */}
-          <div className="relative flex-1 flex items-center bg-[var(--parchment-bg)] border-[1.5px] border-[var(--forest-green)]/45 focus-within:border-[var(--forest-green)] rounded-full px-4 sm:px-5 h-12 transition-all duration-200 shadow-xs focus-within:shadow-[0_2px_14px_rgba(46,148,93,0.20)]">
-            <Barcode size={20} className="text-[var(--forest-green)] mr-2.5 sm:mr-3 flex-shrink-0" />
-            <input
-              id="spirit-barcode-query"
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              maxLength={14}
-              value={barcodeQuery}
-              onChange={(e) => onBarcodeChange(e.target.value.replace(/\D/g, ''))}
-              placeholder={
-                language === 'DE'
-                  ? 'z. B. 5010493015401 (EAN-13)...'
-                  : 'e.g. 5010493015401 (EAN-13)...'
-              }
-              className="w-full bg-transparent text-sm sm:text-base font-mono text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/50 focus:outline-none tracking-wider min-w-0"
-              autoFocus
-            />
-            <button
-              type="submit"
-              data-testid="spirit-barcode-submit-btn"
-              disabled={barcodeQuery.trim().length < 8}
-              className="ml-1 sm:ml-2 px-3.5 sm:px-4 py-2 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] transition-all font-semibold text-xs sm:text-sm shadow-xs cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
-            >
-              {language === 'DE' ? 'Erkennen' : 'Scan'}
-            </button>
-          </div>
-
-          {/* Compact Tier 2 Secondary Camera Button */}
+        {/* 1. Numeric Search Bar */}
+        <div className="relative flex items-center bg-[var(--parchment-bg)] border-[1.5px] border-[var(--forest-green)]/45 focus-within:border-[var(--forest-green)] rounded-full px-4 sm:px-5 h-12 transition-all duration-200 shadow-xs focus-within:shadow-[0_2px_14px_rgba(46,148,93,0.20)]">
+          <Barcode size={20} className="text-[var(--forest-green)] mr-2.5 sm:mr-3 flex-shrink-0" />
+          <input
+            id="spirit-barcode-query"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            maxLength={14}
+            value={barcodeQuery}
+            onChange={(e) => onBarcodeChange(e.target.value.replace(/\D/g, ''))}
+            placeholder={
+              language === 'DE'
+                ? 'z. B. 5010493015401 (EAN-13)...'
+                : 'e.g. 5010493015401 (EAN-13)...'
+            }
+            className="w-full bg-transparent text-sm sm:text-base font-mono text-[var(--foreground)] placeholder:text-[var(--placeholder-text)] focus:outline-none tracking-wider min-w-0"
+            autoFocus
+          />
           <button
-            type="button"
-            onClick={onStartCamera}
-            className="h-12 px-3.5 sm:px-4 rounded-full bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] hover:border-[var(--forest-green)] hover:bg-black/5 text-[var(--sepia-text)] font-semibold text-xs sm:text-sm transition-all duration-200 cursor-pointer shadow-xs active:scale-[0.98] flex items-center gap-1.5 sm:gap-2 shrink-0 select-none"
-            title={language === 'DE' ? 'Kamera-Barcode-Scanner starten' : 'Start Camera Scanner'}
-            aria-label={language === 'DE' ? 'Kamera-Barcode-Scanner starten' : 'Start Camera Scanner'}
+            type="submit"
+            data-testid="spirit-barcode-submit-btn"
+            disabled={barcodeQuery.trim().length < 8}
+            className="ml-1 sm:ml-2 px-3.5 sm:px-4 py-2 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] transition-all font-semibold text-xs sm:text-sm shadow-xs cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
           >
-            <Camera size={17} className="text-[var(--forest-green)] shrink-0" />
-            <span className="hidden sm:inline-block">
-              {language === 'DE' ? 'Kamera' : 'Camera'}
-            </span>
+            {language === 'DE' ? 'Erkennen' : 'Scan'}
           </button>
         </div>
-
-        {cameraError && (
-          <div className="text-xs text-amber-800 dark:text-amber-300 bg-amber-500/10 border border-amber-500/30 p-2.5 rounded-lg flex items-center gap-2 animate-fade-in">
-            <AlertCircle size={14} className="shrink-0" />
-            <span>{cameraError}</span>
-          </div>
-        )}
 
         {/* Digit Counter */}
         <div className="flex items-center justify-between text-xs font-mono text-[var(--sepia-muted)] px-1">
@@ -182,6 +132,56 @@ export function ScanBarcodeTab({
             {barcodeQuery.length} / 13 {language === 'DE' ? 'Ziffern' : 'Digits'}
           </span>
         </div>
+
+        {/* 2. Visual Separator */}
+        <div className="flex items-center gap-3 my-1">
+          <div className="flex-1 h-px bg-[var(--parchment-border)]/60" />
+          <span className="text-[11px] font-body text-[var(--sepia-muted)] uppercase tracking-wider">
+            {language === 'DE' ? 'oder Barcode fotografieren' : 'or photograph barcode'}
+          </span>
+          <div className="flex-1 h-px bg-[var(--parchment-border)]/60" />
+        </div>
+
+        {/* 3. Action Buttons: Exact same styling and behavior as SpiritPhotoCarousel */}
+        <div className="flex items-center justify-center gap-3 flex-wrap">
+          <button
+            type="button"
+            onClick={handleCameraClick}
+            data-testid="start-barcode-camera-btn"
+            className={cn(
+              'flex items-center gap-2 px-4.5 py-2.5 rounded-full border border-[var(--parchment-border)]',
+              'bg-[var(--pub-bg-panel)] text-[var(--sepia-text)] text-xs sm:text-sm font-body font-medium',
+              'hover:bg-[var(--pub-bg-alt)] transition-all cursor-pointer shadow-xs active:scale-95'
+            )}
+            title={language === 'DE' ? 'Kamera' : 'Camera'}
+            aria-label={language === 'DE' ? 'Kamera' : 'Camera'}
+          >
+            <Camera size={16} className="text-[var(--forest-green)]" />
+            <span>{language === 'DE' ? 'Kamera' : 'Camera'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleFileClick}
+            className={cn(
+              'flex items-center gap-2 px-4.5 py-2.5 rounded-full border border-[var(--parchment-border)]',
+              'bg-[var(--pub-bg-panel)] text-[var(--sepia-text)] text-xs sm:text-sm font-body font-medium',
+              'hover:bg-[var(--pub-bg-alt)] transition-all cursor-pointer shadow-xs active:scale-95'
+            )}
+            title={language === 'DE' ? 'Foto hochladen' : 'Upload photo'}
+            aria-label={language === 'DE' ? 'Foto hochladen' : 'Upload photo'}
+          >
+            <Upload size={16} className="text-[var(--forest-green)]" />
+            <span>{language === 'DE' ? 'Foto hochladen' : 'Upload photo'}</span>
+          </button>
+        </div>
+
+        {cameraError && (
+          <div className="text-xs text-amber-800 dark:text-amber-300 bg-amber-500/10 border border-amber-500/30 p-2.5 rounded-lg flex items-center gap-2 animate-fade-in">
+            <AlertCircle size={14} className="shrink-0" />
+            <span>{cameraError}</span>
+          </div>
+        )}
       </div>
 
       {/* Informative Accuracy Notice */}

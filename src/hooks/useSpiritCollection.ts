@@ -4,15 +4,14 @@ import { createBlankSpirit, deduplicateTags } from '@/lib/spirit-utils';
 import { translateColour, translateGlance } from '@/lib/i18n/translations';
 import { SpiritAnalysisResult } from '@/services/ai-assistant-service';
 import { SpiritApplyMode } from '@/components/features/scanner/SpiritScanModal';
+import { registerCustomFlavorIfMissing } from '@/data/spirit-flavor-taxonomy';
 import { db } from '@/lib/db';
-import { MOCK_SPIRITS } from '@/data/mock-spirits';
 import {
   notifyDataMutated,
   DATA_MUTATED_EVENT,
   REMOTE_SYNC_COMPLETED_EVENT,
 } from '@/lib/sync-events';
 
-const SEEDED_STORAGE_KEY = 'aqua-vitaeum-seeded';
 const SESSION_SPIRIT_KEY = 'aqua-vitaeum-active-spirit-id';
 
 import { recordTombstone, removeTombstone } from '@/lib/sync-tombstones';
@@ -24,13 +23,23 @@ export function useSpiritCollection(activeJournalId: string | null) {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<SpiritType | 'All'>('All');
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [loadedJournalId, setLoadedJournalId] = useState<string | null>(null);
+
+  // Synchronously true when activeJournalId has not yet loaded its notes
+  const isEffectiveLoading = isLoading || (activeJournalId !== null && loadedJournalId !== activeJournalId);
+  const effectiveSpirits = useMemo(() => {
+    return activeJournalId !== null && loadedJournalId !== activeJournalId ? [] : spirits;
+  }, [activeJournalId, loadedJournalId, spirits]);
 
   // Fetch spirits for the active journal
   const loadSpirits = useCallback(async () => {
     if (!activeJournalId) {
+      setSpirits([]);
+      setLoadedJournalId(null);
       setIsLoading(false);
       return;
     }
+    setIsLoading(true);
     const journalId = activeJournalId;
 
     let localSpirits: Spirit[] = [];
@@ -38,29 +47,6 @@ export function useSpiritCollection(activeJournalId: string | null) {
       localSpirits = await db.spirits.where('journalId').equals(journalId).toArray();
     } catch (err) {
       console.warn('Aqua Vitaeum: Failed to load spirits from IndexedDB.', err);
-    }
-
-    // First-time seed for default compendium directly from MOCK_SPIRITS
-    const isAlreadySeeded = typeof window !== 'undefined' && localStorage.getItem(SEEDED_STORAGE_KEY) === 'true';
-    if (localSpirits.length === 0 && journalId === 'default-compendium' && !isAlreadySeeded) {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(SEEDED_STORAGE_KEY, 'true');
-      }
-      if (MOCK_SPIRITS.length > 0) {
-        const seeded = MOCK_SPIRITS.map((s: Spirit) => ({
-          ...s,
-          journalId: 'default-compendium',
-        }));
-        setSpirits(seeded);
-        setSelectedId(seeded[0]?.id ?? null);
-        setIsLoading(false);
-        try {
-          await db.spirits.bulkPut(seeded);
-        } catch (err) {
-          console.warn('Aqua Vitaeum: Could not seed IndexedDB from MOCK_SPIRITS.', err);
-        }
-        return;
-      }
     }
 
     // Sort spirits by tasted date (newest first)
@@ -77,6 +63,7 @@ export function useSpiritCollection(activeJournalId: string | null) {
       );
     }
     pendingSelectedIdRef.current = null;
+    setLoadedJournalId(journalId);
     setIsLoading(false);
   }, [activeJournalId]);
 
@@ -99,11 +86,11 @@ export function useSpiritCollection(activeJournalId: string | null) {
   }, [loadSpirits]);
 
   const activeSpirit = useMemo(() => {
-    return spirits.find((s) => s.id === selectedId) ?? createBlankSpirit(activeJournalId || undefined);
-  }, [spirits, selectedId, activeJournalId]);
+    return effectiveSpirits.find((s) => s.id === selectedId) ?? createBlankSpirit(activeJournalId || undefined);
+  }, [effectiveSpirits, selectedId, activeJournalId]);
 
   const filteredSpirits = useMemo(() => {
-    return spirits.filter((s) => {
+    return effectiveSpirits.filter((s) => {
       const matchesType = typeFilter === 'All' || s.spiritType === typeFilter;
       const q = search.trim().toLowerCase();
       if (!q) return matchesType;
@@ -135,7 +122,7 @@ export function useSpiritCollection(activeJournalId: string | null) {
 
       return matchesType && matchesSearch;
     });
-  }, [spirits, search, typeFilter]);
+  }, [effectiveSpirits, search, typeFilter]);
 
   const selectSpirit = useCallback((id: string) => {
     pendingSelectedIdRef.current = id;
@@ -265,9 +252,17 @@ export function useSpiritCollection(activeJournalId: string | null) {
             newSpirit.finishNotes = result.finishNotes || result.finish || '';
           }
           if (result.suggestedNoseTags && result.suggestedNoseTags.length > 0) {
+            result.suggestedNoseTags.forEach((tag) => {
+              const dim = result.suggestedNoseTagDimensions?.[tag];
+              registerCustomFlavorIfMissing(tag, dim);
+            });
             newSpirit.noseFlavorTags = [...result.suggestedNoseTags];
           }
           if (result.suggestedTasteTags && result.suggestedTasteTags.length > 0) {
+            result.suggestedTasteTags.forEach((tag) => {
+              const dim = result.suggestedTasteTagDimensions?.[tag];
+              registerCustomFlavorIfMissing(tag, dim);
+            });
             newSpirit.tasteFlavorTags = [...result.suggestedTasteTags];
           }
           if (result.noseTagIntensities && Object.keys(result.noseTagIntensities).length > 0) {
@@ -312,7 +307,7 @@ export function useSpiritCollection(activeJournalId: string | null) {
   );
 
   return {
-    spirits,
+    spirits: effectiveSpirits,
     filteredSpirits,
     selectedId,
     activeSpirit,
@@ -320,7 +315,7 @@ export function useSpiritCollection(activeJournalId: string | null) {
     setSearch,
     typeFilter,
     setTypeFilter,
-    isLoading,
+    isLoading: isEffectiveLoading,
     selectSpirit,
     handleNewNote,
     handleNewNoteFromScan,

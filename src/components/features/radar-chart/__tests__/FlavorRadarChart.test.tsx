@@ -239,5 +239,77 @@ describe('FlavorRadarChart & DynamicProfileSliders Component Unit Tests', () => 
 
     expect(getPrecisionRoundedPolygonPath([])).toBe('');
   });
+
+  it('correctly calculates radar dimension score for Custom Flavors and AI tags', () => {
+    const customFlavors = [
+      {
+        id: 'drachenfrucht',
+        name: 'Drachenfrucht',
+        radarDimension: 'fruity' as const,
+      },
+    ];
+
+    const score = computeRadarDimensionScore(
+      'fruity',
+      ['Drachenfrucht'],
+      { Drachenfrucht: 9 },
+      'fruchtig',
+      customFlavors
+    );
+    expect(score).toBe(9);
+  });
+
+  it('groups custom flavors under their canonical taxonomy category without rendering "Weitere Aromen"', () => {
+    const handleIntensityChange = vi.fn();
+
+    render(
+      <LanguageProvider>
+        <DynamicProfileSliders
+          title="Nose Intensity"
+          type="nose"
+          activeTags={['Lagerfeuerasche', 'Getrocknete Aprikose']}
+          tagIntensities={{ Lagerfeuerasche: 8, 'Getrocknete Aprikose': 6 }}
+          onIntensityChange={handleIntensityChange}
+        />
+      </LanguageProvider>
+    );
+
+    // Verify canonical category headers are rendered
+    expect(screen.getByText('Peat & Smoke')).toBeDefined();
+    expect(screen.getByText('Fruity, Tropical & Citrus')).toBeDefined();
+
+    // Verify tags are listed
+    expect(screen.getByText('Lagerfeuerasche')).toBeDefined();
+    expect(screen.getByText('Getrocknete Aprikose')).toBeDefined();
+
+    // Verify "Weitere Aromen" or "Additional Notes" is NOT present
+    expect(screen.queryByText('Additional Notes')).toBeNull();
+    expect(screen.queryByText('Weitere Aromen')).toBeNull();
+  });
+
+  it('renders radar chart with inner hub offset and scale notches 0, 2.5, 5, 7.5 on selected spoke', () => {
+    render(
+      <LanguageProvider>
+        <FlavorRadarChart
+          noseProfile={DEFAULT_FLAVOR_PROFILE}
+          tasteProfile={DEFAULT_FLAVOR_PROFILE}
+          noseFlavorTags={['Peat Smoke']}
+          tasteFlavorTags={[]}
+          noseTagIntensities={{ 'Peat Smoke': 8 }}
+          tasteTagIntensities={{}}
+        />
+      </LanguageProvider>
+    );
+
+    // Click on Peat & Smoke category in radar mode to activate the spotlight measuring spoke
+    const peatBtn = screen.getByTitle('Peat & Smoke');
+    fireEvent.click(peatBtn);
+
+    // Verify scale notches 0, 2.5, 5, 7.5 are rendered on the measuring spoke
+    expect(screen.getByText('0')).toBeDefined();
+    expect(screen.getByText('2.5')).toBeDefined();
+    expect(screen.getByText('5')).toBeDefined();
+    expect(screen.getByText('7.5')).toBeDefined();
+  });
 });
 

@@ -26,6 +26,7 @@ import {
   SPIRIT_FINISH_CHARACTERS,
   SPIRIT_BAR_ROLES,
 } from '@/types/spirit.types';
+import { inferCategoryFromTagName } from '@/data/spirit-flavor-taxonomy';
 
 export const GEMINI_MODEL_CANDIDATES = [
   process.env.NEXT_PUBLIC_GEMINI_MODEL,
@@ -66,6 +67,8 @@ export interface SpiritAnalysisResult {
   barRole?: SpiritBarRole[];
   suggestedNoseTags?: string[];
   suggestedTasteTags?: string[];
+  suggestedNoseTagDimensions?: Record<string, keyof FlavorProfile>;
+  suggestedTasteTagDimensions?: Record<string, keyof FlavorProfile>;
   noseTagIntensities?: Record<string, number>;
   tasteTagIntensities?: Record<string, number>;
   noseProfile?: Partial<FlavorProfile>;
@@ -236,6 +239,18 @@ function buildSystemPrompt(language: 'DE' | 'EN' = 'DE', includeTastingNotes = t
   "barRole": ["Showcase Bottle", "Buy Again"],
   "suggestedNoseTags": ["Torfrauch", "Rosine", "Leder", "Kaffee"],
   "suggestedTasteTags": ["Sherry", "Rauch", "Zartbitterschokolade", "Eichenwürze"],
+  "suggestedNoseTagDimensions": {
+    "Torfrauch": "peaty",
+    "Rosine": "winey",
+    "Leder": "feinty",
+    "Kaffee": "cereal"
+  },
+  "suggestedTasteTagDimensions": {
+    "Sherry": "winey",
+    "Rauch": "peaty",
+    "Zartbitterschokolade": "chocolate",
+    "Eichenwürze": "woody"
+  },
   "noseTagIntensities": {
     "Torfrauch": 9,
     "Rosine": 7,
@@ -300,6 +315,18 @@ function buildSystemPrompt(language: 'DE' | 'EN' = 'DE', includeTastingNotes = t
   "barRole": ["Showcase Bottle", "Buy Again"],
   "suggestedNoseTags": ["Peat Smoke", "Raisin", "Leather", "Coffee"],
   "suggestedTasteTags": ["Sherry", "Smoke", "Dark Chocolate", "Oak Spice"],
+  "suggestedNoseTagDimensions": {
+    "Peat Smoke": "peaty",
+    "Raisin": "winey",
+    "Leather": "feinty",
+    "Coffee": "cereal"
+  },
+  "suggestedTasteTagDimensions": {
+    "Sherry": "winey",
+    "Smoke": "peaty",
+    "Dark Chocolate": "chocolate",
+    "Oak Spice": "woody"
+  },
   "noseTagIntensities": {
     "Peat Smoke": 9,
     "Raisin": 7,
@@ -360,6 +387,8 @@ Rules for field mapping:
 - "barRole" CAN include values from: ${JSON.stringify(SPIRIT_BAR_ROLES)}.
 - "suggestedNoseTags": 3-6 individual aroma descriptors${isGerman ? ' auf Deutsch (z. B. "Torfrauch", "Vanille", "Getrocknete Feige", "Jod", "Grüner Apfel")' : ' (e.g. "Peat Smoke", "Vanilla", "Dried Fig", "Iodine", "Green Apple")'}.
 - "suggestedTasteTags": 3-6 individual palate descriptors${isGerman ? ' auf Deutsch (z. B. "Sherry", "Salzkaramell", "Zartbitterschokolade", "Eichenwürze")' : ' (e.g. "Sherry", "Salted Caramel", "Dark Chocolate", "Oak Spice")'}.
+- "suggestedNoseTagDimensions": Object mapping each suggested nose tag to its canonical SWRI flavor dimension ("fruity" | "floral" | "spicy" | "cereal" | "peaty" | "sulphury" | "feinty" | "woody" | "winey" | "nutty" | "chocolate").
+- "suggestedTasteTagDimensions": Object mapping each suggested taste tag to its canonical SWRI flavor dimension ("fruity" | "floral" | "spicy" | "cereal" | "peaty" | "sulphury" | "feinty" | "woody" | "winey" | "nutty" | "chocolate").
 - "noseTagIntensities": Object mapping each suggested nose tag to its perceived sensory intensity (integer 1 to 10).
 - "tasteTagIntensities": Object mapping each suggested taste tag to its perceived sensory intensity (integer 1 to 10).
 - "noseProfile": Estimated 11-dimension SWRI sensory profile for nose (integers 0 to 10 for: fruity, floral, spicy, cereal, peaty, sulphury, feinty, nutty, woody, winey, chocolate).
@@ -522,6 +551,34 @@ function sanitizeAnalysisResult(raw: Record<string, unknown>): SpiritAnalysisRes
   const noseProfile = sanitizeFlavorProfile(raw.noseProfile);
   const tasteProfile = sanitizeFlavorProfile(raw.tasteProfile);
 
+  const sanitizeTagDimensions = (
+    obj: unknown,
+    tags: string[]
+  ): Record<string, keyof FlavorProfile> | undefined => {
+    const result: Record<string, keyof FlavorProfile> = {};
+    const rawObj = obj && typeof obj === 'object' && !Array.isArray(obj) ? (obj as Record<string, unknown>) : {};
+    const VALID_DIMENSIONS = new Set<keyof FlavorProfile>([
+      'fruity', 'floral', 'spicy', 'cereal', 'peaty', 'sulphury', 'feinty', 'woody', 'winey', 'nutty', 'chocolate'
+    ]);
+
+    for (const tag of tags) {
+      const rawDim = rawObj[tag];
+      if (typeof rawDim === 'string' && VALID_DIMENSIONS.has(rawDim.toLowerCase().trim() as keyof FlavorProfile)) {
+        result[tag] = rawDim.toLowerCase().trim() as keyof FlavorProfile;
+      } else {
+        const inferredCat = inferCategoryFromTagName(tag);
+        if (inferredCat) {
+          result[tag] = inferredCat.radarDimension;
+        }
+      }
+    }
+
+    return Object.keys(result).length > 0 ? result : undefined;
+  };
+
+  const suggestedNoseTagDimensions = sanitizeTagDimensions(raw.suggestedNoseTagDimensions, suggestedNoseTags);
+  const suggestedTasteTagDimensions = sanitizeTagDimensions(raw.suggestedTasteTagDimensions, suggestedTasteTags);
+
   let finishNotes: string | undefined = undefined;
   if (typeof raw.finishNotes === 'string' && raw.finishNotes.trim().length > 0) {
     finishNotes = raw.finishNotes.trim();
@@ -554,6 +611,8 @@ function sanitizeAnalysisResult(raw: Record<string, unknown>): SpiritAnalysisRes
     barRole,
     suggestedNoseTags,
     suggestedTasteTags,
+    suggestedNoseTagDimensions,
+    suggestedTasteTagDimensions,
     noseTagIntensities: Object.keys(noseTagIntensities).length > 0 ? noseTagIntensities : undefined,
     tasteTagIntensities: Object.keys(tasteTagIntensities).length > 0 ? tasteTagIntensities : undefined,
     noseProfile,

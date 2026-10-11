@@ -258,7 +258,7 @@ export function AiAssistantSettingsSection() {
                   placeholder="AIzaSy..."
                   autoComplete="off"
                   spellCheck={false}
-                  className="w-full bg-transparent text-sm font-mono text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/50 focus:outline-none tracking-wider"
+                  className="w-full bg-transparent text-sm font-mono text-[var(--foreground)] placeholder:text-[var(--placeholder-text)] focus:outline-none tracking-wider"
                 />
                 <button
                   type="button"

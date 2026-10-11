@@ -146,7 +146,7 @@ export default function GlobalSearch({
           value={globalSearchQuery}
           onChange={(e) => setGlobalSearchQuery(e.target.value)}
           placeholder={t('searchPlaceholderGlobal')}
-          className="bg-transparent border-none text-sm text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/70 focus:outline-none focus:ring-0 focus-within:ring-0 w-full font-body"
+          className="bg-transparent border-none text-sm text-[var(--foreground)] placeholder:text-[var(--placeholder-text)] focus:outline-none focus:ring-0 focus-within:ring-0 w-full font-body"
         />
       </div>
 

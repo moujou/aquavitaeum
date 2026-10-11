@@ -115,4 +115,27 @@ describe('WhiskyAromaWheel Component & Helper Unit Tests', () => {
 
     expect(activeData.length).toBeGreaterThan(0);
   });
+
+  it('includes custom flavors and mapped category descriptors in computeActiveCategoriesData and wheel', () => {
+    const customFlavors = [
+      {
+        id: 'drachenfrucht',
+        name: 'Drachenfrucht',
+        radarDimension: 'fruity' as const,
+      },
+    ];
+
+    const result = computeActiveCategoriesData(
+      ['Drachenfrucht'],
+      { Drachenfrucht: 9 },
+      customFlavors
+    );
+
+    const fruitCategory = result.find((c) => c.category.id === 'fruchtig');
+    expect(fruitCategory).toBeDefined();
+    expect(fruitCategory?.activeDescriptors).toHaveLength(1);
+    expect(fruitCategory?.activeDescriptors[0].descriptor.name.DE).toBe('Drachenfrucht');
+    expect(fruitCategory?.activeDescriptors[0].intensity).toBe(9);
+  });
 });
+
