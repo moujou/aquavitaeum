@@ -44,13 +44,18 @@ export interface JournalWithStats extends Journal {
   regionCount?: number;
 }
 
+let journalsMemoryCache: JournalWithStats[] | null = null;
+
 export function useJournals() {
-  const [journals, setJournals] = useState<JournalWithStats[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [journals, setJournals] = useState<JournalWithStats[]>(() => journalsMemoryCache || []);
+  const [isLoading, setIsLoading] = useState<boolean>(() => journalsMemoryCache === null);
 
   // Load journals and calculate real-time statistics
-  const loadJournals = useCallback(async () => {
+  const loadJournals = useCallback(async (isSilent = false) => {
     try {
+      if (!isSilent && journalsMemoryCache === null) {
+        setIsLoading(true);
+      }
       const allJournals = await db.journals.toArray();
       
       // Calculate stats for each journal
@@ -175,6 +180,7 @@ export function useJournals() {
         return b.createdAt.localeCompare(a.createdAt);
       });
 
+      journalsMemoryCache = journalsStats;
       setJournals(journalsStats);
     } catch (err) {
       console.warn('Aqua Vitaeum: Failed to load journals from IndexedDB.', err);
@@ -185,13 +191,13 @@ export function useJournals() {
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadJournals();
+    loadJournals(journalsMemoryCache !== null);
   }, [loadJournals]);
 
   // Live reactivity: listen to background sync / import updates / remote sync completions
   useEffect(() => {
     const handleDataChanged = () => {
-      loadJournals();
+      loadJournals(true);
     };
     window.addEventListener(DATA_MUTATED_EVENT, handleDataChanged);
     window.addEventListener(REMOTE_SYNC_COMPLETED_EVENT, handleDataChanged);

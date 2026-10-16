@@ -34,13 +34,20 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       const isDark = theme === 'pub-dark';
       if (isDark) {
         document.documentElement.setAttribute('data-theme', 'pub-dark');
+        document.documentElement.style.colorScheme = 'dark';
+        document.documentElement.style.backgroundColor = '#0D1115';
       } else {
         document.documentElement.removeAttribute('data-theme');
+        document.documentElement.style.colorScheme = 'light';
+        document.documentElement.style.backgroundColor = '#ECE5D8';
       }
       const targetColor = isDark ? '#0D1115' : '#ECE5D8';
       const metas = document.querySelectorAll('meta[name="theme-color"]');
       if (metas.length > 0) {
-        metas.forEach((meta) => meta.setAttribute('content', targetColor));
+        metas.forEach((meta) => {
+          meta.removeAttribute('media');
+          meta.setAttribute('content', targetColor);
+        });
       } else {
         const meta = document.createElement('meta');
         meta.setAttribute('name', 'theme-color');

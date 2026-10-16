@@ -16,33 +16,47 @@ const SESSION_SPIRIT_KEY = 'aqua-vitaeum-active-spirit-id';
 
 import { recordTombstone, removeTombstone } from '@/lib/sync-tombstones';
 
+const spiritsMemoryCache = new Map<string, Spirit[]>();
+
 export function useSpiritCollection(activeJournalId: string | null) {
-  const [spirits, setSpirits] = useState<Spirit[]>([]);
+  const [spirits, setSpirits] = useState<Spirit[]>(() => {
+    return activeJournalId && spiritsMemoryCache.has(activeJournalId)
+      ? spiritsMemoryCache.get(activeJournalId)!
+      : [];
+  });
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const pendingSelectedIdRef = useRef<string | null>(null);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<SpiritType | 'All'>('All');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [loadedJournalId, setLoadedJournalId] = useState<string | null>(null);
-  const loadedJournalIdRef = useRef<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(() => {
+    return activeJournalId ? !spiritsMemoryCache.has(activeJournalId) : false;
+  });
+  const [loadedJournalId, setLoadedJournalId] = useState<string | null>(() => {
+    return activeJournalId && spiritsMemoryCache.has(activeJournalId) ? activeJournalId : null;
+  });
+  const loadedJournalIdRef = useRef<string | null>(
+    activeJournalId && spiritsMemoryCache.has(activeJournalId) ? activeJournalId : null
+  );
 
-  // Synchronously true when activeJournalId has not yet loaded its notes
-  const isEffectiveLoading = isLoading || (activeJournalId !== null && loadedJournalId !== activeJournalId);
+  // Synchronously true when activeJournalId has not yet loaded its notes and has no cache
+  const isEffectiveLoading = isLoading || (activeJournalId !== null && loadedJournalId !== activeJournalId && !spiritsMemoryCache.has(activeJournalId));
   const effectiveSpirits = useMemo(() => {
-    return activeJournalId !== null && loadedJournalId !== activeJournalId ? [] : spirits;
+    if (activeJournalId !== null && loadedJournalId !== activeJournalId) {
+      return spiritsMemoryCache.get(activeJournalId) || [];
+    }
+    return spirits;
   }, [activeJournalId, loadedJournalId, spirits]);
 
   // Fetch spirits for the active journal
   const loadSpirits = useCallback(async (isSilent = false) => {
     if (!activeJournalId) {
-      setSpirits([]);
-      setLoadedJournalId(null);
-      loadedJournalIdRef.current = null;
+      setSelectedId(null);
       setIsLoading(false);
       return;
     }
     const journalId = activeJournalId;
-    if (!isSilent && loadedJournalIdRef.current !== journalId) {
+    const isCached = spiritsMemoryCache.has(journalId);
+    if (!isSilent && !isCached && loadedJournalIdRef.current !== journalId) {
       setIsLoading(true);
     }
 
@@ -55,6 +69,7 @@ export function useSpiritCollection(activeJournalId: string | null) {
 
     // Sort spirits by tasted date (newest first)
     localSpirits.sort((a, b) => (b.dateTasted || '').localeCompare(a.dateTasted || ''));
+    spiritsMemoryCache.set(journalId, localSpirits);
     setSpirits(localSpirits);
     const targetId =
       pendingSelectedIdRef.current ||
@@ -162,11 +177,15 @@ export function useSpiritCollection(activeJournalId: string | null) {
         };
         await db.spirits.put(spiritToSave);
         removeTombstone(spiritToSave.id);
-        setSpirits((prev) =>
-          prev.some((s) => s.id === spiritToSave.id)
+        setSpirits((prev) => {
+          const next = prev.some((s) => s.id === spiritToSave.id)
             ? prev.map((s) => (s.id === spiritToSave.id ? spiritToSave : s))
-            : [spiritToSave, ...prev]
-        );
+            : [spiritToSave, ...prev];
+          if (spiritToSave.journalId) {
+            spiritsMemoryCache.set(spiritToSave.journalId, next);
+          }
+          return next;
+        });
         setSelectedId(spiritToSave.id);
         if (typeof window !== 'undefined') {
           sessionStorage.setItem(SESSION_SPIRIT_KEY, spiritToSave.id);
@@ -187,6 +206,9 @@ export function useSpiritCollection(activeJournalId: string | null) {
         await db.spirits.delete(id);
         setSpirits((prev) => {
           const next = prev.filter((s) => s.id !== id);
+          if (activeJournalId) {
+            spiritsMemoryCache.set(activeJournalId, next);
+          }
           setSelectedId((currentId) => {
             if (currentId === id) {
               const nextId = next[0]?.id ?? null;
@@ -209,7 +231,7 @@ export function useSpiritCollection(activeJournalId: string | null) {
         throw err;
       }
     },
-    []
+    [activeJournalId]
   );
 
   const handleNewNoteFromScan = useCallback(
