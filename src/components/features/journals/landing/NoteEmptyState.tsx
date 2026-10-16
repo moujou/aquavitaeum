@@ -35,19 +35,19 @@ export function NoteEmptyState({ onNewNote, onScanNote }: NoteEmptyStateProps) {
               type="button"
               onClick={onScanNote}
               className={cn(
-                'flex items-center gap-2 px-5 py-3 rounded-lg text-xs sm:text-sm font-display uppercase tracking-wider font-bold border shrink-0',
+                'flex items-center gap-2 px-5 py-3 rounded-lg text-xs sm:text-sm font-display tracking-wide font-bold border shrink-0',
                 'bg-[var(--fab-bg)] text-[var(--fab-text)] border-[var(--fab-border)] hover:bg-[var(--fab-bg-hover)] transition-all duration-250 cursor-pointer shadow-md hover:scale-[1.02] active:scale-[0.98]'
               )}
             >
               <Sparkles size={16} className="text-[var(--fab-text)]" />
-              <span>{language === 'DE' ? 'Flasche scannen (KI-Assistent)' : 'Scan Bottle (AI Assistant)'}</span>
+              <span>{language === 'DE' ? 'Cask & Spirit Assistent' : 'Cask & Spirit Assistant'}</span>
             </button>
           )}
 
           <button
             type="button"
             onClick={onNewNote}
-            className="flex items-center gap-2 px-5 py-3 rounded-lg text-xs sm:text-sm font-display uppercase tracking-wider font-bold border shrink-0 bg-[var(--fab-bg)] text-[var(--fab-text)] border-[var(--fab-border)] hover:bg-[var(--fab-bg-hover)] transition-all duration-250 cursor-pointer shadow-md hover:scale-[1.02] active:scale-[0.98]"
+            className="flex items-center gap-2 px-5 py-3 rounded-lg text-xs sm:text-sm font-display tracking-wide font-bold border shrink-0 bg-[var(--fab-bg)] text-[var(--fab-text)] border-[var(--fab-border)] hover:bg-[var(--fab-bg-hover)] transition-all duration-250 cursor-pointer shadow-md hover:scale-[1.02] active:scale-[0.98]"
           >
             <Plus size={16} className="text-[var(--fab-text)]" />
             <span>{t('newNote')}</span>
