@@ -60,8 +60,13 @@ export default function RootLayout({
                 var theme = localStorage.getItem('av-theme');
                 if (theme === 'pub-dark') {
                   document.documentElement.setAttribute('data-theme', 'pub-dark');
+                  document.documentElement.style.colorScheme = 'dark';
+                  document.documentElement.style.backgroundColor = '#0D1115';
                   var metas = document.querySelectorAll('meta[name="theme-color"]');
-                  metas.forEach(function(m) { m.setAttribute('content', '#0D1115'); });
+                  metas.forEach(function(m) {
+                    m.removeAttribute('media');
+                    m.setAttribute('content', '#0D1115');
+                  });
                 }
               } catch (e) {}
             })();

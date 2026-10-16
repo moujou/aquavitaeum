@@ -84,10 +84,10 @@ describe('JournalLandingPage and NoteEmptyState with AI Scanner', () => {
       </LanguageProvider>
     );
 
-    expect(screen.getByRole('button', { name: /Scan Bottle|Flasche scannen/i })).toBeDefined();
+    expect(screen.getByRole('button', { name: /Cask & Spirit Assistent|Cask & Spirit Assistant/i })).toBeDefined();
     expect(screen.getByRole('button', { name: /New Note|Neue Notiz/i })).toBeDefined();
 
-    fireEvent.click(screen.getByRole('button', { name: /Scan Bottle|Flasche scannen/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Cask & Spirit Assistent|Cask & Spirit Assistant/i }));
     expect(handleScan).toHaveBeenCalledOnce();
   });
 
@@ -102,7 +102,7 @@ describe('JournalLandingPage and NoteEmptyState with AI Scanner', () => {
       </LanguageProvider>
     );
 
-    expect(screen.queryByRole('button', { name: /Scan Bottle|Flasche scannen/i })).toBeNull();
+    expect(screen.queryByRole('button', { name: /Cask & Spirit Assistent|Cask & Spirit Assistant/i })).toBeNull();
     expect(screen.getByRole('button', { name: /New Note|Neue Notiz/i })).toBeDefined();
   });
 

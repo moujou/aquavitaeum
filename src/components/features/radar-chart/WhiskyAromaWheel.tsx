@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { PieChart, Sparkles } from 'lucide-react';
+import { PieChart } from 'lucide-react';
 import { CustomFlavorDescriptor } from '@/types/spirit.types';
 import {
   SPIRIT_FLAVOR_TAXONOMY,
@@ -404,7 +404,6 @@ export function SommelierCategoryLegendAndInspector({
               <div className="flex items-center gap-2 min-w-0 truncate">
                 <span className="text-sm sm:text-base shrink-0 select-none">{cat.emoji}</span>
                 <span className="truncate text-xs sm:text-sm font-semibold">{cat.name[language]}</span>
-                {isSelected && <Sparkles size={13} className="text-amber-200 shrink-0 animate-pulse" />}
               </div>
               <span
                 className={cn(
@@ -439,7 +438,6 @@ export function SommelierCategoryLegendAndInspector({
                     <span className="text-[var(--sepia-muted)] text-xs truncate">{activeNode.subcategoryName}</span>
                   </>
                 )}
-                <Sparkles size={12} className="text-amber-200 shrink-0 animate-pulse" />
               </div>
 
               <div className="flex items-center gap-1.5 shrink-0">
@@ -501,7 +499,6 @@ export function SommelierCategoryLegendAndInspector({
                         title={descName}
                       >
                         <div className="flex items-center gap-1.5 min-w-0 truncate">
-                          {isSelected && <Sparkles size={11} className="text-amber-200 shrink-0 animate-pulse" />}
                           <span className="truncate">{descName}</span>
                         </div>
                         <span

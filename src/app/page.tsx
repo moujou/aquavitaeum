@@ -12,7 +12,6 @@ import { JournalLandingPage } from '@/components/features/journals/landing';
 import { ProfileView } from '@/components/features/profile/ProfileView';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { useLanguage } from '@/context/LanguageContext';
-import { WhiskyLogo } from '@/components/ui/WhiskyLogo';
 import { cn } from '@/lib/utils';
 import { SpiritType } from '@/types/spirit.types';
 import AppLoader from '@/components/ui/AppLoader';
@@ -386,14 +385,7 @@ export default function Home() {
           <div className="flex-1 h-full relative overflow-hidden flex flex-col">
             <div id="journal-overview-scroll" className="flex-1 overflow-y-auto bg-[var(--pub-bg)] max-lg:pt-[calc(4.5rem+env(safe-area-inset-top,0px))] lg:pt-0 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:pb-0">
               {isLoadingJournals ? (
-                <div className="flex-1 h-64 flex flex-col items-center justify-center text-center p-6 select-none animate-pulse">
-                  <div className="w-16 h-16 rounded-full border border-[var(--forest-green)]/40 flex items-center justify-center bg-[var(--wood-dark)]/10 mb-4 shadow-[0_0_25px_rgba(35,115,71,0.20)]">
-                    <WhiskyLogo size={32} className="text-[var(--forest-green)]" />
-                  </div>
-                  <h2 className="font-display text-xs font-bold text-[var(--forest-green)] tracking-widest uppercase">
-                    {t('uncasking')}
-                  </h2>
-                </div>
+                <AppLoader />
               ) : (
                 <JournalsOverview
                   journals={journals}
@@ -402,6 +394,7 @@ export default function Home() {
                   onRenameJournal={renameJournal}
                   onDeleteJournal={deleteJournal}
                   isCreateOpen={isCreateJournalModalOpen}
+                  onOpenCreate={() => setIsCreateJournalModalOpen(true)}
                   onCloseCreate={() => setIsCreateJournalModalOpen(false)}
                   onSelectModeChange={setIsSelectModeActive}
                   onSelectJournal={handleSelectJournal}
@@ -508,14 +501,7 @@ export default function Home() {
                 className="flex-1 overflow-y-auto bg-[var(--pub-bg)] max-lg:pt-[calc(4.5rem+env(safe-area-inset-top,0px))] lg:pt-0 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:pb-0"
               >
                 {isLoadingSpirits && spirits.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center text-center p-6 select-none animate-pulse">
-                    <div className="w-16 h-16 rounded-full border border-[var(--forest-green)]/40 flex items-center justify-center bg-[var(--wood-dark)]/10 mb-4 shadow-[0_0_25px_rgba(35,115,71,0.20)]">
-                      <WhiskyLogo size={32} className="text-[var(--forest-green)]" />
-                    </div>
-                    <h2 className="font-display text-xs font-bold text-[var(--forest-green)] tracking-widest uppercase">
-                      {t('uncasking')}
-                    </h2>
-                  </div>
+                  <AppLoader />
                 ) : spirits.length === 0 ? (
                   <NoteEmptyState onNewNote={handleNewNote} />
                 ) : (

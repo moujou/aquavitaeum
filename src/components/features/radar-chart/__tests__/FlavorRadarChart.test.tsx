@@ -287,7 +287,7 @@ describe('FlavorRadarChart & DynamicProfileSliders Component Unit Tests', () => 
     expect(screen.queryByText('Weitere Aromen')).toBeNull();
   });
 
-  it('renders radar chart with inner hub offset and scale notches 0, 2.5, 5, 7.5 on selected spoke', () => {
+  it('selects category cleanly on radar chart without cluttered measuring beam notches', () => {
     render(
       <LanguageProvider>
         <FlavorRadarChart
@@ -301,15 +301,16 @@ describe('FlavorRadarChart & DynamicProfileSliders Component Unit Tests', () => 
       </LanguageProvider>
     );
 
-    // Click on Peat & Smoke category in radar mode to activate the spotlight measuring spoke
+    // Click on Peat & Smoke category in radar mode
     const peatBtn = screen.getByTitle('Peat & Smoke');
     fireEvent.click(peatBtn);
 
-    // Verify scale notches 0, 2.5, 5, 7.5 are rendered on the measuring spoke
-    expect(screen.getByText('0')).toBeDefined();
-    expect(screen.getByText('2.5')).toBeDefined();
-    expect(screen.getByText('5')).toBeDefined();
-    expect(screen.getByText('7.5')).toBeDefined();
+    // Category button is highlighted cleanly
+    expect(peatBtn.className).toContain('bg-[var(--wood-selection)]');
+
+    // Cluttered scale notches are intentionally removed for a calm display
+    expect(screen.queryByText('2.5')).toBeNull();
+    expect(screen.queryByText('7.5')).toBeNull();
   });
 });
 

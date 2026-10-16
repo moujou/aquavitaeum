@@ -24,6 +24,7 @@ interface JournalsOverviewProps {
   onDeleteJournal: (id: string) => Promise<unknown>;
   onSelectJournal: (id: string) => void;
   isCreateOpen?: boolean;
+  onOpenCreate?: () => void;
   onCloseCreate?: () => void;
   onSelectModeChange?: (active: boolean) => void;
 }
@@ -38,6 +39,7 @@ export function JournalsOverview({
   onDeleteJournal,
   onSelectJournal,
   isCreateOpen,
+  onOpenCreate,
   onCloseCreate,
   onSelectModeChange,
 }: JournalsOverviewProps) {
@@ -82,8 +84,15 @@ export function JournalsOverview({
   const [newJournalCoverImage, setNewJournalCoverImage] = useState<string | undefined>(undefined);
   const [newJournalColor, setNewJournalColor] = useState<string>('green');
 
-  const isCreateVisible = isCreateOpen !== undefined ? isCreateOpen : isCreateOpenLocal;
-  const triggerCloseCreate = onCloseCreate ? onCloseCreate : () => setIsCreateOpenLocal(false);
+  const isCreateVisible = Boolean(isCreateOpen) || isCreateOpenLocal;
+  const triggerCloseCreate = () => {
+    setIsCreateOpenLocal(false);
+    onCloseCreate?.();
+  };
+  const triggerOpenCreate = () => {
+    setIsCreateOpenLocal(true);
+    onOpenCreate?.();
+  };
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
@@ -339,8 +348,8 @@ export function JournalsOverview({
       {sortedJournals.length === 0 ? (
         <div className="flex flex-col items-center justify-center p-8 sm:p-12 text-center bg-[var(--parchment-bg)] border border-[var(--parchment-border)] rounded-2xl shadow-inner max-w-md mx-auto my-8 animate-fade-in">
           <BookOpen className="w-12 h-12 text-[var(--brass-accent)] mb-3 opacity-80" />
-          <h3 className="font-display text-lg font-bold text-[var(--foreground)] uppercase tracking-wider mb-2">
-            {language === 'DE' ? 'Keine Notizbücher vorhanden' : 'No Notebooks Found'}
+          <h3 className="font-display text-lg sm:text-xl font-bold text-[var(--foreground)] tracking-wide mb-2">
+            {language === 'DE' ? 'Keine Journale vorhanden' : 'No Journals Found'}
           </h3>
           <p className="font-body text-xs sm:text-sm text-[var(--sepia-muted)] max-w-xs mb-5 leading-relaxed">
             {language === 'DE'
@@ -349,7 +358,7 @@ export function JournalsOverview({
           </p>
           <button
             type="button"
-            onClick={() => setIsCreateOpenLocal(true)}
+            onClick={triggerOpenCreate}
             className="min-h-[44px] px-5 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] text-[var(--fab-text)] font-bold text-sm transition-all cursor-pointer shadow-md active:scale-95 flex items-center gap-2"
           >
             <BookOpen className="w-4 h-4" />

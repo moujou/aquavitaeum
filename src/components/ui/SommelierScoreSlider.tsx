@@ -34,10 +34,12 @@ export function SommelierScoreSlider({
   const touchStartPos = useRef<{ x: number; y: number } | null>(null);
   const isPendingTouch = useRef(false);
   const [isDraggingState, setIsDraggingState] = React.useState(false);
+  const [dragScore, setDragScore] = React.useState<number | null>(null);
 
   const safeScore = Math.max(1, Math.min(100, score || 1));
-  const tier = getScoreTierConfig(safeScore);
-  const percentage = ((safeScore - 1) / 99) * 100;
+  const effectiveScore = isDraggingState && dragScore !== null ? dragScore : safeScore;
+  const tier = getScoreTierConfig(effectiveScore);
+  const percentage = ((effectiveScore - 1) / 99) * 100;
 
   const updateFromPointer = useCallback(
     (clientX: number) => {
@@ -45,8 +47,9 @@ export function SommelierScoreSlider({
       const rect = trackRef.current.getBoundingClientRect();
       const rawRatio = (clientX - rect.left) / rect.width;
       const clampedRatio = Math.max(0, Math.min(1, rawRatio));
-      const targetScore = Math.round(1 + clampedRatio * 99);
-      onChange(Math.max(1, Math.min(100, targetScore)));
+      const targetScore = Math.max(1, Math.min(100, Math.round(1 + clampedRatio * 99)));
+      setDragScore(targetScore);
+      onChange(targetScore);
     },
     [onChange]
   );
@@ -106,12 +109,14 @@ export function SommelierScoreSlider({
       // Intentional stationary tap on the score track without vertical scrolling
       isPendingTouch.current = false;
       updateFromPointer(e.clientX);
+      setDragScore(null);
       return;
     }
 
     if (isDragging.current) {
       isDragging.current = false;
       setIsDraggingState(false);
+      setDragScore(null);
       try {
         (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
       } catch {
@@ -125,6 +130,7 @@ export function SommelierScoreSlider({
     if (isDragging.current) {
       isDragging.current = false;
       setIsDraggingState(false);
+      setDragScore(null);
     }
   };
 
@@ -173,7 +179,10 @@ export function SommelierScoreSlider({
         <div className="w-full h-3.5 sm:h-4 rounded-full border border-[var(--parchment-border)] bg-[var(--pub-bg-alt)]/80 relative overflow-hidden shadow-[inset_0_2px_4px_rgba(43,30,20,0.15)]">
           {/* Active Liquid Gold Fill Ribbon */}
           <div
-            className="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-[var(--brass-muted)] via-[var(--brass-accent)] to-[var(--brass-light)] rounded-full transition-all duration-75 shadow-xs"
+            className={cn(
+              "absolute left-0 top-0 bottom-0 bg-gradient-to-r from-[var(--brass-muted)] via-[var(--brass-accent)] to-[var(--brass-light)] rounded-full shadow-xs",
+              isDraggingState ? "transition-none" : "transition-all duration-150"
+            )}
             style={{ width: `${percentage}%` }}
           />
 
@@ -202,7 +211,10 @@ export function SommelierScoreSlider({
 
         {/* Glowing Sommelier Thumb Indicator + Floating Live Droplet on Drag */}
         <div
-          className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 pointer-events-none transition-all duration-75"
+          className={cn(
+            "absolute top-1/2 -translate-y-1/2 -translate-x-1/2 pointer-events-none",
+            isDraggingState ? "transition-none" : "transition-all duration-150"
+          )}
           style={{ left: `${percentage}%` }}
         >
           {/* Floating Score Tooltip (Parchment badge styling matching app theme) */}
@@ -211,7 +223,7 @@ export function SommelierScoreSlider({
               style={{ transform: `translateX(-${percentage}%)` }}
               className="absolute -top-8 left-1/2 px-2.5 py-0.5 rounded-full bg-[var(--parchment-bg)] border border-[var(--parchment-border)] text-[var(--sepia-text)] text-xs font-display font-black tracking-wider shadow-[0_4px_16px_rgba(43,30,20,0.22)] animate-fade-in whitespace-nowrap flex items-center gap-1.5 z-30"
             >
-              <span className="font-black text-[var(--sepia-text)]">{safeScore}</span>
+              <span className="font-black text-[var(--sepia-text)]">{effectiveScore}</span>
               <span
                 className="text-[9.5px] font-bold uppercase"
                 style={{ color: tier?.colorHex || 'var(--brass-accent)' }}
