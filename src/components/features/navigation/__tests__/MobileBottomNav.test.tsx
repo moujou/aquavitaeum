@@ -60,24 +60,26 @@ describe('MobileBottomNav Component', () => {
     expect(setIsCreateJournalModalOpen).toHaveBeenCalledWith(true);
   });
 
-  it('navigates from journal-detail back to journal-landing with adaptive layout icon', () => {
+  it('navigates from journal-detail directly to overview when left tab is clicked', () => {
     const setActiveView = vi.fn();
+    const setActiveJournalId = vi.fn();
     render(
       <LanguageProvider>
         <MobileBottomNav
           {...defaultProps}
           activeView="journal-detail"
           activeJournalId="journal-1"
-          layout="grid"
           setActiveView={setActiveView}
+          setActiveJournalId={setActiveJournalId}
         />
       </LanguageProvider>
     );
 
-    const backBtn = screen.getByRole('button', { name: /Zurück zur Flaschenübersicht|Back to Notes/i });
-    expect(backBtn).toBeDefined();
-    fireEvent.click(backBtn);
-    expect(setActiveView).toHaveBeenCalledWith('journal-landing');
+    const journalsBtn = screen.getByRole('button', { name: /Journals|Notizbücher/i });
+    expect(journalsBtn).toBeDefined();
+    fireEvent.click(journalsBtn);
+    expect(setActiveJournalId).toHaveBeenCalledWith(null);
+    expect(setActiveView).toHaveBeenCalledWith('overview');
   });
 
   it('navigates from journal-landing back to overview in 1 click', () => {
@@ -95,9 +97,9 @@ describe('MobileBottomNav Component', () => {
       </LanguageProvider>
     );
 
-    const backBtn = screen.getByRole('button', { name: /Zurück zur Journal-Übersicht|Back to Journals/i });
-    expect(backBtn).toBeDefined();
-    fireEvent.click(backBtn);
+    const journalsBtn = screen.getByRole('button', { name: /Journals|Notizbücher/i });
+    expect(journalsBtn).toBeDefined();
+    fireEvent.click(journalsBtn);
     expect(setActiveJournalId).toHaveBeenCalledWith(null);
     expect(setActiveView).toHaveBeenCalledWith('overview');
   });
@@ -118,7 +120,7 @@ describe('MobileBottomNav Component', () => {
       </LanguageProvider>
     );
 
-    leftBtn = screen.getByRole('button', { name: /Zurück zur Journal-Übersicht|Back to Journals/i });
+    leftBtn = screen.getByRole('button', { name: /Journals|Notizbücher/i });
     expect(leftBtn.className).toContain('text-[var(--nav-inactive)]');
 
     rerender(
@@ -127,7 +129,7 @@ describe('MobileBottomNav Component', () => {
       </LanguageProvider>
     );
 
-    leftBtn = screen.getByRole('button', { name: /Zurück zur Flaschenübersicht|Back to Notes/i });
+    leftBtn = screen.getByRole('button', { name: /Journals|Notizbücher/i });
     expect(leftBtn.className).toContain('text-[var(--nav-inactive)]');
   });
 
@@ -138,27 +140,27 @@ describe('MobileBottomNav Component', () => {
       </LanguageProvider>
     );
 
-    // Lucide Library icon has lucide-library class
-    const libraryIcon = container.querySelector('.lucide-library');
-    expect(libraryIcon).toBeDefined();
+    // Lucide Book icon is rendered for bookshelf
+    const bookIcon = container.querySelector('.lucide-book');
+    expect(bookIcon).toBeDefined();
   });
 
-  it('calls onNavigateBack when provided and left adaptive back tab is clicked', () => {
-    const onNavigateBack = vi.fn();
+  it('calls onGoToOverview when provided and left Journals tab is clicked', () => {
+    const onGoToOverview = vi.fn();
     render(
       <LanguageProvider>
         <MobileBottomNav
           {...defaultProps}
           activeView="journal-landing"
           activeJournalId="journal-1"
-          onNavigateBack={onNavigateBack}
+          onGoToOverview={onGoToOverview}
         />
       </LanguageProvider>
     );
 
-    const backBtn = screen.getByRole('button', { name: /Zurück zur Journal-Übersicht|Back to Journals/i });
-    fireEvent.click(backBtn);
-    expect(onNavigateBack).toHaveBeenCalledTimes(1);
+    const journalsBtn = screen.getByRole('button', { name: /Journals|Notizbücher/i });
+    fireEvent.click(journalsBtn);
+    expect(onGoToOverview).toHaveBeenCalledTimes(1);
   });
 });
 

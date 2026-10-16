@@ -1,6 +1,6 @@
 'use client';
 
-import { Plus, BookOpen, Book, User, LayoutGrid, AlignJustify } from 'lucide-react';
+import { Plus, BookOpen, Book, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
 import { OverviewLayout, JournalShelfLayout } from '@/hooks/useLayoutPreference';
@@ -19,13 +19,12 @@ interface MobileBottomNavProps {
   handleNewNote: () => void;
   onEnterProfile: () => void;
   onLeaveProfile: () => void;
-  onNavigateBack?: () => void;
+  onGoToOverview?: () => void;
 }
 
 export default function MobileBottomNav({
   activeView,
   activeJournalId,
-  layout = 'grid',
   journalLayout = 'manuscript',
   isBottomBarVisible,
   isMobileDrawerOpen,
@@ -36,23 +35,15 @@ export default function MobileBottomNav({
   handleNewNote,
   onEnterProfile,
   onLeaveProfile,
-  onNavigateBack,
+  onGoToOverview,
 }: MobileBottomNavProps) {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
 
-  const isDetailView = activeView === 'journal-detail';
-  const isLandingView = activeView === 'journal-landing';
-  const isOverviewView = activeView === 'overview';
-  const isOverviewActive = isOverviewView;
+  const isOverviewActive = activeView === 'overview';
   const isProfileActive = activeView === 'profile';
 
-  const LayoutIcon = layout === 'grid' ? LayoutGrid : AlignJustify;
   const JournalIcon = journalLayout === 'bookshelf' ? Book : BookOpen;
-  const leftTabTitle = isDetailView
-    ? (language === 'DE' ? 'Zurück zur Flaschenübersicht' : 'Back to Notes')
-    : isLandingView
-    ? (language === 'DE' ? 'Zurück zur Journal-Übersicht' : 'Back to Journals')
-    : t('journalsTitle');
+  const leftTabTitle = t('journalsTitle');
 
   return (
     <nav
@@ -63,19 +54,12 @@ export default function MobileBottomNav({
           : "translate-y-full opacity-0 pointer-events-none"
       )}
     >
-      {/* Left: Adaptive Navigation Tab (Card/List in Detail view, Bookshelf in Landing/Overview) */}
+      {/* Left: Journals Overview Navigation Tab (Direct jump to Journals Overview) */}
       <button
         type="button"
         onClick={() => {
-          if (isDetailView || isLandingView) {
-            if (onNavigateBack) {
-              onNavigateBack();
-            } else if (isDetailView) {
-              setActiveView('journal-landing');
-            } else {
-              setActiveJournalId(null);
-              setActiveView('overview');
-            }
+          if (onGoToOverview) {
+            onGoToOverview();
           } else {
             setActiveJournalId(null);
             setActiveView('overview');
@@ -91,19 +75,11 @@ export default function MobileBottomNav({
         title={leftTabTitle}
         aria-label={leftTabTitle}
       >
-        {isDetailView ? (
-          <LayoutIcon
-            size={23}
-            strokeWidth={1.75}
-            className="transition-transform group-hover:scale-110 duration-200"
-          />
-        ) : (
-          <JournalIcon
-            size={23}
-            strokeWidth={isOverviewActive ? 2.2 : 1.75}
-            className="transition-transform group-hover:scale-110 duration-200"
-          />
-        )}
+        <JournalIcon
+          size={23}
+          strokeWidth={isOverviewActive ? 2.2 : 1.75}
+          className="transition-transform group-hover:scale-110 duration-200"
+        />
         {/* Active High-Contrast Indicator */}
         {isOverviewActive && (
           <div className="absolute bottom-1 w-5 h-0.5 rounded-full bg-[var(--nav-active)] shadow-[0_0_8px_rgba(46,148,93,0.5)]" />

@@ -216,9 +216,17 @@ html {
   color: var(--foreground);
 }
 
-html[data-theme="pub-dark"] {
-  color-scheme: dark;
-  background-color: #0D1115;
+html[data-theme="pub-dark"],
+html[data-theme="pub-dark"] body,
+body[data-theme="pub-dark"] {
+  color-scheme: dark !important;
+  background-color: #0D1115 !important;
+}
+
+html:not([data-theme="pub-dark"]),
+body:not([data-theme="pub-dark"]) {
+  color-scheme: light;
+  background-color: #ECE5D8;
 }
 
 input, textarea, select {

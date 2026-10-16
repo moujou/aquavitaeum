@@ -67,4 +67,34 @@ describe('SommelierScoreSlider Component', () => {
     fireEvent.click(milestone90);
     expect(onChangeFn).toHaveBeenCalledWith(90);
   });
+
+  it('handles pointer drag and stationary tap smoothly', () => {
+    const onChangeFn = vi.fn();
+    render(
+      <LanguageProvider>
+        <SommelierScoreSlider score={50} onChange={onChangeFn} />
+      </LanguageProvider>
+    );
+
+    const slider = screen.getByRole('slider', { name: /sommelier score/i });
+    // Mock getBoundingClientRect
+    slider.getBoundingClientRect = vi.fn(() => ({
+      left: 0,
+      top: 0,
+      width: 100,
+      height: 20,
+      right: 100,
+      bottom: 20,
+      x: 0,
+      y: 0,
+      toJSON: () => {},
+    }));
+
+    // Mouse pointer down and drag
+    fireEvent.pointerDown(slider, { clientX: 75, pointerType: 'mouse', pointerId: 1 });
+    fireEvent.pointerMove(slider, { clientX: 80, pointerType: 'mouse', pointerId: 1 });
+    fireEvent.pointerUp(slider, { clientX: 80, pointerType: 'mouse', pointerId: 1 });
+
+    expect(onChangeFn).toHaveBeenCalled();
+  });
 });

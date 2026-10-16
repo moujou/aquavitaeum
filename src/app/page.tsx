@@ -270,11 +270,26 @@ export default function Home() {
     navigateBack();
   }, [viewBeforeProfile, navigateBack]);
 
+  const handleGoToOverview = useCallback(() => {
+    setActiveJournalId(null);
+    setActiveView('overview');
+    pushView('overview', { journalId: null });
+  }, [pushView]);
+
   const handleSelectJournal = useCallback((id: string) => {
     setActiveJournalId(id);
     setActiveView('journal-landing');
     pushView('journal-landing', { journalId: id });
   }, [pushView]);
+
+  const handleBackToLanding = useCallback(() => {
+    if (activeJournalId) {
+      setActiveView('journal-landing');
+      pushView('journal-landing', { journalId: activeJournalId });
+    } else {
+      handleGoToOverview();
+    }
+  }, [activeJournalId, handleGoToOverview, pushView]);
 
   const handleSelectSpirit = useCallback((spiritId: string) => {
     selectSpirit(spiritId);
@@ -460,11 +475,7 @@ export default function Home() {
                   {/* Back to Journals (Library / BookOpen) FAB */}
                   <button
                     type="button"
-                    onClick={() => {
-                      setActiveJournalId(null);
-                      setActiveView('overview');
-                      navigateBack();
-                    }}
+                    onClick={handleGoToOverview}
                     className="pointer-events-auto absolute bottom-10 left-4 xl:-left-10 2xl:-left-16 w-16 h-16 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] border border-[var(--brass-accent)]/50 shadow-[0_12px_32px_rgba(0,0,0,0.35)] flex items-center justify-center cursor-pointer hover:scale-108 active:scale-95 transition-all hover:bg-[var(--fab-bg-hover)]"
                     title={language === 'DE' ? 'Zurück zur Journal-Übersicht' : 'Back to Journals'}
                   >
@@ -526,10 +537,7 @@ export default function Home() {
                     <div className="w-full max-w-6xl mx-auto h-full relative px-4 sm:px-6">
                       <button
                         type="button"
-                        onClick={() => {
-                          setActiveView('journal-landing');
-                          navigateBack();
-                        }}
+                        onClick={handleBackToLanding}
                         className="pointer-events-auto absolute bottom-10 left-4 xl:-left-10 2xl:-left-16 w-16 h-16 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] border border-[var(--brass-accent)]/50 shadow-[0_12px_32px_rgba(0,0,0,0.35)] flex items-center justify-center cursor-pointer hover:scale-108 active:scale-95 transition-all hover:bg-[var(--fab-bg-hover)]"
                         title="Back to Journal Overview"
                       >
@@ -555,7 +563,6 @@ export default function Home() {
         <MobileBottomNav
           activeView={activeView}
           activeJournalId={activeJournalId}
-          layout={layout}
           journalLayout={journalLayout}
           isBottomBarVisible={isBottomBarVisible}
           isMobileDrawerOpen={isMobileDrawerOpen}
@@ -566,7 +573,7 @@ export default function Home() {
           handleNewNote={handleNewNote}
           onEnterProfile={handleEnterProfile}
           onLeaveProfile={handleLeaveProfile}
-          onNavigateBack={navigateBack}
+          onGoToOverview={handleGoToOverview}
         />
       </main>
     </>

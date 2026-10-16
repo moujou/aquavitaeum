@@ -32,16 +32,28 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (typeof document !== 'undefined') {
       const isDark = theme === 'pub-dark';
+      const targetColor = isDark ? '#0D1115' : '#ECE5D8';
+
       if (isDark) {
         document.documentElement.setAttribute('data-theme', 'pub-dark');
         document.documentElement.style.colorScheme = 'dark';
-        document.documentElement.style.backgroundColor = '#0D1115';
+        document.documentElement.style.backgroundColor = targetColor;
+        if (document.body) {
+          document.body.setAttribute('data-theme', 'pub-dark');
+          document.body.style.colorScheme = 'dark';
+          document.body.style.backgroundColor = targetColor;
+        }
       } else {
         document.documentElement.removeAttribute('data-theme');
         document.documentElement.style.colorScheme = 'light';
-        document.documentElement.style.backgroundColor = '#ECE5D8';
+        document.documentElement.style.backgroundColor = targetColor;
+        if (document.body) {
+          document.body.removeAttribute('data-theme');
+          document.body.style.colorScheme = 'light';
+          document.body.style.backgroundColor = targetColor;
+        }
       }
-      const targetColor = isDark ? '#0D1115' : '#ECE5D8';
+
       const metas = document.querySelectorAll('meta[name="theme-color"]');
       if (metas.length > 0) {
         metas.forEach((meta) => {
