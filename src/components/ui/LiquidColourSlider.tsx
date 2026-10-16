@@ -22,6 +22,9 @@ export function LiquidColourSlider({
 }: LiquidColourSliderProps) {
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const isDraggingRef = useRef(false);
+  const touchStartPos = useRef<{ x: number; y: number } | null>(null);
+  const isPendingTouch = useRef(false);
 
   // Normalize current active index across the 21-shade scale
   const activeIndex = SPIRIT_COLOURS.findIndex(
@@ -59,25 +62,80 @@ export function LiquidColourSlider({
   );
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(true);
-    handlePointerAtX(e.clientX);
-    e.currentTarget.setPointerCapture(e.pointerId);
+    // Desktop mouse interaction: Instant drag & value update
+    if (e.pointerType === 'mouse') {
+      e.preventDefault();
+      setIsDragging(true);
+      isDraggingRef.current = true;
+      handlePointerAtX(e.clientX);
+      try {
+        e.currentTarget.setPointerCapture(e.pointerId);
+      } catch {
+        // ignore
+      }
+      return;
+    }
+
+    // Touch interaction: Record position without mutating value or blocking scroll
+    touchStartPos.current = { x: e.clientX, y: e.clientY };
+    isPendingTouch.current = true;
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDragging) return;
-    handlePointerAtX(e.clientX);
+    if (isPendingTouch.current && touchStartPos.current) {
+      const deltaX = Math.abs(e.clientX - touchStartPos.current.x);
+      const deltaY = Math.abs(e.clientY - touchStartPos.current.y);
+
+      // If user moved vertically, this is a native page scroll -> cancel touch capture
+      if (deltaY > 6 && deltaY > deltaX) {
+        isPendingTouch.current = false;
+        return;
+      }
+
+      // If user moved horizontally past threshold, engage active slider dragging
+      if (deltaX > 6 && deltaX > deltaY) {
+        isPendingTouch.current = false;
+        isDraggingRef.current = true;
+        setIsDragging(true);
+        try {
+          e.currentTarget.setPointerCapture(e.pointerId);
+        } catch {
+          // ignore
+        }
+        handlePointerAtX(e.clientX);
+        return;
+      }
+    }
+
+    if (isDraggingRef.current) {
+      handlePointerAtX(e.clientX);
+    }
   };
 
   const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (isDragging) {
+    if (isPendingTouch.current) {
+      // Intentional stationary tap on the slider track without vertical scrolling
+      isPendingTouch.current = false;
+      handlePointerAtX(e.clientX);
+      return;
+    }
+
+    if (isDraggingRef.current) {
+      isDraggingRef.current = false;
       setIsDragging(false);
       try {
         e.currentTarget.releasePointerCapture(e.pointerId);
       } catch {
         // ignore
       }
+    }
+  };
+
+  const handlePointerCancel = () => {
+    isPendingTouch.current = false;
+    if (isDraggingRef.current) {
+      isDraggingRef.current = false;
+      setIsDragging(false);
     }
   };
 
@@ -102,9 +160,9 @@ export function LiquidColourSlider({
   return (
     <div id={id} className={cn('flex flex-col gap-2 w-full select-none', className)}>
       {/* 1. Header Display: Active Colour Swatch & Name (Clean, without counter) */}
-      <div className="flex items-center gap-2 min-h-[28px]">
+      <div className="flex items-center gap-2 min-h-[26px]">
         <div
-          className="w-4 h-4 rounded-full border border-[var(--parchment-border)] shadow-xs transition-colors duration-300 shrink-0"
+          className="w-3.5 h-3.5 rounded-full border border-[var(--parchment-border)] shadow-xs transition-colors duration-300 shrink-0"
           style={{ backgroundColor: activeHex }}
         />
         <span className="font-display text-xs sm:text-sm font-bold text-[var(--foreground)] tracking-wide">
@@ -126,8 +184,8 @@ export function LiquidColourSlider({
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerUp}
-        className="relative w-full py-3 cursor-pointer touch-none focus:outline-none group"
+        onPointerCancel={handlePointerCancel}
+        className="relative w-full py-2 sm:py-2.5 cursor-pointer touch-pan-y focus:outline-none group select-none"
       >
         {/* The Liquid Gradient Tube spanning all 21 shades */}
         <div
@@ -146,7 +204,7 @@ export function LiquidColourSlider({
               <div
                 key={col}
                 className={cn(
-                  'w-0.5 h-1 sm:w-1 sm:h-1 rounded-full transition-all',
+                  'w-0.5 h-1 sm:h-1.5 rounded-full transition-all',
                   idx === safeIndex
                     ? 'bg-white shadow-[0_0_4px_rgba(255,255,255,0.9)] scale-125'
                     : 'bg-black/25'
@@ -178,15 +236,15 @@ export function LiquidColourSlider({
           {/* The Glass Orb Thumb */}
           <div
             className={cn(
-              'w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-[var(--brass-accent)] bg-[var(--parchment-bg)] shadow-[0_3px_10px_rgba(0,0,0,0.35)] flex items-center justify-center transition-transform',
-              isDragging ? 'scale-115 ring-4 ring-[var(--brass-accent)]/30' : 'group-hover:scale-108'
+              'w-6 h-6 sm:w-6.5 sm:h-6.5 rounded-full border-2 border-[var(--brass-accent)] bg-[var(--parchment-bg)] shadow-[0_3px_10px_rgba(0,0,0,0.35)] flex items-center justify-center transition-transform',
+              isDragging ? 'scale-115 ring-3 ring-[var(--brass-accent)]/30' : 'group-hover:scale-108'
             )}
             style={{
               boxShadow: `0 0 14px ${activeHex}90, 0 3px 8px rgba(0,0,0,0.35)`,
             }}
           >
             <div
-              className="w-4 h-4 sm:w-4.5 sm:h-4.5 rounded-full border border-black/20 shadow-inner"
+              className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border border-black/20 shadow-inner"
               style={{ backgroundColor: activeHex }}
             />
           </div>

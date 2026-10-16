@@ -1,65 +1,84 @@
-const CACHE_NAME = 'aquavitaeum-cache-v6';
+const CACHE_NAME = 'aquavitaeum-cache-v7';
 
-const PRECACHE_ASSETS = [
-  './',
-  './favicon.svg',
-  './favicon.ico',
-  './apple-touch-icon.png',
-  './icons/icon-192x192.png',
-  './icons/icon-512x512.png',
-  './icons/icon-maskable-192x192.png',
-  './icons/icon-maskable-512x512.png',
-];
+const isLocalhost = Boolean(
+  self.location.hostname === 'localhost' ||
+  self.location.hostname === '[::1]' ||
+  self.location.hostname.match(/^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/)
+);
 
-// Install event: cache shell assets
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(PRECACHE_ASSETS);
-    }).then(() => self.skipWaiting())
-  );
-});
+if (isLocalhost) {
+  // Development safety: If activated on localhost, unregister immediately and purge caches to prevent dev reload loops
+  self.addEventListener('install', () => self.skipWaiting());
+  self.addEventListener('activate', (event) => {
+    event.waitUntil(
+      caches.keys()
+        .then((names) => Promise.all(names.map((name) => caches.delete(name))))
+        .then(() => self.registration.unregister())
+        .then(() => self.clients.claim())
+    );
+  });
+} else {
+  const PRECACHE_ASSETS = [
+    './',
+    './favicon.svg',
+    './favicon.ico',
+    './apple-touch-icon.png',
+    './icons/icon-192x192.png',
+    './icons/icon-512x512.png',
+    './icons/icon-maskable-192x192.png',
+    './icons/icon-maskable-512x512.png',
+  ];
 
-// Activate event: clean up old caches
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames
-          .filter((name) => name !== CACHE_NAME)
-          .map((name) => caches.delete(name))
-      );
-    }).then(() => self.clients.claim())
-  );
-});
+  // Install event: cache shell assets
+  self.addEventListener('install', (event) => {
+    event.waitUntil(
+      caches.open(CACHE_NAME).then((cache) => {
+        return cache.addAll(PRECACHE_ASSETS);
+      }).then(() => self.skipWaiting())
+    );
+  });
 
-// Fetch event: Network-first fallback to Cache with dynamic caching
-self.addEventListener('fetch', (event) => {
-  // Only handle HTTP/HTTPS (ignore chrome-extension, etc.)
-  if (!event.request.url.startsWith(self.location.origin)) {
-    return;
-  }
+  // Activate event: clean up old caches
+  self.addEventListener('activate', (event) => {
+    event.waitUntil(
+      caches.keys().then((cacheNames) => {
+        return Promise.all(
+          cacheNames
+            .filter((name) => name !== CACHE_NAME)
+            .map((name) => caches.delete(name))
+        );
+      }).then(() => self.clients.claim())
+    );
+  });
 
-  // Avoid intercepting POST requests (like API syncs)
-  if (event.request.method !== 'GET') {
-    return;
-  }
+  // Fetch event: Network-first fallback to Cache with dynamic caching
+  self.addEventListener('fetch', (event) => {
+    // Only handle HTTP/HTTPS (ignore chrome-extension, etc.)
+    if (!event.request.url.startsWith(self.location.origin)) {
+      return;
+    }
 
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        // If valid response, clone and store it in cache
-        if (response && response.status === 200 && response.type === 'basic') {
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-        }
-        return response;
-      })
-      .catch(() => {
-        // If network request fails, look in cache
-        return caches.match(event.request);
-      })
-  );
-});
+    // Avoid intercepting POST requests (like API syncs)
+    if (event.request.method !== 'GET') {
+      return;
+    }
+
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          // If valid response, clone and store it in cache
+          if (response && response.status === 200 && response.type === 'basic') {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          // If network request fails, look in cache
+          return caches.match(event.request);
+        })
+    );
+  });
+}

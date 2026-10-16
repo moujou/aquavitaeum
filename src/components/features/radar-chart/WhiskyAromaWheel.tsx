@@ -188,6 +188,8 @@ export function computeActiveCategoriesData(
   customFlavors?: CustomFlavorDescriptor[]
 ): ActiveCategoryData[] {
   const customList = customFlavors ?? getStoredCustomFlavors();
+  const normalizedActiveTags = Array.from(new Set(activeTags.map((t) => t.trim()).filter(Boolean)));
+
   return SPIRIT_FLAVOR_TAXONOMY.map((cat) => {
     const activeDescriptorsInCat: {
       descriptor: FlavorDescriptor;
@@ -214,10 +216,9 @@ export function computeActiveCategoriesData(
       }[] = [];
 
       sub.descriptors.forEach((desc) => {
-        if (isTagSelected(desc, activeTags)) {
-          const tagName = desc.name.EN;
-          const deName = desc.name.DE;
-          const matchedTag = activeTags.find(
+        if (isTagSelected(desc, normalizedActiveTags)) {
+          // Identify ALL tags in activeTags that match this descriptor (by id, EN name, DE name, or any alias)
+          const matchingTags = normalizedActiveTags.filter(
             (t) =>
               t.toLowerCase() === desc.id.toLowerCase() ||
               t.toLowerCase() === desc.name.EN.toLowerCase() ||
@@ -225,24 +226,38 @@ export function computeActiveCategoriesData(
               (desc.aliases && desc.aliases.some((a) => a.toLowerCase() === t.toLowerCase()))
           );
 
-          if (matchedTag) {
-            matchedActiveTags.add(matchedTag.toLowerCase());
+          matchingTags.forEach((t) => matchedActiveTags.add(t.toLowerCase()));
+
+          // Calculate maximum intensity across any matching tag or descriptor alias
+          let intensity = 5;
+          let foundExplicitIntensity = false;
+          for (const mt of matchingTags) {
+            if (tagIntensities[mt] !== undefined) {
+              intensity = Math.max(intensity, tagIntensities[mt]);
+              foundExplicitIntensity = true;
+            }
+          }
+          if (!foundExplicitIntensity) {
+            intensity =
+              tagIntensities[desc.name.EN] ??
+              tagIntensities[desc.name.DE] ??
+              tagIntensities[desc.id] ??
+              5;
           }
 
-          const intensity =
-            (matchedTag ? tagIntensities[matchedTag] : undefined) ??
-            tagIntensities[tagName] ??
-            tagIntensities[deName] ??
-            tagIntensities[desc.id] ??
-            5;
-
-          const item = {
-            descriptor: desc,
-            subcategory: sub,
-            intensity,
-          };
-          activeDescriptorsInCat.push(item);
-          activeInSub.push(item);
+          // Ensure descriptor is unique within this category
+          const existingInCat = activeDescriptorsInCat.find((item) => item.descriptor.id === desc.id);
+          if (existingInCat) {
+            existingInCat.intensity = Math.max(existingInCat.intensity, intensity);
+          } else {
+            const item = {
+              descriptor: desc,
+              subcategory: sub,
+              intensity,
+            };
+            activeDescriptorsInCat.push(item);
+            activeInSub.push(item);
+          }
         }
       });
 
@@ -255,7 +270,7 @@ export function computeActiveCategoriesData(
     });
 
     // Check for any active custom flavors or unmapped tags that belong to this category
-    const remainingInCat = activeTags.filter((tag) => {
+    const remainingInCat = normalizedActiveTags.filter((tag) => {
       if (matchedActiveTags.has(tag.toLowerCase())) return false;
       const catForTag = getCategoryByDescriptorId(tag, customList);
       return catForTag?.id === cat.id;
@@ -291,14 +306,20 @@ export function computeActiveCategoriesData(
           tagIntensities[desc.name.DE] ??
           5;
 
-        const item = {
-          descriptor: desc,
-          subcategory: customSubcat,
-          intensity,
-        };
-        activeDescriptorsInCat.push(item);
-        activeInCustomSub.push(item);
-        customSubcat.descriptors.push(desc);
+        // Dedup check in activeDescriptorsInCat:
+        const existingInCat = activeDescriptorsInCat.find((item) => item.descriptor.id === desc.id);
+        if (existingInCat) {
+          existingInCat.intensity = Math.max(existingInCat.intensity, intensity);
+        } else {
+          const item = {
+            descriptor: desc,
+            subcategory: customSubcat,
+            intensity,
+          };
+          activeDescriptorsInCat.push(item);
+          activeInCustomSub.push(item);
+          customSubcat.descriptors.push(desc);
+        }
       });
 
       if (activeInCustomSub.length > 0) {
@@ -447,13 +468,13 @@ export function SommelierCategoryLegendAndInspector({
 
               return (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 pt-2 border-t border-[var(--parchment-border)]/60">
-                  {catData.activeDescriptors.map((d) => {
+                  {catData.activeDescriptors.map((d, dIdx) => {
                     const descName = d.descriptor.name[language] ?? d.descriptor.name.EN;
                     const isSelected = activeNode.tagName === descName;
 
                     return (
                       <button
-                        key={d.descriptor.id}
+                        key={`${catData.category.id}_${d.descriptor.id}_${dIdx}`}
                         type="button"
                         onClick={(e) => {
                           togglePin(
@@ -595,8 +616,8 @@ export function WhiskyAromaWheel({
 
   // Filter active tags according to active sensory filter mode
   const activeTags = useMemo(() => {
-    if (sensoryMode === 'nose') return noseFlavorTags;
-    if (sensoryMode === 'taste') return tasteFlavorTags;
+    if (sensoryMode === 'nose') return Array.from(new Set(noseFlavorTags));
+    if (sensoryMode === 'taste') return Array.from(new Set(tasteFlavorTags));
     return Array.from(new Set([...noseFlavorTags, ...tasteFlavorTags]));
   }, [sensoryMode, noseFlavorTags, tasteFlavorTags]);
 
@@ -833,7 +854,7 @@ export function WhiskyAromaWheel({
 
           {/* ─── Layer 2: Middle Subcategory Ring (Floating Slices) ─── */}
           {renderedSlices.map((slice) =>
-            slice.midSlices.map((subSlice) => {
+            slice.midSlices.map((subSlice, subIdx) => {
               const isSubActive = activeNode?.subcategoryName === subSlice.subcategory.name[language];
               const isCatActive = activeNode?.categoryId === slice.category.id;
               const isDimmed = activeNode !== null && !isCatActive;
@@ -850,7 +871,7 @@ export function WhiskyAromaWheel({
 
               return (
                 <path
-                  key={subSlice.subcategory.id}
+                  key={`${slice.category.id}_${subSlice.subcategory.id}_${subIdx}`}
                   d={subSlice.path}
                   fill={slice.colorConfig.light}
                   fillOpacity={isSubActive ? 0.95 : 0.76}
@@ -869,7 +890,7 @@ export function WhiskyAromaWheel({
 
           {/* ─── Layer 3: Outer Active Aroma Descriptors (Floating Petals with Intensity) ─── */}
           {renderedSlices.map((slice) =>
-            slice.outerPetals.map((petal) => {
+            slice.outerPetals.map((petal, petalIdx) => {
               const desc = petal.descriptor;
               const tagName = desc.name[language] ?? desc.name.EN;
               const isPetalActive = activeNode?.tagName === tagName;
@@ -890,7 +911,7 @@ export function WhiskyAromaWheel({
 
               return (
                 <g
-                  key={desc.id}
+                  key={`${slice.category.id}_${petal.subcategory.id}_${desc.id}_${petalIdx}`}
                   className="cursor-pointer transition-all duration-200"
                   opacity={isDimmed ? 0.38 : 1}
                   onClick={(e) => {

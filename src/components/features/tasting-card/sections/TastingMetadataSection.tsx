@@ -87,7 +87,7 @@ export function TastingMetadataSection({
           />
         </div>
 
-        {/* Row 3: Destillerie / Hersteller (Links) & Abfüller / Bottler (Rechts) */}
+        {/* Row 3: Brennerei (Links) & Abfüller (Rechts) */}
         <div className="flex flex-col gap-1">
           <FieldLabel htmlFor="distillery-input">{t('distilleryProducer')}</FieldLabel>
           <TextInput
@@ -107,7 +107,7 @@ export function TastingMetadataSection({
           />
         </div>
 
-        {/* Row 4: Herkunft / Region & Alter */}
+        {/* Row 4: Region & Alter */}
         <div className="flex flex-col gap-1">
           <FieldLabel htmlFor="region-input">{t('regionOrigin')}</FieldLabel>
           <TextInput
@@ -131,7 +131,7 @@ export function TastingMetadataSection({
           />
         </div>
 
-        {/* Row 5: Fass / Batch-Nr & Finish */}
+        {/* Row 5: Fass-Nr. & Cask Finish */}
         <div className="flex flex-col gap-1">
           <FieldLabel htmlFor="cask-input">{t('caskBatchNo')}</FieldLabel>
           <TextInput

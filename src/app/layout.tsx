@@ -6,7 +6,10 @@ import { LanguageProvider } from '@/context/LanguageContext';
 import { GoogleDriveSyncProvider } from '@/context/GoogleDriveSyncContext';
 
 export const viewport: Viewport = {
-  themeColor: '#ECE5D8', // Matches the Warm Vintage Linen canvas & navigation header (--pub-bg / --nav-bg)
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ECE5D8' },
+    { media: '(prefers-color-scheme: dark)', color: '#0D1115' },
+  ],
   viewportFit: 'cover',
   width: 'device-width',
   initialScale: 1,
@@ -57,6 +60,8 @@ export default function RootLayout({
                 var theme = localStorage.getItem('av-theme');
                 if (theme === 'pub-dark') {
                   document.documentElement.setAttribute('data-theme', 'pub-dark');
+                  var metas = document.querySelectorAll('meta[name="theme-color"]');
+                  metas.forEach(function(m) { m.setAttribute('content', '#0D1115'); });
                 }
               } catch (e) {}
             })();
@@ -68,16 +73,36 @@ export default function RootLayout({
         >
           {`
             if ('serviceWorker' in navigator) {
-              window.addEventListener('load', function() {
-                var isProd = window.location.hostname !== 'localhost';
-                var prefix = isProd ? '/aquavitaeum' : '';
-                navigator.serviceWorker.register(prefix + '/sw.js').then(
-                  function(reg) {},
-                  function(err) {
-                    console.warn('Aqua Vitaeum: ServiceWorker registration failed: ', err);
+              var isLocalhost = Boolean(
+                window.location.hostname === 'localhost' ||
+                window.location.hostname === '[::1]' ||
+                window.location.hostname.match(/^127(?:\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/)
+              );
+
+              if (isLocalhost) {
+                navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                  for (var i = 0; i < registrations.length; i++) {
+                    registrations[i].unregister();
                   }
-                );
-              });
+                });
+                if ('caches' in window) {
+                  caches.keys().then(function(names) {
+                    for (var i = 0; i < names.length; i++) {
+                      caches.delete(names[i]);
+                    }
+                  });
+                }
+              } else {
+                window.addEventListener('load', function() {
+                  var prefix = '/aquavitaeum';
+                  navigator.serviceWorker.register(prefix + '/sw.js').then(
+                    function(reg) {},
+                    function(err) {
+                      console.warn('Aqua Vitaeum: ServiceWorker registration failed: ', err);
+                    }
+                  );
+                });
+              }
             }
           `}
         </Script>

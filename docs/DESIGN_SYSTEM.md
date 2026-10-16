@@ -244,6 +244,65 @@ Used for all text inputs, textareas, and select elements on the parchment ledger
 - **Rating Segmented Bar**: 4-column connected toggle pill bar (`[ Alle ] [ 80+ ] [ 85+ ] [ 90+ ]`) styled in `bg-[var(--pub-bg)]` with active Clover Green fill (`bg-[var(--forest-green)] text-white shadow-xs font-bold`) and high-contrast ink labels.
 - **Minimalist Overview Header**: Low-profile, single-row toolbar layout with subtle journal subtitle lockup placed directly beneath the Clover Glow divider.
 
+### 5.14 The 3 Button Archetypes Standard (Mandatory Interaction Design)
+
+To prevent visual inconsistencies and maintain a crystal-clear distinction between interactive actions and passive decorations, all buttons and interactive elements across Aqua Vitaeum strictly conform to one of three archetypes:
+
+```mermaid
+graph TD
+    A["Button & Element Categorization"] --> B["<b>Typ 1: Primäre Interaktion & Aktive Toggles</b><br/><i>Sattes Grün / Bernsteingold mit REINWEISSEM Icon & Text</i>"]
+    A --> C["<b>Typ 2: Sekundäre Buttons & Utilities</b><br/><i>Pergament/Panel mit Sepia-Tinte & subtilem Hover</i>"]
+    A --> D["<b>Typ 3: Dekorative Badges & Begleit-Icons</b><br/><i>REIN PASSIV & pointer-events-none (KEIN Button!)</i>"]
+```
+
+| Archetyp | Funktion & Verwendung | Token- & Styling-Regel | Beispiele in Aqua Vitaeum |
+| :--- | :--- | :--- | :--- |
+| **Typ 1: Primäre Interaktions-Buttons & Aktive Toggles** | Hauptaktionen, primäre CTAs und **aktive Toggle-Zustände**. | **Fläche:** Sattes Irish Wood Green (`bg-[var(--wood-selection)]` / `bg-[var(--wood-dark)] hover:bg-[var(--wood-accent)]`) bzw. für Cover-Highlights Bernsteingold (`bg-[var(--brass-accent)]`).<br>**Text & Icons:** **Immer reinweiß** (`text-white` / `text-[var(--fab-text)]`). Keine grünen oder gedämpften Icons auf satter Fläche!<br>**Feedback:** `shadow-xs`, `active:scale-95`. | • `[ 📖 Katalog ]` (`FlavorTagSelector`)<br>• `[ + Aroma ]` (`FlavorTagSelector`)<br>• `[ ✨ Flasche analysieren ]` (Foto-Header & Toolbar)<br>• Aktiver Thumbnail-Stern (`bg-[var(--brass-accent)] text-white`)<br>• Aktive Toggles (Sprache `[DE]`, `[Moon]`, Layouts)<br>• Speichern/Übernehmen in Modals (`ConfirmDialog`, `CustomFlavorModal`, `SpiritScanModal`) |
+| **Typ 2: Sekundäre Buttons, Inaktive Toggles & Utilities** | Neutrale Werkzeuge, sekundäre Auslöser, Abbrechen/Schließen und inaktive Toggle-Zustände. Destruktive Buttons (Löschen) sind im Ruhezustand neutral und warnen bei Hover rot. | **Fläche:** Pergament / Pub-Panel (`bg-[var(--pub-bg-panel)]` oder `bg-[var(--pub-bg-alt)]/60`).<br>**Rand:** Dezenter Pergamentrand (`border-[var(--parchment-border)]`).<br>**Text & Icons:** Warmes Sepia (`text-[var(--sepia-text)]` bzw. `text-[var(--sepia-muted)]`).<br>**Feedback:** `hover:bg-[var(--pub-bg-alt)] hover:text-[var(--foreground)] active:scale-95`. | • Inaktiver Thumbnail-Stern (`text-[var(--sepia-muted)] hover:border-[var(--brass-accent)]`)<br>• Foto-Aktionen: `Kamera`, `Upload` im Leer-Zustand<br>• `Abbrechen` / `Zurück` in Modals<br>• Inaktive Toggles (z.B. inaktive Sprache `EN` oder inaktives `Sun`)<br>• Mülleimer `[ 🗑️ ]` (hover rot) |
+| **Typ 3: Dekorative Badges & Begleit-Icons (PASSIV)** | Rein optische Begleiter neben Textzeilen (wie links im Profil) oder statische Info-Badges. | **Fläche & Text:** Zarte Tönung (`bg-[var(--forest-green)]/10 text-[var(--forest-green)] border border-[var(--forest-green)]/30`).<br>⚠️ **STRIKTES VERBOT:** Dies sind **keine klickbaren Buttons** (`pointer-events-none`). Kein interaktiver Button darf als Klickfläche diesen blassen Badge-Look tragen! | • Linke Zeilen-Icons in Einstellungen/Profil (`Globe`, `Moon`, `Bookshelf`, `HardDrive`)<br>• Statische Status-Badges ("Aktiv", "Synchronisiert") |
+
+### 5.15 Metadata Cleanliness & Atomicity Standard
+1. **Keine Schrägstriche ("/") in Labels**: UI-Felder und Metadaten trennen Entitäten sauber atomar:
+   - `Brennerei` (Hersteller/Distillery)
+   - `Abfüller` (Unabhängiger Abfüller/Bottler)
+   - `Region` (Terroir/Herkunft)
+   - `Fass-Nr.` (Cask / Batch Number)
+   - `Cask Finish` (Fassveredelung)
+2. **Silent Background Synchronization**: Bei schnellen Benutzerinteraktionen (z.B. Thumbnail-Cover-Stern) wird die Aktualisierung im Hintergrund synchronisiert (`isSilent`), ohne dass die Verkostungskarte neu ungemountet wird oder flackert.
+
+### 5.16 Mobile Touch Ergonomics & Slider Scroll Disambiguation (`LiquidColourSlider` & `SommelierScoreSlider`)
+1. **Synchronized Balanced Tube Dimensions (100% Identical Visual Weight)**:
+   - Beide Röhren (`LiquidColourSlider` & `SommelierScoreSlider`) besitzen exakt die gleiche, ausgewogene Dicke von **14px auf Mobile / 16px auf Desktop** (`h-3.5 sm:h-4`).
+   - Dies stellt sicher, dass das 21-stufige Farbspektrum des Whiskys leuchtstark und glasklar erkennbar ist, ohne klobig oder überdimensioniert zu wirken.
+   - Der Thumb-Knopf ist harmonisch auf 24–26px (`w-6 h-6 sm:w-6.5 sm:h-6.5`) skaliert mit einer 14–16px Kern-Farblinse.
+2. **Scroll-Disambiguation gegen versehentliche Manipulation**:
+   - **`touch-pan-y` statt `touch-none`**: Ermöglicht dem mobilen Browser ungehindertes vertikales Scrollen über der gesamten Slider-Breite.
+   - **Gesten-Unterscheidung**: Bei Touch-Berührung wird der Wert nicht sofort auf `pointerdown` verändert.
+     - Wenn die Geste vertikal verläuft (`deltaY > 6px && deltaY > deltaX`), scrollt die Seite butterweich weiter und der Slider bricht die Touch-Erfassung ab.
+     - Nur bei bewusster horizontaler Wischbewegung (`deltaX > 6px && deltaX > deltaY`) oder gezieltem Tippen (`pointerup` ohne Bewegung) wird der Wert angepasst.
+
+### 5.17 Dark-Mode Transition Synchronization & Mobile System Safe-Area Standard
+1. **Targeted Scroll Transitions (0ms Theme Switch Sync)**:
+   - Header (`#app-header`) und Bottom-Navigation (`MobileBottomNav`) animieren auf Scroll ausschließlich `transform` und `opacity` (`transition-[transform,opacity] duration-300 ease-in-out`).
+   - Bei einem Theme-Wechsel (Hell ↔ Dunkel) interpolieren Hintergrundfarben und Ränder nicht asynchron, sondern wechseln absolut simultan (0 ms Verzögerung) über alle Flächen hinweg.
+2. **Mobile OS Color Scheme & Gesture Bar Integration**:
+   - `color-scheme: light` in `:root` und `color-scheme: dark` in `[data-theme="pub-dark"]` garantieren, dass die native System-Navigationsleiste (Wischbalken am Smartphone) im Dunkelmodus automatisch auf schwarzen Hintergrund mit hellem Indikator umstellt.
+   - `viewport` definiert Media-Query-gestützte `themeColor`-Werte (`#ECE5D8` für Hellmodus, `#0D1115` für Dunkelmodus).
+   - `MobileBottomNav` erstreckt sich mit `h-[calc(4rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px))]` nahtlos über die gesamte untere Safe-Area bis an die Gehäusekante.
+
+### 5.18 Native OS History & Gesture Navigation Standard (Android Pixel & iOS)
+1. **OS-Level Edge Swipe Integration**:
+   - Moderne mobile Betriebssysteme (Google Pixel/Android Gesten-Navigation, iOS Safari/PWA Edge-Swipe) fangen Wischgesten am Bildschirmrand auf Betriebssystemebene ab und rufen `window.history.back()` auf.
+   - Aqua Vitaeum verzichtet vollständig auf fehleranfällige manuelle DOM-Touch-Listener (`touchstart`/`touchend` Wischkoordinaten).
+   - Stattdessen synchronisiert [`useHistoryNavigation`](file:///C:/dev/workspace/aquavitaeum/src/hooks/useHistoryNavigation.ts) alle Ansichtswechsel bidirektional mit der HTML5 History & PopState API.
+2. **Breadcrumb-Hierarchie (Ergonomie wie native Apps z. B. WhatsApp)**:
+   - **Bücherregal (`overview`)**: Startseite / Root der App. Eine native Zurück-Geste auf dieser Ebene schließt/minimiert die App wie vom Betriebssystem vorgesehen.
+   - **Journal-Übersicht (`journal-landing`)**: Eine Zurück-Geste kehrt zum Bücherregal zurück.
+   - **Flaschen-Detailkarte (`journal-detail`)**: Eine Zurück-Geste kehrt zur Flaschenübersicht des aktuellen Notizbuchs zurück.
+   - **Profil (`profile`)**: Eine Zurück-Geste kehrt zur zuvor geöffneten Ansicht zurück.
+3. **Synchronisierte Steuerelemente**:
+   - Sowohl die native Betriebssystem-Wischgeste als auch die In-App Zurück-Buttons (Desktop FABs und `MobileBottomNav` Tabs) nutzen dieselbe `navigateBack()` Methode und halten den History-Stack absolut konsistent.
+
 ---
 
 ## 🍷 6. Instinctive Sensory Flavor Palette (SWRI Taxonomy)

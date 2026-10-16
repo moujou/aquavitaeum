@@ -1,13 +1,10 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
-import { Camera, ChevronLeft, ChevronRight, Trash2, Plus, Star, Sparkles, Upload } from 'lucide-react';
+import React, { useRef } from 'react';
+import { Camera, ChevronLeft, ChevronRight, Trash2, Plus, Star, Upload } from 'lucide-react';
 import { WhiskyLogo } from '@/components/ui/WhiskyLogo';
 import { usePhotoUpload } from '@/hooks/usePhotoUpload';
 import { useLanguage } from '@/context/LanguageContext';
-import { useAiAssistantConfig } from '@/hooks/useAiAssistantConfig';
-import { SpiritScanModal, SpiritApplyMode } from '@/components/features/scanner/SpiritScanModal';
-import { SpiritAnalysisResult } from '@/services/ai-assistant-service';
 import { cn } from '@/lib/utils';
 
 interface SpiritPhotoCarouselProps {
@@ -15,7 +12,6 @@ interface SpiritPhotoCarouselProps {
   thumbnailImage?: string;
   onChange?: (images: string[]) => void;
   onSetThumbnail?: (url: string | undefined) => void;
-  onAnalyzeSpirit?: (result: SpiritAnalysisResult, uploadedImage?: string, mode?: SpiritApplyMode) => void;
   className?: string;
 }
 
@@ -24,12 +20,9 @@ export function SpiritPhotoCarousel({
   thumbnailImage,
   onChange,
   onSetThumbnail,
-  onAnalyzeSpirit,
   className,
 }: SpiritPhotoCarouselProps) {
   const { language, t } = useLanguage();
-  const { hasAiKey } = useAiAssistantConfig();
-  const [isScanModalOpen, setIsScanModalOpen] = useState(false);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const {
@@ -45,17 +38,6 @@ export function SpiritPhotoCarousel({
   const isThumbnail = (url: string) => thumbnailImage === url;
   const safeActiveIndex = Math.min(activeIndex, Math.max(0, images.length - 1));
   const currentPhoto = images[safeActiveIndex];
-
-  const handleApplyScan = (result: SpiritAnalysisResult, uploadedImage?: string, mode?: SpiritApplyMode) => {
-    if (uploadedImage) {
-      const newImages = [...images, uploadedImage];
-      onChange?.(newImages);
-      if (!thumbnailImage && onSetThumbnail) {
-        onSetThumbnail(uploadedImage);
-      }
-    }
-    onAnalyzeSpirit?.(result, uploadedImage, mode);
-  };
 
   return (
     <div className={cn('space-y-4', className)}>
@@ -92,32 +74,13 @@ export function SpiritPhotoCarousel({
             </p>
             <p className="font-body text-xs text-[var(--sepia-muted)] mt-0.5">
               {language === 'DE'
-                ? hasAiKey
-                  ? 'Analysiere das Etikett mit KI oder füge eigene Fotos der Flasche hinzu.'
-                  : 'Füge Fotos deiner Flasche oder des Etiketts hinzu.'
-                : hasAiKey
-                  ? 'Analyze the label with AI or add your own bottle photos.'
-                  : 'Add photos of your bottle or label.'}
+                ? 'Füge Fotos deiner Flasche oder des Etiketts hinzu.'
+                : 'Add photos of your bottle or label.'}
             </p>
           </div>
 
-          {/* Action Buttons: 1. AI Analysis (Primary) | 2. Direct Camera (Secondary) | 3. File Upload (Secondary) */}
+          {/* Action Buttons: 1. Direct Camera | 2. File Upload */}
           <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
-            {hasAiKey && (
-              <button
-                type="button"
-                onClick={() => setIsScanModalOpen(true)}
-                className={cn(
-                  'flex items-center gap-2 px-4.5 py-2.5 rounded-full border border-[var(--fab-border)]',
-                  'bg-[var(--fab-bg)] text-[var(--fab-text)] text-xs sm:text-sm font-display font-bold uppercase tracking-wider',
-                  'hover:bg-[var(--fab-bg-hover)] transition-all cursor-pointer shadow-md active:scale-95'
-                )}
-              >
-                <Sparkles size={16} className="text-[var(--fab-text)]" />
-                <span>{t('analyzeBottleAi')}</span>
-              </button>
-            )}
-
             <button
               type="button"
               onClick={() => cameraInputRef.current?.click()}
@@ -127,7 +90,7 @@ export function SpiritPhotoCarousel({
                 'hover:bg-[var(--pub-bg-alt)] transition-all cursor-pointer shadow-xs active:scale-95'
               )}
             >
-              <Camera size={16} className="text-[var(--forest-green)]" />
+              <Camera size={16} className="text-[var(--sepia-muted)]" />
               <span>{language === 'DE' ? 'Kamera' : 'Camera'}</span>
             </button>
 
@@ -140,7 +103,7 @@ export function SpiritPhotoCarousel({
                 'hover:bg-[var(--pub-bg-alt)] transition-all cursor-pointer shadow-xs active:scale-95'
               )}
             >
-              <Upload size={16} className="text-[var(--forest-green)]" />
+              <Upload size={16} className="text-[var(--sepia-muted)]" />
               <span>{t('uploadPhoto')}</span>
             </button>
           </div>
@@ -197,27 +160,14 @@ export function SpiritPhotoCarousel({
                 title={isThumbnail(currentPhoto) ? t('useAsThumbnailActive') : t('useAsThumbnail')}
                 aria-label={isThumbnail(currentPhoto) ? t('useAsThumbnailActive') : t('useAsThumbnail')}
                 className={cn(
-                  'w-8 h-8 rounded-lg flex items-center justify-center transition-all border cursor-pointer shrink-0 active:scale-95 shadow-2xs',
+                  'w-8 h-8 rounded-lg flex items-center justify-center transition-all border cursor-pointer shrink-0 active:scale-95 shadow-xs',
                   isThumbnail(currentPhoto)
-                    ? 'bg-[var(--brass-accent)]/20 border-[var(--brass-accent)] text-[var(--brass-accent)]'
+                    ? 'bg-[var(--brass-accent)] border-[var(--brass-accent)] text-white shadow-xs'
                     : 'bg-transparent border-[var(--parchment-border)] text-[var(--sepia-muted)] hover:border-[var(--brass-accent)] hover:text-[var(--brass-accent)] hover:bg-[var(--pub-bg-alt)]',
                 )}
               >
-                <Star size={15} className={isThumbnail(currentPhoto) ? 'fill-[var(--brass-accent)]' : ''} />
+                <Star size={15} className={isThumbnail(currentPhoto) ? 'fill-white text-white' : ''} />
               </button>
-
-              {/* AI Assistant Button in Clover Green */}
-              {hasAiKey && (
-                <button
-                  type="button"
-                  onClick={() => setIsScanModalOpen(true)}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--forest-green)]/15 border border-[var(--forest-green)]/40 text-[var(--forest-green)] hover:bg-[var(--forest-green)] hover:text-white transition-all cursor-pointer shadow-2xs active:scale-95"
-                  title={language === 'DE' ? 'Cask & Spirit Assistent: Flasche analysieren' : 'Cask & Spirit Assistant: Analyze bottle'}
-                  aria-label={language === 'DE' ? 'Flasche neu analysieren' : 'Re-analyze Bottle'}
-                >
-                  <Sparkles size={15} />
-                </button>
-              )}
             </div>
 
             {/* Right: Delete Action */}
@@ -255,7 +205,7 @@ export function SpiritPhotoCarousel({
                 <img src={img} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
                 {img === thumbnailImage && (
                   <div className="absolute top-0.5 right-0.5 w-3.5 h-3.5 rounded-full bg-[var(--brass-accent)] border border-[var(--pub-bg-panel)] flex items-center justify-center shadow-2xs">
-                    <Star size={8} className="fill-[var(--sepia-text)] text-[var(--sepia-text)]" />
+                    <Star size={8} className="fill-white text-white" />
                   </div>
                 )}
               </button>
@@ -274,13 +224,6 @@ export function SpiritPhotoCarousel({
           </div>
         </div>
       )}
-
-      {/* Embedded Spirit Scan Modal */}
-      <SpiritScanModal
-        isOpen={isScanModalOpen}
-        onClose={() => setIsScanModalOpen(false)}
-        onApply={handleApplyScan}
-      />
     </div>
   );
 }

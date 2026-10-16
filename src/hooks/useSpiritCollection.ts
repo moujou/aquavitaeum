@@ -24,6 +24,7 @@ export function useSpiritCollection(activeJournalId: string | null) {
   const [typeFilter, setTypeFilter] = useState<SpiritType | 'All'>('All');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [loadedJournalId, setLoadedJournalId] = useState<string | null>(null);
+  const loadedJournalIdRef = useRef<string | null>(null);
 
   // Synchronously true when activeJournalId has not yet loaded its notes
   const isEffectiveLoading = isLoading || (activeJournalId !== null && loadedJournalId !== activeJournalId);
@@ -32,15 +33,18 @@ export function useSpiritCollection(activeJournalId: string | null) {
   }, [activeJournalId, loadedJournalId, spirits]);
 
   // Fetch spirits for the active journal
-  const loadSpirits = useCallback(async () => {
+  const loadSpirits = useCallback(async (isSilent = false) => {
     if (!activeJournalId) {
       setSpirits([]);
       setLoadedJournalId(null);
+      loadedJournalIdRef.current = null;
       setIsLoading(false);
       return;
     }
-    setIsLoading(true);
     const journalId = activeJournalId;
+    if (!isSilent && loadedJournalIdRef.current !== journalId) {
+      setIsLoading(true);
+    }
 
     let localSpirits: Spirit[] = [];
     try {
@@ -63,6 +67,7 @@ export function useSpiritCollection(activeJournalId: string | null) {
       );
     }
     pendingSelectedIdRef.current = null;
+    loadedJournalIdRef.current = journalId;
     setLoadedJournalId(journalId);
     setIsLoading(false);
   }, [activeJournalId]);
@@ -75,7 +80,7 @@ export function useSpiritCollection(activeJournalId: string | null) {
   // Live reactivity: listen to background sync / import updates / remote sync completions
   useEffect(() => {
     const handleDataChanged = () => {
-      loadSpirits();
+      loadSpirits(true);
     };
     window.addEventListener(DATA_MUTATED_EVENT, handleDataChanged);
     window.addEventListener(REMOTE_SYNC_COMPLETED_EVENT, handleDataChanged);

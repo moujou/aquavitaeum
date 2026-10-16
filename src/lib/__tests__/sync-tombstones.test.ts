@@ -47,9 +47,12 @@ describe('sync-tombstones', () => {
   });
 
   it('merges remote tombstones from Google Drive manifest', () => {
+    const recentDate1 = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString();
+    const recentDate2 = new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString();
+
     mergeRemoteTombstones({
-      'remote-spirit-1': { type: 'spirit', deletedAt: '2026-08-16T12:00:00.000Z' },
-      'remote-journal-2': { type: 'journal', deletedAt: '2026-08-16T13:00:00.000Z' },
+      'remote-spirit-1': { type: 'spirit', deletedAt: recentDate1 },
+      'remote-journal-2': { type: 'journal', deletedAt: recentDate2 },
     });
 
     expect(isTombstoned('remote-spirit-1')).toBe(true);

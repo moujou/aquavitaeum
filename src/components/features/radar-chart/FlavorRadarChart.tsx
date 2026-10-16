@@ -1249,7 +1249,7 @@ export function DynamicProfileSliders({
                         step={1}
                         value={val}
                         onChange={(e) => onIntensityChange(tagName, Number(e.target.value))}
-                        className={cn('h-2 rounded-full cursor-pointer w-full touch-none bg-[var(--parchment-border)]/60 accent-[var(--wood-selection)]', accentClass)}
+                        className={cn('h-2 rounded-full cursor-pointer w-full touch-pan-y bg-[var(--parchment-border)]/60 accent-[var(--wood-selection)]', accentClass)}
                         aria-label={`${title} ${tagName}`}
                       />
                       <span className={cn('text-right text-xs sm:text-sm font-bold', valueColorClass)}>

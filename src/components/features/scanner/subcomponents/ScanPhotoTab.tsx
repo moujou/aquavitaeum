@@ -130,7 +130,7 @@ export function ScanPhotoTab({
               title={language === 'DE' ? 'Kamera' : 'Camera'}
               aria-label={language === 'DE' ? 'Kamera' : 'Camera'}
             >
-              <Camera size={16} className="text-[var(--forest-green)]" />
+              <Camera size={16} className="text-[var(--sepia-muted)]" />
               <span>{language === 'DE' ? 'Kamera' : 'Camera'}</span>
             </button>
 
@@ -145,7 +145,7 @@ export function ScanPhotoTab({
               title={language === 'DE' ? 'Foto hochladen' : 'Upload photo'}
               aria-label={language === 'DE' ? 'Foto hochladen' : 'Upload photo'}
             >
-              <Upload size={16} className="text-[var(--forest-green)]" />
+              <Upload size={16} className="text-[var(--sepia-muted)]" />
               <span>{language === 'DE' ? 'Foto hochladen' : 'Upload photo'}</span>
             </button>
           </div>

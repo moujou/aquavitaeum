@@ -137,5 +137,45 @@ describe('WhiskyAromaWheel Component & Helper Unit Tests', () => {
     expect(fruitCategory?.activeDescriptors[0].descriptor.name.DE).toBe('Drachenfrucht');
     expect(fruitCategory?.activeDescriptors[0].intensity).toBe(9);
   });
+
+  it('deduplicates descriptors like peat_smoke when multiple aliases are selected simultaneously', () => {
+    // Both 'Peat Smoke' and 'Rauch' and 'Torf' are aliases of peat_smoke
+    const tagsWithAliases = ['Peat Smoke', 'Rauch', 'Torf'];
+    const intensities = { 'Peat Smoke': 6, Rauch: 9, Torf: 7 };
+
+    const result = computeActiveCategoriesData(tagsWithAliases, intensities);
+    const peatyCategory = result.find((c) => c.category.id === 'torf');
+
+    expect(peatyCategory).toBeDefined();
+    // peat_smoke must only appear ONCE in activeDescriptors
+    const peatSmokeDescriptors = peatyCategory?.activeDescriptors.filter(
+      (d) => d.descriptor.id === 'peat_smoke'
+    );
+    expect(peatSmokeDescriptors).toHaveLength(1);
+    // Intensity should be the maximum of the matched aliases (9)
+    expect(peatSmokeDescriptors![0].intensity).toBe(9);
+  });
+
+  it('renders WhiskyAromaWheel without duplicate keys when multiple aliases are selected', () => {
+    const errorSpy = vi.spyOn(console, 'error');
+    render(
+      <LanguageProvider>
+        <WhiskyAromaWheel
+          noseFlavorTags={['Peat Smoke', 'Rauch', 'Torf']}
+          tasteFlavorTags={['Wood Smoke']}
+          noseTagIntensities={{ 'Peat Smoke': 8, Rauch: 9 }}
+          tasteTagIntensities={{ 'Wood Smoke': 7 }}
+          sensoryMode="both"
+        />
+      </LanguageProvider>
+    );
+
+    // Verify no React key warning was issued
+    const duplicateKeyErrors = errorSpy.mock.calls.filter((call) =>
+      call.some((arg) => typeof arg === 'string' && arg.includes('same key'))
+    );
+    expect(duplicateKeyErrors).toHaveLength(0);
+    errorSpy.mockRestore();
+  });
 });
 

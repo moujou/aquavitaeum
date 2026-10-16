@@ -109,9 +109,18 @@ export const SPIRIT_CHARACTERISTICS = [
   'Cask Strength',
   'Natural Colour',
   'Non-Chill Filtered',
-  'Peated',
+  'Single Cask',
   'Small Batch',
+  'Peated',
+  'Heavily Peated',
+  'Lightly Peated',
+  'Unpeated',
+  'Cask Finish',
+  'First Fill',
   'Triple Distilled',
+  'Single Estate',
+  'Bottled in Bond',
+  'Virgin Oak',
 ] as const;
 
 export type SpiritCharacteristic = typeof SPIRIT_CHARACTERISTICS[number] | string;

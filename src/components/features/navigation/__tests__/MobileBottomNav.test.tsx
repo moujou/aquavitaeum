@@ -142,5 +142,23 @@ describe('MobileBottomNav Component', () => {
     const libraryIcon = container.querySelector('.lucide-library');
     expect(libraryIcon).toBeDefined();
   });
+
+  it('calls onNavigateBack when provided and left adaptive back tab is clicked', () => {
+    const onNavigateBack = vi.fn();
+    render(
+      <LanguageProvider>
+        <MobileBottomNav
+          {...defaultProps}
+          activeView="journal-landing"
+          activeJournalId="journal-1"
+          onNavigateBack={onNavigateBack}
+        />
+      </LanguageProvider>
+    );
+
+    const backBtn = screen.getByRole('button', { name: /Zurück zur Journal-Übersicht|Back to Journals/i });
+    fireEvent.click(backBtn);
+    expect(onNavigateBack).toHaveBeenCalledTimes(1);
+  });
 });
 

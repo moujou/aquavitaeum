@@ -189,9 +189,9 @@ export function FlavorTagSelector({
               setDrawerSensoryMode('nose');
               setIsDrawerOpen(true);
             }}
-            className="px-3 py-1.5 rounded-lg border border-[var(--parchment-border)] bg-[var(--parchment-bg-alt)]/60 text-[var(--foreground)] hover:bg-[var(--parchment-bg-alt)] text-xs font-display font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer h-[34px]"
+            className="px-3 py-1.5 rounded-lg border border-[var(--wood-selection)] bg-[var(--wood-selection)] hover:bg-[var(--wood-dark)] text-white text-xs font-display font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer h-[34px] shadow-xs active:scale-95"
           >
-            <BookOpen size={14} className="text-[var(--wood-selection)]" />
+            <BookOpen size={14} className="text-white" />
             <span>{t('openSensoryDrawer')}</span>
           </button>
 
@@ -201,9 +201,9 @@ export function FlavorTagSelector({
               setCustomModalInitialName('');
               setIsCustomModalOpen(true);
             }}
-            className="px-3 py-1.5 rounded-lg border border-[var(--parchment-border)] bg-[var(--parchment-bg-alt)]/60 text-[var(--foreground)] hover:bg-[var(--parchment-bg-alt)] text-xs font-display font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer h-[34px]"
+            className="px-3 py-1.5 rounded-lg border border-[var(--wood-selection)] bg-[var(--wood-selection)] hover:bg-[var(--wood-dark)] text-white text-xs font-display font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer h-[34px] shadow-xs active:scale-95"
           >
-            <Plus size={14} className="text-[var(--wood-selection)]" />
+            <Plus size={14} className="text-white" />
             <span>{t('createCustomFlavor')}</span>
           </button>
         </div>

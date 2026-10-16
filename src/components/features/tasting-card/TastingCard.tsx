@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Sparkles } from 'lucide-react';
 import { Spirit } from '@/types/spirit.types';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { SectionHeader } from '@/components/ui/SectionHeader';
@@ -8,6 +9,7 @@ import { SpiritPhotoCarousel } from '@/components/features/photos/SpiritPhotoCar
 import { SpiritScanModal } from '@/components/features/scanner/SpiritScanModal';
 import { useTastingCardForm } from '@/hooks/useTastingCardForm';
 import { useLanguage } from '@/context/LanguageContext';
+import { useAiAssistantConfig } from '@/hooks/useAiAssistantConfig';
 import { cn } from '@/lib/utils';
 import { TastingHeaderSection } from './sections/TastingHeaderSection';
 import { TastingMetadataSection } from './sections/TastingMetadataSection';
@@ -37,6 +39,7 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
     confirmDelete,
   } = useTastingCardForm(initialSpirit, onSave, onDelete);
 
+  const { hasAiKey } = useAiAssistantConfig();
   const [isHeaderScanModalOpen, setIsHeaderScanModalOpen] = useState(false);
 
   return (
@@ -57,13 +60,26 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
 
         {/* Section 1: Spirit Photos Carousel (Unified Desktop & Mobile) */}
         <div className="flex flex-col gap-2 border-b border-[var(--parchment-border)]/60 pb-5 sm:pb-6">
-          <SectionHeader>{t('spiritPhotos')}</SectionHeader>
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--parchment-border)]/50 pb-2">
+            <SectionHeader>{t('spiritPhotos')}</SectionHeader>
+            {hasAiKey && (
+              <button
+                type="button"
+                onClick={() => setIsHeaderScanModalOpen(true)}
+                className="px-3 py-1.5 rounded-lg bg-[var(--wood-selection)] text-white hover:bg-[var(--wood-dark)] border border-[var(--wood-selection)] shadow-xs text-xs font-display font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer h-[34px] active:scale-95"
+                title={language === 'DE' ? 'Cask & Spirit Assistent: Flasche analysieren' : 'Cask & Spirit Assistant: Analyze bottle'}
+                aria-label={language === 'DE' ? 'Flasche neu analysieren' : 'Re-analyze Bottle'}
+              >
+                <Sparkles size={14} className="text-white" />
+                <span>{language === 'DE' ? 'Flasche analysieren' : 'Analyze Bottle'}</span>
+              </button>
+            )}
+          </div>
           <SpiritPhotoCarousel
             images={spirit.images}
             thumbnailImage={spirit.thumbnailImage}
             onChange={(imgs) => update('images', imgs)}
             onSetThumbnail={(url) => update('thumbnailImage', url as string | undefined)}
-            onAnalyzeSpirit={applyScanResult}
           />
         </div>
 

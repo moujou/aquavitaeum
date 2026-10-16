@@ -285,7 +285,7 @@ export function AiAssistantSettingsSection() {
                     </>
                   ) : (
                     <>
-                      <Check size={14} className="text-emerald-400" />
+                      <Check size={14} className="text-white" />
                       <span>{language === 'DE' ? 'Speichern & Testen' : 'Save & Test'}</span>
                     </>
                   )}

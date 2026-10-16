@@ -5,6 +5,8 @@
 
 /* ─── Design Tokens ─────────────────────────────────────────────────────────── */
 :root {
+  color-scheme: light;
+
   /* ── Canvas & Surfaces (2026 Unified Editorial Atelier) ──────────────── */
   --pub-bg:          #ECE5D8;   /* Warm Vintage Linen (~4% tiefere Leinen-Atmosphäre) */
   --pub-bg-alt:      #E0D5C1;   /* Zarte Shelf-Tiefe / Sekundär-Flächen */
@@ -101,6 +103,8 @@
 }
 
 [data-theme="pub-dark"] {
+  color-scheme: dark;
+
   /* ── Pub Atmosphere & Moonlight Night Canvas ─────────────────────────────── */
   --pub-bg:          #0D1115;   /* Modern deep midnight slate canvas (like GitHub/Reddit Dark) */
   --pub-bg-alt:      #151B22;   /* Subtle elevated dark charcoal for headers, chips, and bars */
