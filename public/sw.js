@@ -1,4 +1,4 @@
-const CACHE_NAME = 'aquavitaeum-cache-v7';
+const CACHE_NAME = 'aquavitaeum-cache-v8';
 
 const isLocalhost = Boolean(
   self.location.hostname === 'localhost' ||
@@ -24,8 +24,10 @@ if (isLocalhost) {
     './favicon.ico',
     './apple-touch-icon.png',
     './icons/icon-192x192.png',
+    './icons/icon-256x256.png',
     './icons/icon-512x512.png',
     './icons/icon-maskable-192x192.png',
+    './icons/icon-maskable-256x256.png',
     './icons/icon-maskable-512x512.png',
   ];
 

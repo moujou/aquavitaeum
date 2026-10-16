@@ -30,31 +30,63 @@ export function SommelierScoreSlider({
 }: SommelierScoreSliderProps) {
   const { language } = useLanguage();
   const trackRef = useRef<HTMLDivElement>(null);
+  const trackRectRef = useRef<DOMRect | null>(null);
   const isDragging = useRef(false);
   const touchStartPos = useRef<{ x: number; y: number } | null>(null);
   const isPendingTouch = useRef(false);
   const [isDraggingState, setIsDraggingState] = React.useState(false);
   const [dragScore, setDragScore] = React.useState<number | null>(null);
+  const lastScoreRef = useRef<number | null>(null);
+  const rafRef = useRef<number | null>(null);
 
   const safeScore = Math.max(1, Math.min(100, score || 1));
-  const effectiveScore = isDraggingState && dragScore !== null ? dragScore : safeScore;
+  const effectiveScore = dragScore !== null ? dragScore : safeScore;
   const tier = getScoreTierConfig(effectiveScore);
   const percentage = ((effectiveScore - 1) / 99) * 100;
 
+  // Synchronize dragScore when score prop changes from outside and not actively dragging
+  React.useEffect(() => {
+    if (!isDragging.current) {
+      setDragScore(null);
+      lastScoreRef.current = safeScore;
+    }
+  }, [score, safeScore]);
+
+  // Clean up any pending animation frame on unmount
+  React.useEffect(() => {
+    return () => {
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, []);
+
   const updateFromPointer = useCallback(
     (clientX: number) => {
-      if (!trackRef.current) return;
-      const rect = trackRef.current.getBoundingClientRect();
+      const rect = trackRectRef.current || trackRef.current?.getBoundingClientRect();
+      if (!rect || rect.width <= 0) return;
       const rawRatio = (clientX - rect.left) / rect.width;
       const clampedRatio = Math.max(0, Math.min(1, rawRatio));
       const targetScore = Math.max(1, Math.min(100, Math.round(1 + clampedRatio * 99)));
+
+      if (targetScore === lastScoreRef.current) return;
+      lastScoreRef.current = targetScore;
+
       setDragScore(targetScore);
-      onChange(targetScore);
+
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => {
+        onChange(targetScore);
+      });
     },
     [onChange]
   );
 
   const handlePointerDown = (e: React.PointerEvent) => {
+    if (trackRef.current) {
+      trackRectRef.current = trackRef.current.getBoundingClientRect();
+    }
+
     // Desktop mouse interaction: Instant drag & value update
     if (e.pointerType === 'mouse') {
       isDragging.current = true;
@@ -89,6 +121,9 @@ export function SommelierScoreSlider({
         isPendingTouch.current = false;
         isDragging.current = true;
         setIsDraggingState(true);
+        if (trackRef.current) {
+          trackRectRef.current = trackRef.current.getBoundingClientRect();
+        }
         try {
           (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
         } catch {
@@ -108,15 +143,30 @@ export function SommelierScoreSlider({
     if (isPendingTouch.current) {
       // Intentional stationary tap on the score track without vertical scrolling
       isPendingTouch.current = false;
+      if (trackRef.current) {
+        trackRectRef.current = trackRef.current.getBoundingClientRect();
+      }
       updateFromPointer(e.clientX);
-      setDragScore(null);
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+      if (lastScoreRef.current !== null) {
+        onChange(lastScoreRef.current);
+      }
       return;
     }
 
     if (isDragging.current) {
       isDragging.current = false;
       setIsDraggingState(false);
-      setDragScore(null);
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+      if (lastScoreRef.current !== null) {
+        onChange(lastScoreRef.current);
+      }
       try {
         (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
       } catch {
@@ -130,7 +180,13 @@ export function SommelierScoreSlider({
     if (isDragging.current) {
       isDragging.current = false;
       setIsDraggingState(false);
-      setDragScore(null);
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+      if (lastScoreRef.current !== null) {
+        onChange(lastScoreRef.current);
+      }
     }
   };
 
@@ -173,7 +229,7 @@ export function SommelierScoreSlider({
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerCancel}
-        className="relative w-full py-2 sm:py-2.5 cursor-pointer touch-pan-y focus:outline-none group select-none touch-manipulation"
+        className="relative w-full py-2 sm:py-2.5 cursor-pointer touch-pan-y focus:outline-none group select-none"
       >
         {/* Continuous Distiller's Amber Liquid Tube */}
         <div className="w-full h-3.5 sm:h-4 rounded-full border border-[var(--parchment-border)] bg-[var(--pub-bg-alt)]/80 relative overflow-hidden shadow-[inset_0_2px_4px_rgba(43,30,20,0.15)]">

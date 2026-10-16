@@ -13,7 +13,7 @@ interface TastingFinishSectionProps {
   t: (key: TranslationKey) => string;
 }
 
-export function TastingFinishSection({
+function TastingFinishSectionComponent({
   spirit,
   update,
   t,
@@ -49,3 +49,20 @@ export function TastingFinishSection({
     </section>
   );
 }
+
+export const TastingFinishSection = React.memo(
+  TastingFinishSectionComponent,
+  (prev, next) => {
+    return (
+      prev.spirit.id === next.spirit.id &&
+      prev.spirit.noseFlavorTags === next.spirit.noseFlavorTags &&
+      prev.spirit.tasteFlavorTags === next.spirit.tasteFlavorTags &&
+      prev.spirit.finishCurves === next.spirit.finishCurves &&
+      prev.spirit.finish === next.spirit.finish &&
+      prev.spirit.finishCharacter === next.spirit.finishCharacter &&
+      prev.spirit.finishNotes === next.spirit.finishNotes &&
+      prev.update === next.update &&
+      prev.t === next.t
+    );
+  }
+);

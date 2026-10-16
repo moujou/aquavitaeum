@@ -16,7 +16,7 @@ interface TastingFlavorSectionProps {
   t: (key: TranslationKey) => string;
 }
 
-export function TastingFlavorSection({
+function TastingFlavorSectionComponent({
   spirit,
   update,
   t,
@@ -89,3 +89,22 @@ export function TastingFlavorSection({
     </div>
   );
 }
+
+export const TastingFlavorSection = React.memo(
+  TastingFlavorSectionComponent,
+  (prev, next) => {
+    return (
+      prev.spirit.id === next.spirit.id &&
+      prev.spirit.noseProfile === next.spirit.noseProfile &&
+      prev.spirit.tasteProfile === next.spirit.tasteProfile &&
+      prev.spirit.flavorTags === next.spirit.flavorTags &&
+      prev.spirit.noseFlavorTags === next.spirit.noseFlavorTags &&
+      prev.spirit.tasteFlavorTags === next.spirit.tasteFlavorTags &&
+      prev.spirit.noseTagIntensities === next.spirit.noseTagIntensities &&
+      prev.spirit.tasteTagIntensities === next.spirit.tasteTagIntensities &&
+      prev.onAnalyzeSpirit === next.onAnalyzeSpirit &&
+      prev.update === next.update &&
+      prev.t === next.t
+    );
+  }
+);

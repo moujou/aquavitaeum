@@ -6,10 +6,6 @@ import { LanguageProvider } from '@/context/LanguageContext';
 import { GoogleDriveSyncProvider } from '@/context/GoogleDriveSyncContext';
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ECE5D8' },
-    { media: '(prefers-color-scheme: dark)', color: '#0D1115' },
-  ],
   viewportFit: 'cover',
   width: 'device-width',
   initialScale: 1,
@@ -25,6 +21,7 @@ export const metadata: Metadata = {
     icon: [
       { url: `${basePath}/favicon.svg`, type: 'image/svg+xml' },
       { url: `${basePath}/icons/icon-192x192.png`, sizes: '192x192', type: 'image/png' },
+      { url: `${basePath}/icons/icon-256x256.png`, sizes: '256x256', type: 'image/png' },
       { url: `${basePath}/icons/icon-512x512.png`, sizes: '512x512', type: 'image/png' },
     ],
     shortcut: `${basePath}/favicon.svg`,
@@ -45,6 +42,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <head>
+        <meta name="theme-color" content="#ECE5D8" />
         <link rel="icon" type="image/svg+xml" href={`${basePath}/favicon.svg`} />
         <link rel="shortcut icon" href={`${basePath}/favicon.svg`} />
         <link rel="apple-touch-icon" sizes="180x180" href={`${basePath}/apple-touch-icon.png`} />
@@ -58,16 +56,22 @@ export default function RootLayout({
             (function() {
               try {
                 var theme = localStorage.getItem('av-theme');
-                if (theme === 'pub-dark') {
+                var isDark = theme === 'pub-dark';
+                var targetColor = isDark ? '#0D1115' : '#ECE5D8';
+                if (isDark) {
                   document.documentElement.setAttribute('data-theme', 'pub-dark');
                   document.documentElement.style.colorScheme = 'dark';
-                  document.documentElement.style.backgroundColor = '#0D1115';
-                  var metas = document.querySelectorAll('meta[name="theme-color"]');
-                  metas.forEach(function(m) {
-                    m.removeAttribute('media');
-                    m.setAttribute('content', '#0D1115');
-                  });
+                  document.documentElement.style.backgroundColor = targetColor;
+                } else {
+                  document.documentElement.removeAttribute('data-theme');
+                  document.documentElement.style.colorScheme = 'light';
+                  document.documentElement.style.backgroundColor = targetColor;
                 }
+                var metas = document.querySelectorAll('meta[name="theme-color"]');
+                metas.forEach(function(m) {
+                  m.removeAttribute('media');
+                  m.setAttribute('content', targetColor);
+                });
               } catch (e) {}
             })();
           `}
