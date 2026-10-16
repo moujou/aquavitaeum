@@ -3,6 +3,7 @@ import { Spirit, FlavorProfile } from '@/types/spirit.types';
 import { createBlankSpirit, deduplicateTags, scoreToStars, formatSpiritProvenance } from '@/lib/spirit-utils';
 import { SpiritAnalysisResult } from '@/services/ai-assistant-service';
 import { SpiritApplyMode } from '@/components/features/scanner/SpiritScanModal';
+import { registerCustomFlavorIfMissing } from '@/data/spirit-flavor-taxonomy';
 
 export function useTastingCardForm(
   initialSpirit?: Spirit,
@@ -230,11 +231,19 @@ export function useTastingCardForm(
             nextSpirit.finishNotes = result.finishNotes || result.finish || prev.finishNotes;
           }
           if (result.suggestedNoseTags && result.suggestedNoseTags.length > 0) {
+            result.suggestedNoseTags.forEach((tag) => {
+              const dim = result.suggestedNoseTagDimensions?.[tag];
+              registerCustomFlavorIfMissing(tag, dim);
+            });
             nextSpirit.noseFlavorTags = Array.from(
               new Set([...(prev.noseFlavorTags ?? []), ...result.suggestedNoseTags])
             );
           }
           if (result.suggestedTasteTags && result.suggestedTasteTags.length > 0) {
+            result.suggestedTasteTags.forEach((tag) => {
+              const dim = result.suggestedTasteTagDimensions?.[tag];
+              registerCustomFlavorIfMissing(tag, dim);
+            });
             nextSpirit.tasteFlavorTags = Array.from(
               new Set([...(prev.tasteFlavorTags ?? []), ...result.suggestedTasteTags])
             );

@@ -31,14 +31,21 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (typeof document !== 'undefined') {
-      if (theme === 'pub-dark') {
+      const isDark = theme === 'pub-dark';
+      if (isDark) {
         document.documentElement.setAttribute('data-theme', 'pub-dark');
       } else {
         document.documentElement.removeAttribute('data-theme');
       }
-      const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-      if (metaThemeColor) {
-        metaThemeColor.setAttribute('content', theme === 'pub-dark' ? '#0D1115' : '#ECE5D8');
+      const targetColor = isDark ? '#0D1115' : '#ECE5D8';
+      const metas = document.querySelectorAll('meta[name="theme-color"]');
+      if (metas.length > 0) {
+        metas.forEach((meta) => meta.setAttribute('content', targetColor));
+      } else {
+        const meta = document.createElement('meta');
+        meta.setAttribute('name', 'theme-color');
+        meta.setAttribute('content', targetColor);
+        document.head.appendChild(meta);
       }
     }
   }, [theme]);

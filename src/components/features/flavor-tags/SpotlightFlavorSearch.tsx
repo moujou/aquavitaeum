@@ -129,7 +129,7 @@ export function SpotlightFlavorSearch({
           onFocus={() => setIsOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder || t('spotlightSearchPlaceholder')}
-          className="w-full bg-[var(--parchment-bg-alt)]/70 border border-[var(--parchment-border)] rounded-md pl-9 pr-24 py-2 text-xs sm:text-sm font-body text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/60 focus:outline-none focus:border-[var(--wood-selection)] focus:ring-1 focus:ring-[var(--wood-selection)]/30 transition-all shadow-inner"
+          className="w-full bg-[var(--parchment-bg-alt)]/70 border border-[var(--parchment-border)] rounded-md pl-9 pr-24 py-2 text-xs sm:text-sm font-body text-[var(--foreground)] placeholder:text-[var(--placeholder-text)] focus:outline-none focus:border-[var(--wood-selection)] focus:ring-1 focus:ring-[var(--wood-selection)]/30 transition-all shadow-inner"
         />
 
         {/* Inline Quick Action Badge */}

@@ -46,7 +46,7 @@ export function ScanSearchTab({
                 ? 'z. B. Miltonduff 14 Signatory 100 Proof, Ardbeg Uigeadail, Springbank 10...'
                 : 'e.g. Miltonduff 14 Signatory 100 Proof, Ardbeg Uigeadail, Springbank 10...'
             }
-            className="w-full bg-transparent text-sm sm:text-base text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/50 focus:outline-none"
+            className="w-full bg-transparent text-sm sm:text-base text-[var(--foreground)] placeholder:text-[var(--placeholder-text)] focus:outline-none"
             autoFocus
           />
           <button

@@ -139,14 +139,14 @@ export default function GlobalSearch({
   return (
     <div ref={searchRef} data-global-search="true" className="relative w-full z-40">
       {/* Modern Pill Search Input Bar with Clover Green Accents */}
-      <div className="relative flex items-center bg-[var(--pub-bg-panel)]/95 hover:bg-[var(--pub-bg-panel)] focus-within:bg-[var(--pub-bg-panel)] border-[1.5px] border-[var(--forest-green)]/45 focus-within:border-[var(--forest-green)] rounded-full px-4 h-11 transition-all duration-200 shadow-xs focus-within:shadow-[0_2px_14px_rgba(46,148,93,0.20)]">
+      <div className="relative flex items-center bg-[var(--pub-bg-panel)]/95 hover:bg-[var(--pub-bg-panel)] focus-within:bg-[var(--pub-bg-panel)] border-[1.5px] border-[var(--forest-green)]/45 focus-within:border-[var(--forest-green)] rounded-full px-4 h-11 transition-[border-color,box-shadow] duration-150 shadow-xs focus-within:shadow-[0_2px_14px_rgba(46,148,93,0.20)]">
         <Search size={17} className="text-[var(--forest-green)] mr-3 flex-shrink-0" />
         <input
           type="text"
           value={globalSearchQuery}
           onChange={(e) => setGlobalSearchQuery(e.target.value)}
           placeholder={t('searchPlaceholderGlobal')}
-          className="bg-transparent border-none text-sm text-[var(--foreground)] placeholder:text-[var(--sepia-muted)]/70 focus:outline-none focus:ring-0 focus-within:ring-0 w-full font-body"
+          className="bg-transparent border-none text-sm text-[var(--foreground)] placeholder:text-[var(--placeholder-text)] focus:outline-none focus:ring-0 focus-within:ring-0 w-full font-body"
         />
       </div>
 

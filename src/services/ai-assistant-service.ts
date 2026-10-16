@@ -26,6 +26,7 @@ import {
   SPIRIT_FINISH_CHARACTERS,
   SPIRIT_BAR_ROLES,
 } from '@/types/spirit.types';
+import { inferCategoryFromTagName } from '@/data/spirit-flavor-taxonomy';
 
 export const GEMINI_MODEL_CANDIDATES = [
   process.env.NEXT_PUBLIC_GEMINI_MODEL,
@@ -66,6 +67,8 @@ export interface SpiritAnalysisResult {
   barRole?: SpiritBarRole[];
   suggestedNoseTags?: string[];
   suggestedTasteTags?: string[];
+  suggestedNoseTagDimensions?: Record<string, keyof FlavorProfile>;
+  suggestedTasteTagDimensions?: Record<string, keyof FlavorProfile>;
   noseTagIntensities?: Record<string, number>;
   tasteTagIntensities?: Record<string, number>;
   noseProfile?: Partial<FlavorProfile>;
@@ -236,6 +239,18 @@ function buildSystemPrompt(language: 'DE' | 'EN' = 'DE', includeTastingNotes = t
   "barRole": ["Showcase Bottle", "Buy Again"],
   "suggestedNoseTags": ["Torfrauch", "Rosine", "Leder", "Kaffee"],
   "suggestedTasteTags": ["Sherry", "Rauch", "Zartbitterschokolade", "Eichenwürze"],
+  "suggestedNoseTagDimensions": {
+    "Torfrauch": "peaty",
+    "Rosine": "winey",
+    "Leder": "feinty",
+    "Kaffee": "cereal"
+  },
+  "suggestedTasteTagDimensions": {
+    "Sherry": "winey",
+    "Rauch": "peaty",
+    "Zartbitterschokolade": "chocolate",
+    "Eichenwürze": "woody"
+  },
   "noseTagIntensities": {
     "Torfrauch": 9,
     "Rosine": 7,
@@ -300,6 +315,18 @@ function buildSystemPrompt(language: 'DE' | 'EN' = 'DE', includeTastingNotes = t
   "barRole": ["Showcase Bottle", "Buy Again"],
   "suggestedNoseTags": ["Peat Smoke", "Raisin", "Leather", "Coffee"],
   "suggestedTasteTags": ["Sherry", "Smoke", "Dark Chocolate", "Oak Spice"],
+  "suggestedNoseTagDimensions": {
+    "Peat Smoke": "peaty",
+    "Raisin": "winey",
+    "Leather": "feinty",
+    "Coffee": "cereal"
+  },
+  "suggestedTasteTagDimensions": {
+    "Sherry": "winey",
+    "Smoke": "peaty",
+    "Dark Chocolate": "chocolate",
+    "Oak Spice": "woody"
+  },
   "noseTagIntensities": {
     "Peat Smoke": 9,
     "Raisin": 7,
@@ -348,18 +375,27 @@ ${langInstruction}
 
 Rules for field mapping:
 - "ANTI-HALLUCINATION & BARCODE RULE": If the user query is a numerical barcode (EAN/UPC) or an unknown bottling that you cannot identify with high factual certainty, DO NOT GUESS, GUESSWORK, OR HALLUCINATE A RANDOM DISTILLERY (e.g. do not invent Lagavulin, Ardbeg, Macallan). Return {"notFound": true, "name": "NOT_FOUND"}.
+- "name": Clean expression name of the bottling (e.g. "10 Year Old", "Corryvreckan", "Rare Cask Batch 01", "Port Charlotte 10"). Do NOT duplicate the distillery name in "name" if it stands alone.
+- "distillery" (Brennerei): The physical distillery where the spirit was distilled (e.g. "Ardbeg", "Caol Ila", "Macallan", "Springbank", "Midleton", "Foursquare", "Hampden Estate", "Buffalo Trace", "MGP Indiana"). For blended spirits or gins without a single distillery, use the founding producer/brand house.
+- "bottler" (Abfüller): The Independent Bottler (IB) or releasing merchant if different from the distillery (e.g. "Signatory Vintage", "Gordon & MacPhail", "Cadenhead's", "Douglas Laing", "Hunter Laing", "Elixir Distillers", "That Boutique-y", "Samaroli", "Velier", "Compagnie des Indes", "Adelphi", "SMWS", "Berry Bros. & Rudd", "Murray McDavid", "Whiskybase"). If it is an Original Bottling (OB) from the distillery itself (e.g. standard Ardbeg 10, Glenfiddich 12, Macallan 18), leave "bottler" empty: "".
+- "region" (Region): Provenance region and country (e.g. "Islay, Scotland", "Speyside, Scotland", "Highlands, Scotland", "Campbeltown, Scotland", "Lowlands, Scotland", "County Cork, Ireland", "Kentucky, USA", "Yamanashi, Japan", "Martinique", "Barbados").
 - "spiritType" MUST match one of the standard categories if applicable: ${JSON.stringify(SPIRIT_TYPES)}.
+- "abv": Alcohol by volume as a number (e.g. 43.0, 45.8, 57.1). Look for "% vol", "% ABV", or US Proof (divide US proof by 2).
+- "age": Stated maturation age in full years as an integer if specified on label (e.g. 10, 12, 18, 25). If No Age Statement (NAS), set to null.
 - "volumeMl": Bottle volume in ml as an integer (e.g. 700, 750, 500, 1000, 50). Extract from label or bottle text (e.g. "70cl" or "700ml" -> 700, "750ml" or "75cl" -> 750, "0.7L" -> 700, "1L" -> 1000, "5cl" -> 50). Default to 700 for European bottlings or 750 for US bottlings if unspecified.
-- "caskNo": Specific Cask, Single Cask, or Batch number if stated on label/release (e.g. "Batch 12", "Cask #4582", "Batch 014", or leave empty if general release). DO NOT put wood types here.
-- "caskFinish": The cask finishing and wood maturation type (e.g. "Oloroso Sherry Finish", "Port Wood Finish", "Ex-Bourbon & Quarter Cask", "Red Wine Cask Finish", "PX Sherry Cask", "Virgin Oak"). This is the WOOD MATURATION specification, NOT sensory tasting notes.
+- "caskNo" (Fass-Nr.): Specific Cask, Barrel, or Batch number if stated on label/release. Look for keywords: "Cask #", "Cask No.", "Fass-Nr.", "Barrel #", "Barrel No.", "Batch #", "Batch No.", "Batch", "Small Batch", "Lot #", "Charge" (e.g. "#4281", "Cask #1024", "Batch 12", "Batch 014", or leave empty "" if general release). DO NOT put wood types or sensory tasting notes here.
+- "caskFinish" (Cask Finish): The cask finishing and wood maturation type. Look for keywords: "Finish", "Cask Finish", "Finished in", "Wood Finish", "Double Matured", "Triple Cask", "Secondary Maturation in", "Matured in". Examples: "Oloroso Sherry Finish", "Port Wood Finish", "Pedro Ximénez (PX) Finish", "Madeira Cask Finish", "Rum Cask Finish", "Sauternes Finish", "Virgin Oak Finish", "Ex-Bourbon & Quarter Cask", "First Fill Oloroso Sherry Butt". This is the WOOD MATURATION specification, NOT sensory tasting notes.
+- "caskTypes": Array of wood types used in maturation (e.g. ["Ex-Bourbon", "Oloroso Sherry Butts"]).
 - "colour" SHOULD match one of the 21 classic sommelier shades: ${JSON.stringify(SPIRIT_COLOURS)}. Default to realistic whisky colors like "Amber", "Deep Gold", "Chestnut", "Russet".
-- "characteristics" CAN include values from: ${JSON.stringify(SPIRIT_CHARACTERISTICS)}.
-- "glance" CAN include values from: ${JSON.stringify(SPIRIT_GLANCES)}.
+- "characteristics" CAN include values from: ${JSON.stringify(SPIRIT_CHARACTERISTICS)}. Match keywords from label: "Cask Strength" / "Barrel Proof" / "Fassstärke" -> "Cask Strength"; "Natural Colour" / "No Added Colouring" / "Ohne Farbstoff" -> "Natural Colour"; "Non-Chill Filtered" / "Un-chillfiltered" / "Nicht kühlgefiltert" -> "Non-Chill Filtered"; "Single Cask" / "Single Barrel" / "Einzelfass" -> "Single Cask"; "Small Batch" -> "Small Batch"; "Peated" / "Torfrauch" -> "Peated"; "Heavily Peated" -> "Heavily Peated"; "Lightly Peated" -> "Lightly Peated"; "Unpeated" -> "Unpeated"; "First Fill" -> "First Fill"; "Virgin Oak" -> "Virgin Oak"; "Triple Distilled" -> "Triple Distilled"; "Bottled in Bond" -> "Bottled in Bond"; "Single Estate" -> "Single Estate".
+- "glance": Mouthfeel/texture from: ${JSON.stringify(SPIRIT_GLANCES)}.
 - "finishDuration" MUST be one of: ${JSON.stringify(SPIRIT_FINISH_DURATIONS)}.
 - "finishCharacter" CAN include values from: ${JSON.stringify(SPIRIT_FINISH_CHARACTERS)}.
 - "barRole" CAN include values from: ${JSON.stringify(SPIRIT_BAR_ROLES)}.
 - "suggestedNoseTags": 3-6 individual aroma descriptors${isGerman ? ' auf Deutsch (z. B. "Torfrauch", "Vanille", "Getrocknete Feige", "Jod", "Grüner Apfel")' : ' (e.g. "Peat Smoke", "Vanilla", "Dried Fig", "Iodine", "Green Apple")'}.
 - "suggestedTasteTags": 3-6 individual palate descriptors${isGerman ? ' auf Deutsch (z. B. "Sherry", "Salzkaramell", "Zartbitterschokolade", "Eichenwürze")' : ' (e.g. "Sherry", "Salted Caramel", "Dark Chocolate", "Oak Spice")'}.
+- "suggestedNoseTagDimensions": Object mapping each suggested nose tag to its canonical SWRI flavor dimension ("fruity" | "floral" | "spicy" | "cereal" | "peaty" | "sulphury" | "feinty" | "woody" | "winey" | "nutty" | "chocolate").
+- "suggestedTasteTagDimensions": Object mapping each suggested taste tag to its canonical SWRI flavor dimension ("fruity" | "floral" | "spicy" | "cereal" | "peaty" | "sulphury" | "feinty" | "woody" | "winey" | "nutty" | "chocolate").
 - "noseTagIntensities": Object mapping each suggested nose tag to its perceived sensory intensity (integer 1 to 10).
 - "tasteTagIntensities": Object mapping each suggested taste tag to its perceived sensory intensity (integer 1 to 10).
 - "noseProfile": Estimated 11-dimension SWRI sensory profile for nose (integers 0 to 10 for: fruity, floral, spicy, cereal, peaty, sulphury, feinty, nutty, woody, winey, chocolate).
@@ -522,6 +558,34 @@ function sanitizeAnalysisResult(raw: Record<string, unknown>): SpiritAnalysisRes
   const noseProfile = sanitizeFlavorProfile(raw.noseProfile);
   const tasteProfile = sanitizeFlavorProfile(raw.tasteProfile);
 
+  const sanitizeTagDimensions = (
+    obj: unknown,
+    tags: string[]
+  ): Record<string, keyof FlavorProfile> | undefined => {
+    const result: Record<string, keyof FlavorProfile> = {};
+    const rawObj = obj && typeof obj === 'object' && !Array.isArray(obj) ? (obj as Record<string, unknown>) : {};
+    const VALID_DIMENSIONS = new Set<keyof FlavorProfile>([
+      'fruity', 'floral', 'spicy', 'cereal', 'peaty', 'sulphury', 'feinty', 'woody', 'winey', 'nutty', 'chocolate'
+    ]);
+
+    for (const tag of tags) {
+      const rawDim = rawObj[tag];
+      if (typeof rawDim === 'string' && VALID_DIMENSIONS.has(rawDim.toLowerCase().trim() as keyof FlavorProfile)) {
+        result[tag] = rawDim.toLowerCase().trim() as keyof FlavorProfile;
+      } else {
+        const inferredCat = inferCategoryFromTagName(tag);
+        if (inferredCat) {
+          result[tag] = inferredCat.radarDimension;
+        }
+      }
+    }
+
+    return Object.keys(result).length > 0 ? result : undefined;
+  };
+
+  const suggestedNoseTagDimensions = sanitizeTagDimensions(raw.suggestedNoseTagDimensions, suggestedNoseTags);
+  const suggestedTasteTagDimensions = sanitizeTagDimensions(raw.suggestedTasteTagDimensions, suggestedTasteTags);
+
   let finishNotes: string | undefined = undefined;
   if (typeof raw.finishNotes === 'string' && raw.finishNotes.trim().length > 0) {
     finishNotes = raw.finishNotes.trim();
@@ -554,6 +618,8 @@ function sanitizeAnalysisResult(raw: Record<string, unknown>): SpiritAnalysisRes
     barRole,
     suggestedNoseTags,
     suggestedTasteTags,
+    suggestedNoseTagDimensions,
+    suggestedTasteTagDimensions,
     noseTagIntensities: Object.keys(noseTagIntensities).length > 0 ? noseTagIntensities : undefined,
     tasteTagIntensities: Object.keys(tasteTagIntensities).length > 0 ? tasteTagIntensities : undefined,
     noseProfile,

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useLanguage } from '@/context/LanguageContext';
 import {
@@ -55,57 +55,18 @@ export function SpiritScanModal({
   const [analysisResult, setAnalysisResult] = useState<SpiritAnalysisResult | null>(null);
   const [applyMode, setApplyMode] = useState<SpiritApplyMode>('facts-only');
 
-  // Live Camera Scanner State
-  const [isCameraActive, setIsCameraActive] = useState(false);
-  const [cameraFacingMode, setCameraFacingMode] = useState<'environment' | 'user'>('environment');
-  const [cameraError, setCameraError] = useState<string | null>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const scanIntervalRef = useRef<NodeJS.Timeout | number | null>(null);
-
-  const stopCameraScan = useCallback(() => {
-    if (scanIntervalRef.current) {
-      clearInterval(scanIntervalRef.current);
-      scanIntervalRef.current = null;
-    }
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-      streamRef.current = null;
-    }
-    setIsCameraActive(false);
-  }, []);
-
-  // Cleanup camera stream on unmount
-  useEffect(() => {
-    return () => {
-      if (scanIntervalRef.current) {
-        clearInterval(scanIntervalRef.current);
-        scanIntervalRef.current = null;
-      }
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop());
-        streamRef.current = null;
-      }
-    };
-  }, []);
-
   const handleTabChange = (tab: 'photo' | 'text' | 'barcode') => {
-    if (tab !== 'barcode') {
-      stopCameraScan();
-    }
     setActiveTab(tab);
   };
 
   const handleReset = useCallback(() => {
-    stopCameraScan();
     setAnalysisResult(null);
     setSelectedImage(null);
     setTextQuery('');
     setBarcodeQuery('');
     setError(null);
-    setCameraError(null);
     setIsLoading(false);
-  }, [stopCameraScan]);
+  }, []);
 
   const handleClose = useCallback(() => {
     handleReset();
@@ -135,106 +96,6 @@ export function SpiritScanModal({
     }
   };
 
-  const startCameraScan = async (targetFacing: 'environment' | 'user' = cameraFacingMode) => {
-    stopCameraScan();
-    setCameraError(null);
-
-    if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
-      setCameraError(
-        language === 'DE'
-          ? 'Kamera auf diesem Gerät oder Browser nicht verfügbar.'
-          : 'Camera is not available on this device or browser.'
-      );
-      return;
-    }
-
-    try {
-      setIsCameraActive(true);
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: { ideal: targetFacing },
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-        },
-      });
-
-      streamRef.current = stream;
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play().catch(() => {});
-      }
-
-      // Check if native BarcodeDetector is available ONLY on barcode tab
-      if (activeTab === 'barcode' && typeof window !== 'undefined' && 'BarcodeDetector' in window) {
-        const BarcodeDetectorConstructor = (
-          window as unknown as {
-            BarcodeDetector: new (options?: { formats: string[] }) => BarcodeDetectorInstance;
-          }
-        ).BarcodeDetector;
-        const detector = new BarcodeDetectorConstructor({
-          formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'qr_code'],
-        });
-
-        scanIntervalRef.current = setInterval(async () => {
-          if (!videoRef.current || videoRef.current.readyState < 2) return;
-          try {
-            const barcodes = await detector.detect(videoRef.current);
-            if (barcodes && barcodes.length > 0) {
-              const raw = barcodes[0].rawValue || '';
-              const clean = raw.replace(/\D/g, '').trim();
-              if (clean.length >= 8) {
-                // Success!
-                stopCameraScan();
-                setBarcodeQuery(clean);
-                await runBarcodeAnalysis(clean);
-              }
-            }
-          } catch {
-            // Ignore frame error during detection
-          }
-        }, 250);
-      }
-    } catch (err: unknown) {
-      stopCameraScan();
-      const msg = err instanceof Error ? err.message : String(err);
-      setCameraError(
-        language === 'DE'
-          ? `Kamera konnte nicht gestartet werden: ${msg}`
-          : `Could not start camera: ${msg}`
-      );
-    }
-  };
-
-  const toggleCameraFacing = async () => {
-    const nextFacing = cameraFacingMode === 'environment' ? 'user' : 'environment';
-    setCameraFacingMode(nextFacing);
-    await startCameraScan(nextFacing);
-  };
-
-  const handleCapturePhoto = async () => {
-    if (!videoRef.current) return;
-    const video = videoRef.current;
-    if (video.videoWidth === 0 || video.videoHeight === 0) return;
-
-    try {
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const base64 = canvas.toDataURL('image/jpeg', 0.85);
-
-      stopCameraScan();
-      setSelectedImage(base64);
-      await runImageAnalysis(base64);
-    } catch (err) {
-      console.error('Aqua Vitaeum: Snapshot capture failed', err);
-    }
-  };
-
   const handleFileChange = (file: File) => {
     if (!file.type.startsWith('image/')) {
       setError(
@@ -250,6 +111,36 @@ export function SpiritScanModal({
     reader.onload = async (e) => {
       const base64 = e.target?.result as string;
       setSelectedImage(base64);
+
+      // On barcode tab, attempt fast client-side barcode extraction if supported
+      if (activeTab === 'barcode' && typeof window !== 'undefined' && 'BarcodeDetector' in window) {
+        try {
+          const BarcodeDetectorConstructor = (
+            window as unknown as {
+              BarcodeDetector: new (options?: { formats: string[] }) => BarcodeDetectorInstance;
+            }
+          ).BarcodeDetector;
+          const detector = new BarcodeDetectorConstructor({
+            formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'qr_code'],
+          });
+          const img = new Image();
+          img.src = base64;
+          await img.decode();
+          const barcodes = await detector.detect(img);
+          if (barcodes && barcodes.length > 0) {
+            const raw = barcodes[0].rawValue || '';
+            const clean = raw.replace(/\D/g, '').trim();
+            if (clean.length >= 8) {
+              setBarcodeQuery(clean);
+              await runBarcodeAnalysis(clean);
+              return;
+            }
+          }
+        } catch {
+          // Fall through to Gemini image analysis
+        }
+      }
+
       await runImageAnalysis(base64);
     };
     reader.readAsDataURL(file);
@@ -441,13 +332,6 @@ export function SpiritScanModal({
                 <ScanPhotoTab
                   language={language}
                   onFileSelect={handleFileChange}
-                  isCameraActive={isCameraActive}
-                  cameraError={cameraError}
-                  videoRef={videoRef}
-                  onStartCamera={() => startCameraScan()}
-                  onStopCamera={stopCameraScan}
-                  onToggleCameraFacing={toggleCameraFacing}
-                  onCapturePhoto={handleCapturePhoto}
                 />
               )}
 
@@ -466,12 +350,7 @@ export function SpiritScanModal({
                   barcodeQuery={barcodeQuery}
                   onBarcodeChange={setBarcodeQuery}
                   onSubmit={handleBarcodeSubmit}
-                  isCameraActive={isCameraActive}
-                  cameraError={cameraError}
-                  videoRef={videoRef}
-                  onStartCamera={startCameraScan}
-                  onStopCamera={stopCameraScan}
-                  onToggleCameraFacing={toggleCameraFacing}
+                  onFileSelect={handleFileChange}
                 />
               )}
             </div>

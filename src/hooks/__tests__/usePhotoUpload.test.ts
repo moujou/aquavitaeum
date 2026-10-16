@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { usePhotoUpload } from '../usePhotoUpload';
 
 // ─── FileReader / Canvas Mocks ────────────────────────────────────────────────
@@ -129,14 +129,15 @@ describe('usePhotoUpload Hook', () => {
 
     const imageFile = makeFile('photo.jpg', 'image/jpeg', 100 * 1024); // 100KB
 
-    await act(async () => {
+    act(() => {
       result.current.handleFileUpload(makeChangeEvent([imageFile]));
-      await new Promise((r) => setTimeout(r, 50));
     });
 
-    expect(onChange).toHaveBeenCalledWith(
-      expect.arrayContaining([expect.stringMatching(/^data:image\/jpeg/)]),
-    );
+    await waitFor(() => {
+      expect(onChange).toHaveBeenCalledWith(
+        expect.arrayContaining([expect.stringMatching(/^data:image\/jpeg/)]),
+      );
+    });
   });
 
   // ── Image navigation ──────────────────────────────────────────────────────

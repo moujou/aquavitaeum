@@ -4,13 +4,13 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { ScanPhotoTab } from '../subcomponents/ScanPhotoTab';
 
 describe('ScanPhotoTab', () => {
-  it('renders camera and choose file buttons in German and English', () => {
+  it('renders camera and upload photo buttons in German and English matching SpiritPhotoCarousel', () => {
     const onStartCamera = vi.fn();
     const { rerender } = render(
       <ScanPhotoTab language="DE" onFileSelect={vi.fn()} onStartCamera={onStartCamera} />
     );
     expect(screen.getByText('Kamera')).toBeDefined();
-    expect(screen.getByText('Datei wählen')).toBeDefined();
+    expect(screen.getByText('Foto hochladen')).toBeDefined();
     expect(screen.getByText(/Hinweis zur Etikett-Erkennung:/)).toBeDefined();
 
     fireEvent.click(screen.getByText('Kamera'));
@@ -18,41 +18,35 @@ describe('ScanPhotoTab', () => {
 
     rerender(<ScanPhotoTab language="EN" onFileSelect={vi.fn()} onStartCamera={onStartCamera} />);
     expect(screen.getByText('Camera')).toBeDefined();
-    expect(screen.getByText('Choose File')).toBeDefined();
+    expect(screen.getByText('Upload photo')).toBeDefined();
     expect(screen.getByText(/Label Recognition Note:/)).toBeDefined();
   });
 
-  it('renders active camera viewfinder with shutter and controls', () => {
-    const videoRef = { current: document.createElement('video') };
-    const onCapturePhoto = vi.fn();
-    const onToggleFacing = vi.fn();
-    const onStopCamera = vi.fn();
+  it('triggers camera input click when camera button is clicked', () => {
+    const { container } = render(<ScanPhotoTab language="DE" onFileSelect={vi.fn()} />);
 
-    render(
-      <ScanPhotoTab
-        language="DE"
-        onFileSelect={vi.fn()}
-        isCameraActive={true}
-        videoRef={videoRef}
-        onCapturePhoto={onCapturePhoto}
-        onToggleCameraFacing={onToggleFacing}
-        onStopCamera={onStopCamera}
-      />
-    );
+    const cameraInput = container.querySelector('#scan-photo-camera') as HTMLInputElement;
+    expect(cameraInput).toBeDefined();
+    expect(cameraInput.getAttribute('capture')).toBe('environment');
 
-    expect(screen.getByText('Etikett im Rahmen zentrieren')).toBeDefined();
-    expect(screen.getByTestId('shutter-capture-btn')).toBeDefined();
+    const clickSpy = vi.spyOn(cameraInput, 'click');
+    const cameraBtn = screen.getByText('Kamera');
+    fireEvent.click(cameraBtn);
 
-    fireEvent.click(screen.getByTestId('shutter-capture-btn'));
-    expect(onCapturePhoto).toHaveBeenCalledTimes(1);
+    expect(clickSpy).toHaveBeenCalled();
+  });
 
-    const switchBtn = screen.getByTitle('Kamera wechseln');
-    fireEvent.click(switchBtn);
-    expect(onToggleFacing).toHaveBeenCalledTimes(1);
+  it('triggers file input click when upload photo button is clicked', () => {
+    const { container } = render(<ScanPhotoTab language="DE" onFileSelect={vi.fn()} />);
 
-    const closeBtn = screen.getByTitle('Kamera schließen');
-    fireEvent.click(closeBtn);
-    expect(onStopCamera).toHaveBeenCalledTimes(1);
+    const fileInput = container.querySelector('#scan-photo-upload') as HTMLInputElement;
+    expect(fileInput).toBeDefined();
+
+    const clickSpy = vi.spyOn(fileInput, 'click');
+    const uploadBtn = screen.getByText('Foto hochladen');
+    fireEvent.click(uploadBtn);
+
+    expect(clickSpy).toHaveBeenCalled();
   });
 
   it('triggers onFileSelect when a file is dropped', () => {
@@ -80,25 +74,12 @@ describe('ScanPhotoTab', () => {
     const onFileSelect = vi.fn();
     const { container } = render(<ScanPhotoTab language="EN" onFileSelect={onFileSelect} />);
 
-    const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement;
+    const fileInput = container.querySelector('#scan-photo-upload') as HTMLInputElement;
     expect(fileInput).toBeDefined();
 
     const file = new File(['image-content'], 'ardbeg.png', { type: 'image/png' });
     fireEvent.change(fileInput, { target: { files: [file] } });
 
     expect(onFileSelect).toHaveBeenCalledWith(file);
-  });
-
-  it('triggers file input click when choose file button is clicked', () => {
-    const { container } = render(<ScanPhotoTab language="EN" onFileSelect={vi.fn()} />);
-
-    const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement;
-    const clickSpy = vi.spyOn(fileInput, 'click');
-
-    const chooseBtn = screen.getByText('Choose File');
-    expect(chooseBtn).toBeDefined();
-    fireEvent.click(chooseBtn);
-
-    expect(clickSpy).toHaveBeenCalled();
   });
 });

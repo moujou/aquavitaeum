@@ -83,7 +83,7 @@ export function LocalizedDatePicker({
         onChange={handleTextChange}
         onBlur={handleBlur}
         placeholder={formatHint}
-        className="w-full bg-transparent border-b border-[var(--parchment-border)] pb-1 pr-7 text-sm sm:text-base text-[var(--sepia-text)] font-body focus:outline-none focus:border-[var(--sepia-muted)] placeholder:text-[var(--parchment-border)]/60"
+        className="w-full bg-transparent border-b border-[var(--parchment-border)] pb-1 pr-7 text-sm sm:text-base text-[var(--sepia-text)] font-body font-normal focus:outline-none focus:border-[var(--sepia-muted)] placeholder:text-[var(--placeholder-text)] placeholder:italic placeholder:font-light"
       />
       {/* Calendar Icon Button with 44px touch target */}
       <button

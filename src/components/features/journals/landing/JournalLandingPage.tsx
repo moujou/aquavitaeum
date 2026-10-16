@@ -16,6 +16,7 @@ import { JournalLandingHeader } from './JournalLandingHeader';
 import { NoteEmptyState } from './NoteEmptyState';
 import { NoteListView } from './layouts/NoteListView';
 import { NoteGridView } from './layouts/NoteGridView';
+import { WhiskyLogo } from '@/components/ui/WhiskyLogo';
 
 interface JournalLandingPageProps {
   journal: JournalWithStats;
@@ -155,11 +156,15 @@ export function JournalLandingPage({
   };
 
   // ── Loading ───────────────────────────────────────────────────────────────
-  if (isLoading) {
+  if (isLoading && spirits.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center flex-1 h-full min-h-[300px]">
-        <div className="w-10 h-10 rounded-full border-2 border-white/10 border-t-[var(--brass-accent)] animate-spin mb-3" />
-        <p className="font-display text-xs text-[var(--brass-accent)] animate-pulse uppercase tracking-wider">Uncasking...</p>
+      <div className="flex flex-col items-center justify-center flex-1 h-full min-h-[360px] select-none animate-pulse">
+        <div className="w-16 h-16 rounded-full border border-[var(--forest-green)]/40 flex items-center justify-center bg-[var(--wood-dark)]/10 mb-4 shadow-[0_0_25px_rgba(35,115,71,0.20)]">
+          <WhiskyLogo size={32} className="text-[var(--forest-green)]" />
+        </div>
+        <p className="font-display text-xs font-bold text-[var(--forest-green)] tracking-widest uppercase animate-pulse">
+          {t('uncasking')}
+        </p>
       </div>
     );
   }
@@ -191,7 +196,7 @@ export function JournalLandingPage({
       />
 
       {/* ── Layout content or Empty states ─────────────────────────────────── */}
-      {spirits.length === 0 ? (
+      {isLoading ? null : spirits.length === 0 ? (
         <NoteEmptyState
           onNewNote={onNewNote}
           onScanNote={() => setIsScanModalOpen(true)}

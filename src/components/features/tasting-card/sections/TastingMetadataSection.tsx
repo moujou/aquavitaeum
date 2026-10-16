@@ -40,8 +40,8 @@ function TextInput({
       onChange={(e) => onChange(e.target.value)}
       className={cn(
         'w-full bg-transparent border-b border-[var(--parchment-border)] pb-1 text-sm sm:text-base text-[var(--sepia-text)]',
-        'placeholder:text-[var(--parchment-border)] font-body focus:outline-none focus:border-[var(--sepia-muted)]',
-        'transition-colors duration-200',
+        'font-body font-normal placeholder:text-[var(--placeholder-text)] placeholder:italic placeholder:font-light',
+        'focus:outline-none focus:border-[var(--sepia-muted)] transition-colors duration-200',
         className
       )}
     />
@@ -87,7 +87,7 @@ export function TastingMetadataSection({
           />
         </div>
 
-        {/* Row 3: Destillerie / Hersteller (Links) & Abfüller / Bottler (Rechts) */}
+        {/* Row 3: Brennerei (Links) & Abfüller (Rechts) */}
         <div className="flex flex-col gap-1">
           <FieldLabel htmlFor="distillery-input">{t('distilleryProducer')}</FieldLabel>
           <TextInput
@@ -107,7 +107,7 @@ export function TastingMetadataSection({
           />
         </div>
 
-        {/* Row 4: Herkunft / Region & Alter */}
+        {/* Row 4: Region & Alter */}
         <div className="flex flex-col gap-1">
           <FieldLabel htmlFor="region-input">{t('regionOrigin')}</FieldLabel>
           <TextInput
@@ -127,11 +127,11 @@ export function TastingMetadataSection({
             value={spirit.age ?? ''}
             placeholder={t('agePlaceholder')}
             onChange={(e) => update('age', e.target.value ? Number(e.target.value) : undefined)}
-            className="w-full bg-transparent border-b border-[var(--parchment-border)] pb-1 text-sm sm:text-base text-[var(--sepia-text)] font-body focus:outline-none focus:border-[var(--sepia-muted)] placeholder:text-[var(--parchment-border)]"
+            className="w-full bg-transparent border-b border-[var(--parchment-border)] pb-1 text-sm sm:text-base text-[var(--sepia-text)] font-body font-normal focus:outline-none focus:border-[var(--sepia-muted)] placeholder:text-[var(--placeholder-text)] placeholder:italic placeholder:font-light"
           />
         </div>
 
-        {/* Row 5: Fass / Batch-Nr & Finish */}
+        {/* Row 5: Fass-Nr. & Cask Finish */}
         <div className="flex flex-col gap-1">
           <FieldLabel htmlFor="cask-input">{t('caskBatchNo')}</FieldLabel>
           <TextInput
@@ -166,7 +166,7 @@ export function TastingMetadataSection({
               const val = e.target.value;
               update('abv', val === '' ? 0 : parseFloat(val) || 0);
             }}
-            className="w-full bg-transparent border-b border-[var(--parchment-border)] pb-1 text-sm sm:text-base text-[var(--sepia-text)] font-body focus:outline-none focus:border-[var(--sepia-muted)] placeholder:text-[var(--sepia-muted)]/50"
+            className="w-full bg-transparent border-b border-[var(--parchment-border)] pb-1 text-sm sm:text-base text-[var(--sepia-text)] font-body font-normal focus:outline-none focus:border-[var(--sepia-muted)] placeholder:text-[var(--placeholder-text)] placeholder:italic placeholder:font-light"
           />
         </div>
 

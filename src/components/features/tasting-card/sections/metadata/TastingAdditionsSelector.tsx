@@ -140,7 +140,7 @@ export function TastingAdditionsSelector({
                 }
               }}
               placeholder={t('customAdditionPlaceholder')}
-              className="w-24 text-xs font-body bg-transparent outline-none text-[var(--foreground)] px-1"
+              className="w-24 text-xs font-body font-normal bg-transparent outline-none text-[var(--foreground)] px-1 placeholder:text-[var(--placeholder-text)] placeholder:italic placeholder:font-light"
             />
             <button
               type="button"

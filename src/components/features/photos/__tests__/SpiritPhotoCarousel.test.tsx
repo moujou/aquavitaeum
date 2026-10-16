@@ -4,8 +4,7 @@ import { SpiritPhotoCarousel } from '../SpiritPhotoCarousel';
 import { LanguageProvider } from '@/context/LanguageContext';
 
 describe('SpiritPhotoCarousel Component', () => {
-  it('renders empty placeholder state with AI button when key is configured', () => {
-    localStorage.setItem('aqua_gemini_api_key', 'test_key');
+  it('renders empty placeholder state with Camera and Upload Photo buttons and no redundant AI button', () => {
     render(
       <LanguageProvider>
         <SpiritPhotoCarousel images={[]} />
@@ -14,28 +13,14 @@ describe('SpiritPhotoCarousel Component', () => {
 
     expect(screen.getByText('No Photos Added')).toBeDefined();
     expect(
-      screen.getByText(/Analyze the label with AI|Analysiere das Etikett/i),
+      screen.getByText(/Add photos of your bottle or label|Füge Fotos deiner Flasche/i),
     ).toBeDefined();
-    expect(screen.getByRole('button', { name: /AI Bottle Analysis|KI-Flaschenanalyse/i })).toBeDefined();
-    expect(screen.getByRole('button', { name: /Camera|Kamera/i })).toBeDefined();
-    expect(screen.getByRole('button', { name: /Upload Photo|Foto hochladen/i })).toBeDefined();
-  });
-
-  it('renders empty placeholder state without AI button when no key is configured', () => {
-    localStorage.clear();
-    render(
-      <LanguageProvider>
-        <SpiritPhotoCarousel images={[]} />
-      </LanguageProvider>,
-    );
-
-    expect(screen.getByText('No Photos Added')).toBeDefined();
     expect(screen.queryByRole('button', { name: /AI Bottle Analysis|KI-Flaschenanalyse/i })).toBeNull();
     expect(screen.getByRole('button', { name: /Camera|Kamera/i })).toBeDefined();
     expect(screen.getByRole('button', { name: /Upload Photo|Foto hochladen/i })).toBeDefined();
   });
 
-  it('renders populated carousel when images are present and shows re-analyze button if key exists', () => {
+  it('renders populated carousel when images are present with media toolbar controls', () => {
     localStorage.setItem('aqua_gemini_api_key', 'test_key');
     const images = ['data:image/png;base64,img1', 'data:image/png;base64,img2'];
     render(
@@ -46,7 +31,8 @@ describe('SpiritPhotoCarousel Component', () => {
 
     expect(screen.getByAltText('Spirit photo 1')).toBeDefined();
     expect(screen.getByText('1 / 2')).toBeDefined();
-    expect(screen.getAllByRole('button', { name: /Re-analyze|Neu analysieren/i }).length).toBeGreaterThan(0);
+    expect(screen.getByRole('button', { name: /Set Cover|Als Cover|Thumbnail/i })).toBeDefined();
+    expect(screen.getByRole('button', { name: /Delete photo|Foto löschen/i })).toBeDefined();
   });
 
   it('triggers onSetThumbnail with image URL when Set Cover is clicked', () => {

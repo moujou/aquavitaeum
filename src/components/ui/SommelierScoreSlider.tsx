@@ -31,6 +31,8 @@ export function SommelierScoreSlider({
   const { language } = useLanguage();
   const trackRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
+  const touchStartPos = useRef<{ x: number; y: number } | null>(null);
+  const isPendingTouch = useRef(false);
   const [isDraggingState, setIsDraggingState] = React.useState(false);
 
   const safeScore = Math.max(1, Math.min(100, score || 1));
@@ -50,29 +52,79 @@ export function SommelierScoreSlider({
   );
 
   const handlePointerDown = (e: React.PointerEvent) => {
-    isDragging.current = true;
-    setIsDraggingState(true);
-    try {
-      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    } catch {
-      // ignore
+    // Desktop mouse interaction: Instant drag & value update
+    if (e.pointerType === 'mouse') {
+      isDragging.current = true;
+      setIsDraggingState(true);
+      try {
+        (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+      } catch {
+        // ignore
+      }
+      updateFromPointer(e.clientX);
+      return;
     }
-    updateFromPointer(e.clientX);
+
+    // Touch interaction: Record start position without mutating score or blocking vertical scroll
+    touchStartPos.current = { x: e.clientX, y: e.clientY };
+    isPendingTouch.current = true;
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isDragging.current) return;
-    updateFromPointer(e.clientX);
+    if (isPendingTouch.current && touchStartPos.current) {
+      const deltaX = Math.abs(e.clientX - touchStartPos.current.x);
+      const deltaY = Math.abs(e.clientY - touchStartPos.current.y);
+
+      // If user moved vertically, this is a native page scroll -> cancel touch capture
+      if (deltaY > 6 && deltaY > deltaX) {
+        isPendingTouch.current = false;
+        return;
+      }
+
+      // If user moved horizontally past threshold, engage active score slider dragging
+      if (deltaX > 6 && deltaX > deltaY) {
+        isPendingTouch.current = false;
+        isDragging.current = true;
+        setIsDraggingState(true);
+        try {
+          (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+        } catch {
+          // ignore
+        }
+        updateFromPointer(e.clientX);
+        return;
+      }
+    }
+
+    if (isDragging.current) {
+      updateFromPointer(e.clientX);
+    }
   };
 
   const handlePointerUp = (e: React.PointerEvent) => {
-    if (!isDragging.current) return;
-    isDragging.current = false;
-    setIsDraggingState(false);
-    try {
-      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
-    } catch {
-      // ignore
+    if (isPendingTouch.current) {
+      // Intentional stationary tap on the score track without vertical scrolling
+      isPendingTouch.current = false;
+      updateFromPointer(e.clientX);
+      return;
+    }
+
+    if (isDragging.current) {
+      isDragging.current = false;
+      setIsDraggingState(false);
+      try {
+        (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+      } catch {
+        // ignore
+      }
+    }
+  };
+
+  const handlePointerCancel = () => {
+    isPendingTouch.current = false;
+    if (isDragging.current) {
+      isDragging.current = false;
+      setIsDraggingState(false);
     }
   };
 
@@ -114,11 +166,11 @@ export function SommelierScoreSlider({
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerUp}
-        className="relative w-full py-3 sm:py-3.5 cursor-pointer touch-none focus:outline-none group touch-manipulation"
+        onPointerCancel={handlePointerCancel}
+        className="relative w-full py-2 sm:py-2.5 cursor-pointer touch-pan-y focus:outline-none group select-none touch-manipulation"
       >
         {/* Continuous Distiller's Amber Liquid Tube */}
-        <div className="w-full h-4 sm:h-5 rounded-full border border-[var(--parchment-border)] bg-[var(--pub-bg-alt)]/80 relative overflow-hidden shadow-[inset_0_2px_4px_rgba(43,30,20,0.15)]">
+        <div className="w-full h-3.5 sm:h-4 rounded-full border border-[var(--parchment-border)] bg-[var(--pub-bg-alt)]/80 relative overflow-hidden shadow-[inset_0_2px_4px_rgba(43,30,20,0.15)]">
           {/* Active Liquid Gold Fill Ribbon */}
           <div
             className="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-[var(--brass-muted)] via-[var(--brass-accent)] to-[var(--brass-light)] rounded-full transition-all duration-75 shadow-xs"
@@ -139,8 +191,8 @@ export function SommelierScoreSlider({
                   className={cn(
                     'absolute w-0.5 -translate-x-1/2',
                     m.mobileVisible
-                      ? 'h-2.5 bg-[var(--sepia-muted)]/50'
-                      : 'h-1.5 bg-[var(--sepia-muted)]/35 hidden sm:block'
+                      ? 'h-2 sm:h-2.5 bg-[var(--sepia-muted)]/50'
+                      : 'h-1.5 sm:h-2 bg-[var(--sepia-muted)]/35 hidden sm:block'
                   )}
                 />
               );
@@ -157,7 +209,7 @@ export function SommelierScoreSlider({
           {isDraggingState && (
             <div
               style={{ transform: `translateX(-${percentage}%)` }}
-              className="absolute -top-9 left-1/2 px-2.5 py-0.5 rounded-full bg-[var(--parchment-bg)] border border-[var(--parchment-border)] text-[var(--sepia-text)] text-xs font-display font-black tracking-wider shadow-[0_4px_16px_rgba(43,30,20,0.22)] animate-fade-in whitespace-nowrap flex items-center gap-1.5 z-30"
+              className="absolute -top-8 left-1/2 px-2.5 py-0.5 rounded-full bg-[var(--parchment-bg)] border border-[var(--parchment-border)] text-[var(--sepia-text)] text-xs font-display font-black tracking-wider shadow-[0_4px_16px_rgba(43,30,20,0.22)] animate-fade-in whitespace-nowrap flex items-center gap-1.5 z-30"
             >
               <span className="font-black text-[var(--sepia-text)]">{safeScore}</span>
               <span
@@ -171,8 +223,8 @@ export function SommelierScoreSlider({
 
           <div
             className={cn(
-              'w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-white shadow-[0_2px_8px_rgba(43,30,20,0.45),0_0_12px_rgba(201,122,30,0.55)] flex items-center justify-center transition-transform',
-              isDraggingState ? 'scale-115 ring-4 ring-[var(--brass-accent)]/30' : 'group-hover:scale-110'
+              'w-6 h-6 sm:w-6.5 sm:h-6.5 rounded-full border-2 border-white shadow-[0_2px_8px_rgba(43,30,20,0.45),0_0_12px_rgba(201,122,30,0.55)] flex items-center justify-center transition-transform',
+              isDraggingState ? 'scale-115 ring-3 ring-[var(--brass-accent)]/30' : 'group-hover:scale-108'
             )}
             style={{
               backgroundColor: tier?.colorHex || '#D97706',
@@ -184,7 +236,7 @@ export function SommelierScoreSlider({
       </div>
 
       {/* Sommelier Milestone Labels Row along the Spectrum Track (Mobile-Optimized Spacing) */}
-      <div className="relative w-full h-6 sm:h-7 text-xs sm:text-sm font-display font-bold tabular-nums text-[var(--sepia-muted)]">
+      <div className="relative w-full h-5 sm:h-6 text-[11px] sm:text-xs font-display font-bold tabular-nums text-[var(--sepia-muted)]">
         {SCORE_MILESTONES.map((m) => {
           const tickPos = ((m.value - 1) / 99) * 100;
           const isNear = Math.abs(safeScore - m.value) <= 2;

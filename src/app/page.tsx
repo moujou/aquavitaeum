@@ -18,7 +18,7 @@ import { SpiritType } from '@/types/spirit.types';
 import AppLoader from '@/components/ui/AppLoader';
 import AppHeader from '@/components/features/navigation/AppHeader';
 import MobileBottomNav from '@/components/features/navigation/MobileBottomNav';
-import { useSwipeBack } from '@/hooks/useSwipeBack';
+import { useHistoryNavigation } from '@/hooks/useHistoryNavigation';
 import { NoteEmptyState } from '@/components/features/journals/landing/NoteEmptyState';
 
 export default function Home() {
@@ -61,6 +61,46 @@ export default function Home() {
     handleSave,
     handleDelete,
   } = useSpiritCollection(activeJournalId);
+
+  // Native OS History & Gesture Navigation Hook (Pixel Android & iOS back gesture integration)
+  const {
+    pushView,
+    navigateBack,
+    initRootHistory,
+  } = useHistoryNavigation({
+    onPopState: useCallback((state) => {
+      // Close active modals, search results, or selection states when navigating back
+      setIsCreateJournalModalOpen(false);
+      setIsMobileDrawerOpen(false);
+      setIsSelectModeActive(false);
+
+      if (state.view === 'profile') {
+        setActiveView('profile');
+      } else if (state.view === 'journal-detail') {
+        if (state.journalId) setActiveJournalId(state.journalId);
+        if (state.spiritId) selectSpirit(state.spiritId);
+        setActiveView('journal-detail');
+      } else if (state.view === 'journal-landing') {
+        if (state.journalId) setActiveJournalId(state.journalId);
+        setActiveView('journal-landing');
+      } else if (state.view === 'overview') {
+        setActiveJournalId(null);
+        setActiveView('overview');
+      } else if (state.view === 'welcome') {
+        setActiveView('welcome');
+      }
+    }, [selectSpirit]),
+    fallbackBack: useCallback(() => {
+      if (activeView === 'journal-detail') {
+        setActiveView('journal-landing');
+      } else if (activeView === 'journal-landing') {
+        setActiveJournalId(null);
+        setActiveView('overview');
+      } else if (activeView === 'profile') {
+        setActiveView(viewBeforeProfile);
+      }
+    }, [activeView, viewBeforeProfile]),
+  });
 
   // Only these scrollable containers should trigger the bottom-bar hide/show.
   const SCROLL_TRACKED_IDS = [
@@ -168,16 +208,17 @@ export default function Home() {
           setActiveJournalId(savedJournalId);
         }
 
-        if (savedView && ['overview', 'journal-landing', 'journal-detail', 'profile'].includes(savedView)) {
-          setActiveView(savedView);
-        } else {
-          setActiveView('overview');
-        }
+        const initialView = (savedView && ['overview', 'journal-landing', 'journal-detail', 'profile'].includes(savedView))
+          ? savedView
+          : 'overview';
+        setActiveView(initialView);
+        initRootHistory(initialView, savedJournalId);
       } else {
         setActiveView('welcome');
+        initRootHistory('welcome');
       }
     }
-  }, []);
+  }, [initRootHistory]);
 
   // Persist active view to sessionStorage across F5 / page reloads
   useEffect(() => {
@@ -213,35 +254,34 @@ export default function Home() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isMobileDrawerOpen]);
 
-  // Swipe-back navigation: left-edge → right swipe maps to logical "go back".
-  // Navigation semantics live here; gesture mechanics live in useSwipeBack.
+  // Profile navigation wired to native history stack
   const handleEnterProfile = useCallback(() => {
     if (activeView !== 'profile') {
       setViewBeforeProfile(activeView as 'overview' | 'journal-landing' | 'journal-detail');
       setActiveView('profile');
+      pushView('profile', {
+        fromView: activeView as 'overview' | 'journal-landing' | 'journal-detail',
+        journalId: activeJournalId,
+      });
     }
-  }, [activeView]);
+  }, [activeView, activeJournalId, pushView]);
 
   const handleLeaveProfile = useCallback(() => {
     setActiveView(viewBeforeProfile);
-  }, [viewBeforeProfile]);
+    navigateBack();
+  }, [viewBeforeProfile, navigateBack]);
 
-  const handleSwipeBack = useCallback(() => {
-    if (activeView === 'journal-detail') {
-      setActiveView('journal-landing');
-    } else if (activeView === 'journal-landing') {
-      setActiveJournalId(null);
-      setActiveView('overview');
-    } else if (activeView === 'profile') {
-      // Return to the exact view the user was on before opening Profile.
-      handleLeaveProfile();
-    }
-    // 'overview' is the root — no further back action.
-  }, [activeView, handleLeaveProfile]);
+  const handleSelectJournal = useCallback((id: string) => {
+    setActiveJournalId(id);
+    setActiveView('journal-landing');
+    pushView('journal-landing', { journalId: id });
+  }, [pushView]);
 
-  // Register the swipe-back gesture. The 44px edge-zone guard in the hook
-  // effectively makes it a no-op on desktop even without an explicit lg: check.
-  useSwipeBack(handleSwipeBack);
+  const handleSelectSpirit = useCallback((spiritId: string) => {
+    selectSpirit(spiritId);
+    setActiveView('journal-detail');
+    pushView('journal-detail', { journalId: activeJournalId, spiritId });
+  }, [selectSpirit, activeJournalId, pushView]);
 
   // Handle welcome onboarding completion
   const handleWelcomeComplete = async (firstJournalName: string, description?: string) => {
@@ -253,12 +293,15 @@ export default function Home() {
       if (created && typeof created === 'object' && 'id' in created) {
         setActiveJournalId(created.id as string);
         setActiveView('journal-landing');
+        initRootHistory('journal-landing', created.id as string);
       } else {
         setActiveView('overview');
+        initRootHistory('overview');
       }
     } catch (err) {
       console.error('Failed to create onboarding journal, falling back to overview.', err);
       setActiveView('overview');
+      initRootHistory('overview');
     }
   };
 
@@ -267,7 +310,8 @@ export default function Home() {
     selectSpirit(spiritId);
     setActiveView('journal-detail');
     setGlobalSearchQuery('');
-  }, [selectSpirit]);
+    pushView('journal-detail', { journalId, spiritId });
+  }, [selectSpirit, pushView]);
 
   // Render a minimal centered loader spinner on initial server/client mount to prevent layout flickers
   if (activeView === 'loading') {
@@ -287,6 +331,7 @@ export default function Home() {
               sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
             }
             setActiveView('overview');
+            initRootHistory('overview');
           }}
         />
       </>
@@ -329,7 +374,7 @@ export default function Home() {
 
         {/* ── Main Layout View switcher ──────────────────────────────────── */}
         {activeView === 'profile' ? (
-          <div className="flex-1 overflow-y-auto bg-[var(--pub-bg)] max-lg:pt-[calc(4.5rem+env(safe-area-inset-top,0px))] lg:pt-0 pb-20 lg:pb-0 flex items-center justify-center">
+          <div className="flex-1 overflow-y-auto bg-[var(--pub-bg)] max-lg:pt-[calc(4.5rem+env(safe-area-inset-top,0px))] lg:pt-0 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:pb-0 flex items-center justify-center">
             <ProfileView
               layout={layout}
               onLayoutChange={setLayout}
@@ -339,7 +384,7 @@ export default function Home() {
           </div>
         ) : activeView === 'overview' ? (
           <div className="flex-1 h-full relative overflow-hidden flex flex-col">
-            <div id="journal-overview-scroll" className="flex-1 overflow-y-auto bg-[var(--pub-bg)] max-lg:pt-[calc(4.5rem+env(safe-area-inset-top,0px))] lg:pt-0 pb-20 lg:pb-0">
+            <div id="journal-overview-scroll" className="flex-1 overflow-y-auto bg-[var(--pub-bg)] max-lg:pt-[calc(4.5rem+env(safe-area-inset-top,0px))] lg:pt-0 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:pb-0">
               {isLoadingJournals ? (
                 <div className="flex-1 h-64 flex flex-col items-center justify-center text-center p-6 select-none animate-pulse">
                   <div className="w-16 h-16 rounded-full border border-[var(--forest-green)]/40 flex items-center justify-center bg-[var(--wood-dark)]/10 mb-4 shadow-[0_0_25px_rgba(35,115,71,0.20)]">
@@ -359,10 +404,7 @@ export default function Home() {
                   isCreateOpen={isCreateJournalModalOpen}
                   onCloseCreate={() => setIsCreateJournalModalOpen(false)}
                   onSelectModeChange={setIsSelectModeActive}
-                  onSelectJournal={(id) => {
-                    setActiveJournalId(id);
-                    setActiveView('journal-landing');
-                  }}
+                  onSelectJournal={handleSelectJournal}
                 />
               )}
             </div>
@@ -389,7 +431,7 @@ export default function Home() {
             <div className="flex flex-1 overflow-hidden relative flex-col">
               <div
                 id="journal-landing-scroll"
-                className="flex-1 overflow-y-auto bg-[var(--pub-bg)] max-lg:pt-[calc(4.5rem+env(safe-area-inset-top,0px))] lg:pt-0 pb-20 lg:pb-0"
+                className="flex-1 overflow-y-auto bg-[var(--pub-bg)] max-lg:pt-[calc(4.5rem+env(safe-area-inset-top,0px))] lg:pt-0 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:pb-0"
               >
                 <JournalLandingPage
                   journal={activeJournal}
@@ -397,19 +439,22 @@ export default function Home() {
                   layout={layout}
                   isLoading={isLoadingSpirits}
                   onSelectModeChange={setIsSelectModeActive}
-                  onSelectSpirit={(id) => {
-                    selectSpirit(id);
-                    setActiveView('journal-detail');
-                  }}
+                  onSelectSpirit={handleSelectSpirit}
                   onNewNote={() => {
                     handleNewNote().then(() => {
-                      startTransition(() => setActiveView('journal-detail'));
+                      startTransition(() => {
+                        setActiveView('journal-detail');
+                        pushView('journal-detail', { journalId: activeJournalId });
+                      });
                     });
                   }}
                   onNewNoteFromScan={async (result, uploadedImage, mode) => {
                     const id = await handleNewNoteFromScan(result, uploadedImage, mode);
                     if (id) {
-                      startTransition(() => setActiveView('journal-detail'));
+                      startTransition(() => {
+                        setActiveView('journal-detail');
+                        pushView('journal-detail', { journalId: activeJournalId, spiritId: id });
+                      });
                     }
                     return id;
                   }}
@@ -422,7 +467,11 @@ export default function Home() {
                   {/* Back to Journals (Library / BookOpen) FAB */}
                   <button
                     type="button"
-                    onClick={() => { setActiveJournalId(null); setActiveView('overview'); }}
+                    onClick={() => {
+                      setActiveJournalId(null);
+                      setActiveView('overview');
+                      navigateBack();
+                    }}
                     className="pointer-events-auto absolute bottom-10 left-4 xl:-left-10 2xl:-left-16 w-16 h-16 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] border border-[var(--brass-accent)]/50 shadow-[0_12px_32px_rgba(0,0,0,0.35)] flex items-center justify-center cursor-pointer hover:scale-108 active:scale-95 transition-all hover:bg-[var(--fab-bg-hover)]"
                     title={language === 'DE' ? 'Zurück zur Journal-Übersicht' : 'Back to Journals'}
                   >
@@ -456,9 +505,9 @@ export default function Home() {
             <div className="flex-1 h-full relative overflow-hidden flex flex-col">
               <div
                 id="tasting-card-scroll"
-                className="flex-1 overflow-y-auto bg-[var(--pub-bg)] max-lg:pt-[calc(4.5rem+env(safe-area-inset-top,0px))] lg:pt-0 pb-20 lg:pb-0"
+                className="flex-1 overflow-y-auto bg-[var(--pub-bg)] max-lg:pt-[calc(4.5rem+env(safe-area-inset-top,0px))] lg:pt-0 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:pb-0"
               >
-                {isLoadingSpirits ? (
+                {isLoadingSpirits && spirits.length === 0 ? (
                   <div className="flex flex-col items-center justify-center text-center p-6 select-none animate-pulse">
                     <div className="w-16 h-16 rounded-full border border-[var(--forest-green)]/40 flex items-center justify-center bg-[var(--wood-dark)]/10 mb-4 shadow-[0_0_25px_rgba(35,115,71,0.20)]">
                       <WhiskyLogo size={32} className="text-[var(--forest-green)]" />
@@ -491,7 +540,10 @@ export default function Home() {
                     <div className="w-full max-w-6xl mx-auto h-full relative px-4 sm:px-6">
                       <button
                         type="button"
-                        onClick={() => setActiveView('journal-landing')}
+                        onClick={() => {
+                          setActiveView('journal-landing');
+                          navigateBack();
+                        }}
                         className="pointer-events-auto absolute bottom-10 left-4 xl:-left-10 2xl:-left-16 w-16 h-16 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] border border-[var(--brass-accent)]/50 shadow-[0_12px_32px_rgba(0,0,0,0.35)] flex items-center justify-center cursor-pointer hover:scale-108 active:scale-95 transition-all hover:bg-[var(--fab-bg-hover)]"
                         title="Back to Journal Overview"
                       >
@@ -528,6 +580,7 @@ export default function Home() {
           handleNewNote={handleNewNote}
           onEnterProfile={handleEnterProfile}
           onLeaveProfile={handleLeaveProfile}
+          onNavigateBack={navigateBack}
         />
       </main>
     </>

@@ -19,6 +19,7 @@ interface MobileBottomNavProps {
   handleNewNote: () => void;
   onEnterProfile: () => void;
   onLeaveProfile: () => void;
+  onNavigateBack?: () => void;
 }
 
 export default function MobileBottomNav({
@@ -35,6 +36,7 @@ export default function MobileBottomNav({
   handleNewNote,
   onEnterProfile,
   onLeaveProfile,
+  onNavigateBack,
 }: MobileBottomNavProps) {
   const { t, language } = useLanguage();
 
@@ -55,7 +57,7 @@ export default function MobileBottomNav({
   return (
     <nav
       className={cn(
-        "fixed bottom-0 left-0 right-0 h-16 z-50 bg-[var(--nav-bg)]/90 backdrop-blur-xl border-t border-[var(--forest-green)]/30 shadow-[0_-4px_18px_rgba(46,148,93,0.13)] flex items-center justify-around px-4 pb-safe lg:hidden transition-all duration-300 ease-in-out",
+        "fixed bottom-0 left-0 right-0 h-[calc(4rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] z-50 bg-[var(--nav-bg)]/95 backdrop-blur-xl border-t border-[var(--forest-green)]/30 shadow-[0_-4px_18px_rgba(46,148,93,0.13)] flex items-center justify-around px-4 lg:hidden transition-[transform,opacity] duration-300 ease-in-out",
         (isBottomBarVisible || isMobileDrawerOpen || activeView === 'profile')
           ? "translate-y-0 opacity-100"
           : "translate-y-full opacity-0 pointer-events-none"
@@ -65,8 +67,15 @@ export default function MobileBottomNav({
       <button
         type="button"
         onClick={() => {
-          if (isDetailView) {
-            setActiveView('journal-landing');
+          if (isDetailView || isLandingView) {
+            if (onNavigateBack) {
+              onNavigateBack();
+            } else if (isDetailView) {
+              setActiveView('journal-landing');
+            } else {
+              setActiveJournalId(null);
+              setActiveView('overview');
+            }
           } else {
             setActiveJournalId(null);
             setActiveView('overview');

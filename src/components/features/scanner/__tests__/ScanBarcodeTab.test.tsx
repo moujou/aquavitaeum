@@ -14,12 +14,6 @@ describe('ScanBarcodeTab', () => {
         barcodeQuery=""
         onBarcodeChange={onBarcodeChange}
         onSubmit={onSubmit}
-        isCameraActive={false}
-        cameraError={null}
-        videoRef={{ current: null }}
-        onStartCamera={vi.fn()}
-        onStopCamera={vi.fn()}
-        onToggleCameraFacing={vi.fn()}
       />
     );
 
@@ -29,9 +23,8 @@ describe('ScanBarcodeTab', () => {
     expect(onBarcodeChange).toHaveBeenCalledWith('5010493');
   });
 
-  it('renders live camera controls when isCameraActive is true', () => {
-    const onStopCamera = vi.fn();
-    const onToggleCameraFacing = vi.fn();
+  it('renders native camera and upload buttons and triggers file selection', () => {
+    const onFileSelect = vi.fn();
 
     render(
       <ScanBarcodeTab
@@ -39,22 +32,17 @@ describe('ScanBarcodeTab', () => {
         barcodeQuery=""
         onBarcodeChange={vi.fn()}
         onSubmit={vi.fn()}
-        isCameraActive={true}
-        cameraError={null}
-        videoRef={{ current: null }}
-        onStartCamera={vi.fn()}
-        onStopCamera={onStopCamera}
-        onToggleCameraFacing={onToggleCameraFacing}
+        onFileSelect={onFileSelect}
       />
     );
 
-    expect(screen.getByText('Barcode im Zielrahmen zentrieren...')).toBeDefined();
-    const closeBtn = screen.getByText('Kamera schließen');
-    fireEvent.click(closeBtn);
-    expect(onStopCamera).toHaveBeenCalled();
+    expect(screen.getByText('Kamera')).toBeDefined();
+    expect(screen.getByText('Foto hochladen')).toBeDefined();
 
-    const switchBtn = screen.getByTitle('Kamera wechseln');
-    fireEvent.click(switchBtn);
-    expect(onToggleCameraFacing).toHaveBeenCalled();
+    const cameraInput = document.getElementById('scan-barcode-camera') as HTMLInputElement;
+    const file = new File(['fake barcode'], 'barcode.jpg', { type: 'image/jpeg' });
+    fireEvent.change(cameraInput, { target: { files: [file] } });
+
+    expect(onFileSelect).toHaveBeenCalledWith(file);
   });
 });

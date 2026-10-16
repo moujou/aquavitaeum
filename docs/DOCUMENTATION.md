@@ -99,7 +99,7 @@ The application provides two complementary viewing modes tailored for different 
 ### 3. 👆 Gesten & Multi-Select (`useMultiSelect.ts`)
 - **Long-Press Selektionsmodus**: Durch langes Drücken (500ms Timer mit haptischem Vibrations-Feedback `navigator.vibrate(40)`) wird der Mehrfachauswahl-Modus aktiviert.
 - **Bulk Actions**: Ermöglicht das gemeinsame Exportieren oder Löschen mehrerer ausgewählter Tasting-Notizen über das Aktionen-Menü.
-- **Swipe-Back Navigation (`useSwipeBack.ts`)**: Natürliche Wischgeste vom rechten Bildschirmrand zur schnellen Navigation zurück zur Übersicht.
+- **Native OS History & Gesten-Navigation (`useHistoryNavigation.ts`)**: Direkte Anbindung an die HTML5 History & PopState API zur nahtlosen Unterstützung nativer Wischgesten (Google Pixel/Android Zurück-Geste und iOS Edge-Swipe) mit sauberer Breadcrumb-Hierarchie (Flasche ➔ Journal ➔ Bücherregal/App-Schließen).
 
 ### 4. 🌙 Mondschein-Nacht & Irische Akzente (`ThemeContext.tsx` & `ThemeToggle.tsx`)
 - **Modernes Dark-Theme**: Beruhigende, tiefe Mitternachts-Schieferflächen (`#0D1115` Canvas, `#141A21` Tasting Cards & Ledgers wie bei GitHub/Reddit Dark) kombiniert mit lebendigen irischen Pub-Akzenten (`#2E945D` Kleegrün für Buttons/Toggles, `#E59632` Pot-Still Bernstein für Medaillen und `#F5EFE1` Elfenbein-Schrift mit 14.5:1 AAA-Kontrast).
@@ -139,6 +139,12 @@ Aqua Vitaeum bietet eine **100% serverlose, datenschutzfreundliche Cloud-Synchro
 ## 🎨 Design System & Visual Specification
 
 Aqua Vitaeum basiert auf einer Designsprache im Stil eines **historischen irischen Destillerie-Ateliers** (Warm Vintage Linen Canvas, Letterpress Walnut Ink, Irish Clover Green Accents, pot-still Amber-Copper Highlights).
+
+- **The 3 Button Archetypes Standard**:
+  1. *Typ 1 (Primäre Interaktion & Aktive Toggles)*: Sattes Irish Wood Green (`bg-[var(--wood-selection)]` / `bg-[var(--wood-dark)]`) oder Bernsteingold (`bg-[var(--brass-accent)]`) mit **reinweißem Text und reinweißen Icons** (`text-white` / `text-[var(--fab-text)]`).
+  2. *Typ 2 (Sekundäre Buttons & Utilities)*: Chamois Pergament (`bg-[var(--pub-bg-panel)]` / `bg-[var(--pub-bg-alt)]/60`) mit Sepia-Tinte (`text-[var(--sepia-text)]` / `text-[var(--sepia-muted)]`).
+  3. *Typ 3 (Dekorative Badges & Begleit-Icons)*: Rein passive Begleit-Elemente (`pointer-events-none`). Dürfen niemals als interaktive Buttons verwendet werden.
+- **Metadata Cleanliness & Atomizität**: Strikt getrennte Felder ohne Schrägstriche (`Brennerei`, `Abfüller`, `Region`, `Fass-Nr.`, `Cask Finish`).
 
 Für die vollständige Design-Spezifikation, Farbtoken-Tabellen und WCAG AAA Kontrastwerte:
 👉 **[`docs/DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md)**
@@ -187,7 +193,7 @@ Aqua Vitaeum enforces a mandatory **7-Agent Verification Protocol** (`AGENTS.md`
 | :--- | :--- | :--- |
 | **1. Software Expert** | Clean code & DRY | Strict TypeScript (`npm run type-check`), 0 unused variables. |
 | **2. Software Architect** | Module boundaries | Layer flow (`data` ➔ `lib` ➔ `types` ➔ `hooks` ➔ `components` ➔ `app`). |
-| **3. Quality Expert** | `npm run type-check`, `npm run lint`, `npm run test` | 0 errors, 0 warnings, 100% test pass rate (403+ tests across 64 suites). |
+| **3. Quality Expert** | `npm run type-check`, `npm run lint`, `npm run test` | 0 errors, 0 warnings, 100% test pass rate (416+ tests across 65 suites). |
 | **4. UX/UI Expert** | Design consistency | WCAG AAA contrast, CSS custom properties, zero layout shift. |
 | **5. Security & Privacy Expert** | Security audit | 0 secrets in repo, BYOK masking, least privilege OAuth, zero tracking. |
 | **6. Documentation Agent** | `docs/` synchronization | Keep `DOCUMENTATION.md` & `DESIGN_SYSTEM.md` up-to-date. |
