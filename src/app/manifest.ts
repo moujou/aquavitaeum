@@ -14,8 +14,8 @@ export default function manifest(): MetadataRoute.Manifest {
     scope: `${prefix}/`,
     display: 'standalone',
     orientation: 'portrait',
-    background_color: '#ECE5D8', // matches --pub-bg
-    theme_color: '#ECE5D8',      // matches --nav-bg and top-menu searchbar
+    background_color: '#0D1115', // Seamless deep slate for Android WebAPK window & system navigation bar
+    theme_color: '#0D1115',      // Seamless dark header & gesture bar fallback
     icons: [
       {
         src: `${prefix}/icons/icon-192x192.png`,

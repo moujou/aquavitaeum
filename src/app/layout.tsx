@@ -9,6 +9,10 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
   width: 'device-width',
   initialScale: 1,
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ECE5D8' },
+    { media: '(prefers-color-scheme: dark)', color: '#0D1115' },
+  ],
 };
 
 const basePath = process.env.NODE_ENV === 'production' ? '/aquavitaeum' : '';
@@ -42,7 +46,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <head>
-        <meta name="theme-color" content="#ECE5D8" />
+        <meta name="theme-color" content="#ECE5D8" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#0D1115" media="(prefers-color-scheme: dark)" />
+        <meta name="theme-color" content="#0D1115" />
         <link rel="icon" type="image/svg+xml" href={`${basePath}/favicon.svg`} />
         <link rel="shortcut icon" href={`${basePath}/favicon.svg`} />
         <link rel="apple-touch-icon" sizes="180x180" href={`${basePath}/apple-touch-icon.png`} />
@@ -56,7 +62,7 @@ export default function RootLayout({
             (function() {
               try {
                 var theme = localStorage.getItem('av-theme');
-                var isDark = theme === 'pub-dark';
+                var isDark = theme === 'pub-dark' || (!theme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
                 var targetColor = isDark ? '#0D1115' : '#ECE5D8';
                 if (isDark) {
                   document.documentElement.setAttribute('data-theme', 'pub-dark');
@@ -69,7 +75,6 @@ export default function RootLayout({
                 }
                 var metas = document.querySelectorAll('meta[name="theme-color"]');
                 metas.forEach(function(m) {
-                  m.removeAttribute('media');
                   m.setAttribute('content', targetColor);
                 });
               } catch (e) {}

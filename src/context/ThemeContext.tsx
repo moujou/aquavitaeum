@@ -57,7 +57,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       const metas = document.querySelectorAll('meta[name="theme-color"]');
       if (metas.length > 0) {
         metas.forEach((meta) => {
-          meta.removeAttribute('media');
           meta.setAttribute('content', targetColor);
         });
       } else {
