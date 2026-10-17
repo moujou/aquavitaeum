@@ -48,7 +48,7 @@ export default function MobileBottomNav({
   return (
     <nav
       className={cn(
-        "fixed bottom-0 left-0 right-0 h-[calc(4rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] z-50 bg-[var(--nav-bg)]/98 backdrop-blur-md border-t border-[var(--forest-green)]/30 shadow-[0_-4px_18px_rgba(46,148,93,0.13)] flex items-center justify-around px-4 lg:hidden transform-gpu will-change-transform transition-transform duration-250 ease-out",
+        "fixed bottom-0 left-0 right-0 h-[calc(4rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] z-50 bg-[var(--nav-bg)] border-t border-[var(--parchment-border)] shadow-xs flex items-center justify-around px-4 lg:hidden transition-transform duration-250 ease-out",
         (isBottomBarVisible || isMobileDrawerOpen || activeView === 'profile')
           ? "translate-y-0"
           : "translate-y-full pointer-events-none"

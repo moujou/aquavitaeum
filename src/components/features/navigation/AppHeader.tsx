@@ -49,7 +49,7 @@ export default function AppHeader({
     <header
       id="app-header"
       className={cn(
-        "flex-shrink-0 h-16 max-lg:h-[calc(4rem+env(safe-area-inset-top,0px))] max-lg:pt-[env(safe-area-inset-top,0px)] w-full border-b border-[var(--forest-green)]/30 bg-[var(--nav-bg)]/98 backdrop-blur-md z-30 shadow-[0_4px_18px_rgba(46,148,93,0.13)] transform-gpu will-change-transform transition-transform duration-250 ease-out",
+        "flex-shrink-0 h-16 max-lg:h-[calc(4rem+env(safe-area-inset-top,0px))] max-lg:pt-[env(safe-area-inset-top,0px)] w-full border-b border-[var(--parchment-border)] bg-[var(--nav-bg)] z-30 shadow-xs transition-transform duration-250 ease-out",
         "max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:right-0",
         (!isBottomBarVisible && activeView !== 'profile')
           ? "max-lg:-translate-y-full max-lg:pointer-events-none"

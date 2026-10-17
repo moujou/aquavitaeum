@@ -14,8 +14,8 @@ export default function manifest(): MetadataRoute.Manifest {
     scope: `${prefix}/`,
     display: 'standalone',
     orientation: 'portrait',
-    background_color: '#0D1115', // Seamless deep slate for Android WebAPK window & system navigation bar
-    theme_color: '#0D1115',      // Seamless dark header & gesture bar fallback
+    background_color: '#ECE5D8', // matches --pub-bg default canvas
+    theme_color: '#ECE5D8',      // signature Irish pub warm parchment default
     icons: [
       {
         src: `${prefix}/icons/icon-192x192.png`,
