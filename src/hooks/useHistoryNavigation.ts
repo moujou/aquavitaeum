@@ -69,6 +69,24 @@ export function useHistoryNavigation({
     const handlePopState = (event: PopStateEvent) => {
       const state = event.state as HistoryStatePayload | null;
       if (state && state.aquaVitaeum) {
+        if (state.view === 'welcome') {
+          const isWelcomeDone = typeof window !== 'undefined' && (
+            localStorage.getItem('aqua-vitaeum-welcome-completed') === 'true' ||
+            sessionStorage.getItem('aqua-vitaeum-session-started') === 'true'
+          );
+          if (isWelcomeDone) {
+            // Never re-enter welcome once completed; stay on / return to overview root
+            const overviewState: HistoryStatePayload = {
+              aquaVitaeum: true,
+              view: 'overview',
+              journalId: null,
+              spiritId: null,
+            };
+            window.history.replaceState(overviewState, '');
+            onPopStateRef.current(overviewState);
+            return;
+          }
+        }
         onPopStateRef.current(state);
       } else {
         // Fallback to overview root if history stack reaches initial uninitialized entry
@@ -152,7 +170,11 @@ export function useHistoryNavigation({
       if (typeof window === 'undefined') return;
 
       // If history.state already exists and is an Aqua Vitaeum state, preserve it across re-renders
+      // UNLESS the existing state was 'welcome' and we are now initializing a genuine app root
       if (window.history.state && (window.history.state as HistoryStatePayload).aquaVitaeum) {
+        if ((window.history.state as HistoryStatePayload).view === 'welcome' && view !== 'welcome') {
+          window.history.replaceState({ aquaVitaeum: true, view, journalId, spiritId }, '');
+        }
         return;
       }
 

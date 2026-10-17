@@ -54,14 +54,21 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         }
       }
 
+      const primaryMeta = document.getElementById('av-theme-color');
       const metas = document.querySelectorAll('meta[name="theme-color"]');
       if (metas.length > 0) {
         metas.forEach((meta) => {
-          meta.setAttribute('content', targetColor);
+          if (primaryMeta && meta !== primaryMeta) {
+            meta.remove();
+          } else {
+            meta.removeAttribute('media');
+            meta.setAttribute('content', targetColor);
+          }
         });
       } else {
         const meta = document.createElement('meta');
         meta.setAttribute('name', 'theme-color');
+        meta.setAttribute('id', 'av-theme-color');
         meta.setAttribute('content', targetColor);
         document.head.appendChild(meta);
       }

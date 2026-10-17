@@ -9,10 +9,6 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
   width: 'device-width',
   initialScale: 1,
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ECE5D8' },
-    { media: '(prefers-color-scheme: dark)', color: '#0D1115' },
-  ],
 };
 
 const basePath = process.env.NODE_ENV === 'production' ? '/aquavitaeum' : '';
@@ -46,9 +42,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <head>
-        <meta name="theme-color" content="#ECE5D8" media="(prefers-color-scheme: light)" />
-        <meta name="theme-color" content="#0D1115" media="(prefers-color-scheme: dark)" />
-        <meta name="theme-color" content="#0D1115" />
+        <meta name="theme-color" content="#ECE5D8" id="av-theme-color" />
         <link rel="icon" type="image/svg+xml" href={`${basePath}/favicon.svg`} />
         <link rel="shortcut icon" href={`${basePath}/favicon.svg`} />
         <link rel="apple-touch-icon" sizes="180x180" href={`${basePath}/apple-touch-icon.png`} />
@@ -73,10 +67,32 @@ export default function RootLayout({
                   document.documentElement.style.colorScheme = 'light';
                   document.documentElement.style.backgroundColor = targetColor;
                 }
+                if (document.body) {
+                  if (isDark) {
+                    document.body.setAttribute('data-theme', 'pub-dark');
+                    document.body.style.colorScheme = 'dark';
+                    document.body.style.backgroundColor = targetColor;
+                  } else {
+                    document.body.removeAttribute('data-theme');
+                    document.body.style.colorScheme = 'light';
+                    document.body.style.backgroundColor = targetColor;
+                  }
+                }
+                var primaryMeta = document.getElementById('av-theme-color');
                 var metas = document.querySelectorAll('meta[name="theme-color"]');
                 metas.forEach(function(m) {
-                  m.setAttribute('content', targetColor);
+                  if (primaryMeta && m !== primaryMeta) {
+                    m.remove();
+                  } else {
+                    m.removeAttribute('media');
+                    m.setAttribute('content', targetColor);
+                  }
                 });
+                if (!primaryMeta && metas.length > 0) {
+                  metas[0].setAttribute('id', 'av-theme-color');
+                  metas[0].removeAttribute('media');
+                  metas[0].setAttribute('content', targetColor);
+                }
               } catch (e) {}
             })();
           `}

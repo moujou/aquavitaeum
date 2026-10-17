@@ -64,6 +64,7 @@ export default function Home() {
   // Native OS History & Gesture Navigation Hook (Pixel Android & iOS back gesture integration)
   const {
     pushView,
+    replaceView,
     navigateBack,
     initRootHistory,
   } = useHistoryNavigation({
@@ -86,7 +87,16 @@ export default function Home() {
         setActiveJournalId(null);
         setActiveView('overview');
       } else if (state.view === 'welcome') {
-        setActiveView('welcome');
+        const isCompleted = typeof window !== 'undefined' && (
+          localStorage.getItem('aqua-vitaeum-welcome-completed') === 'true' ||
+          sessionStorage.getItem('aqua-vitaeum-session-started') === 'true'
+        );
+        if (!isCompleted) {
+          setActiveView('welcome');
+        } else {
+          setActiveJournalId(null);
+          setActiveView('overview');
+        }
       }
     }, [selectSpirit]),
     fallbackBack: useCallback(() => {
@@ -310,20 +320,21 @@ export default function Home() {
     try {
       if (typeof window !== 'undefined') {
         localStorage.setItem('aqua-vitaeum-welcome-completed', 'true');
+        sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
       }
       const created = await createJournal(firstJournalName, description);
       if (created && typeof created === 'object' && 'id' in created) {
         setActiveJournalId(created.id as string);
         setActiveView('journal-landing');
-        initRootHistory('journal-landing', created.id as string);
+        replaceView('journal-landing', { journalId: created.id as string });
       } else {
         setActiveView('overview');
-        initRootHistory('overview');
+        replaceView('overview');
       }
     } catch (err) {
       console.error('Failed to create onboarding journal, falling back to overview.', err);
       setActiveView('overview');
-      initRootHistory('overview');
+      replaceView('overview');
     }
   };
 
@@ -350,10 +361,11 @@ export default function Home() {
           onComplete={handleWelcomeComplete} 
           onEnter={() => {
             if (typeof window !== 'undefined') {
+              localStorage.setItem('aqua-vitaeum-welcome-completed', 'true');
               sessionStorage.setItem('aqua-vitaeum-session-started', 'true');
             }
             setActiveView('overview');
-            initRootHistory('overview');
+            replaceView('overview');
           }}
         />
       </>
@@ -512,7 +524,7 @@ export default function Home() {
           )
         ) : (
           /* activeView === 'journal-detail' */
-          <div className="flex flex-1 overflow-hidden relative flex-col animate-fade-in">
+          <div className="flex flex-1 overflow-hidden relative flex-col">
             {/* Main Wrapper: Holds scrollable card and floating buttons */}
             <div className="flex-1 h-full relative overflow-hidden flex flex-col">
               <div
@@ -524,7 +536,7 @@ export default function Home() {
                 ) : spirits.length === 0 ? (
                   <NoteEmptyState onNewNote={handleNewNote} />
                 ) : (
-                  <div className="flex-1 w-full max-w-6xl mx-auto px-3 sm:px-6 pt-4 sm:pt-8 pb-8 animate-fade-in">
+                  <div className="flex-1 w-full max-w-6xl mx-auto px-3 sm:px-6 pt-4 sm:pt-8 pb-8">
                     <ErrorBoundary>
                       <TastingCard
                         key={activeSpirit.id}
