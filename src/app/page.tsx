@@ -111,6 +111,8 @@ export default function Home() {
 
   // Mobile smart scroll: hides the bottom nav & header on downward scroll and reveals on scroll up.
   useEffect(() => {
+    let ticking = false;
+
     const handleScroll = (e: Event) => {
       if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
         return;
@@ -127,20 +129,26 @@ export default function Home() {
       const scrollTop = scroller.scrollTop;
       if (scrollTop < 0) return;
 
-      const delta = scrollTop - lastScrollTop.current;
-      if (Math.abs(delta) < 8) return;
-
-      if (delta > 0 && scrollTop > 40) {
-        setIsBottomBarVisible(false);
-      } else if (delta < 0) {
-        setIsBottomBarVisible(true);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const delta = scrollTop - lastScrollTop.current;
+          if (Math.abs(delta) >= 10) {
+            if (delta > 0 && scrollTop > 30) {
+              setIsBottomBarVisible((prev) => (prev ? false : prev));
+            } else if (delta < 0) {
+              setIsBottomBarVisible((prev) => (!prev ? true : prev));
+            }
+            lastScrollTop.current = scrollTop;
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
-      lastScrollTop.current = scrollTop;
     };
 
-    window.addEventListener('scroll', handleScroll, true);
+    window.addEventListener('scroll', handleScroll, { passive: true, capture: true });
     return () => {
-      window.removeEventListener('scroll', handleScroll, true);
+      window.removeEventListener('scroll', handleScroll, { capture: true });
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -363,7 +371,7 @@ export default function Home() {
       <main
         id="app-main"
         className={cn(
-          'h-screen flex flex-col overflow-hidden',
+          'h-screen h-[100dvh] min-h-[100dvh] flex flex-col overflow-hidden',
           'bg-[var(--pub-bg)] text-[var(--foreground)]'
         )}
       >

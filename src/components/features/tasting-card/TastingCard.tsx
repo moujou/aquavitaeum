@@ -24,7 +24,7 @@ interface TastingCardProps {
   className?: string;
 }
 
-export function TastingCard({ initialSpirit, onSave, onDelete, className }: TastingCardProps) {
+function TastingCardComponent({ initialSpirit, onSave, onDelete, className }: TastingCardProps) {
   const { language, t } = useLanguage();
   const {
     spirit,
@@ -148,3 +148,5 @@ export function TastingCard({ initialSpirit, onSave, onDelete, className }: Tast
     </div>
   );
 }
+
+export const TastingCard = React.memo(TastingCardComponent);
