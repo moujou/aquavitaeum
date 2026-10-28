@@ -14,7 +14,7 @@ export default function manifest(): MetadataRoute.Manifest {
     scope: `${prefix}/`,
     display: 'standalone',
     orientation: 'portrait',
-    background_color: '#ECE5D8', // matches --pub-bg default canvas
+    background_color: '#ECE5D8', // matches --pub-bg default canvas (Warm Vintage Linen)
     theme_color: '#ECE5D8',      // signature Irish pub warm parchment default
     icons: [
       {

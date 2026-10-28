@@ -46,34 +46,6 @@ export interface HoveredAromaNode {
   color?: string;
 }
 
-export const CATEGORY_SHORT_NAMES: Record<string, { EN: string; DE: string }> = {
-  fruchtig:            { EN: 'Fruit', DE: 'Frucht' },
-  frisch_fruchtig:     { EN: 'Fruit', DE: 'Frucht' },
-  fruity:              { EN: 'Fruit', DE: 'Frucht' },
-  weinartig:           { EN: 'Wine', DE: 'Wein' },
-  getrocknet_wein:     { EN: 'Wine', DE: 'Wein' },
-  winey:               { EN: 'Wine', DE: 'Wein' },
-  suesse:              { EN: 'Sweet & Pastry', DE: 'Süße & Gebäck' },
-  suess_getreide:      { EN: 'Sweet & Pastry', DE: 'Süße & Gebäck' },
-  sweetness:           { EN: 'Sweet & Pastry', DE: 'Süße & Gebäck' },
-  cereal:              { EN: 'Sweet & Pastry', DE: 'Süße & Gebäck' },
-  holzig:              { EN: 'Wood & Cask', DE: 'Holz & Fass' },
-  holz_nuss:           { EN: 'Wood & Cask', DE: 'Holz & Fass' },
-  woody:               { EN: 'Wood & Cask', DE: 'Holz & Fass' },
-  wuerzig:             { EN: 'Spices', DE: 'Würze' },
-  spicy:               { EN: 'Spices', DE: 'Würze' },
-  floral_herbal:       { EN: 'Herbal & Green', DE: 'Kräuter & Gras' },
-  pflanzlich:          { EN: 'Herbal & Green', DE: 'Kräuter & Gras' },
-  floral:              { EN: 'Herbal & Green', DE: 'Kräuter & Gras' },
-  mineralisch_maritim: { EN: 'Maritime', DE: 'Maritim' },
-  maritim:             { EN: 'Maritime', DE: 'Maritim' },
-  sulphury:            { EN: 'Maritime', DE: 'Maritim' },
-  torf:                { EN: 'Peat & Smoke', DE: 'Torf & Rauch' },
-  peat:                { EN: 'Peat & Smoke', DE: 'Torf & Rauch' },
-  peaty:               { EN: 'Peat & Smoke', DE: 'Torf & Rauch' },
-  feinty:              { EN: 'Leather & Feinty', DE: 'Leder & Fleisch' },
-};
-
 // Polar coordinate math helpers
 function polarToCartesian(cx: number, cy: number, r: number, angleDeg: number) {
   const rad = ((angleDeg - 90) * Math.PI) / 180.0;

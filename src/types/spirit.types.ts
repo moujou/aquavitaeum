@@ -127,8 +127,6 @@ export type SpiritCharacteristic = typeof SPIRIT_CHARACTERISTICS[number] | strin
 
 export const TASTING_ADDITIONS = ['Water', 'On the Rocks', 'With Chocolate'] as const;
 
-export type TastingAddition = typeof TASTING_ADDITIONS[number] | string;
-
 export const SPIRIT_FINISH_DURATIONS = ['Short', 'Medium', 'Long', 'Very Long'] as const;
 
 export type SpiritFinishDuration = typeof SPIRIT_FINISH_DURATIONS[number];
@@ -170,14 +168,9 @@ export interface FinishCurveParams {
   peakIntensity: number;
   endTime: number;
 }
-
-export { RADAR_DIMENSION_COLORS } from '@/data/spirit-flavor-taxonomy';
-
 export const SUPPORTED_CURRENCIES = ['€', '$', '£', 'CHF'] as const;
 
 export type Currency = typeof SUPPORTED_CURRENCIES[number];
-
-export type FlavorTag = string;
 
 export interface CustomFlavorDescriptor {
   id: string;

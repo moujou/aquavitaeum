@@ -110,17 +110,17 @@ export function TastingHeaderSection({
       </div>
 
       {/* Spirit Type Badge (Own dedicated line) */}
-      <span className="font-display text-xs sm:text-sm font-bold uppercase tracking-[0.20em] sm:tracking-[0.25em] text-[var(--brass-light)]">
+      <span className="font-display text-xs sm:text-sm font-semibold tracking-wide text-[var(--brass-light)]">
         {spirit.spiritType}
       </span>
 
       {/* Big Spirit Name - Full Width with generous breathing room */}
-      <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold tracking-wide sm:tracking-widest text-[var(--fab-text)] uppercase leading-tight w-full max-w-4xl mx-auto break-words px-1">
+      <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold tracking-wide text-[var(--fab-text)] leading-tight w-full max-w-4xl mx-auto break-words px-1">
         {displayName}
       </h1>
 
       {/* Subtitle (Hersteller & Herkunft) with Crystal Clear Legibility & Radiant Gold Luster */}
-      <p className="font-display text-xs sm:text-sm uppercase tracking-[0.16em] sm:tracking-[0.20em] text-[var(--brass-light)] font-semibold w-full max-w-3xl mx-auto break-words px-1">
+      <p className="font-display text-xs sm:text-sm tracking-wide text-[var(--brass-light)] font-medium w-full max-w-3xl mx-auto break-words px-1">
         {subtitleLocation}
       </p>
 

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useGoogleDriveSync, GoogleDriveSyncProvider } from '../useGoogleDriveSync';
-import { notifyDataChanged } from '@/lib/sync-events';
+import { notifyDataMutated } from '@/lib/sync-events';
 
 const TOKEN_KEY = 'aqua-vitaeum-google-token';
 const ENABLED_KEY = 'aqua-vitaeum-google-sync-enabled';
@@ -80,7 +80,7 @@ describe('Google Drive Sync - Lifecycle & Persistent Session Suite', () => {
     expect(localStorage.getItem(ENABLED_KEY)).toBe('false');
   });
 
-  it('triggers debounced sync when notifyDataChanged is called', async () => {
+  it('triggers debounced sync when notifyDataMutated is called', async () => {
     localStorage.setItem(TOKEN_KEY, 'stored-access-token-456');
     localStorage.setItem(ENABLED_KEY, 'true');
 
@@ -91,7 +91,7 @@ describe('Google Drive Sync - Lifecycle & Persistent Session Suite', () => {
 
     // Trigger local data changed event
     act(() => {
-      notifyDataChanged();
+      notifyDataMutated();
     });
 
     expect(result.current.isEnabled).toBe(true);

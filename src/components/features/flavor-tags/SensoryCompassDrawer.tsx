@@ -193,8 +193,8 @@ export function SensoryCompassDrawer({
                 type="button"
                 onClick={onClose}
                 className="w-10 h-10 rounded-xl text-white/80 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 transition-all cursor-pointer shadow-xs flex items-center justify-center active:scale-95"
-                aria-label="Close"
-                title="Close"
+                aria-label={t('close')}
+                title={t('close')}
               >
                 <X className="w-5 h-5" />
               </button>
@@ -248,8 +248,8 @@ export function SensoryCompassDrawer({
               type="button"
               onClick={onClose}
               className="p-2 rounded-xl text-white/80 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 transition-all cursor-pointer shadow-xs active:scale-95"
-              aria-label="Close"
-              title="Close"
+              aria-label={t('close')}
+              title={t('close')}
             >
               <X className="w-5 h-5" />
             </button>
@@ -276,7 +276,8 @@ export function SensoryCompassDrawer({
                 type="button"
                 onClick={() => setSearchQuery('')}
                 className="p-1 rounded-full text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/10 transition-colors cursor-pointer"
-                title="Clear search"
+                title={t('clearSearch')}
+                aria-label={t('clearSearch')}
               >
                 <X size={15} />
               </button>

@@ -218,7 +218,7 @@ export function SommelierScoreSlider({
       <div
         ref={trackRef}
         role="slider"
-        aria-label="Sommelier Score"
+        aria-label={language === 'DE' ? 'Sommelier-Bewertung' : 'Sommelier Score'}
         aria-valuemin={1}
         aria-valuemax={100}
         aria-valuenow={safeScore}
@@ -277,11 +277,11 @@ export function SommelierScoreSlider({
           {isDraggingState && (
             <div
               style={{ transform: `translateX(-${percentage}%)` }}
-              className="absolute -top-8 left-1/2 px-2.5 py-0.5 rounded-full bg-[var(--parchment-bg)] border border-[var(--parchment-border)] text-[var(--sepia-text)] text-xs font-display font-black tracking-wider shadow-[0_4px_16px_rgba(43,30,20,0.22)] animate-fade-in whitespace-nowrap flex items-center gap-1.5 z-30"
+              className="absolute -top-8 left-1/2 px-2.5 py-0.5 rounded-full bg-[var(--parchment-bg)] border border-[var(--parchment-border)] text-[var(--sepia-text)] text-xs font-display font-bold shadow-[0_4px_16px_rgba(43,30,20,0.22)] animate-fade-in whitespace-nowrap flex items-center gap-1.5 z-30"
             >
               <span className="font-black text-[var(--sepia-text)]">{effectiveScore}</span>
               <span
-                className="text-[9.5px] font-bold uppercase"
+                className="text-[10px] font-semibold"
                 style={{ color: tier?.colorHex || 'var(--brass-accent)' }}
               >
                 {language === 'DE' ? tier.badgeDe : tier.badgeEn}

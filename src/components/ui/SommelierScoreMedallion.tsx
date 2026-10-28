@@ -25,8 +25,8 @@ export const SCORE_TIERS_CONFIG: ScoreTierConfig[] = [
     max: 100,
     labelEn: 'Masterpiece',
     labelDe: 'Meisterwerk',
-    badgeEn: 'MASTERPIECE',
-    badgeDe: 'MEISTERWERK',
+    badgeEn: 'Masterpiece',
+    badgeDe: 'Meisterwerk',
     emoji: '★',
     colorHex: '#B45309',
     pillBg: 'bg-amber-500/15',
@@ -38,8 +38,8 @@ export const SCORE_TIERS_CONFIG: ScoreTierConfig[] = [
     max: 89,
     labelEn: 'Excellent',
     labelDe: 'Ausgezeichnet',
-    badgeEn: 'EXCELLENT',
-    badgeDe: 'AUSGEZEICHNET',
+    badgeEn: 'Excellent',
+    badgeDe: 'Ausgezeichnet',
     emoji: '★',
     colorHex: '#C2410C',
     pillBg: 'bg-orange-500/15',
@@ -51,8 +51,8 @@ export const SCORE_TIERS_CONFIG: ScoreTierConfig[] = [
     max: 84,
     labelEn: 'Very Good',
     labelDe: 'Sehr gut',
-    badgeEn: 'VERY GOOD',
-    badgeDe: 'SEHR GUT',
+    badgeEn: 'Very Good',
+    badgeDe: 'Sehr gut',
     emoji: '★',
     colorHex: '#2E945D',
     pillBg: 'bg-emerald-500/15',
@@ -64,8 +64,8 @@ export const SCORE_TIERS_CONFIG: ScoreTierConfig[] = [
     max: 79,
     labelEn: 'Good',
     labelDe: 'Gut',
-    badgeEn: 'GOOD',
-    badgeDe: 'GUT',
+    badgeEn: 'Good',
+    badgeDe: 'Gut',
     emoji: '★',
     colorHex: '#C97A1E',
     pillBg: 'bg-amber-500/15',
@@ -77,8 +77,8 @@ export const SCORE_TIERS_CONFIG: ScoreTierConfig[] = [
     max: 69,
     labelEn: 'Solid',
     labelDe: 'Solide',
-    badgeEn: 'SOLID',
-    badgeDe: 'SOLIDE',
+    badgeEn: 'Solid',
+    badgeDe: 'Solide',
     emoji: '★',
     colorHex: '#6D5949',
     pillBg: 'bg-stone-600/15',
@@ -90,8 +90,8 @@ export const SCORE_TIERS_CONFIG: ScoreTierConfig[] = [
     max: 49,
     labelEn: 'Mediocre',
     labelDe: 'Mäßig',
-    badgeEn: 'MEDIOCRE',
-    badgeDe: 'MÄSSIG',
+    badgeEn: 'Mediocre',
+    badgeDe: 'Mäßig',
     emoji: '★',
     colorHex: '#9A3412',
     pillBg: 'bg-amber-900/15',
@@ -103,8 +103,8 @@ export const SCORE_TIERS_CONFIG: ScoreTierConfig[] = [
     max: 29,
     labelEn: 'Flawed',
     labelDe: 'Mangelhaft',
-    badgeEn: 'FLAWED',
-    badgeDe: 'MANGELHAFT',
+    badgeEn: 'Flawed',
+    badgeDe: 'Mangelhaft',
     emoji: '★',
     colorHex: '#991B1B',
     pillBg: 'bg-red-500/15',
@@ -295,15 +295,15 @@ export function SommelierScoreMedallion({
         <text
           x="250"
           y="135"
-          fontFamily="'Inter', system-ui, sans-serif"
+          fontFamily="'Playfair Display', Georgia, serif"
           fontWeight="bold"
-          fontSize="12.5"
-          letterSpacing="3"
+          fontSize="13"
+          letterSpacing="1.5"
           textAnchor="middle"
           fill="currentColor"
           opacity="0.85"
         >
-          OFFICIAL RATING
+          {language === 'DE' ? 'Offizielle Bewertung' : 'Official Rating'}
         </text>
         <text
           x="250"

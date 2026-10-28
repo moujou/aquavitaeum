@@ -106,7 +106,8 @@ export function ProductionCharacteristicsSelector({
                 <span
                   onClick={(e) => handleRemoveCustom(e, char)}
                   className="ml-0.5 hover:text-red-300 transition-colors cursor-pointer text-xs"
-                  title="Remove custom characteristic"
+                  title={t('remove')}
+                  aria-label={t('remove')}
                 >
                   ×
                 </span>

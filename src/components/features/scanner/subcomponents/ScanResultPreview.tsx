@@ -3,7 +3,7 @@
 import React from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Language, translateCharacteristic, translateColour } from '@/lib/i18n/translations';
+import { Language, t, translateCharacteristic, translateColour } from '@/lib/i18n/translations';
 import { translateFlavorTag } from '@/data/spirit-flavor-taxonomy';
 import { formatSpiritProvenance } from '@/lib/spirit-utils';
 import { SpiritAnalysisResult } from '@/services/ai-assistant-service';
@@ -29,7 +29,7 @@ export function ScanResultPreview({
       <div className="p-5 sm:p-6 rounded-2xl bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] flex flex-col gap-4 shadow-xs">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <span className="text-xs font-mono font-semibold uppercase tracking-wider text-[var(--forest-green)] bg-[var(--forest-green)]/10 px-2.5 py-1 rounded-md border border-[var(--forest-green)]/30">
+            <span className="text-xs font-mono font-semibold tracking-wide text-[var(--forest-green)] bg-[var(--forest-green)]/10 px-2.5 py-1 rounded-md border border-[var(--forest-green)]/30">
               {analysisResult.spiritType}
             </span>
             <h3 className="font-display text-xl sm:text-2xl font-bold text-[var(--foreground)] mt-2 leading-snug">
@@ -87,8 +87,8 @@ export function ScanResultPreview({
 
       {/* Mode Selection Options (2-Column Grid on larger screens) */}
       <div className="flex flex-col gap-3">
-        <label className="font-display text-xs sm:text-sm font-bold uppercase tracking-wider text-[var(--sepia-text)]">
-          {language === 'DE' ? 'Übernahme-Modus wählen' : 'Select Apply Mode'}
+        <label className="font-display text-xs sm:text-sm font-semibold tracking-wide text-[var(--sepia-text)]">
+          {t('applyModeSelect', language)}
         </label>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
@@ -115,14 +115,10 @@ export function ScanResultPreview({
             </div>
             <div className="min-w-0 flex-1">
               <p className="font-display text-sm sm:text-base font-bold text-[var(--foreground)]">
-                {language === 'DE'
-                  ? 'Nur Fakten übernehmen (Empfohlen)'
-                  : 'Facts Only (Recommended)'}
+                {t('applyModeFactsOnlyTitle', language)}
               </p>
               <p className="font-body text-xs text-[var(--sepia-muted)] mt-1 leading-relaxed">
-                {language === 'DE'
-                  ? 'Flaschendaten (Name, ABV, Alter, Fässer, Farbe) werden ausgefüllt. Nase, Gaumen, Finish & Score bleiben frei für dein persönliches Tasting.'
-                  : 'Fills bottle specifications (Name, ABV, age, casks, color). Nose, palate, finish & score remain free for your personal tasting.'}
+                {t('applyModeFactsOnlyDesc', language)}
               </p>
             </div>
           </button>
@@ -150,14 +146,10 @@ export function ScanResultPreview({
             </div>
             <div className="min-w-0 flex-1">
               <p className="font-display text-sm sm:text-base font-bold text-[var(--foreground)]">
-                {language === 'DE'
-                  ? 'Mit Tasting-Notizen'
-                  : 'Include Tasting Notes'}
+                {t('applyModeFullTitle', language)}
               </p>
               <p className="font-body text-xs text-[var(--sepia-muted)] mt-1 leading-relaxed">
-                {language === 'DE'
-                  ? 'Füllt zusätzlich offizielle Notizen (Nase, Geschmack, Abgang), Aroma-Tags sowie geschätzte Intensitäten (1–10) als Inspiration ein.'
-                  : 'Also populates official notes (nose, palate, finish), flavor tags, and estimated intensities (1–10) as inspiration.'}
+                {t('applyModeFullDesc', language)}
               </p>
             </div>
           </button>
@@ -168,18 +160,18 @@ export function ScanResultPreview({
       {applyMode === 'full' && (
         <div className="p-4 sm:p-5 rounded-2xl bg-[var(--parchment-bg-alt)]/60 border border-[var(--parchment-border)] flex flex-col gap-3 text-xs sm:text-sm animate-fade-in shadow-2xs">
           <div className="flex items-center justify-between border-b border-[var(--parchment-border)]/60 pb-2">
-            <span className="font-display font-bold uppercase tracking-wider text-[var(--sepia-text)]">
-              {language === 'DE' ? 'Vorschau der Tasting-Notizen' : 'Tasting Notes Preview'}
+            <span className="font-display font-semibold tracking-wide text-[var(--sepia-text)]">
+              {t('tastingNotesPreviewTitle', language)}
             </span>
             <span className="text-[11px] font-mono text-[var(--sepia-muted)]">
-              {language === 'DE' ? 'Inklusive Radar- & Aromastärken' : 'Includes radar & aroma intensities'}
+              {t('tastingNotesPreviewSubtitle', language)}
             </span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 pt-1">
             {/* Nose Preview */}
             <div className="flex flex-col gap-1.5 p-3 rounded-xl bg-[var(--parchment-bg)] border border-[var(--parchment-border)]/60">
-              <span className="font-display font-bold text-xs uppercase tracking-wider text-[var(--sensory-nose)]">
+              <span className="font-display font-semibold text-xs tracking-wide text-[var(--sensory-nose)]">
                 👃 {language === 'DE' ? 'Nase' : 'Nose'}
               </span>
               {analysisResult.noseNotes && (
@@ -207,7 +199,7 @@ export function ScanResultPreview({
 
             {/* Taste Preview */}
             <div className="flex flex-col gap-1.5 p-3 rounded-xl bg-[var(--parchment-bg)] border border-[var(--parchment-border)]/60">
-              <span className="font-display font-bold text-xs uppercase tracking-wider text-[var(--sensory-taste)]">
+              <span className="font-display font-semibold text-xs tracking-wide text-[var(--sensory-taste)]">
                 👅 {language === 'DE' ? 'Geschmack' : 'Taste'}
               </span>
               {analysisResult.tasteNotes && (

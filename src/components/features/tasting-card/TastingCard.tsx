@@ -133,6 +133,7 @@ function TastingCardComponent({ initialSpirit, onSave, onDelete, className }: Ta
         }
         confirmLabel={t('yesDeleteNote')}
         cancelLabel={t('cancel')}
+        closeLabel={t('close')}
         onConfirm={confirmDelete}
         onCancel={() => setShowDeleteModal(false)}
       />

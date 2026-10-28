@@ -16,7 +16,7 @@ export default function AppLoader() {
         <WhiskyLogo size={32} className="text-[var(--forest-green)]" />
       </div>
       <h2 
-        className="font-display text-xs font-bold text-[var(--forest-green)] tracking-widest uppercase animate-pulse"
+        className="font-display text-sm font-semibold text-[var(--forest-green)] tracking-wide animate-pulse"
         suppressHydrationWarning
       >
         {t('uncasking')}

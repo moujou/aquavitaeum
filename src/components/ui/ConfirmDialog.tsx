@@ -12,6 +12,7 @@ interface ConfirmDialogProps {
   message: ReactNode;
   confirmLabel?: string;
   cancelLabel?: string;
+  closeLabel?: string;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -23,6 +24,7 @@ export function ConfirmDialog({
   message,
   confirmLabel = 'Yes, Delete',
   cancelLabel = 'Cancel',
+  closeLabel = 'Close',
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
@@ -58,8 +60,8 @@ export function ConfirmDialog({
             type="button"
             onClick={onCancel}
             className="w-8 h-8 rounded-lg text-white/80 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 transition-all cursor-pointer shadow-xs flex items-center justify-center active:scale-95 shrink-0"
-            title="Close dialog"
-            aria-label="Close dialog"
+            title={closeLabel}
+            aria-label={closeLabel}
           >
             <X size={16} />
           </button>
@@ -68,7 +70,7 @@ export function ConfirmDialog({
         {/* ── Modal Body Content on Warm Parchment ── */}
         <div className="p-5 sm:p-6 flex flex-col gap-4">
           {subtitle && (
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-900 dark:text-amber-200 bg-amber-500/15 dark:bg-amber-500/20 border border-amber-600/30 dark:border-amber-500/40 px-3 py-1.5 rounded-lg shadow-2xs">
+            <div className="flex items-center gap-2 text-xs font-semibold text-amber-900 dark:text-amber-200 bg-amber-500/15 dark:bg-amber-500/20 border border-amber-600/30 dark:border-amber-500/40 px-3 py-1.5 rounded-lg shadow-2xs">
               <AlertTriangle size={14} className="shrink-0 text-amber-800 dark:text-amber-300" />
               <span>{subtitle}</span>
             </div>

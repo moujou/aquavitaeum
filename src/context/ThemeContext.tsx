@@ -54,16 +54,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      const primaryMeta = document.getElementById('av-theme-color');
       const metas = document.querySelectorAll('meta[name="theme-color"]');
       if (metas.length > 0) {
         metas.forEach((meta) => {
-          if (primaryMeta && meta !== primaryMeta) {
-            meta.remove();
-          } else {
-            meta.removeAttribute('media');
-            meta.setAttribute('content', targetColor);
-          }
+          meta.setAttribute('content', targetColor);
         });
       } else {
         const meta = document.createElement('meta');

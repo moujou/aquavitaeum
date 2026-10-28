@@ -1,11 +1,46 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Currency, SUPPORTED_CURRENCIES } from '@/types/spirit.types';
 import { FieldLabel } from '@/components/ui/FieldLabel';
 import { LocalizedDatePicker } from '@/components/ui/LocalizedDatePicker';
 import { Language, TranslationKey } from '@/lib/i18n/translations';
 import { cn } from '@/lib/utils';
+
+export type VolumeUnit = 'ml' | 'cl' | 'l' | 'fl oz';
+export const SUPPORTED_VOLUME_UNITS: VolumeUnit[] = ['ml', 'cl', 'l', 'fl oz'];
+
+export function convertMlToUnit(ml: number, unit: VolumeUnit): number {
+  switch (unit) {
+    case 'cl':
+      return Math.round((ml / 10) * 100) / 100;
+    case 'l':
+      return Math.round((ml / 1000) * 1000) / 1000;
+    case 'fl oz':
+      return Math.round((ml / 29.5735) * 10) / 10;
+    case 'ml':
+    default:
+      return ml;
+  }
+}
+
+export function convertUnitToMl(val: number, unit: VolumeUnit): number {
+  switch (unit) {
+    case 'cl':
+      return Math.round(val * 10);
+    case 'l':
+      return Math.round(val * 1000);
+    case 'fl oz': {
+      const calculated = val * 29.5735;
+      if (Math.abs(calculated - 750) < 2) return 750;
+      if (Math.abs(calculated - 50) < 1) return 50;
+      return Math.round(calculated);
+    }
+    case 'ml':
+    default:
+      return Math.round(val);
+  }
+}
 
 interface PricingVolumeRowProps {
   volumeMl?: number;
@@ -34,55 +69,70 @@ export function PricingVolumeRow({
   t,
   className,
 }: PricingVolumeRowProps) {
+  const [unit, setUnit] = useState<VolumeUnit>('ml');
+  const [localVolumeText, setLocalVolumeText] = useState<string>(() =>
+    volumeMl !== undefined && volumeMl !== null ? String(convertMlToUnit(volumeMl, 'ml')) : ''
+  );
+  const [lastVolumeProp, setLastVolumeProp] = useState<number | undefined>(volumeMl);
+
+  // Synchronize when volumeMl prop changes externally (e.g. initial load, AI scan, reset)
+  if (volumeMl !== lastVolumeProp) {
+    setLastVolumeProp(volumeMl);
+    setLocalVolumeText(
+      volumeMl !== undefined && volumeMl !== null ? String(convertMlToUnit(volumeMl, unit)) : ''
+    );
+  }
+
+  const handleUnitChange = (newUnit: VolumeUnit) => {
+    setUnit(newUnit);
+    if (volumeMl !== undefined && volumeMl !== null) {
+      setLocalVolumeText(String(convertMlToUnit(volumeMl, newUnit)));
+    }
+  };
+
+  const handleVolumeTextChange = (text: string) => {
+    setLocalVolumeText(text);
+    if (text.trim() === '') {
+      onChangeVolume(undefined);
+      return;
+    }
+    const parsed = parseFloat(text.replace(',', '.'));
+    if (!isNaN(parsed) && parsed >= 0) {
+      const ml = convertUnitToMl(parsed, unit);
+      onChangeVolume(ml);
+    }
+  };
+
   return (
     <>
       {/* Flaschenvolumen */}
       <div className={cn('flex flex-col gap-1', className)}>
-        <FieldLabel htmlFor="volume-select">{t('bottleVolume')}</FieldLabel>
+        <FieldLabel htmlFor="volume-input">{t('bottleVolume')}</FieldLabel>
         <div className="flex items-center gap-1.5 border-b border-[var(--parchment-border)]">
+          <input
+            id="volume-input"
+            type="number"
+            min={0}
+            max={unit === 'l' ? 10 : unit === 'cl' ? 1000 : unit === 'fl oz' ? 300 : 10000}
+            step={unit === 'l' ? 0.05 : unit === 'fl oz' ? 0.1 : 1}
+            value={localVolumeText}
+            placeholder={unit === 'l' ? '0.7' : unit === 'cl' ? '70' : unit === 'fl oz' ? '25.4' : '700'}
+            onChange={(e) => handleVolumeTextChange(e.target.value)}
+            className="w-full bg-transparent pb-1 text-sm sm:text-base text-[var(--sepia-text)] font-body font-normal focus:outline-none placeholder:text-[var(--placeholder-text)] placeholder:italic placeholder:font-light"
+          />
           <select
-            id="volume-select"
-            value={
-              volumeMl !== undefined && volumeMl !== null
-                ? [50, 500, 700, 1000].includes(volumeMl)
-                  ? volumeMl
-                  : 'custom'
-                : ''
-            }
-            onChange={(e) => {
-              const val = e.target.value;
-              if (val === '') {
-                onChangeVolume(undefined);
-              } else if (val !== 'custom') {
-                onChangeVolume(parseInt(val, 10));
-              }
-            }}
-            className="w-full bg-transparent pb-1 text-sm sm:text-base text-[var(--sepia-text)] font-body focus:outline-none cursor-pointer border-none"
+            id="volume-unit-select"
+            value={unit}
+            onChange={(e) => handleUnitChange(e.target.value as VolumeUnit)}
+            className="bg-transparent text-sm sm:text-base text-[var(--sepia-light)] font-body font-medium focus:outline-none cursor-pointer border-none pb-1 pr-0.5"
+            aria-label="Volume unit"
           >
-            <option value="" className="bg-[var(--parchment-bg)] text-[var(--sepia-muted)]">
-              -- {language === 'DE' ? 'Füllmenge wählen' : 'Select size'} --
-            </option>
-            <option value={700} className="bg-[var(--parchment-bg)] text-[var(--sepia-text)]">700 ml</option>
-            <option value={500} className="bg-[var(--parchment-bg)] text-[var(--sepia-text)]">500 ml</option>
-            <option value={1000} className="bg-[var(--parchment-bg)] text-[var(--sepia-text)]">1.000 ml (1L)</option>
-            <option value={50} className="bg-[var(--parchment-bg)] text-[var(--sepia-text)]">50 ml (Sample)</option>
-            <option value="custom" className="bg-[var(--parchment-bg)] text-[var(--sepia-text)]">
-              {language === 'DE' ? 'Eigene Füllmenge…' : 'Custom size…'}
-            </option>
+            {SUPPORTED_VOLUME_UNITS.map((u) => (
+              <option key={u} value={u} className="bg-[var(--parchment-bg)] text-[var(--sepia-text)]">
+                {u}
+              </option>
+            ))}
           </select>
-          {volumeMl !== undefined && ![50, 500, 700, 1000].includes(volumeMl) && (
-            <input
-              id="custom-volume-input"
-              type="number"
-              min={0}
-              max={5000}
-              step={10}
-              value={volumeMl ?? ''}
-              placeholder="ml"
-              onChange={(e) => onChangeVolume(e.target.value ? parseInt(e.target.value, 10) : undefined)}
-              className="w-16 bg-transparent pb-1 text-sm sm:text-base text-[var(--sepia-text)] font-mono font-normal focus:outline-none text-right placeholder:text-[var(--placeholder-text)] placeholder:italic placeholder:font-light"
-            />
-          )}
         </div>
       </div>
 
