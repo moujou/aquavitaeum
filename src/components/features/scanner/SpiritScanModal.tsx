@@ -254,7 +254,7 @@ export function SpiritScanModal({
                 type="button"
                 onClick={() => handleTabChange('photo')}
                 className={cn(
-                  'flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-display font-bold uppercase tracking-wider transition-all cursor-pointer truncate',
+                  'flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-display font-semibold transition-all cursor-pointer truncate',
                   activeTab === 'photo'
                     ? 'bg-[var(--wood-dark)] text-white shadow-xs'
                     : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
@@ -267,7 +267,7 @@ export function SpiritScanModal({
                 type="button"
                 onClick={() => handleTabChange('text')}
                 className={cn(
-                  'flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-display font-bold uppercase tracking-wider transition-all cursor-pointer truncate',
+                  'flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-display font-semibold transition-all cursor-pointer truncate',
                   activeTab === 'text'
                     ? 'bg-[var(--wood-dark)] text-white shadow-xs'
                     : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
@@ -280,7 +280,7 @@ export function SpiritScanModal({
                 type="button"
                 onClick={() => handleTabChange('barcode')}
                 className={cn(
-                  'flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-display font-bold uppercase tracking-wider transition-all cursor-pointer truncate',
+                  'flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-display font-semibold transition-all cursor-pointer truncate',
                   activeTab === 'barcode'
                     ? 'bg-[var(--wood-dark)] text-white shadow-xs'
                     : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
@@ -381,7 +381,7 @@ export function SpiritScanModal({
               <button
                 type="button"
                 onClick={handleApply}
-                className="min-h-[44px] px-5 py-2.5 rounded-xl bg-[var(--fab-bg)] text-[var(--fab-text)] hover:bg-[var(--fab-bg-hover)] font-display font-bold text-xs sm:text-sm uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 shadow-md active:scale-95 border border-[var(--fab-border)]"
+                className="min-h-[44px] px-5 py-2.5 rounded-xl bg-[var(--fab-bg)] text-[var(--fab-text)] hover:bg-[var(--fab-bg-hover)] font-display font-semibold text-xs sm:text-sm tracking-wide transition-all cursor-pointer flex items-center gap-2 shadow-md active:scale-95 border border-[var(--fab-border)]"
               >
                 <span>{t('applyToNote')}</span>
                 <ChevronRight size={16} />

@@ -61,7 +61,7 @@ export function ScanSearchTab({
 
         {/* Quick Suggestion Chips */}
         <div className="flex flex-wrap items-center gap-1.5 pt-1">
-          <span className="text-[11px] font-display uppercase tracking-wider text-[var(--sepia-muted)] mr-1">
+          <span className="text-xs font-display font-medium text-[var(--sepia-muted)] mr-1">
             {language === 'DE' ? 'Beispiele:' : 'Examples:'}
           </span>
           {EXAMPLE_QUERIES.map((example) => (

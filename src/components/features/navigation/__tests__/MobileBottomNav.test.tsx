@@ -55,7 +55,7 @@ describe('MobileBottomNav Component', () => {
       </LanguageProvider>
     );
 
-    const plusBtn = screen.getByRole('button', { name: /Create New|Neu|Anlegen/i });
+    const plusBtn = screen.getByRole('button', { name: /Create New|New Note or Journal|Neue Notiz|Neu|Anlegen/i });
     fireEvent.click(plusBtn);
     expect(setIsCreateJournalModalOpen).toHaveBeenCalledWith(true);
   });

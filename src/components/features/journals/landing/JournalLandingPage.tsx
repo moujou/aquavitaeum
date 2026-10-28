@@ -235,7 +235,7 @@ export function JournalLandingPage({
       {/* Bulk Delete Confirm Dialog */}
       <ConfirmDialog
         isOpen={confirmBulkDelete}
-        title={language === 'DE' ? 'Warnung / Achtung!' : 'Warning / Achtung!'}
+        title={t('warningTitle')}
         subtitle={t('deleteModalSubtitle')}
         message={
           selectedIds.size === 1
@@ -244,6 +244,7 @@ export function JournalLandingPage({
         }
         confirmLabel={t('confirmDelete')}
         cancelLabel={t('cancel')}
+        closeLabel={t('close')}
         onConfirm={() => handleBulkDelete(onDeleteSpirit)}
         onCancel={() => setConfirmBulkDelete(false)}
       />

@@ -289,8 +289,8 @@ export function FlavorTagSelector({
                       type="button"
                       onClick={() => handleToggleNoseTag(tag)}
                       className="ml-0.5 w-4 h-4 rounded-full bg-black/5 dark:bg-white/10 hover:bg-red-500 hover:text-white text-[var(--sepia-muted)] flex items-center justify-center text-[12px] font-bold cursor-pointer transition-colors"
-                      title="Remove aroma"
-                      aria-label="Remove aroma"
+                      title={t('removeAroma')}
+                      aria-label={t('removeAroma')}
                     >
                       ×
                     </button>
@@ -381,8 +381,8 @@ export function FlavorTagSelector({
                         type="button"
                         onClick={() => handleToggleTasteTag(tag)}
                         className="ml-0.5 w-4 h-4 rounded-full bg-black/5 dark:bg-white/10 hover:bg-red-500 hover:text-white text-[var(--sepia-muted)] flex items-center justify-center text-[12px] font-bold cursor-pointer transition-colors"
-                        title="Remove aroma"
-                        aria-label="Remove aroma"
+                        title={t('removeAroma')}
+                        aria-label={t('removeAroma')}
                       >
                         ×
                       </button>

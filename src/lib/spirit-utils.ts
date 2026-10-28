@@ -16,53 +16,6 @@ export function scoreToStars(score: number): number {
   return Math.round((score / 100) * 5 * 2) / 2;
 }
 
-export interface RatingTierStyle {
-  bg: string;
-  border: string;
-  text: string;
-  starColor: string;
-}
-
-/**
- * Returns dynamic styling classes matching authentic spirits noble metal & oak judging tiers.
- */
-export function getRatingTierStyle(score: number): RatingTierStyle {
-  if (score >= 90) {
-    // Masterpiece / Exceptional: Radiant 24k Gold
-    return {
-      bg: 'bg-[var(--pub-bg-panel)]',
-      border: 'border-[var(--parchment-border)]',
-      text: 'text-amber-600 dark:text-amber-400 font-black',
-      starColor: 'fill-amber-500 text-amber-500',
-    };
-  }
-  if (score >= 80) {
-    // Distinguished / Very Good: Warm Distiller's Amber Gold
-    return {
-      bg: 'bg-[var(--pub-bg-panel)]',
-      border: 'border-[var(--parchment-border)]',
-      text: 'text-[var(--brass-accent)] font-black',
-      starColor: 'fill-[var(--brass-accent)] text-[var(--brass-accent)]',
-    };
-  }
-  if (score >= 70) {
-    // Pleasant / Good: Toasted Amber-Copper
-    return {
-      bg: 'bg-[var(--pub-bg-panel)]',
-      border: 'border-[var(--parchment-border)]',
-      text: 'text-amber-800 dark:text-amber-500 font-bold',
-      starColor: 'fill-amber-700 text-amber-700',
-    };
-  }
-  // Standard / Developing: Muted Slate-Sepia
-  return {
-    bg: 'bg-[var(--pub-bg-panel)]',
-    border: 'border-[var(--parchment-border)]',
-    text: 'text-[var(--sepia-muted)] font-semibold',
-    starColor: 'fill-[var(--sepia-muted)] text-[var(--sepia-muted)]',
-  };
-}
-
 /**
  * Trims whitespace, removes empty entries, and deduplicates flavor tags.
  */

@@ -5,7 +5,7 @@
 
 /* ─── Design Tokens ─────────────────────────────────────────────────────────── */
 :root {
-  color-scheme: light;
+  color-scheme: light dark;
   background-color: #ECE5D8;
 
   /* ── Canvas & Surfaces (2026 Unified Editorial Atelier) ──────────────── */

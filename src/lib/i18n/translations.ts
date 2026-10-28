@@ -246,7 +246,7 @@ export const TRANSLATIONS = {
     // Backward compatibility aliases
     colour_Clear: 'Gin Clear',
     colour_Straw: 'Pale Straw',
-    colour_Honey: 'Ripe Corn',
+    colour_Honey: 'Honey Gold',
     colour_Gold: 'Yellow Gold',
     colour_Copper: 'Deep Copper',
     colour_Ruby: 'Auburn / Ruby',
@@ -424,7 +424,7 @@ export const TRANSLATIONS = {
     renameAction: 'Rename',
     deleteAction: 'Delete',
     saveAction: 'Save',
-    warningTitle: 'Warning!',
+    warningTitle: 'Warning',
     deleteBulkJournalsConfirm: 'journals and all their entries will be permanently deleted.',
 
     // Sync Details & AI Assistant
@@ -458,6 +458,31 @@ export const TRANSLATIONS = {
     themeAppearanceDesc: 'Warm Linen Atelier or atmospheric Irish Pub Night Mode',
     themeLight: 'Light',
     themeDark: 'Dark',
+
+    // General Actions & Accessibility
+    close: 'Close',
+    remove: 'Remove',
+    removeAroma: 'Remove aroma',
+    clearSearch: 'Clear search',
+    prevPhoto: 'Previous photo',
+    nextPhoto: 'Next photo',
+    addJournalOrNote: 'New Note or Journal',
+    layoutManuscriptView: 'Open Manuscript View',
+    layoutBookshelfView: 'Hardcover Books View',
+    layoutListView: 'List View',
+    layoutCardView: 'Card View',
+    spiritColourA11y: 'Spirit Colour',
+    sommelierScoreA11y: 'Sommelier Score',
+    showLess: 'Show less',
+
+    // Scanner Modes & Previews
+    applyModeSelect: 'Select Apply Mode',
+    applyModeFactsOnlyTitle: 'Facts Only (Recommended)',
+    applyModeFactsOnlyDesc: 'Fills bottle specifications (Name, ABV, age, casks, color). Nose, palate, finish & score remain free for your personal tasting.',
+    applyModeFullTitle: 'Include Tasting Notes',
+    applyModeFullDesc: 'Also populates official notes (nose, palate, finish), flavor tags, and estimated intensities (1–10) as inspiration.',
+    tastingNotesPreviewTitle: 'Tasting Notes Preview',
+    tastingNotesPreviewSubtitle: 'Includes radar & aroma intensities',
   },
   DE: {
     // Header & Brand
@@ -703,7 +728,7 @@ export const TRANSLATIONS = {
     // Backward compatibility aliases
     colour_Clear: 'Wasserhell / Klar',
     colour_Straw: 'Blasses Stroh',
-    colour_Honey: 'Reifer Mais',
+    colour_Honey: 'Honiggold',
     colour_Gold: 'Gelbgold',
     colour_Copper: 'Tiefes Kupfer',
     colour_Ruby: 'Kastanienrot / Auburn',
@@ -881,7 +906,7 @@ export const TRANSLATIONS = {
     renameAction: 'Umbenennen',
     deleteAction: 'Löschen',
     saveAction: 'Speichern',
-    warningTitle: 'Achtung!',
+    warningTitle: 'Achtung',
     deleteBulkJournalsConfirm: 'Journale und alle enthaltenen Einträge werden permanent gelöscht.',
 
     // Sync Details & AI Assistant
@@ -915,6 +940,31 @@ export const TRANSLATIONS = {
     themeAppearanceDesc: 'Helles Leinen-Atelier oder irischer Pub-Nachtmodus',
     themeLight: 'Hell',
     themeDark: 'Dunkel',
+
+    // General Actions & Accessibility
+    close: 'Schließen',
+    remove: 'Entfernen',
+    removeAroma: 'Aroma entfernen',
+    clearSearch: 'Suche zurücksetzen',
+    prevPhoto: 'Vorheriges Foto',
+    nextPhoto: 'Nächstes Foto',
+    addJournalOrNote: 'Neue Notiz oder Journal',
+    layoutManuscriptView: 'Aufgeschlagenes Notizbuch',
+    layoutBookshelfView: 'Bücherregal-Ansicht',
+    layoutListView: 'Listenansicht',
+    layoutCardView: 'Kartenansicht',
+    spiritColourA11y: 'Farbe der Spirituose',
+    sommelierScoreA11y: 'Sommelier-Bewertung',
+    showLess: 'Weniger anzeigen',
+
+    // Scanner Modes & Previews
+    applyModeSelect: 'Übernahme-Modus wählen',
+    applyModeFactsOnlyTitle: 'Nur Fakten übernehmen (Empfohlen)',
+    applyModeFactsOnlyDesc: 'Flaschendaten (Name, ABV, Alter, Fässer, Farbe) werden ausgefüllt. Verkostungsnotizen bleiben frei für dein persönliches Tasting.',
+    applyModeFullTitle: 'Mit Tasting-Notizen',
+    applyModeFullDesc: 'Füllt zusätzlich offizielle Notizen (Nase, Geschmack, Abgang), Aroma-Tags sowie geschätzte Intensitäten (1–10) als Inspiration ein.',
+    tastingNotesPreviewTitle: 'Vorschau der Tasting-Notizen',
+    tastingNotesPreviewSubtitle: 'Inklusive Radar- & Aromastärken',
   },
 } as const;
 

@@ -9,6 +9,10 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
   width: 'device-width',
   initialScale: 1,
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ECE5D8' },
+    { media: '(prefers-color-scheme: dark)', color: '#0D1115' },
+  ],
 };
 
 const basePath = process.env.NODE_ENV === 'production' ? '/aquavitaeum' : '';
@@ -42,6 +46,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <head>
+        <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ECE5D8" />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0D1115" />
         <meta name="theme-color" content="#ECE5D8" id="av-theme-color" />
         <link rel="icon" type="image/svg+xml" href={`${basePath}/favicon.svg`} />
         <link rel="shortcut icon" href={`${basePath}/favicon.svg`} />
@@ -78,21 +84,10 @@ export default function RootLayout({
                     document.body.style.backgroundColor = targetColor;
                   }
                 }
-                var primaryMeta = document.getElementById('av-theme-color');
                 var metas = document.querySelectorAll('meta[name="theme-color"]');
                 metas.forEach(function(m) {
-                  if (primaryMeta && m !== primaryMeta) {
-                    m.remove();
-                  } else {
-                    m.removeAttribute('media');
-                    m.setAttribute('content', targetColor);
-                  }
+                  m.setAttribute('content', targetColor);
                 });
-                if (!primaryMeta && metas.length > 0) {
-                  metas[0].setAttribute('id', 'av-theme-color');
-                  metas[0].removeAttribute('media');
-                  metas[0].setAttribute('content', targetColor);
-                }
               } catch (e) {}
             })();
           `}

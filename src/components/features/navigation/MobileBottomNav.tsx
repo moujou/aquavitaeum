@@ -112,7 +112,8 @@ export default function MobileBottomNav({
             }
           }}
           className="w-12 h-12 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] border border-[var(--fab-border)] shadow-md flex items-center justify-center cursor-pointer hover:bg-[var(--fab-bg-hover)] active:scale-90 transition-all duration-150"
-          title="Create New"
+          title={t('addJournalOrNote')}
+          aria-label={t('addJournalOrNote')}
         >
           <Plus size={24} strokeWidth={2.5} />
         </button>

@@ -162,7 +162,7 @@ export function JournalBookshelfView({
       {/* ─── PURE COMPENDIUM HARDCOVER BOOKS GALLERY (MAX 3 PER ROW ON DESKTOP) ─── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7 lg:gap-8 w-full justify-items-center">
         {journals.map((journal) => {
-          const isDefault = journal.id === 'default-compendium';
+
           const isEditing = editingId === journal.id;
           const isSelected = selectedIds.has(journal.id);
           const palette = getSpinePalette(journal);
@@ -177,8 +177,8 @@ export function JournalBookshelfView({
                 aria-hidden="true"
                 className={cn(
                   'absolute right-1 top-2 bottom-2 w-3 rounded-r-xs pointer-events-none transition-all duration-500 ease-out z-0',
-                  'bg-gradient-to-r from-[#DFD6C6] via-[#F3EDE2] to-[#D5CABB] border-y border-r border-[#C5B7A0]/60',
-                  'dark:from-[#151D25] dark:via-[#212C38] dark:to-[#12181F] dark:border-white/10',
+                  'bg-gradient-to-r from-[var(--pub-bg-alt)] via-[var(--parchment-bg)] to-[var(--pub-bg-alt)] border-y border-r border-[var(--parchment-border)]/60',
+                  'dark:from-[var(--pub-bg-alt)] dark:via-[var(--pub-bg-panel)] dark:to-[var(--pub-bg)] dark:border-white/10',
                   'shadow-[3px_2px_7px_rgba(20,10,4,0.18)] dark:shadow-[3px_2px_8px_rgba(0,0,0,0.45)]',
                   'group-hover:translate-x-1.5 group-hover:scale-y-[0.99]',
                   isSelected && 'translate-x-1.5'
@@ -251,8 +251,8 @@ export function JournalBookshelfView({
                     <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full border border-amber-300/35 bg-black/40 flex items-center justify-center shadow-inner mb-2">
                       <BookOpen className="w-7 h-7 sm:w-8 sm:h-8 text-amber-200/85 stroke-[1.75]" />
                     </div>
-                    <span className="font-display text-xs sm:text-sm font-bold text-amber-100/80 uppercase tracking-widest">
-                      {isDefault ? 'Compendium' : 'Codex'}
+                    <span className="font-display text-xs sm:text-sm font-bold text-amber-100/80 tracking-wide">
+                      Journal
                     </span>
                   </div>
                 )}

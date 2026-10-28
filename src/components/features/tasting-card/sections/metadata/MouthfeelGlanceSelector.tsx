@@ -113,7 +113,8 @@ export function MouthfeelGlanceSelector({
                 type="button"
                 onClick={(e) => handleRemoveCustom(e, customMouthfeel)}
                 className="ml-0.5 text-xs opacity-75 hover:opacity-100 hover:text-red-200 cursor-pointer"
-                title={language === 'DE' ? 'Entfernen' : 'Remove'}
+                title={t('remove')}
+                aria-label={t('remove')}
               >
                 ×
               </button>

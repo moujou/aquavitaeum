@@ -308,7 +308,8 @@ export function FinishTimeIntensityDiagram({
                   type="button"
                   onClick={() => handleToggleFinishChar(customChar)}
                   className="ml-1 text-xs opacity-75 hover:opacity-100 hover:text-red-200 cursor-pointer"
-                  title="Remove"
+                  title={t('remove')}
+                  aria-label={t('remove')}
                 >
                   ×
                 </button>

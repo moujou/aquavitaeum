@@ -625,8 +625,6 @@ export function getDescriptorsByCategory(
   return [...baseDescriptors, ...matchingCustom];
 }
 
-export const getDescriptorsByCategoryId = getDescriptorsByCategory;
-
 export function getDescriptorsByRadarDimension(
   dimension: keyof FlavorProfile,
   customFlavors?: CustomFlavorDescriptor[]

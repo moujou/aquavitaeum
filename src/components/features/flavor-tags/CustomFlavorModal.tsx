@@ -130,8 +130,8 @@ function CustomFlavorDialog({
             type="button"
             onClick={onClose}
             className="p-2 rounded-xl text-white/80 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 transition-all cursor-pointer shadow-xs shrink-0"
-            aria-label="Close"
-            title="Close"
+            aria-label={t('close')}
+            title={t('close')}
           >
             <X className="w-5 h-5" />
           </button>

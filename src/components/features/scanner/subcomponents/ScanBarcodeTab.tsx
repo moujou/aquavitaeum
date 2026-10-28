@@ -136,7 +136,7 @@ export function ScanBarcodeTab({
         {/* 2. Visual Separator */}
         <div className="flex items-center gap-3 my-1">
           <div className="flex-1 h-px bg-[var(--parchment-border)]/60" />
-          <span className="text-[11px] font-body text-[var(--sepia-muted)] uppercase tracking-wider">
+          <span className="text-xs font-body text-[var(--sepia-muted)] tracking-wide">
             {language === 'DE' ? 'oder Barcode fotografieren' : 'or photograph barcode'}
           </span>
           <div className="flex-1 h-px bg-[var(--parchment-border)]/60" />

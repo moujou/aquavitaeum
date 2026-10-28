@@ -58,14 +58,6 @@ interface DynamicProfileSlidersProps {
   className?: string;
 }
 
-interface SingleProfileSlidersProps {
-  title: string;
-  profile: FlavorProfile;
-  type: 'nose' | 'taste';
-  onChange: (key: keyof FlavorProfile, value: number) => void;
-  className?: string;
-}
-
 // ─── 9 Canonical Taxonomy Radar Dimensions (Natural Clockwise Sensory Sequence) ───
 
 export const CANONICAL_RADAR_CATEGORIES = [
@@ -79,12 +71,6 @@ export const CANONICAL_RADAR_CATEGORIES = [
   { key: 'peaty' as keyof FlavorProfile,    taxonomyId: 'torf',       labelEn: 'Peat & Smoke',          labelDe: 'Torf & Rauch',          shortEn: 'Peat & Smoke', shortDe: 'Torf & Rauch', emoji: '🔥', color: '#DC2626' },
   { key: 'feinty' as keyof FlavorProfile,   taxonomyId: 'feinty',     labelEn: 'Leather, Meaty & Feinty', labelDe: 'Leder, Fleischig & Wachs', shortEn: 'Leather & Wax', shortDe: 'Leder & Wachs', emoji: '🐂', color: '#A16207' },
 ] as const;
-
-// Backward-compatible DIMENSIONS export
-export const DIMENSIONS = CANONICAL_RADAR_CATEGORIES.map((c) => ({
-  key: c.key,
-  label: c.labelEn,
-}));
 
 // Helper to compute radar dimension score from active tag intensities using arithmetic average (Summe / Anzahl)
 export function computeRadarDimensionScore(
@@ -216,10 +202,6 @@ export function getPrecisionRoundedPolygonPath(
 
   return path + ' Z';
 }
-
-// Aliases for backwards compatibility
-export const getHarmoniousSensorySplinePath = getPrecisionRoundedPolygonPath;
-export const getSmoothClosedSplinePath = getPrecisionRoundedPolygonPath;
 
 interface SensoryRadarPoint {
   x: number;
@@ -1091,62 +1073,6 @@ export function DynamicProfileSliders({
                   );
                 })}
               </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-// SingleProfileSliders retained for backward compatibility
-export function SingleProfileSliders({
-  title,
-  profile,
-  type,
-  onChange,
-  className,
-}: SingleProfileSlidersProps) {
-  const { language } = useLanguage();
-  const isNose = type === 'nose';
-  const accentClass = isNose ? 'accent-[var(--sensory-nose)]' : 'accent-[var(--sensory-taste)]';
-  const valueColorClass = isNose ? 'text-[var(--sensory-nose)] font-bold' : 'text-[var(--sensory-taste)] font-bold';
-
-  return (
-    <div className={cn('flex flex-col gap-2 w-full', className)}>
-      <div className="flex items-center justify-between border-b border-[var(--parchment-border)]/50 pb-1">
-        <span className="text-xs sm:text-[13px] font-bold uppercase tracking-widest text-[var(--sepia-light)] font-body">
-          {title}
-        </span>
-        <span className="text-xs text-[var(--sepia-light)] font-body italic">0-10 Scale</span>
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        {CANONICAL_RADAR_CATEGORIES.map(({ key, labelEn, labelDe }) => {
-          const val = profile[key];
-          const translatedLabel = language === 'DE' ? labelDe : labelEn;
-
-          return (
-            <div
-              key={key}
-              className="grid grid-cols-[95px_1fr_24px] items-center gap-2.5"
-            >
-              <span className="font-body text-xs sm:text-sm font-bold text-[var(--sepia-text)] truncate">
-                {translatedLabel}
-              </span>
-              <input
-                type="range"
-                min={0}
-                max={10}
-                step={1}
-                value={val}
-                onChange={(e) => onChange(key, Number(e.target.value))}
-                className={cn('h-1.5 cursor-pointer', accentClass)}
-                aria-label={`${title} ${translatedLabel}`}
-              />
-              <span className={cn('text-right text-xs sm:text-sm font-bold', valueColorClass)}>
-                {val}
-              </span>
             </div>
           );
         })}
