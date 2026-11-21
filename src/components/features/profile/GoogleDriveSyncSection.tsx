@@ -3,6 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useGoogleDriveSync } from '@/hooks/useGoogleDriveSync';
+import { formatSyncOrImportError } from '@/lib/google-drive-sync';
 import {
   Cloud,
   CloudOff,
@@ -16,7 +17,7 @@ import {
 import { cn } from '@/lib/utils';
 
 export function GoogleDriveSyncSection() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const {
     isEnabled,
     isConnected,
@@ -31,7 +32,7 @@ export function GoogleDriveSyncSection() {
     importLocalBackup,
   } = useGoogleDriveSync();
 
-  const [importStatus, setImportStatus] = useState<string | null>(null);
+  const [importStatus, setImportStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,16 +42,24 @@ export function GoogleDriveSyncSection() {
     try {
       setImportStatus(null);
       const result = await importLocalBackup(file);
-      setImportStatus(
-        `${result.importedSpirits} Tastings & ${result.importedJournals} Journals importiert!`
-      );
+      setImportStatus({
+        type: 'success',
+        message:
+          language === 'DE'
+            ? `${result.importedSpirits} Tasting-Notiz(en) & ${result.importedJournals} Journal(e) erfolgreich importiert!`
+            : `Successfully imported ${result.importedSpirits} tasting note(s) & ${result.importedJournals} journal(s)!`,
+      });
       setTimeout(() => {
         setImportStatus(null);
         window.location.reload();
       }, 1500);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      setImportStatus(`Fehler: ${message}`);
+      setImportStatus({
+        type: 'error',
+        message: formatSyncOrImportError(err, language),
+      });
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -87,7 +96,7 @@ export function GoogleDriveSyncSection() {
               {syncError ? (
                 <span className="text-red-600 dark:text-red-400 font-medium inline-flex items-center gap-1">
                   <AlertCircle size={11} className="shrink-0" />
-                  <span className="truncate">{syncError}</span>
+                  <span className="truncate">{formatSyncOrImportError(syncError, language)}</span>
                 </span>
               ) : isSyncing ? (
                 <span className="inline-flex items-center gap-1.5 text-[var(--forest-green)] font-medium">
@@ -98,16 +107,24 @@ export function GoogleDriveSyncSection() {
                 <span
                   title={
                     syncStats
-                      ? `${syncStats.pushedSpirits} hochgeladen, ${syncStats.pulledSpirits} geladen${syncStats.deletedRemotes ? `, ${syncStats.deletedRemotes} gelöscht` : ''}`
-                      : 'Automatische Synchronisation aktiv'
+                      ? language === 'DE'
+                        ? `${syncStats.pushedSpirits} hochgeladen, ${syncStats.pulledSpirits} geladen${syncStats.deletedRemotes ? `, ${syncStats.deletedRemotes} gelöscht` : ''}`
+                        : `${syncStats.pushedSpirits} uploaded, ${syncStats.pulledSpirits} downloaded${syncStats.deletedRemotes ? `, ${syncStats.deletedRemotes} deleted` : ''}`
+                      : language === 'DE'
+                        ? 'Automatische Synchronisation aktiv'
+                        : 'Automatic sync active'
                   }
                   className="cursor-help text-[var(--forest-green)] font-medium inline-flex items-center gap-1"
                 >
                   <CheckCircle2 size={11} className="shrink-0" />
                   <span>
                     {formattedLastSync
-                      ? `Synchronisiert (${formattedLastSync})`
-                      : 'Automatisch synchronisiert'}
+                      ? language === 'DE'
+                        ? `Synchronisiert (${formattedLastSync})`
+                        : `Synced (${formattedLastSync})`
+                      : language === 'DE'
+                        ? 'Automatisch synchronisiert'
+                        : 'Automatically synced'}
                   </span>
                 </span>
               ) : (
@@ -206,8 +223,16 @@ export function GoogleDriveSyncSection() {
       </div>
 
       {importStatus && (
-        <div className="mx-4 mb-3 text-xs text-[var(--forest-green)] bg-[var(--forest-green)]/10 px-3 py-2 rounded-md border border-[var(--forest-green)]/30 font-medium animate-fade-in">
-          {importStatus}
+        <div
+          className={cn(
+            'mx-4 mb-3 text-xs px-3 py-2 rounded-md border font-medium animate-fade-in flex items-center gap-2',
+            importStatus.type === 'success'
+              ? 'text-[var(--forest-green)] bg-[var(--forest-green)]/10 border-[var(--forest-green)]/30'
+              : 'text-red-700 dark:text-red-300 bg-red-950/20 border-red-500/40'
+          )}
+        >
+          {importStatus.type === 'success' ? <CheckCircle2 size={14} className="shrink-0" /> : <AlertCircle size={14} className="shrink-0" />}
+          <span>{importStatus.message}</span>
         </div>
       )}
     </>

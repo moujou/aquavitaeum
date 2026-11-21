@@ -202,7 +202,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
           </div>
 
           {/* Brand Title */}
-          <h1 className="font-display text-4xl sm:text-5xl font-extrabold text-[var(--foreground)] tracking-widest uppercase mb-3">
+          <h1 className="font-display text-4xl sm:text-5xl font-extrabold text-[var(--foreground)] tracking-wide mb-3">
             {t('welcomeTitle')}
           </h1>
 
@@ -219,7 +219,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
             type="button"
             disabled={isSyncing}
             onClick={handleGoogleSync}
-            className="w-full h-12 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] text-[var(--fab-text)] font-body text-xs sm:text-sm font-bold tracking-wider uppercase shadow-md cursor-pointer transition-all duration-300 active:scale-[0.98] flex items-center justify-center gap-2.5 disabled:opacity-60"
+            className="w-full h-12 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] text-[var(--fab-text)] font-body text-xs sm:text-sm font-semibold tracking-wide shadow-md cursor-pointer transition-all duration-300 active:scale-[0.98] flex items-center justify-center gap-2.5 disabled:opacity-60"
           >
             {isSyncing ? (
               <>
@@ -249,7 +249,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
           {/* Subtle 'or' Divider */}
           <div className="flex items-center gap-3 w-full my-0.5">
             <div className="flex-1 h-px bg-[var(--parchment-border)]/60" />
-            <span className="text-[11px] font-serif uppercase tracking-widest text-[var(--sepia-light)]">
+            <span className="text-xs font-serif text-[var(--sepia-light)] tracking-wide">
               {t('googleSyncWelcomeOr')}
             </span>
             <div className="flex-1 h-px bg-[var(--parchment-border)]/60" />
@@ -259,7 +259,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
           <button
             type="button"
             onClick={hasJournals ? handleEnterClick : () => setIsModalOpen(true)}
-            className="w-full h-11 rounded-lg bg-[var(--parchment-bg)] hover:bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] text-[var(--foreground)] font-body text-xs sm:text-sm font-semibold tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-[0.98]"
+            className="w-full h-11 rounded-lg bg-[var(--parchment-bg)] hover:bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] text-[var(--foreground)] font-body text-xs sm:text-sm font-semibold tracking-wide transition-all duration-200 cursor-pointer shadow-xs active:scale-[0.98]"
           >
             {hasJournals ? t('googleSyncLocalContinue') : t('createFirstJournal')}
           </button>
@@ -279,7 +279,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
             <div className="flex items-center justify-between px-5 py-3.5 bg-[var(--wood-dark)] text-white border-b border-black/10 shadow-sm shrink-0 gap-3">
               <div className="flex items-center gap-2.5 min-w-0 pr-2">
                 <BookOpen className="w-5 h-5 text-amber-200 shrink-0" />
-                <h3 className="font-display text-base sm:text-lg font-bold text-white drop-shadow-xs uppercase tracking-wider">
+                <h3 className="font-display text-base sm:text-lg font-bold text-white drop-shadow-xs tracking-wide">
                   {t('createFirstJournal')}
                 </h3>
               </div>

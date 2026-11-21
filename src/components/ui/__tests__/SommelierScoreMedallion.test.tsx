@@ -12,7 +12,7 @@ describe('SommelierScoreMedallion', () => {
       </LanguageProvider>
     );
     expect(screen.getByText('1')).toBeDefined();
-    expect(screen.getByText(/FLAWED|MANGELHAFT/)).toBeDefined();
+    expect(screen.getByText(/FLAWED|MANGELHAFT/i)).toBeDefined();
   });
 
   it('renders masterpiece medallion for score 95', () => {
@@ -23,18 +23,18 @@ describe('SommelierScoreMedallion', () => {
     );
 
     expect(screen.getByText('95')).toBeDefined();
-    expect(screen.getByText(/MASTERPIECE|MEISTERWERK/)).toBeDefined();
+    expect(screen.getByText(/MASTERPIECE|MEISTERWERK/i)).toBeDefined();
   });
 
   it('renders correct tiers for different score brackets', () => {
     const testCases = [
-      { score: 92, badge: /MASTERPIECE|MEISTERWERK/ },
-      { score: 87, badge: /EXCELLENT|AUSGEZEICHNET/ },
-      { score: 82, badge: /VERY GOOD|SEHR GUT/ },
-      { score: 75, badge: /GOOD|GUT/ },
-      { score: 65, badge: /SOLID|SOLIDE/ },
-      { score: 35, badge: /MEDIOCRE|MÄSSIG/ },
-      { score: 20, badge: /FLAWED|MANGELHAFT/ },
+      { score: 92, badge: /MASTERPIECE|MEISTERWERK/i },
+      { score: 87, badge: /EXCELLENT|AUSGEZEICHNET/i },
+      { score: 82, badge: /VERY GOOD|SEHR GUT/i },
+      { score: 75, badge: /GOOD|GUT/i },
+      { score: 65, badge: /SOLID|SOLIDE/i },
+      { score: 35, badge: /MEDIOCRE|MÄSSIG/i },
+      { score: 20, badge: /FLAWED|MANGELHAFT/i },
     ];
 
     testCases.forEach(({ score, badge }) => {

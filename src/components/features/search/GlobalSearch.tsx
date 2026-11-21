@@ -12,7 +12,7 @@ import { useLanguage } from '@/context/LanguageContext';
 interface GlobalSearchProps {
   journals: JournalWithStats[];
   setActiveJournalId: (id: string | null) => void;
-  setActiveView: (view: 'loading' | 'welcome' | 'overview' | 'journal-landing' | 'journal-detail' | 'profile') => void;
+  setActiveView: (view: 'loading' | 'welcome' | 'overview' | 'journal-landing' | 'journal-detail' | 'aroma-catalog' | 'profile') => void;
   selectSpirit: (id: string) => void;
   globalSearchQuery: string;
   setGlobalSearchQuery: (q: string) => void;

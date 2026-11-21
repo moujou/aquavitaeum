@@ -186,7 +186,7 @@ export function CalendarPopup({ value, language, onSelect, onClose, anchorRef }:
           {WEEKDAY_LABELS[language].map((label) => (
             <div
               key={label}
-              className="text-center text-[10px] font-bold uppercase tracking-widest text-[var(--sepia-muted)]/60"
+              className="text-center text-[11px] font-medium text-[var(--sepia-muted)]/80"
             >
               {label}
             </div>
@@ -238,7 +238,7 @@ export function CalendarPopup({ value, language, onSelect, onClose, anchorRef }:
           <button
             type="button"
             onClick={() => onSelect(toIso(todayY, todayM, todayD))}
-            className="text-[11px] font-semibold text-[var(--sepia-muted)] hover:text-[var(--sepia-text)] tracking-wide uppercase transition-colors cursor-pointer"
+            className="text-xs font-medium text-[var(--sepia-muted)] hover:text-[var(--foreground)] transition-colors cursor-pointer"
           >
             {language === 'DE' ? 'Heute' : 'Today'}
           </button>

@@ -76,20 +76,14 @@ export function AiAssistantSettingsSection() {
       } else {
         setTestResult({
           type: 'error',
-          message:
-            language === 'DE'
-              ? `Verbindung fehlgeschlagen: ${res.message}`
-              : `Connection failed: ${res.message}`,
+          message: res.message,
         });
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       setTestResult({
         type: 'error',
-        message:
-          language === 'DE'
-            ? `Fehler beim Testen: ${msg}`
-            : `Test error: ${msg}`,
+        message: msg,
       });
     } finally {
       setIsTesting(false);
@@ -264,8 +258,8 @@ export function AiAssistantSettingsSection() {
                   type="button"
                   onClick={() => setShowKeyText(!showKeyText)}
                   className="text-[var(--sepia-muted)] hover:text-[var(--foreground)] p-1 rounded transition-colors cursor-pointer"
-                  title={showKeyText ? 'Verbergen' : 'Anzeigen'}
-                  aria-label={showKeyText ? 'Verbergen' : 'Anzeigen'}
+                  title={showKeyText ? (language === 'DE' ? 'Verbergen' : 'Hide') : (language === 'DE' ? 'Anzeigen' : 'Show')}
+                  aria-label={showKeyText ? (language === 'DE' ? 'Verbergen' : 'Hide') : (language === 'DE' ? 'Anzeigen' : 'Show')}
                 >
                   {showKeyText ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
@@ -276,7 +270,7 @@ export function AiAssistantSettingsSection() {
                 <button
                   type="submit"
                   disabled={!inputKey.trim() || isTesting}
-                  className="flex-1 sm:flex-initial h-11 px-4 rounded-xl bg-[var(--wood-dark)] text-white hover:bg-[var(--wood-accent)] font-display font-semibold text-xs sm:text-sm uppercase tracking-wider transition-all cursor-pointer shadow-xs disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:scale-98"
+                  className="flex-1 sm:flex-initial h-11 px-4 rounded-xl bg-[var(--wood-dark)] text-white hover:bg-[var(--wood-accent)] font-display font-semibold text-xs sm:text-sm tracking-wide transition-all cursor-pointer shadow-xs disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:scale-98"
                 >
                   {isTesting ? (
                     <>

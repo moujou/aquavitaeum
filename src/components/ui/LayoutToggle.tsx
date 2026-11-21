@@ -3,6 +3,7 @@
 import React from 'react';
 import { AlignJustify, LayoutGrid } from 'lucide-react';
 import { OverviewLayout } from '@/hooks/useLayoutPreference';
+import { useLanguage } from '@/context/LanguageContext';
 import { cn } from '@/lib/utils';
 
 interface LayoutToggleProps {
@@ -12,6 +13,19 @@ interface LayoutToggleProps {
 }
 
 export function LayoutToggle({ value, onChange, className }: LayoutToggleProps) {
+  let listLabel = 'List View';
+  let cardLabel = 'Card View';
+
+  try {
+    const lang = useLanguage();
+    if (lang?.t) {
+      listLabel = lang.t('layoutListView');
+      cardLabel = lang.t('layoutCardView');
+    }
+  } catch {
+    // Graceful fallback for test environments without LanguageProvider
+  }
+
   return (
     <div className={cn('bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] rounded-lg p-0.5 flex gap-0.5', className)}>
       <button
@@ -23,8 +37,8 @@ export function LayoutToggle({ value, onChange, className }: LayoutToggleProps) 
             ? 'bg-[var(--wood-selection)] text-[var(--fab-text)] shadow-xs'
             : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
         )}
-        aria-label="List View"
-        title="List View"
+        aria-label={listLabel}
+        title={listLabel}
       >
         <AlignJustify size={16} />
       </button>
@@ -37,8 +51,8 @@ export function LayoutToggle({ value, onChange, className }: LayoutToggleProps) 
             ? 'bg-[var(--wood-selection)] text-[var(--fab-text)] shadow-xs'
             : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
         )}
-        aria-label="Card View"
-        title="Card View"
+        aria-label={cardLabel}
+        title={cardLabel}
       >
         <LayoutGrid size={16} />
       </button>

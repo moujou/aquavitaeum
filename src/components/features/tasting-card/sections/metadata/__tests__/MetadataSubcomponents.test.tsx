@@ -166,10 +166,15 @@ describe('Metadata Subcomponents', () => {
         </LanguageProvider>
       );
 
-      // Volume dropdown change
-      const volumeSelect = screen.getByLabelText(/bottleVolume/i);
-      fireEvent.change(volumeSelect, { target: { value: '500' } });
+      // Volume input change (default unit ml)
+      const volumeInput = screen.getByLabelText(/bottleVolume/i);
+      expect((volumeInput as HTMLInputElement).value).toBe('700');
+      fireEvent.change(volumeInput, { target: { value: '500' } });
       expect(changeVolFn).toHaveBeenCalledWith(500);
+
+      // Volume unit dropdown exists and defaults to ml
+      const volumeUnitSelect = screen.getByLabelText('Volume unit');
+      expect((volumeUnitSelect as HTMLSelectElement).value).toBe('ml');
 
       // Currency dropdown change
       const currencySelect = screen.getByLabelText('Currency');
@@ -186,14 +191,12 @@ describe('Metadata Subcomponents', () => {
       expect(changePriceFn).toHaveBeenCalledWith(undefined);
     });
 
-    it('handles custom volume input field when custom option is selected', () => {
+    it('handles volume unit switching and conversion (cl, l, fl oz)', () => {
       const changeVolFn = vi.fn();
       render(
         <LanguageProvider>
           <PricingVolumeRow
-            volumeMl={350} // Non-standard volume
-            price={35.00}
-            currency="€"
+            volumeMl={700}
             onChangeVolume={changeVolFn}
             onChangePrice={vi.fn()}
             onChangeCurrency={vi.fn()}
@@ -204,12 +207,40 @@ describe('Metadata Subcomponents', () => {
         </LanguageProvider>
       );
 
-      const customInput = screen.getByPlaceholderText('ml');
-      expect(customInput).toBeDefined();
-      expect((customInput as HTMLInputElement).value).toBe('350');
+      const volumeInput = screen.getByLabelText(/bottleVolume/i) as HTMLInputElement;
+      const volumeUnitSelect = screen.getByLabelText('Volume unit') as HTMLSelectElement;
 
-      fireEvent.change(customInput, { target: { value: '375' } });
-      expect(changeVolFn).toHaveBeenCalledWith(375);
+      // Default unit is ml
+      expect(volumeUnitSelect.value).toBe('ml');
+      expect(volumeInput.value).toBe('700');
+
+      // Switch to cl: 700 ml -> 70 cl
+      fireEvent.change(volumeUnitSelect, { target: { value: 'cl' } });
+      expect(volumeInput.value).toBe('70');
+
+      // Change to 50 cl -> 500 ml
+      fireEvent.change(volumeInput, { target: { value: '50' } });
+      expect(changeVolFn).toHaveBeenCalledWith(500);
+
+      // Switch to l: 700 ml -> 0.7 l
+      fireEvent.change(volumeUnitSelect, { target: { value: 'l' } });
+      expect(volumeInput.value).toBe('0.7');
+
+      // Change to 1 l -> 1000 ml
+      fireEvent.change(volumeInput, { target: { value: '1' } });
+      expect(changeVolFn).toHaveBeenCalledWith(1000);
+
+      // Switch to fl oz: 700 ml -> 23.7 fl oz
+      fireEvent.change(volumeUnitSelect, { target: { value: 'fl oz' } });
+      expect(volumeInput.value).toBe('23.7');
+
+      // Type 25.4 fl oz -> snaps to 750 ml
+      fireEvent.change(volumeInput, { target: { value: '25.4' } });
+      expect(changeVolFn).toHaveBeenCalledWith(750);
+
+      // Empty input
+      fireEvent.change(volumeInput, { target: { value: '' } });
+      expect(changeVolFn).toHaveBeenCalledWith(undefined);
     });
   });
 });

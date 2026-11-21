@@ -62,4 +62,19 @@ describe('Modular SpiritCard Component', () => {
     expect(screen.getByText('Signatory Vintage')).toBeDefined();
     expect(screen.getByText('Islay')).toBeDefined();
   });
+
+  it('renders the animated liquid wave colour ribbon with localized colour tooltip', () => {
+    const { container } = render(
+      <LanguageProvider>
+        <SpiritCard
+          spirit={sampleSpirit}
+          isSelected={false}
+          onClick={vi.fn()}
+        />
+      </LanguageProvider>
+    );
+
+    const waveLayer = container.querySelector('.animate-fluid-flow');
+    expect(waveLayer).not.toBeNull();
+  });
 });

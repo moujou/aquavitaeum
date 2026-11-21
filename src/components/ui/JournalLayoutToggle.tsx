@@ -3,6 +3,7 @@
 import React from 'react';
 import { BookOpen, Book } from 'lucide-react';
 import { JournalShelfLayout } from '@/hooks/useLayoutPreference';
+import { useLanguage } from '@/context/LanguageContext';
 import { cn } from '@/lib/utils';
 
 interface JournalLayoutToggleProps {
@@ -12,6 +13,19 @@ interface JournalLayoutToggleProps {
 }
 
 export function JournalLayoutToggle({ value, onChange, className }: JournalLayoutToggleProps) {
+  let manuscriptLabel = 'Open Manuscript View';
+  let bookshelfLabel = 'Hardcover Books View';
+
+  try {
+    const lang = useLanguage();
+    if (lang?.t) {
+      manuscriptLabel = lang.t('layoutManuscriptView');
+      bookshelfLabel = lang.t('layoutBookshelfView');
+    }
+  } catch {
+    // Graceful fallback for test environments without LanguageProvider
+  }
+
   return (
     <div className={cn('bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] rounded-lg p-0.5 flex gap-0.5', className)}>
       <button
@@ -23,8 +37,8 @@ export function JournalLayoutToggle({ value, onChange, className }: JournalLayou
             ? 'bg-[var(--wood-selection)] text-[var(--fab-text)] shadow-xs'
             : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
         )}
-        aria-label="Open Manuscript View"
-        title="Open Manuscript View"
+        aria-label={manuscriptLabel}
+        title={manuscriptLabel}
       >
         <BookOpen size={16} />
       </button>
@@ -37,8 +51,8 @@ export function JournalLayoutToggle({ value, onChange, className }: JournalLayou
             ? 'bg-[var(--wood-selection)] text-[var(--fab-text)] shadow-xs'
             : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
         )}
-        aria-label="Hardcover Books View"
-        title="Hardcover Books View"
+        aria-label={bookshelfLabel}
+        title={bookshelfLabel}
       >
         <Book size={16} />
       </button>

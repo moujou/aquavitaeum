@@ -66,7 +66,7 @@ function TastingCardComponent({ initialSpirit, onSave, onDelete, className }: Ta
               <button
                 type="button"
                 onClick={() => setIsHeaderScanModalOpen(true)}
-                className="px-3 py-1.5 rounded-lg bg-[var(--wood-selection)] text-white hover:bg-[var(--wood-dark)] border border-[var(--wood-selection)] shadow-xs text-xs font-display font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer h-[34px] active:scale-95"
+                className="px-3 py-1.5 rounded-lg bg-[var(--wood-selection)] text-white hover:bg-[var(--wood-dark)] border border-[var(--wood-selection)] shadow-xs text-xs font-display font-bold tracking-wide transition-all flex items-center gap-1.5 cursor-pointer h-[34px] active:scale-95"
                 title={language === 'DE' ? 'Cask & Spirit Assistent: Flasche analysieren' : 'Cask & Spirit Assistant: Analyze bottle'}
                 aria-label={language === 'DE' ? 'Flasche neu analysieren' : 'Re-analyze Bottle'}
               >
@@ -133,6 +133,7 @@ function TastingCardComponent({ initialSpirit, onSave, onDelete, className }: Ta
         }
         confirmLabel={t('yesDeleteNote')}
         cancelLabel={t('cancel')}
+        closeLabel={t('close')}
         onConfirm={confirmDelete}
         onCancel={() => setShowDeleteModal(false)}
       />

@@ -130,6 +130,32 @@ describe('AI Assistant Service (ai-assistant-service.ts)', () => {
       expect(result.success).toBe(false);
       expect(result.message).toContain('Network offline');
     });
+
+    it('translates 503 high demand errors into clean German and English app messages after trying fallback models', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 503,
+        json: async () => ({
+          error: {
+            message:
+              'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.',
+          },
+        }),
+      });
+      global.fetch = mockFetch;
+
+      const resDe = await testAiAssistantConnection('AIzaKey', 'DE');
+      expect(resDe.success).toBe(false);
+      expect(resDe.message).toBe(
+        'Der KI-Dienst ist momentan stark ausgelastet. Bitte versuche es in wenigen Sekunden erneut.'
+      );
+
+      const resEn = await testAiAssistantConnection('AIzaKey', 'EN');
+      expect(resEn.success).toBe(false);
+      expect(resEn.message).toBe(
+        'The AI service is currently experiencing high demand. Please try again in a few seconds.'
+      );
+    });
   });
 
   describe('Full AI Analysis & Parsing', () => {

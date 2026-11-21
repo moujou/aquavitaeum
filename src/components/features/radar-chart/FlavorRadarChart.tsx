@@ -8,13 +8,14 @@ import {
   PolarAngleAxis,
   PolarRadiusAxis,
   ResponsiveContainer,
-  Tooltip,
 } from 'recharts';
 import { FlavorProfile, CustomFlavorDescriptor } from '@/types/spirit.types';
 import { useLanguage } from '@/context/LanguageContext';
 import { t as translate } from '@/lib/i18n/translations';
 import {
   SPIRIT_FLAVOR_TAXONOMY,
+  RADAR_DIMENSION_COLORS,
+  getEffectiveFlavorTaxonomy,
   getDescriptorsByRadarDimension,
   getDescriptorsByCategory,
   translateFlavorTag,
@@ -25,10 +26,10 @@ import { SectionHeader } from '@/components/ui/SectionHeader';
 import {
   WhiskyAromaWheel,
   SensoryFilterMode,
-  CATEGORY_WHEEL_COLORS,
   HoveredAromaNode,
   computeActiveCategoriesData,
   SommelierCategoryLegendAndInspector,
+  isTouchOrMobileViewport,
 } from './WhiskyAromaWheel';
 import { Compass, PieChart } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -58,14 +59,6 @@ interface DynamicProfileSlidersProps {
   className?: string;
 }
 
-interface SingleProfileSlidersProps {
-  title: string;
-  profile: FlavorProfile;
-  type: 'nose' | 'taste';
-  onChange: (key: keyof FlavorProfile, value: number) => void;
-  className?: string;
-}
-
 // ─── 9 Canonical Taxonomy Radar Dimensions (Natural Clockwise Sensory Sequence) ───
 
 export const CANONICAL_RADAR_CATEGORIES = [
@@ -80,11 +73,44 @@ export const CANONICAL_RADAR_CATEGORIES = [
   { key: 'feinty' as keyof FlavorProfile,   taxonomyId: 'feinty',     labelEn: 'Leather, Meaty & Feinty', labelDe: 'Leder, Fleischig & Wachs', shortEn: 'Leather & Wax', shortDe: 'Leder & Wachs', emoji: '🐂', color: '#A16207' },
 ] as const;
 
-// Backward-compatible DIMENSIONS export
-export const DIMENSIONS = CANONICAL_RADAR_CATEGORIES.map((c) => ({
-  key: c.key,
-  label: c.labelEn,
-}));
+function formatShortRadarLabel(raw: string): string {
+  const trimmed = raw.trim();
+  if (trimmed.length <= 18) return trimmed;
+  return `${trimmed.slice(0, 16).trim()}…`;
+}
+
+export function getDynamicRadarCategories() {
+  const effective = getEffectiveFlavorTaxonomy();
+  const canonicalOrder = new Map<string, number>(
+    CANONICAL_RADAR_CATEGORIES.map((c, idx) => [c.taxonomyId, idx])
+  );
+
+  const ordered = [...effective].sort((a, b) => {
+    const idxA = canonicalOrder.get(a.id) ?? 999;
+    const idxB = canonicalOrder.get(b.id) ?? 999;
+    return idxA - idxB;
+  });
+
+  return ordered.map((cat) => {
+    const canonical = CANONICAL_RADAR_CATEGORIES.find((c) => c.taxonomyId === cat.id);
+    const origDefault = SPIRIT_FLAVOR_TAXONOMY.find((c) => c.id === cat.id);
+    const wasRenamed =
+      !origDefault ||
+      cat.name.DE !== origDefault.name.DE ||
+      cat.name.EN !== origDefault.name.EN;
+
+    return {
+      key: cat.radarDimension,
+      taxonomyId: cat.id,
+      labelEn: cat.name.EN,
+      labelDe: cat.name.DE,
+      shortEn: !wasRenamed && canonical ? canonical.shortEn : formatShortRadarLabel(cat.name.EN),
+      shortDe: !wasRenamed && canonical ? canonical.shortDe : formatShortRadarLabel(cat.name.DE),
+      emoji: cat.emoji || canonical?.emoji || '🥃',
+      color: cat.color || canonical?.color || RADAR_DIMENSION_COLORS[cat.radarDimension] || '#C59B27',
+    };
+  });
+}
 
 // Helper to compute radar dimension score from active tag intensities using arithmetic average (Summe / Anzahl)
 export function computeRadarDimensionScore(
@@ -216,10 +242,6 @@ export function getPrecisionRoundedPolygonPath(
 
   return path + ' Z';
 }
-
-// Aliases for backwards compatibility
-export const getHarmoniousSensorySplinePath = getPrecisionRoundedPolygonPath;
-export const getSmoothClosedSplinePath = getPrecisionRoundedPolygonPath;
 
 interface SensoryRadarPoint {
   x: number;
@@ -388,7 +410,7 @@ export function FlavorRadarChart({
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(typeof window !== 'undefined' && window.innerWidth < 640);
+      setIsMobile(isTouchOrMobileViewport());
     };
     checkMobile();
     window.addEventListener('resize', checkMobile);
@@ -396,7 +418,11 @@ export function FlavorRadarChart({
   }, []);
 
   const [pinnedNode, setPinnedNode] = useState<HoveredAromaNode | null>(null);
-  const [hoveredNode, setHoveredNode] = useState<HoveredAromaNode | null>(null);
+  const [hoveredNode, rawSetHoveredNode] = useState<HoveredAromaNode | null>(null);
+  const setHoveredNode = (node: HoveredAromaNode | null) => {
+    if (node !== null && isTouchOrMobileViewport()) return;
+    rawSetHoveredNode(node);
+  };
   const activeNode = hoveredNode || pinnedNode;
 
   const togglePin = (node: HoveredAromaNode, e?: React.MouseEvent) => {
@@ -470,8 +496,9 @@ export function FlavorRadarChart({
     return computeActiveCategoriesData(activeTags, tagIntensities);
   }, [activeTags, tagIntensities]);
 
-  // Chart data for 9 Canonical Radar categories
-  const chartData = CANONICAL_RADAR_CATEGORIES.map(({ key, taxonomyId, labelEn, labelDe, shortEn, shortDe, emoji, color }) => {
+  // Chart data for dynamic Radar categories (3 to 12 categories)
+  const dynamicRadarCategories = getDynamicRadarCategories();
+  const chartData = dynamicRadarCategories.map(({ key, taxonomyId, labelEn, labelDe, shortEn, shortDe, emoji, color }) => {
     const noseScore = computeRadarDimensionScore(key, noseFlavorTags, noseTagIntensities, taxonomyId);
     const tasteScore = computeRadarDimensionScore(key, tasteFlavorTags, tasteTagIntensities, taxonomyId);
 
@@ -524,11 +551,15 @@ export function FlavorRadarChart({
   const tasteLegend = language === 'DE' ? 'Geschmack' : 'Taste';
 
   return (
-    <div className={cn('flex flex-col gap-3 w-full', className)}>
-      {/* ─── Top Control Toolbar ─── */}
-      <div className="flex flex-wrap items-center justify-between gap-2 bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] px-3 py-2 rounded-lg shadow-2xs">
-        {/* 1. Visualizer View Toggle (Netzdiagramm vs Aromenrad) */}
-        <div className="inline-flex rounded-lg p-0.5 bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] gap-0.5 select-none h-[34px] items-center">
+    <div
+      className={cn(
+        'flex flex-col w-full bg-[var(--parchment-bg)] border border-[var(--parchment-border)] rounded-xl shadow-xs overflow-hidden select-none',
+        className
+      )}
+    >
+      {/* ─── 1. Full-Width 2-Tab Bar (Netzdiagramm | Aromenrad) ─── */}
+      <div className="px-3 sm:px-5 py-2.5 bg-[var(--parchment-bg-alt)]/60 border-b border-[var(--parchment-border)]/60 flex items-center shrink-0">
+        <div className="grid grid-cols-2 gap-2 w-full p-1 rounded-xl bg-black/5 border border-[var(--parchment-border)]/40">
           <button
             type="button"
             onClick={() => {
@@ -536,14 +567,14 @@ export function FlavorRadarChart({
               setViewMode('radar');
             }}
             className={cn(
-              'flex items-center gap-1.5 px-3 py-1.5 rounded-md font-display font-bold text-xs uppercase tracking-wider transition-all duration-150 cursor-pointer h-[28px]',
+              'flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-display font-bold text-xs sm:text-sm tracking-wide transition-all duration-150 cursor-pointer truncate',
               viewMode === 'radar'
-                ? 'bg-[var(--wood-selection)] text-[var(--fab-text)] shadow-xs'
-                : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
+                ? 'bg-[var(--wood-selection)] text-white shadow-xs'
+                : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-[var(--pub-bg-panel)]'
             )}
             title={language === 'DE' ? 'Netzdiagramm (Spider)' : 'Radar Chart (Spider)'}
           >
-            <Compass size={14} className={viewMode === 'radar' ? 'text-[var(--fab-text)]' : 'text-[var(--sepia-muted)]'} />
+            <Compass size={15} className={viewMode === 'radar' ? 'text-white shrink-0' : 'text-[var(--sepia-muted)] shrink-0'} />
             <span>{translate('visualizerMode_radar', language)}</span>
           </button>
 
@@ -554,20 +585,22 @@ export function FlavorRadarChart({
               setViewMode('wheel');
             }}
             className={cn(
-              'flex items-center gap-1.5 px-3 py-1.5 rounded-md font-display font-bold text-xs uppercase tracking-wider transition-all duration-150 cursor-pointer h-[28px]',
+              'flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-display font-bold text-xs sm:text-sm tracking-wide transition-all duration-150 cursor-pointer truncate',
               viewMode === 'wheel'
-                ? 'bg-[var(--wood-selection)] text-[var(--fab-text)] shadow-xs'
-                : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
+                ? 'bg-[var(--wood-selection)] text-white shadow-xs'
+                : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-[var(--pub-bg-panel)]'
             )}
             title={language === 'DE' ? 'Aromenrad (Sunburst)' : 'Aroma Wheel (Sunburst)'}
           >
-            <PieChart size={14} className={viewMode === 'wheel' ? 'text-[var(--fab-text)]' : 'text-[var(--sepia-muted)]'} />
+            <PieChart size={15} className={viewMode === 'wheel' ? 'text-white shrink-0' : 'text-[var(--sepia-muted)] shrink-0'} />
             <span>{translate('visualizerMode_wheel', language)}</span>
           </button>
         </div>
+      </div>
 
-        {/* 2. 3-Way Sensory Filter Toggle (Beide | Nase | Gaumen) */}
-        <div className="inline-flex rounded-lg p-0.5 bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] gap-0.5 select-none h-[34px] items-center">
+      {/* ─── 2. Centered 3-Way Sensory Filter (Beide | Nase | Geschmack) ─── */}
+      <div className="pt-3 pb-1 px-3 flex items-center justify-center">
+        <div className="inline-flex rounded-full p-1 bg-[var(--pub-bg-alt)]/80 border border-[var(--parchment-border)] gap-1 select-none items-center shadow-2xs">
           <button
             type="button"
             onClick={() => {
@@ -575,10 +608,10 @@ export function FlavorRadarChart({
               setSensoryMode('both');
             }}
             className={cn(
-              'flex items-center justify-center px-3 py-1.5 rounded-md font-display font-bold text-xs uppercase tracking-wider transition-all duration-150 cursor-pointer h-[28px]',
+              'flex items-center justify-center px-3.5 py-1 rounded-full font-display font-bold text-xs tracking-wide transition-all duration-150 cursor-pointer min-h-[28px]',
               sensoryMode === 'both'
-                ? 'bg-[var(--wood-selection)] text-[var(--fab-text)] shadow-xs'
-                : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
+                ? 'bg-[var(--wood-selection)] text-white shadow-xs'
+                : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-[var(--pub-bg-panel)]'
             )}
           >
             {translate('sensoryFilter_all', language)}
@@ -591,10 +624,10 @@ export function FlavorRadarChart({
               setSensoryMode('nose');
             }}
             className={cn(
-              'flex items-center gap-1.5 px-3 py-1.5 rounded-md font-display font-bold text-xs uppercase tracking-wider transition-all duration-150 cursor-pointer h-[28px]',
+              'flex items-center gap-1.5 px-3.5 py-1 rounded-full font-display font-bold text-xs tracking-wide transition-all duration-150 cursor-pointer min-h-[28px]',
               sensoryMode === 'nose'
-                ? 'bg-[var(--wood-selection)] text-[var(--fab-text)] shadow-xs'
-                : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
+                ? 'bg-[var(--wood-selection)] text-white shadow-xs'
+                : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-[var(--pub-bg-panel)]'
             )}
           >
             <span
@@ -602,7 +635,7 @@ export function FlavorRadarChart({
                 'w-2 h-2 rounded-full shrink-0 transition-all',
                 sensoryMode === 'nose'
                   ? 'bg-[var(--sensory-nose)] shadow-[0_0_6px_var(--sensory-nose)] ring-1 ring-white/60'
-                  : 'bg-[var(--sensory-nose)]/40'
+                  : 'bg-[var(--sensory-nose)]/60'
               )}
             />
             <span>{translate('sensoryFilter_nose', language)}</span>
@@ -615,10 +648,10 @@ export function FlavorRadarChart({
               setSensoryMode('taste');
             }}
             className={cn(
-              'flex items-center gap-1.5 px-3 py-1.5 rounded-md font-display font-bold text-xs uppercase tracking-wider transition-all duration-150 cursor-pointer h-[28px]',
+              'flex items-center gap-1.5 px-3.5 py-1 rounded-full font-display font-bold text-xs tracking-wide transition-all duration-150 cursor-pointer min-h-[28px]',
               sensoryMode === 'taste'
-                ? 'bg-[var(--wood-selection)] text-[var(--fab-text)] shadow-xs'
-                : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/5'
+                ? 'bg-[var(--wood-selection)] text-white shadow-xs'
+                : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-[var(--pub-bg-panel)]'
             )}
           >
             <span
@@ -626,7 +659,7 @@ export function FlavorRadarChart({
                 'w-2 h-2 rounded-full shrink-0 transition-all',
                 sensoryMode === 'taste'
                   ? 'bg-[var(--sensory-taste)] shadow-[0_0_6px_var(--sensory-taste)] ring-1 ring-white/60'
-                  : 'bg-[var(--sensory-taste)]/40'
+                  : 'bg-[var(--sensory-taste)]/60'
               )}
             />
             <span>{translate('sensoryFilter_taste', language)}</span>
@@ -634,8 +667,8 @@ export function FlavorRadarChart({
         </div>
       </div>
 
-      {/* ─── Visualizer Canvas ─── */}
-      <div className="w-full flex justify-center bg-[var(--parchment-bg)] border border-[var(--parchment-border)] rounded-lg p-1 sm:p-3 lg:p-4 shadow-inner overflow-hidden select-none">
+      {/* ─── 3. Visualizer Canvas & Legend ─── */}
+      <div className="w-full flex justify-center p-1 sm:p-3 lg:p-4">
         {viewMode === 'wheel' ? (
           <WhiskyAromaWheel
             noseFlavorTags={noseFlavorTags}
@@ -652,7 +685,7 @@ export function FlavorRadarChart({
           />
         ) : (
           <div className="w-full flex flex-col items-center gap-3">
-            <div className="w-full h-[380px] xs:h-[400px] sm:h-[500px] md:h-[580px] lg:h-[640px] flex items-center justify-center relative">
+            <div className="w-full h-[380px] xs:h-[400px] sm:h-[500px] md:h-[580px] lg:h-[640px] flex items-center justify-center relative pointer-events-none select-none">
               <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 500, height: 500 }}>
                 <RadarChart
                   data={chartData}
@@ -663,6 +696,7 @@ export function FlavorRadarChart({
                       ? { top: 8, right: 8, bottom: 8, left: 8 }
                       : { top: 12, right: 45, bottom: 12, left: 45 }
                   }
+                  style={{ outline: 'none' }}
                 >
                   <defs>
                     {/* 1. Scottish Amber Radial Mesh Gradient for Nose */}
@@ -707,7 +741,6 @@ export function FlavorRadarChart({
                       const item = chartData.find(
                         (d) => d.shortDimension === displayVal || d.dimension === displayVal
                       );
-                      const catData = activeCategoriesData.find((c) => c.category.id === item?.taxonomyId);
                       const isSelected = activeNode?.categoryId === item?.taxonomyId;
                       const isActive =
                         sensoryMode === 'both'
@@ -715,22 +748,6 @@ export function FlavorRadarChart({
                           : sensoryMode === 'nose'
                           ? (item?.Nose ?? 0) > 0
                           : (item?.Taste ?? 0) > 0;
-
-                      const maxScore =
-                        catData?.activeDescriptors.reduce((m, d) => Math.max(m, d.intensity), 0) ??
-                        Math.max(item?.Nose ?? 0, item?.Taste ?? 0);
-
-                      const catNodeData: HoveredAromaNode | null = catData
-                        ? {
-                            type: 'category',
-                            categoryId: catData.category.id,
-                            categoryName: catData.category.name[language],
-                            categoryEmoji: catData.category.emoji,
-                            score: maxScore,
-                            tagCount: catData.activeDescriptors.length,
-                            color: CATEGORY_WHEEL_COLORS[catData.category.id]?.base || item?.color,
-                          }
-                        : null;
 
                       const x = Number(rawX ?? 0);
                       const y = Number(rawY ?? 0);
@@ -760,16 +777,7 @@ export function FlavorRadarChart({
                       return (
                         <g
                           transform={`translate(${x + offsetX},${y + offsetY})`}
-                          className="cursor-pointer transition-all duration-200"
-                          onClick={(e) => {
-                            if (catNodeData) togglePin(catNodeData, e);
-                          }}
-                          onMouseEnter={() => {
-                            if (catNodeData) setHoveredNode(catNodeData);
-                          }}
-                          onMouseLeave={() => {
-                            setHoveredNode(null);
-                          }}
+                          className="pointer-events-none select-none transition-all duration-200"
                         >
 
                           {/* Mobile: Pure Category Emoji (Borderless & Enlarged) */}
@@ -897,55 +905,6 @@ export function FlavorRadarChart({
                       );
                     }}
                   />
-
-
-
-                  <Tooltip
-                    content={({ active, payload }) => {
-                      if (!active || !payload || !payload.length) return null;
-                      const data = payload[0].payload;
-
-                      return (
-                        <div className="bg-[var(--parchment-bg)] border border-[var(--parchment-border)] rounded-md p-3 shadow-lg text-xs font-body text-[var(--sepia-text)] max-w-[260px]">
-                          <div className="flex items-center gap-1.5 border-b border-[var(--parchment-border)]/60 pb-1.5 mb-2">
-                            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: data.color }} />
-                            <p className="font-display font-bold uppercase tracking-wider text-[var(--sepia-text)] text-xs">
-                              {data.dimension}
-                            </p>
-                          </div>
-                          <div className="flex flex-col gap-2">
-                            {(sensoryMode === 'both' || sensoryMode === 'nose') && (
-                              <div className="flex flex-col gap-0.5">
-                                <div className="flex items-center justify-between font-semibold">
-                                  <span className="text-[var(--sepia-light)]">{noseLegend}:</span>
-                                  <span className="font-black text-[var(--sensory-nose)]">{data.Nose} / 10</span>
-                                </div>
-                                {data.activeNoseTags.length > 0 && (
-                                  <p className="text-[11px] text-[var(--sepia-text)] italic leading-tight pl-2 border-l border-[var(--sensory-nose)]/40">
-                                    {data.activeNoseTags.map((tag: string) => translateFlavorTag(tag, language)).join(', ')}
-                                  </p>
-                                )}
-                              </div>
-                            )}
-
-                            {(sensoryMode === 'both' || sensoryMode === 'taste') && (
-                              <div className="flex flex-col gap-0.5 border-t border-[var(--parchment-border)]/40 pt-1.5">
-                                <div className="flex items-center justify-between font-semibold">
-                                  <span className="text-[var(--sepia-light)]">{tasteLegend}:</span>
-                                  <span className="font-black text-[var(--sensory-taste)]">{data.Taste} / 10</span>
-                                </div>
-                                {data.activeTasteTags.length > 0 && (
-                                  <p className="text-[11px] text-[var(--sepia-text)] italic leading-tight pl-2 border-l border-[var(--sensory-taste)]/40">
-                                    {data.activeTasteTags.map((tag: string) => translateFlavorTag(tag, language)).join(', ')}
-                                  </p>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    }}
-                  />
                 </RadarChart>
               </ResponsiveContainer>
             </div>
@@ -998,13 +957,14 @@ export function DynamicProfileSliders({
     );
   }
 
-  // Group active tags by taxonomy category
+  // Group active tags by effective taxonomy category
+  const effectiveTaxonomy = getEffectiveFlavorTaxonomy();
   const categoriesWithTags: {
-    category: (typeof SPIRIT_FLAVOR_TAXONOMY)[number];
+    category: (typeof effectiveTaxonomy)[number];
     tags: string[];
   }[] = [];
 
-  SPIRIT_FLAVOR_TAXONOMY.forEach((cat) => {
+  effectiveTaxonomy.forEach((cat) => {
     const tagsInCat = activeTags.filter((tagName) => {
       const catForTag = getCategoryByDescriptorId(tagName);
       return catForTag?.id === cat.id;
@@ -1015,12 +975,14 @@ export function DynamicProfileSliders({
     }
   });
 
-  // Ensure any unmapped tags fallback into a canonical category rather than an isolated section
+  // Ensure any unmapped tags fallback into an active category rather than an isolated section
   const categorizedTagSet = new Set(categoriesWithTags.flatMap((c) => c.tags));
   const remainingTags = activeTags.filter((t) => !categorizedTagSet.has(t));
   if (remainingTags.length > 0) {
     const fallbackCategory =
-      SPIRIT_FLAVOR_TAXONOMY.find((c) => c.id === 'fruchtig') ?? SPIRIT_FLAVOR_TAXONOMY[0];
+      effectiveTaxonomy.find((c) => c.id === 'fruchtig') ??
+      effectiveTaxonomy[0] ??
+      SPIRIT_FLAVOR_TAXONOMY[0];
     const existingGroup = categoriesWithTags.find((c) => c.category.id === fallbackCategory.id);
     if (existingGroup) {
       existingGroup.tags.push(...remainingTags);
@@ -1091,62 +1053,6 @@ export function DynamicProfileSliders({
                   );
                 })}
               </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-// SingleProfileSliders retained for backward compatibility
-export function SingleProfileSliders({
-  title,
-  profile,
-  type,
-  onChange,
-  className,
-}: SingleProfileSlidersProps) {
-  const { language } = useLanguage();
-  const isNose = type === 'nose';
-  const accentClass = isNose ? 'accent-[var(--sensory-nose)]' : 'accent-[var(--sensory-taste)]';
-  const valueColorClass = isNose ? 'text-[var(--sensory-nose)] font-bold' : 'text-[var(--sensory-taste)] font-bold';
-
-  return (
-    <div className={cn('flex flex-col gap-2 w-full', className)}>
-      <div className="flex items-center justify-between border-b border-[var(--parchment-border)]/50 pb-1">
-        <span className="text-xs sm:text-[13px] font-bold uppercase tracking-widest text-[var(--sepia-light)] font-body">
-          {title}
-        </span>
-        <span className="text-xs text-[var(--sepia-light)] font-body italic">0-10 Scale</span>
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        {CANONICAL_RADAR_CATEGORIES.map(({ key, labelEn, labelDe }) => {
-          const val = profile[key];
-          const translatedLabel = language === 'DE' ? labelDe : labelEn;
-
-          return (
-            <div
-              key={key}
-              className="grid grid-cols-[95px_1fr_24px] items-center gap-2.5"
-            >
-              <span className="font-body text-xs sm:text-sm font-bold text-[var(--sepia-text)] truncate">
-                {translatedLabel}
-              </span>
-              <input
-                type="range"
-                min={0}
-                max={10}
-                step={1}
-                value={val}
-                onChange={(e) => onChange(key, Number(e.target.value))}
-                className={cn('h-1.5 cursor-pointer', accentClass)}
-                aria-label={`${title} ${translatedLabel}`}
-              />
-              <span className={cn('text-right text-xs sm:text-sm font-bold', valueColorClass)}>
-                {val}
-              </span>
             </div>
           );
         })}

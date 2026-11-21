@@ -5,8 +5,9 @@ import { Download, Upload, Trash2, CheckCircle2, AlertCircle, Sparkles } from 'l
 import { Spirit } from '@/types/spirit.types';
 import { PageActionsDropdown } from '@/components/ui/PageActionsDropdown';
 import { useAiAssistantConfig } from '@/hooks/useAiAssistantConfig';
-import { exportSingleSpiritFile, parseSingleSpiritFile } from '@/lib/google-drive-sync';
+import { exportSingleSpiritFile, parseSingleSpiritFile, formatSyncOrImportError } from '@/lib/google-drive-sync';
 import { TranslationKey } from '@/lib/i18n/translations';
+import { useLanguage } from '@/context/LanguageContext';
 import { cn } from '@/lib/utils';
 
 interface TastingHeaderSectionProps {
@@ -28,6 +29,7 @@ export function TastingHeaderSection({
   onScanSpirit,
   t,
 }: TastingHeaderSectionProps) {
+  const { language } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { hasAiKey } = useAiAssistantConfig();
   const [importNotice, setImportNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -46,10 +48,9 @@ export function TastingHeaderSection({
       });
       setTimeout(() => setImportNotice(null), 3000);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : t('noteImportError');
       setImportNotice({
         type: 'error',
-        message,
+        message: formatSyncOrImportError(err, language),
       });
       setTimeout(() => setImportNotice(null), 4000);
     } finally {
@@ -109,20 +110,24 @@ export function TastingHeaderSection({
         />
       </div>
 
-      {/* Spirit Type Badge (Own dedicated line) */}
-      <span className="font-display text-xs sm:text-sm font-bold uppercase tracking-[0.20em] sm:tracking-[0.25em] text-[var(--brass-light)]">
-        {spirit.spiritType}
-      </span>
+      {/* Spirit Type Badge (Own dedicated line, only shown when spiritType is set) */}
+      {spirit.spiritType && (
+        <span className="font-display text-xs sm:text-sm uppercase font-semibold tracking-[0.2em] text-[var(--brass-light)]">
+          {spirit.spiritType}
+        </span>
+      )}
 
       {/* Big Spirit Name - Full Width with generous breathing room */}
-      <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold tracking-wide sm:tracking-widest text-[var(--fab-text)] uppercase leading-tight w-full max-w-4xl mx-auto break-words px-1">
+      <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold uppercase tracking-wide text-[var(--fab-text)] leading-tight w-full max-w-4xl mx-auto break-words px-1">
         {displayName}
       </h1>
 
-      {/* Subtitle (Hersteller & Herkunft) with Crystal Clear Legibility & Radiant Gold Luster */}
-      <p className="font-display text-xs sm:text-sm uppercase tracking-[0.16em] sm:tracking-[0.20em] text-[var(--brass-light)] font-semibold w-full max-w-3xl mx-auto break-words px-1">
-        {subtitleLocation}
-      </p>
+      {/* Subtitle (Hersteller & Herkunft) — Only rendered when distillery, bottler, or region is present */}
+      {subtitleLocation && (
+        <p className="font-display text-xs sm:text-sm uppercase tracking-[0.15em] text-[var(--brass-light)] font-medium w-full max-w-3xl mx-auto break-words px-1">
+          {subtitleLocation}
+        </p>
+      )}
 
       {/* Inline Import Notice Toast */}
       {importNotice && (

@@ -139,9 +139,9 @@ describe('WhiskyAromaWheel Component & Helper Unit Tests', () => {
   });
 
   it('deduplicates descriptors like peat_smoke when multiple aliases are selected simultaneously', () => {
-    // Both 'Peat Smoke' and 'Rauch' and 'Torf' are aliases of peat_smoke
-    const tagsWithAliases = ['Peat Smoke', 'Rauch', 'Torf'];
-    const intensities = { 'Peat Smoke': 6, Rauch: 9, Torf: 7 };
+    // 'Peat Smoke', 'Torfrauch' and 'Torf' are all aliases of peat_smoke
+    const tagsWithAliases = ['Peat Smoke', 'Torfrauch', 'Torf'];
+    const intensities = { 'Peat Smoke': 6, Torfrauch: 9, Torf: 7 };
 
     const result = computeActiveCategoriesData(tagsWithAliases, intensities);
     const peatyCategory = result.find((c) => c.category.id === 'torf');

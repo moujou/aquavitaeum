@@ -60,7 +60,7 @@ export function BarVerdictRoleSelector({
                 'break-inside-avoid w-full sm:w-auto inline-flex items-center justify-start gap-1.5 px-3 py-1.5 rounded-full border text-xs sm:text-sm font-semibold font-body transition-all duration-150 cursor-pointer select-none min-h-[32px] shadow-2xs',
                 isSelected
                   ? 'bg-[var(--wood-selection)] border-[var(--wood-selection)] text-white shadow-xs font-bold'
-                  : 'border-[var(--parchment-border)] bg-[var(--parchment-bg-alt)]/60 text-[var(--foreground)] hover:bg-[var(--parchment-bg-alt)] hover:border-[var(--brass-accent)] active:scale-95'
+                  : 'border-[var(--parchment-border)] bg-[var(--parchment-bg-alt)]/60 text-[var(--foreground)] hover:bg-[var(--parchment-bg-alt)] hover:border-[var(--wood-selection)] active:scale-95'
               )}
               aria-pressed={isSelected}
             >

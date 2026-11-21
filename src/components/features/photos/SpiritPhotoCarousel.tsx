@@ -128,7 +128,8 @@ export function SpiritPhotoCarousel({
                   type="button"
                   onClick={prevImage}
                   className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-[var(--pub-bg-panel)]/90 text-[var(--sepia-text)] hover:bg-[var(--pub-bg-panel)] hover:scale-105 flex items-center justify-center border border-[var(--parchment-border)] shadow-md transition-all cursor-pointer z-10"
-                  aria-label="Previous photo"
+                  aria-label={t('prevPhoto')}
+                  title={t('prevPhoto')}
                 >
                   <ChevronLeft size={20} />
                 </button>
@@ -136,7 +137,8 @@ export function SpiritPhotoCarousel({
                   type="button"
                   onClick={nextImage}
                   className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-[var(--pub-bg-panel)]/90 text-[var(--sepia-text)] hover:bg-[var(--pub-bg-panel)] hover:scale-105 flex items-center justify-center border border-[var(--parchment-border)] shadow-md transition-all cursor-pointer z-10"
-                  aria-label="Next photo"
+                  aria-label={t('nextPhoto')}
+                  title={t('nextPhoto')}
                 >
                   <ChevronRight size={20} />
                 </button>

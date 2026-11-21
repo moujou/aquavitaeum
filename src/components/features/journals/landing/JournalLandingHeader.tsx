@@ -4,6 +4,7 @@ import React, { useRef, useState } from 'react';
 import { Trash2, X, Download, CheckSquare, Upload, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
 import { JournalWithStats } from '@/hooks/useJournals';
 import { useAiAssistantConfig } from '@/hooks/useAiAssistantConfig';
+import { formatSyncOrImportError } from '@/lib/google-drive-sync';
 import { PageActionsDropdown } from '@/components/ui/PageActionsDropdown';
 import { NoteSortDropdown } from './NoteSortDropdown';
 import { NoteFilterDropdown } from './NoteFilterDropdown';
@@ -76,15 +77,9 @@ export function JournalLandingHeader({
         setTimeout(() => setImportNotice(null), 3500);
       }
     } catch (err: unknown) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : activeLang === 'DE'
-            ? 'Import fehlgeschlagen.'
-            : 'Import failed.';
       setImportNotice({
         type: 'error',
-        message,
+        message: formatSyncOrImportError(err, activeLang === 'DE' ? 'DE' : 'EN'),
       });
       setTimeout(() => setImportNotice(null), 4000);
     } finally {

@@ -11,7 +11,7 @@ import { JournalCoverPicker } from './JournalCoverPicker';
 import { JournalColorPicker } from './JournalColorPicker';
 import { useMultiSelect } from '@/hooks/useMultiSelect';
 import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
-import { exportJournalsToFile, importJournalFile } from '@/lib/google-drive-sync';
+import { exportJournalsToFile, importJournalFile, formatSyncOrImportError } from '@/lib/google-drive-sync';
 import { JournalShelfLayout } from '@/hooks/useLayoutPreference';
 import { JournalBookshelfView } from './bookshelf/JournalBookshelfView';
 import { cn } from '@/lib/utils';
@@ -118,17 +118,19 @@ export function JournalsOverview({
       const result = await importJournalFile(file);
       setImportStatus({
         type: 'success',
-        message: `${result.journalCount} Journal(e) & ${result.spiritCount} Notiz(en) importiert!`,
+        message:
+          language === 'DE'
+            ? `${result.journalCount} Journal(e) & ${result.spiritCount} Notiz(en) erfolgreich importiert!`
+            : `Successfully imported ${result.journalCount} journal(s) & ${result.spiritCount} note(s)!`,
       });
       setTimeout(() => {
         setImportStatus(null);
         window.location.reload();
       }, 1500);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : t('journalImportError');
       setImportStatus({
         type: 'error',
-        message,
+        message: formatSyncOrImportError(err, language),
       });
       setTimeout(() => setImportStatus(null), 4000);
     } finally {
@@ -493,8 +495,8 @@ export function JournalsOverview({
                         <div className="w-11 h-11 sm:w-16 sm:h-16 rounded-full bg-[var(--forest-green)]/10 border border-[var(--forest-green)]/30 flex items-center justify-center text-[var(--forest-green)] shadow-2xs transition-transform duration-300 group-hover:scale-110 mb-1.5 sm:mb-2">
                           <BookOpen className="w-5 h-5 sm:w-8 sm:h-8 text-[var(--forest-green)] stroke-[1.75]" />
                         </div>
-                        <span className="text-[10px] sm:text-[11px] font-display font-bold text-[var(--sepia-text)] uppercase tracking-wider text-center leading-tight">
-                          {language === 'DE' ? 'Tasting Buch' : 'Tasting Book'}
+                        <span className="text-[10px] sm:text-[11px] font-display font-bold text-[var(--sepia-text)] tracking-wider text-center leading-tight">
+                          Journal
                         </span>
                       </div>
                     )}
@@ -696,6 +698,7 @@ export function JournalsOverview({
         }
         confirmLabel={language === 'DE' ? 'Löschen bestätigen' : 'Confirm Delete'}
         cancelLabel={t('cancel')}
+        closeLabel={t('close')}
         onConfirm={handleBulkDelete}
         onCancel={() => setConfirmBulkDelete(false)}
       />
@@ -906,6 +909,7 @@ export function JournalsOverview({
         message={<>{t('deleteJournalConfirm')}</>}
         confirmLabel={language === 'DE' ? 'Journal löschen' : 'Delete Journal'}
         cancelLabel={t('cancel')}
+        closeLabel={t('close')}
         onConfirm={() => confirmDeleteId && handleDelete(confirmDeleteId)}
         onCancel={() => setConfirmDeleteId(null)}
       />

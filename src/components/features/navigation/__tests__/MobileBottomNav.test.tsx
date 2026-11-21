@@ -55,7 +55,7 @@ describe('MobileBottomNav Component', () => {
       </LanguageProvider>
     );
 
-    const plusBtn = screen.getByRole('button', { name: /Create New|Neu|Anlegen/i });
+    const plusBtn = screen.getByRole('button', { name: /Create New|New Note or Journal|Neue Notiz|Neu|Anlegen/i });
     fireEvent.click(plusBtn);
     expect(setIsCreateJournalModalOpen).toHaveBeenCalledWith(true);
   });
@@ -161,6 +161,31 @@ describe('MobileBottomNav Component', () => {
     const journalsBtn = screen.getByRole('button', { name: /Journals|Notizbücher/i });
     fireEvent.click(journalsBtn);
     expect(onGoToOverview).toHaveBeenCalledTimes(1);
+  });
+
+  it('navigates to aroma-catalog when center Aroma Catalog tab is clicked and triggers create aroma modal on FAB click', () => {
+    const onEnterAromaCatalog = vi.fn();
+    const setIsCreateAromaModalOpen = vi.fn();
+
+    render(
+      <LanguageProvider>
+        <MobileBottomNav
+          {...defaultProps}
+          activeView="aroma-catalog"
+          onEnterAromaCatalog={onEnterAromaCatalog}
+          setIsCreateAromaModalOpen={setIsCreateAromaModalOpen}
+        />
+      </LanguageProvider>
+    );
+
+    const aromaBtn = screen.getByRole('button', { name: /Aroma Catalog|Aromen-Katalog/i });
+    expect(aromaBtn.className).toContain('text-[var(--nav-active)]');
+    fireEvent.click(aromaBtn);
+    expect(onEnterAromaCatalog).toHaveBeenCalledTimes(1);
+
+    const plusBtn = screen.getByRole('button', { name: /Create New|New Note or Journal|Neue Notiz|Neu|Anlegen/i });
+    fireEvent.click(plusBtn);
+    expect(setIsCreateAromaModalOpen).toHaveBeenCalledWith(true);
   });
 });
 

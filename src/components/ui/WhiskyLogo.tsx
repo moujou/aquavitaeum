@@ -4,9 +4,31 @@ interface WhiskyLogoProps extends Omit<React.SVGProps<SVGSVGElement>, 'title'> {
   size?: number | string;
   hasCircle?: boolean;
   title?: string;
+  /** Optional hex color to fill the liquid inside the Glencairn glass bowl */
+  liquidColor?: string;
 }
 
-export function WhiskyLogo({ size = 24, className, hasCircle = false, title, ...props }: WhiskyLogoProps) {
+export function WhiskyLogo({
+  size = 24,
+  className,
+  hasCircle = false,
+  title,
+  liquidColor,
+  ...props
+}: WhiskyLogoProps) {
+  const liquidPaths = liquidColor ? (
+    <path
+      d="M 186 246 
+         C 210 262, 240 262, 268 252 
+         C 296 242, 316 236, 326 244 
+         C 326 292, 294 322, 256 322 
+         C 218 322, 186 292, 186 246 Z"
+      fill={liquidColor}
+      fillOpacity={0.96}
+      stroke="none"
+    />
+  ) : null;
+
   if (hasCircle) {
     return (
       <svg
@@ -18,6 +40,7 @@ export function WhiskyLogo({ size = 24, className, hasCircle = false, title, ...
         {...props}
       >
         {title && <title>{title}</title>}
+        {liquidPaths}
         <g
           fill="none"
           stroke="currentColor"
@@ -61,21 +84,18 @@ export function WhiskyLogo({ size = 24, className, hasCircle = false, title, ...
   }
 
   // Without Circle: Adjusted viewBox to crop and center the shape nicely, with a slightly thicker stroke
-  // viewBox spans from X: 110 to 402 (width 292), Y: 106 to 398 (height 292)
-  // Centers are: X_mid = 256, Y_mid = 252 (halfway between 140 and 368 plus minor vertical offset)
-  // This results in a perfectly centered 292x292 coordinate window.
-  // With a viewBox width of 292, strokeWidth={12} corresponds to a 12/292 = 4.1% relative weight,
-  // which visually matches the standard Lucide stroke weights.
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="110 106 292 292"
       width={size}
       height={size}
+      shapeRendering="geometricPrecision"
       className={className}
       {...props}
     >
       {title && <title>{title}</title>}
+      {liquidPaths}
       <g
         fill="none"
         stroke="currentColor"
@@ -109,6 +129,72 @@ export function WhiskyLogo({ size = 24, className, hasCircle = false, title, ...
              H 314 
              C 300 344 282 340 282 320 
              C 270 322, 242 322, 230 320 Z"
+        />
+      </g>
+    </svg>
+  );
+}
+
+/**
+ * Purpose-drawn half-Glencairn edge silhouette for the right card border.
+ * Drawn natively in a tight 0..48 × 0..112 coordinate space where x=48 is the exact
+ * vertical right-edge cut axis — zero empty viewBox padding, no CSS scale/translate distortion,
+ * and crisp native vector stroke weights.
+ */
+export function GlencairnEdgeColourBadge({
+  liquidColor,
+  title,
+  className,
+}: {
+  liquidColor: string;
+  title?: string;
+  className?: string;
+}) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 48 112"
+      shapeRendering="geometricPrecision"
+      className={className}
+      aria-label={title}
+    >
+      {title && <title>{title}</title>}
+
+      {/* 1. Pure Whisky Liquid Fill (Natural curved meniscus top without top stroke border) */}
+      <path
+        d="M 5.5 54.5
+           C 17 61.5, 32 61.5, 48 56.5
+           L 48 84
+           C 23 84, 5.5 72, 5.5 54.5 Z"
+        fill={liquidColor}
+        stroke="none"
+      />
+
+      {/* 2. Native Fine-Line Glencairn Crystal Contour & Solid Base (Flush at x=48) */}
+      <g
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={3.2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        {/* Rim & Left Tulip Bowl Contour */}
+        <path
+          d="M 48 6
+             H 21
+             C 17.5 23, 5 41, 5 54.5
+             C 5 72.5, 23 84, 48 84"
+        />
+
+        {/* Solid Uniform Glencairn Base / Pedestal */}
+        <path
+          fill="currentColor"
+          stroke="none"
+          d="M 30 82.5
+             C 30 92.5, 20.5 94.5, 13 107.5
+             H 48
+             V 82.5
+             Z"
         />
       </g>
     </svg>

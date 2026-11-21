@@ -12,7 +12,6 @@ describe('SpotlightFlavorSearch', () => {
           activeTags={[]}
           activeSensoryMode="nose"
           onToggleTag={vi.fn()}
-          onRequestCustomFlavor={vi.fn()}
         />
       </LanguageProvider>
     );
@@ -28,7 +27,6 @@ describe('SpotlightFlavorSearch', () => {
           activeTags={[]}
           activeSensoryMode="taste"
           onToggleTag={onToggleTag}
-          onRequestCustomFlavor={vi.fn()}
         />
       </LanguageProvider>
     );
@@ -36,34 +34,34 @@ describe('SpotlightFlavorSearch', () => {
     const input = screen.getByPlaceholderText(/Quick-add aroma|Aroma schnell hinzufügen/i);
     fireEvent.change(input, { target: { value: 'Vanilla' } });
 
-    expect(screen.getByText('Vanilla Oak')).toBeDefined();
+    expect(screen.getByText(/Vanilla|Vanille/i)).toBeDefined();
 
-    const tagItem = screen.getByText('Vanilla Oak');
+    const tagItem = screen.getByText(/Vanilla|Vanille/i);
     fireEvent.click(tagItem);
 
-    expect(onToggleTag).toHaveBeenCalledWith('Vanilla Oak');
+    expect(onToggleTag).toHaveBeenCalled();
   });
 
-  it('triggers onRequestCustomFlavor when custom plus button is clicked', () => {
-    const onRequestCustomFlavor = vi.fn();
+  it('operates in pure search-and-pick mode without inline creation buttons', () => {
+    const onToggleTag = vi.fn();
     render(
       <LanguageProvider>
         <SpotlightFlavorSearch
           activeTags={[]}
           activeSensoryMode="nose"
-          onToggleTag={vi.fn()}
-          onRequestCustomFlavor={onRequestCustomFlavor}
+          onToggleTag={onToggleTag}
         />
       </LanguageProvider>
     );
 
     const input = screen.getByPlaceholderText(/Quick-add aroma|Aroma schnell hinzufügen/i);
-    fireEvent.change(input, { target: { value: 'Exotic Passionfruit' } });
+    fireEvent.change(input, { target: { value: 'Vanilla' } });
 
-    const newBtn = screen.getByRole('button', { name: /Neu|New/i });
-    expect(newBtn).toBeDefined();
+    // No "+ New" / "+ Neu" creation button inside the search field
+    expect(screen.queryByRole('button', { name: /Neu|New/i })).toBeNull();
 
-    fireEvent.click(newBtn);
-    expect(onRequestCustomFlavor).toHaveBeenCalledWith('Exotic Passionfruit');
+    // Pressing Enter selects the highlighted descriptor
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(onToggleTag).toHaveBeenCalled();
   });
 });

@@ -1,22 +1,20 @@
 'use client';
 
-import { useState } from 'react';
-import { BookOpen, Plus } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
+import { AromaIcon } from '@/components/ui/AromaIcon';
 import {
   FlavorDescriptor,
   translateFlavorTag,
   getStoredCustomFlavors,
-  registerCustomFlavor,
-  deleteStoredCustomFlavor,
   findFlavorDescriptor,
   RADAR_DIMENSION_COLORS,
 } from '@/data/spirit-flavor-taxonomy';
 import { CustomFlavorDescriptor } from '@/types/spirit.types';
-import { CustomFlavorModal } from '@/components/features/flavor-tags/CustomFlavorModal';
 import { SpotlightFlavorSearch } from '@/components/features/flavor-tags/SpotlightFlavorSearch';
 import { SensoryCompassDrawer } from '@/components/features/flavor-tags/SensoryCompassDrawer';
 import { SectionHeader } from '@/components/ui/SectionHeader';
+import { DATA_MUTATED_EVENT } from '@/lib/sync-events';
 import { cn } from '@/lib/utils';
 
 export type SensoryMode = 'nose' | 'taste';
@@ -61,13 +59,15 @@ export function FlavorTagSelector({
   const { language, t } = useLanguage();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [drawerSensoryMode, setDrawerSensoryMode] = useState<SensoryMode>('nose');
-  const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
-  const [customModalInitialName, setCustomModalInitialName] = useState('');
-  const [customFlavorsList, setCustomFlavorsList] = useState<CustomFlavorDescriptor[]>(getStoredCustomFlavors());
+  const [customFlavorsList, setCustomFlavorsList] = useState<CustomFlavorDescriptor[]>(() => getStoredCustomFlavors());
 
-  const refreshCustomFlavors = () => {
-    setCustomFlavorsList([...getStoredCustomFlavors()]);
-  };
+  useEffect(() => {
+    const handleMutation = () => {
+      setCustomFlavorsList([...getStoredCustomFlavors()]);
+    };
+    window.addEventListener(DATA_MUTATED_EVENT, handleMutation);
+    return () => window.removeEventListener(DATA_MUTATED_EVENT, handleMutation);
+  }, []);
 
   const isLegacyMode = onNoseTagsChange === undefined && onChange !== undefined;
   const activeNoseTags = isLegacyMode ? selectedTags : noseFlavorTags;
@@ -117,96 +117,11 @@ export function FlavorTagSelector({
     onTasteTagsChange?.(nextTags);
   };
 
-  const handleSaveCustomFlavor = (flavor: CustomFlavorDescriptor) => {
-    registerCustomFlavor(flavor);
-    refreshCustomFlavors();
-
-    if (drawerSensoryMode === 'nose' || isLegacyMode) {
-      const updatedNose = Array.from(new Set([...activeNoseTags, flavor.name]));
-      if (isLegacyMode) onChange?.(updatedNose);
-      else onNoseTagsChange?.(updatedNose);
-    } else {
-      const updatedTaste = Array.from(new Set([...activeTasteTags, flavor.name]));
-      onTasteTagsChange?.(updatedTaste);
-    }
-  };
-
-  const handleDeleteCustomFlavor = (e: React.MouseEvent, id: string) => {
-    e.stopPropagation();
-
-    // 1. Identify all name and ID variants for this custom aroma
-    const flavorToDelete = customFlavorsList.find(
-      (f) =>
-        f.id.toLowerCase() === id.toLowerCase() ||
-        f.name.toLowerCase() === id.toLowerCase()
-    );
-
-    const namesToRemove = [
-      id,
-      flavorToDelete?.name,
-      flavorToDelete?.id,
-      ...(flavorToDelete?.emoji ? [`${flavorToDelete.emoji} ${flavorToDelete.name}`] : []),
-    ]
-      .filter(Boolean)
-      .map((s) => s!.trim().toLowerCase());
-
-    // 2. Delete from persistent storage
-    deleteStoredCustomFlavor(id);
-    refreshCustomFlavors();
-
-    // 3. Purge deleted flavor from Nose, Taste, and Legacy tag arrays
-    const isMatching = (tag: string) => {
-      const tLower = tag.trim().toLowerCase();
-      return namesToRemove.some((n) => n === tLower || tLower.includes(n) || n.includes(tLower));
-    };
-
-    const nextNose = activeNoseTags.filter((t) => !isMatching(t));
-    const nextTaste = activeTasteTags.filter((t) => !isMatching(t));
-
-    if (isLegacyMode) {
-      onChange?.(nextNose);
-    } else {
-      if (nextNose.length !== activeNoseTags.length) {
-        onNoseTagsChange?.(nextNose);
-      }
-      if (nextTaste.length !== activeTasteTags.length) {
-        onTasteTagsChange?.(nextTaste);
-      }
-    }
-  };
-
   return (
     <div className={cn('flex flex-col gap-4', className)}>
-      {/* ── Section Header & Top Actions Row ──────────────────────────────────── */}
+      {/* ── Section Header ─────────────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--parchment-border)]/50 pb-2">
         <SectionHeader>{t('activeFlavors')}</SectionHeader>
-
-        {/* Global Toolbar: Open Compass Drawer & Create Custom Aroma */}
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              setDrawerSensoryMode('nose');
-              setIsDrawerOpen(true);
-            }}
-            className="px-3 py-1.5 rounded-lg border border-[var(--wood-selection)] bg-[var(--wood-selection)] hover:bg-[var(--wood-dark)] text-white text-xs font-display font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer h-[34px] shadow-xs active:scale-95"
-          >
-            <BookOpen size={14} className="text-white" />
-            <span>{t('openSensoryDrawer')}</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              setCustomModalInitialName('');
-              setIsCustomModalOpen(true);
-            }}
-            className="px-3 py-1.5 rounded-lg border border-[var(--wood-selection)] bg-[var(--wood-selection)] hover:bg-[var(--wood-dark)] text-white text-xs font-display font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer h-[34px] shadow-xs active:scale-95"
-          >
-            <Plus size={14} className="text-white" />
-            <span>{t('createCustomFlavor')}</span>
-          </button>
-        </div>
       </div>
 
       {/* ── 2-Column Responsive Grid: Nose Section (Left on lg) & Taste Section (Right on lg) ──────── */}
@@ -217,7 +132,7 @@ export function FlavorTagSelector({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-[var(--sensory-nose)] shadow-2xs shrink-0" />
-              <span className="text-xs sm:text-sm font-display font-bold uppercase tracking-wider text-[var(--foreground)]">
+              <span className="text-xs sm:text-sm font-display font-bold tracking-wide text-[var(--foreground)]">
                 {t('noseSectionTitle')} ({activeNoseTags.length})
               </span>
             </div>
@@ -236,19 +151,30 @@ export function FlavorTagSelector({
             )}
           </div>
 
-          {/* Dedicated Full-Width Spotlight Search Input for Nose */}
-          <SpotlightFlavorSearch
-            activeTags={activeNoseTags}
-            otherSensoryTags={activeTasteTags}
-            activeSensoryMode="nose"
-            onToggleTag={handleToggleNoseTag}
-            onRequestCustomFlavor={(initial) => {
-              setCustomModalInitialName(initial);
-              setDrawerSensoryMode('nose');
-              setIsCustomModalOpen(true);
-            }}
-            placeholder={t('searchNosePlaceholder')}
-          />
+          {/* Search Input + Contextual Nose Aromas Picker Button */}
+          <div className="flex items-center gap-2 w-full">
+            <SpotlightFlavorSearch
+              activeTags={activeNoseTags}
+              otherSensoryTags={activeTasteTags}
+              activeSensoryMode="nose"
+              onToggleTag={handleToggleNoseTag}
+              placeholder={t('searchNosePlaceholder')}
+              className="flex-1 min-w-0"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                setCustomFlavorsList([...getStoredCustomFlavors()]);
+                setDrawerSensoryMode('nose');
+                setIsDrawerOpen(true);
+              }}
+              className="px-3 py-2 rounded-md border border-[var(--wood-selection)] bg-[var(--wood-selection)] hover:bg-[var(--wood-dark)] text-white text-xs font-display font-bold tracking-wide transition-all flex items-center gap-1.5 cursor-pointer shrink-0 shadow-xs active:scale-95"
+              title={`${t('openSensoryDrawer')} (${t('noseSectionTitle')})`}
+            >
+              <AromaIcon size={15} className="text-white shrink-0" />
+              <span>{t('openSensoryDrawer')}</span>
+            </button>
+          </div>
 
           {/* Active Nose Flavor Badges in Subtle Parchment Sommelier Tint */}
           <div className="min-h-[48px] flex flex-wrap gap-1.5 items-start content-start pt-1">
@@ -264,15 +190,15 @@ export function FlavorTagSelector({
                   customMatch?.color ??
                   desc?.color ??
                   (desc?.radarDimension ? RADAR_DIMENSION_COLORS[desc.radarDimension] : '#C59B27');
-                const emoji = customMatch?.emoji;
+                const emoji = customMatch?.emoji ?? desc?.emoji;
 
                 return (
                   <div
                     key={tag}
                     className="px-2.5 py-1 sm:py-1.5 rounded-full text-xs sm:text-[13px] font-body font-semibold text-[var(--foreground)] flex items-center gap-1.5 border shadow-2xs select-none animate-fade-in transition-all hover:scale-[1.02] hover:shadow-xs group"
                     style={{
-                      backgroundColor: `${chipColor}1A`, // ~10% translucent parchment tint
-                      borderColor: `${chipColor}4D`, // ~30% soft border
+                      backgroundColor: `${chipColor}1A`,
+                      borderColor: `${chipColor}4D`,
                     }}
                   >
                     {/* Jewel Bead / Emoji Indicator */}
@@ -289,8 +215,8 @@ export function FlavorTagSelector({
                       type="button"
                       onClick={() => handleToggleNoseTag(tag)}
                       className="ml-0.5 w-4 h-4 rounded-full bg-black/5 dark:bg-white/10 hover:bg-red-500 hover:text-white text-[var(--sepia-muted)] flex items-center justify-center text-[12px] font-bold cursor-pointer transition-colors"
-                      title="Remove aroma"
-                      aria-label="Remove aroma"
+                      title={t('removeAroma')}
+                      aria-label={t('removeAroma')}
                     >
                       ×
                     </button>
@@ -312,7 +238,7 @@ export function FlavorTagSelector({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-[var(--sensory-taste)] shadow-2xs shrink-0" />
-                <span className="text-xs sm:text-sm font-display font-bold uppercase tracking-wider text-[var(--foreground)]">
+                <span className="text-xs sm:text-sm font-display font-bold tracking-wide text-[var(--foreground)]">
                   {t('tasteSectionTitle')} ({activeTasteTags.length})
                 </span>
               </div>
@@ -328,19 +254,30 @@ export function FlavorTagSelector({
               )}
             </div>
 
-            {/* Dedicated Full-Width Spotlight Search Input for Taste */}
-            <SpotlightFlavorSearch
-              activeTags={activeTasteTags}
-              otherSensoryTags={activeNoseTags}
-              activeSensoryMode="taste"
-              onToggleTag={handleToggleTasteTag}
-              onRequestCustomFlavor={(initial) => {
-                setCustomModalInitialName(initial);
-                setDrawerSensoryMode('taste');
-                setIsCustomModalOpen(true);
-              }}
-              placeholder={t('searchTastePlaceholder')}
-            />
+            {/* Search Input + Contextual Taste Aromas Picker Button */}
+            <div className="flex items-center gap-2 w-full">
+              <SpotlightFlavorSearch
+                activeTags={activeTasteTags}
+                otherSensoryTags={activeNoseTags}
+                activeSensoryMode="taste"
+                onToggleTag={handleToggleTasteTag}
+                placeholder={t('searchTastePlaceholder')}
+                className="flex-1 min-w-0"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  setCustomFlavorsList([...getStoredCustomFlavors()]);
+                  setDrawerSensoryMode('taste');
+                  setIsDrawerOpen(true);
+                }}
+                className="px-3 py-2 rounded-md border border-[var(--wood-selection)] bg-[var(--wood-selection)] hover:bg-[var(--wood-dark)] text-white text-xs font-display font-bold tracking-wide transition-all flex items-center gap-1.5 cursor-pointer shrink-0 shadow-xs active:scale-95"
+                title={`${t('openSensoryDrawer')} (${t('tasteSectionTitle')})`}
+              >
+                <AromaIcon size={15} className="text-white shrink-0" />
+                <span>{t('openSensoryDrawer')}</span>
+              </button>
+            </div>
 
             {/* Active Taste Flavor Badges in Subtle Parchment Sommelier Tint */}
             <div className="min-h-[48px] flex flex-wrap gap-1.5 items-start content-start pt-1">
@@ -356,15 +293,15 @@ export function FlavorTagSelector({
                     customMatch?.color ??
                     desc?.color ??
                     (desc?.radarDimension ? RADAR_DIMENSION_COLORS[desc.radarDimension] : '#1C6B7D');
-                  const emoji = customMatch?.emoji;
+                  const emoji = customMatch?.emoji ?? desc?.emoji;
 
                   return (
                     <div
                       key={tag}
                       className="px-2.5 py-1 sm:py-1.5 rounded-full text-xs sm:text-[13px] font-body font-semibold text-[var(--foreground)] flex items-center gap-1.5 border shadow-2xs select-none animate-fade-in transition-all hover:scale-[1.02] hover:shadow-xs group"
                       style={{
-                        backgroundColor: `${chipColor}1A`, // ~10% translucent parchment tint
-                        borderColor: `${chipColor}4D`, // ~30% soft border
+                        backgroundColor: `${chipColor}1A`,
+                        borderColor: `${chipColor}4D`,
                       }}
                     >
                       {/* Jewel Bead / Emoji Indicator */}
@@ -381,8 +318,8 @@ export function FlavorTagSelector({
                         type="button"
                         onClick={() => handleToggleTasteTag(tag)}
                         className="ml-0.5 w-4 h-4 rounded-full bg-black/5 dark:bg-white/10 hover:bg-red-500 hover:text-white text-[var(--sepia-muted)] flex items-center justify-center text-[12px] font-bold cursor-pointer transition-colors"
-                        title="Remove aroma"
-                        aria-label="Remove aroma"
+                        title={t('removeAroma')}
+                        aria-label={t('removeAroma')}
                       >
                         ×
                       </button>
@@ -399,7 +336,7 @@ export function FlavorTagSelector({
         )}
       </div>
 
-      {/* ── Sensory Compass Wheel Drawer Modal ──────────────────────────────────── */}
+      {/* ── Sensory Compass Wheel Drawer Modal (Pure Search & Pick) ──────────── */}
       <SensoryCompassDrawer
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
@@ -410,22 +347,6 @@ export function FlavorTagSelector({
         activeSensoryMode={drawerSensoryMode}
         onSensoryModeChange={setDrawerSensoryMode}
         customFlavors={customFlavorsList}
-        onRequestCustomFlavor={() => {
-          setCustomModalInitialName('');
-          setIsCustomModalOpen(true);
-        }}
-        onDeleteCustomFlavor={handleDeleteCustomFlavor}
-      />
-
-      {/* ── Custom Flavor Creator Modal ────────────────────────────────────────── */}
-      <CustomFlavorModal
-        isOpen={isCustomModalOpen}
-        initialName={customModalInitialName}
-        onClose={() => {
-          setIsCustomModalOpen(false);
-          setCustomModalInitialName('');
-        }}
-        onSave={handleSaveCustomFlavor}
       />
     </div>
   );

@@ -84,7 +84,7 @@ describe('Spirit Utilities', () => {
         })
       ).toBe('Gordon & MacPhail · Speyside');
 
-      expect(formatSpiritProvenance({})).toBe('Tasting Notes');
+      expect(formatSpiritProvenance({})).toBe('');
     });
   });
 

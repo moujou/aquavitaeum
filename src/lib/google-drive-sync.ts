@@ -990,3 +990,92 @@ export async function importSpiritsIntoJournal(
 
   return { importedCount };
 }
+
+/**
+ * Formats any Google Drive Sync, OAuth, or JSON File Import error into a clean,
+ * app-styled localized message in German (DE) or English (EN).
+ */
+export function formatSyncOrImportError(err: unknown, language: 'DE' | 'EN' = 'DE'): string {
+  const raw = err instanceof Error ? err.message : String(err || '');
+  const msg = raw.trim();
+
+  // 1. JSON Syntax / Parse Error (corrupt or non-JSON file selected)
+  if (err instanceof SyntaxError || /unexpected token|json at position|is not valid json/i.test(msg)) {
+    return language === 'DE'
+      ? 'Die ausgewählte Datei ist keine gültige JSON-Datei oder ist beschädigt.'
+      : 'The selected file is not a valid JSON file or is corrupted.';
+  }
+
+  // 2. Specific Import Schema Errors
+  if (/invalid backup file structure/i.test(msg)) {
+    return language === 'DE'
+      ? 'Ungültiges Backup-Format. Bitte wähle eine gültige Aqua-Vitaeum-Backup-Datei (.json) aus.'
+      : 'Invalid backup format. Please select a valid Aqua Vitaeum backup file (.json).';
+  }
+  if (/invalid or corrupt journal json/i.test(msg)) {
+    return language === 'DE'
+      ? 'Ungültige Journal-Datei. Bitte wähle eine gültige Journal-Exportdatei (.json) aus.'
+      : 'Invalid journal file. Please select a valid exported journal file (.json).';
+  }
+  if (/invalid or corrupt tasting note json/i.test(msg)) {
+    return language === 'DE'
+      ? 'Ungültige Tasting-Notiz-Datei. Die JSON-Struktur konnte nicht gelesen werden.'
+      : 'Invalid tasting note file. The JSON structure could not be validated.';
+  }
+  if (/no valid tasting notes found/i.test(msg)) {
+    return language === 'DE'
+      ? 'In dieser Datei wurden keine gültigen Tasting-Notizen gefunden.'
+      : 'No valid tasting notes were found in this file.';
+  }
+
+  // 3. Google OAuth & GIS Errors
+  if (/popup_closed_by_user/i.test(msg)) {
+    return language === 'DE'
+      ? 'Anmeldung abgebrochen (Google-Fenster wurde geschlossen).'
+      : 'Sign-in cancelled (Google popup was closed).';
+  }
+  if (/access_denied/i.test(msg)) {
+    return language === 'DE'
+      ? 'Zugriff auf Google Drive wurde nicht erlaubt.'
+      : 'Access to Google Drive was denied.';
+  }
+  if (/popup_blocked|failed to open popup/i.test(msg)) {
+    return language === 'DE'
+      ? 'Das Google-Anmeldefenster wurde vom Browser blockiert. Bitte erlaube Popups für diese Seite.'
+      : 'The Google sign-in popup was blocked by your browser. Please allow popups for this site.';
+  }
+  if (/client-id ist nicht hinterlegt/i.test(msg)) {
+    return language === 'DE'
+      ? 'Google Drive Client-ID ist nicht konfiguriert.'
+      : 'Google Drive Client ID is not configured.';
+  }
+  if (/google identity services sdk could not be loaded/i.test(msg)) {
+    return language === 'DE'
+      ? 'Google-Anmeldedienst konnte nicht geladen werden. Bitte prüfe deine Internetverbindung oder Werbeblocker.'
+      : 'Google Identity Services could not be loaded. Please check your internet connection or ad blocker.';
+  }
+
+  // 4. Google Drive REST API Status Errors
+  if (/\(401\)|unauthorized|invalid credentials/i.test(msg)) {
+    return language === 'DE'
+      ? 'Google-Drive-Sitzung abgelaufen. Bitte verbinde dein Konto erneut.'
+      : 'Google Drive session expired. Please reconnect your account.';
+  }
+  if (/\(403\)|insufficient permission|rate limit|quota/i.test(msg)) {
+    return language === 'DE'
+      ? 'Google-Drive-Zugriff vorübergehend eingeschränkt oder Berechtigung fehlt.'
+      : 'Google Drive access temporarily restricted or missing permission.';
+  }
+  if (/\(50[0234]\)|backend error|service unavailable/i.test(msg)) {
+    return language === 'DE'
+      ? 'Google Drive ist momentan vorübergehend nicht erreichbar. Bitte versuche es gleich erneut.'
+      : 'Google Drive is temporarily unavailable. Please try again shortly.';
+  }
+  if (/failed to fetch|networkerror|network offline|load failed/i.test(msg)) {
+    return language === 'DE'
+      ? 'Keine Internetverbindung zu Google Drive möglich.'
+      : 'Could not connect to Google Drive. Please check your internet connection.';
+  }
+
+  return msg || (language === 'DE' ? 'Ein unbekannter Fehler ist aufgetreten.' : 'An unknown error occurred.');
+}

@@ -78,7 +78,7 @@ export function MouthfeelGlanceSelector({
                 'px-3 py-1.5 rounded-full border text-xs sm:text-sm font-body font-semibold transition-all duration-200 cursor-pointer flex items-center gap-1 min-h-[32px]',
                 isActive
                   ? 'bg-[var(--wood-selection)] border-[var(--wood-selection)] text-[var(--fab-text)] shadow-xs'
-                  : 'border-[var(--parchment-border)] bg-[var(--parchment-bg-alt)]/60 text-[var(--foreground)] hover:bg-[var(--parchment-bg-alt)] hover:border-[var(--brass-accent)]'
+                  : 'border-[var(--parchment-border)] bg-[var(--parchment-bg-alt)]/60 text-[var(--foreground)] hover:bg-[var(--parchment-bg-alt)] hover:border-[var(--wood-selection)]'
               )}
               aria-pressed={isActive}
             >
@@ -113,7 +113,8 @@ export function MouthfeelGlanceSelector({
                 type="button"
                 onClick={(e) => handleRemoveCustom(e, customMouthfeel)}
                 className="ml-0.5 text-xs opacity-75 hover:opacity-100 hover:text-red-200 cursor-pointer"
-                title={language === 'DE' ? 'Entfernen' : 'Remove'}
+                title={t('remove')}
+                aria-label={t('remove')}
               >
                 ×
               </button>

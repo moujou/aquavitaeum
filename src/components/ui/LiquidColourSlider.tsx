@@ -174,7 +174,7 @@ export function LiquidColourSlider({
       <div
         ref={trackRef}
         role="slider"
-        aria-label="Spirit Colour"
+        aria-label={language === 'DE' ? 'Farbe der Spirituose' : 'Spirit Colour'}
         aria-valuemin={0}
         aria-valuemax={SPIRIT_COLOURS.length - 1}
         aria-valuenow={safeIndex}
@@ -223,7 +223,7 @@ export function LiquidColourSlider({
           {isDragging && (
             <div
               style={{ transform: `translateX(-${percentage}%)` }}
-              className="absolute -top-7 left-1/2 px-2 py-0.5 rounded-md bg-[var(--parchment-bg)] border border-[var(--parchment-border)] text-[var(--sepia-text)] text-[10.5px] font-display font-bold uppercase tracking-wider whitespace-nowrap shadow-[0_4px_16px_rgba(43,30,20,0.22)] animate-fade-in pointer-events-none flex items-center gap-1.5"
+              className="absolute -top-7 left-1/2 px-2.5 py-0.5 rounded-md bg-[var(--parchment-bg)] border border-[var(--parchment-border)] text-[var(--sepia-text)] text-xs font-display font-semibold tracking-wide whitespace-nowrap shadow-[0_4px_16px_rgba(43,30,20,0.22)] animate-fade-in pointer-events-none flex items-center gap-1.5"
             >
               <span
                 className="w-2.5 h-2.5 rounded-full border border-black/20 shrink-0"
@@ -252,7 +252,7 @@ export function LiquidColourSlider({
       </div>
 
       {/* 4. Spectrum Range Labels (0.0 Gin Clear -> 2.0 Treacle) */}
-      <div className="flex items-center justify-between text-[10px] sm:text-[11px] font-display uppercase tracking-widest text-[var(--sepia-muted)] font-bold px-0.5">
+      <div className="flex items-center justify-between text-xs font-display tracking-normal text-[var(--sepia-muted)] font-medium px-0.5">
         <button
           type="button"
           onClick={() => onChange(SPIRIT_COLOURS[0])}
