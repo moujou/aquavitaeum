@@ -1,10 +1,10 @@
 'use client';
 
 import React from 'react';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, Sparkles, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Language, t, translateCharacteristic, translateColour } from '@/lib/i18n/translations';
-import { translateFlavorTag } from '@/data/spirit-flavor-taxonomy';
+import { translateFlavorTag, resolveSmartCatalogAroma } from '@/data/spirit-flavor-taxonomy';
 import { formatSpiritProvenance } from '@/lib/spirit-utils';
 import { SpiritAnalysisResult } from '@/services/ai-assistant-service';
 
@@ -23,6 +23,24 @@ export function ScanResultPreview({
   applyMode,
   onApplyModeChange,
 }: ScanResultPreviewProps) {
+  // Compute any genuinely new aromas that will be added to the user's Aroma Catalog when 'full' mode is applied
+  const newCatalogAromas = React.useMemo(() => {
+    const allSuggested = Array.from(
+      new Set([
+        ...(analysisResult.suggestedNoseTags ?? []),
+        ...(analysisResult.suggestedTasteTags ?? []),
+      ])
+    );
+    return allSuggested
+      .map((tag) => {
+        const preferredDim =
+          analysisResult.suggestedNoseTagDimensions?.[tag] ??
+          analysisResult.suggestedTasteTagDimensions?.[tag];
+        return resolveSmartCatalogAroma(tag, language, preferredDim);
+      })
+      .filter((res) => res.isNew);
+  }, [analysisResult, language]);
+
   return (
     <div className="flex flex-col gap-6 animate-fade-in flex-1 justify-between">
       {/* Header Badge */}
@@ -239,6 +257,52 @@ export function ScanResultPreview({
                   <strong className="font-bold text-[var(--foreground)]">{language === 'DE' ? 'Servierempfehlung' : 'Serving'}:</strong> {analysisResult.servingNotes}
                 </p>
               )}
+            </div>
+          )}
+
+          {/* New Aromas Catalog Destination Notice (Only rendered when genuinely new aromas will be added) */}
+          {newCatalogAromas.length > 0 && (
+            <div className="flex flex-col gap-2 pt-3 border-t border-[var(--parchment-border)]/60">
+              <div className="flex items-center gap-1.5 text-xs font-display font-bold text-[var(--forest-green)]">
+                <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                <span>
+                  {language === 'DE'
+                    ? `Neue Aromen für deinen Aromakatalog (${newCatalogAromas.length})`
+                    : `New Aromas for your Aroma Catalog (${newCatalogAromas.length})`}
+                </span>
+              </div>
+              <p className="text-[11px] font-body text-[var(--sepia-muted)] leading-snug">
+                {language === 'DE'
+                  ? 'Diese Aromen existieren noch nicht im Katalog und werden beim Übernehmen automatisch in folgende Kategorien einsortiert:'
+                  : 'These aromas are not yet in your catalog and will be automatically filed into the following categories when applied:'}
+              </p>
+              <div className="flex flex-col gap-1.5">
+                {newCatalogAromas.map((item) => {
+                  const catName = item.targetCategory.name[language] ?? item.targetCategory.name.EN;
+                  const subName = item.targetSubcategory
+                    ? `${item.targetSubcategory.emoji || '📁'} ${item.targetSubcategory.name}`
+                    : `${item.targetCategory.emoji} ${language === 'DE' ? 'Allgemein' : 'General'}`;
+                  return (
+                    <div
+                      key={item.canonicalName}
+                      className="flex items-center justify-between gap-2 px-3 py-1.5 rounded-lg bg-[var(--parchment-bg)] border border-[var(--forest-green)]/30 text-xs font-body"
+                    >
+                      <span className="font-semibold text-[var(--sepia-text)] flex items-center gap-1.5 min-w-0 truncate">
+                        <span>{item.emoji}</span>
+                        <span className="truncate">{item.canonicalName}</span>
+                      </span>
+                      <span className="flex items-center gap-1.5 text-[11px] text-[var(--sepia-muted)] shrink-0">
+                        <ArrowRight className="w-3 h-3 text-[var(--forest-green)] shrink-0" />
+                        <span className="font-medium text-[var(--sepia-text)]">
+                          {item.targetCategory.emoji} {catName}
+                        </span>
+                        <span className="opacity-60">›</span>
+                        <span className="font-semibold text-[var(--forest-green)]">{subName}</span>
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>

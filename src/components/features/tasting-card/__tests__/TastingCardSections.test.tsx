@@ -18,13 +18,15 @@ describe('Modular OO Tasting Card Sections', () => {
       const mockT = (key: string) => key;
 
       render(
-        <TastingHeaderSection
-          spirit={sampleSpirit}
-          displayName="Laphroaig 10"
-          subtitleLocation="Islay, Scotland"
-          onDelete={deleteFn}
-          t={mockT}
-        />
+        <LanguageProvider>
+          <TastingHeaderSection
+            spirit={sampleSpirit}
+            displayName="Laphroaig 10"
+            subtitleLocation="Islay, Scotland"
+            onDelete={deleteFn}
+            t={mockT}
+          />
+        </LanguageProvider>
       );
 
       expect(screen.getByText('Single Malt Scotch')).toBeDefined();
@@ -32,7 +34,7 @@ describe('Modular OO Tasting Card Sections', () => {
       expect(screen.getByText('Islay, Scotland')).toBeDefined();
 
       // Check gear menu button
-      const gearBtn = screen.getByRole('button', { name: /card actions|karten-aktionen|cardactionstitle/i });
+      const gearBtn = screen.getByRole('button', { name: /note actions|notiz-aktionen|card actions|karten-aktionen|cardactionstitle/i });
       expect(gearBtn).toBeDefined();
     });
   });
@@ -205,7 +207,7 @@ describe('Modular OO Tasting Card Sections', () => {
         </LanguageProvider>
       );
 
-      const gearBtn = screen.getByRole('button', { name: /card actions|karten-aktionen/i });
+      const gearBtn = screen.getByRole('button', { name: /note actions|notiz-aktionen|card actions|karten-aktionen/i });
       fireEvent.click(gearBtn);
 
       const deleteMenuItem = screen.getByRole('button', { name: /delete|löschen/i });

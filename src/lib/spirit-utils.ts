@@ -75,7 +75,7 @@ export function createBlankSpirit(journalId: string = 'default-compendium'): Spi
     dateTasted: '',
     rating100: 1,
     starRating: 0.5,
-    colour: 'Clear',
+    colour: 'Amber',
     glance: [],
     finish: '',
     finishNotes: '',
@@ -305,7 +305,7 @@ export function formatSpiritProvenance(spirit: {
   }
   if (region) parts.push(region);
 
-  return parts.join(' · ') || 'Tasting Notes';
+  return parts.join(' · ');
 }
 
 

@@ -1,17 +1,19 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import {
   SPIRIT_FLAVOR_TAXONOMY,
+  getEffectiveFlavorTaxonomy,
+  getStoredCustomSubcategories,
   FlavorDescriptor,
   RADAR_DIMENSION_COLORS,
-  getFlavorColor,
 } from '@/data/spirit-flavor-taxonomy';
 import { CustomFlavorDescriptor } from '@/types/spirit.types';
 import { useLanguage } from '@/context/LanguageContext';
 import { isTagSelected } from '@/components/features/flavor-tags/FlavorTagSelector';
-import { BookOpen, X, Check, Plus, Sparkles, Search } from 'lucide-react';
+import { X, Check, Search } from 'lucide-react';
+import { AromaIcon } from '@/components/ui/AromaIcon';
 import { cn } from '@/lib/utils';
 import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 
@@ -25,17 +27,30 @@ interface SensoryCompassDrawerProps {
   activeSensoryMode: 'nose' | 'taste';
   onSensoryModeChange: (mode: 'nose' | 'taste') => void;
   customFlavors: CustomFlavorDescriptor[];
-  onRequestCustomFlavor: () => void;
-  onDeleteCustomFlavor: (e: React.MouseEvent, id: string) => void;
 }
 
 export function isCustomFlavorInCategory(cf: CustomFlavorDescriptor, catId: string): boolean {
+  if (cf.categoryId) {
+    return cf.categoryId.toLowerCase() === catId.toLowerCase();
+  }
   const cat = SPIRIT_FLAVOR_TAXONOMY.find((c) => c.id === catId);
   if (!cat) return false;
   if (cf.radarDimension === cat.radarDimension) return true;
   if (catId === 'holzig' && (cf.radarDimension === 'woody' || cf.radarDimension === 'nutty')) return true;
   if (catId === 'suesse' && (cf.radarDimension === 'cereal' || cf.radarDimension === 'chocolate')) return true;
   return false;
+}
+
+interface SelectableAromaRow {
+  id: string;
+  name: string;
+  description?: string;
+  subcategoryId?: string;
+  emoji: string;
+  color: string;
+  isSelectedInCurrent: boolean;
+  isSelectedInOther: boolean;
+  onToggle: () => void;
 }
 
 export function SensoryCompassDrawer({
@@ -48,123 +63,285 @@ export function SensoryCompassDrawer({
   activeSensoryMode,
   onSensoryModeChange,
   customFlavors,
-  onRequestCustomFlavor,
-  onDeleteCustomFlavor,
 }: SensoryCompassDrawerProps) {
   useLockBodyScroll(isOpen, onClose);
   const { language, t } = useLanguage();
-  const [activeCategoryId, setActiveCategoryId] = useState<string>('fruchtig');
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   const currentActiveTags = activeSensoryMode === 'nose' ? noseFlavorTags : tasteFlavorTags;
   const otherActiveTags = activeSensoryMode === 'nose' ? tasteFlavorTags : noseFlavorTags;
 
-  // Real-time search across all standard categories & descriptors
-  const searchResults = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return [];
+  const effectiveTaxonomy = useMemo(() => {
+    void isOpen;
+    return getEffectiveFlavorTaxonomy();
+  }, [isOpen]);
 
-    const matches: { descriptor: FlavorDescriptor; categoryName: string; categoryEmoji: string }[] = [];
+  const customSubcategories = useMemo(() => {
+    void isOpen;
+    return getStoredCustomSubcategories(language);
+  }, [isOpen, language]);
 
-    SPIRIT_FLAVOR_TAXONOMY.forEach((cat) => {
-      const catTitle = cat.name[language] ?? cat.name.EN;
-      cat.subcategories.forEach((sub) => {
-        sub.descriptors.forEach((desc) => {
-          const nameEN = desc.name.EN.toLowerCase();
-          const nameDE = desc.name.DE.toLowerCase();
-          const id = desc.id.toLowerCase();
+  const handleDescriptorToggle = useCallback(
+    (desc: FlavorDescriptor) => {
+      const isCurrentlySelected = isTagSelected(desc, currentActiveTags);
+      const primaryName = desc.name[language] ?? desc.name.EN;
+
+      let updatedTags: string[];
+      if (isCurrentlySelected) {
+        updatedTags = currentActiveTags.filter((tag) => {
+          const tLower = tag.trim().toLowerCase();
+          const descEN = desc.name.EN.toLowerCase();
+          const descDE = desc.name.DE.toLowerCase();
+          const descId = desc.id.toLowerCase();
           const aliases = (desc.aliases || []).map((a) => a.toLowerCase());
 
-          if (
-            nameEN.includes(q) ||
-            nameDE.includes(q) ||
-            id.includes(q) ||
-            aliases.some((a) => a.includes(q))
-          ) {
-            matches.push({
-              descriptor: desc,
-              categoryName: catTitle,
-              categoryEmoji: cat.emoji,
-            });
-          }
+          return (
+            tLower !== descId &&
+            tLower !== descEN &&
+            tLower !== descDE &&
+            !aliases.includes(tLower)
+          );
         });
-      });
-    });
+      } else {
+        updatedTags = [...currentActiveTags, primaryName];
+      }
 
-    return matches;
-  }, [searchQuery, language]);
+      if (activeSensoryMode === 'nose') {
+        onNoseTagsChange?.(updatedTags);
+      } else {
+        onTasteTagsChange?.(updatedTags);
+      }
+    },
+    [currentActiveTags, language, activeSensoryMode, onNoseTagsChange, onTasteTagsChange]
+  );
 
-  // Real-time search across custom flavors
-  const matchingCustomFlavors = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return [];
-    return customFlavors.filter(
-      (cf) => cf.name.toLowerCase().includes(q) || cf.id.toLowerCase().includes(q)
-    );
-  }, [searchQuery, customFlavors]);
-
-  if (!isOpen) return null;
-
-  const handleDescriptorToggle = (desc: FlavorDescriptor) => {
-    const isCurrentlySelected = isTagSelected(desc, currentActiveTags);
-    const primaryName = desc.name[language] ?? desc.name.EN;
-
-    let updatedTags: string[];
-    if (isCurrentlySelected) {
-      updatedTags = currentActiveTags.filter((tag) => {
-        const tLower = tag.trim().toLowerCase();
-        const descEN = desc.name.EN.toLowerCase();
-        const descDE = desc.name.DE.toLowerCase();
-        const descId = desc.id.toLowerCase();
-        const aliases = (desc.aliases || []).map((a) => a.toLowerCase());
-
-        return (
-          tLower !== descId &&
-          tLower !== descEN &&
-          tLower !== descDE &&
-          !aliases.includes(tLower)
-        );
-      });
-    } else {
-      updatedTags = [...currentActiveTags, primaryName];
-    }
-
-    if (activeSensoryMode === 'nose') {
-      onNoseTagsChange?.(updatedTags);
-    } else {
-      onTasteTagsChange?.(updatedTags);
-    }
-  };
-
-  const handleCustomFlavorToggle = (cf: CustomFlavorDescriptor) => {
-    const isSelected = currentActiveTags.some(
-      (t) =>
-        t.trim().toLowerCase() === cf.name.toLowerCase() ||
-        t.trim().toLowerCase() === cf.id.toLowerCase()
-    );
-
-    let updatedTags: string[];
-    if (isSelected) {
-      updatedTags = currentActiveTags.filter(
+  const handleCustomFlavorToggle = useCallback(
+    (cf: CustomFlavorDescriptor) => {
+      const isSelected = currentActiveTags.some(
         (t) =>
-          t.trim().toLowerCase() !== cf.name.toLowerCase() &&
-          t.trim().toLowerCase() !== cf.id.toLowerCase()
+          t.trim().toLowerCase() === cf.name.toLowerCase() ||
+          t.trim().toLowerCase() === cf.id.toLowerCase()
       );
-    } else {
-      updatedTags = [...currentActiveTags, cf.name];
-    }
 
-    if (activeSensoryMode === 'nose') {
-      onNoseTagsChange?.(updatedTags);
-    } else {
-      onTasteTagsChange?.(updatedTags);
-    }
-  };
+      let updatedTags: string[];
+      if (isSelected) {
+        updatedTags = currentActiveTags.filter(
+          (t) =>
+            t.trim().toLowerCase() !== cf.name.toLowerCase() &&
+            t.trim().toLowerCase() !== cf.id.toLowerCase()
+        );
+      } else {
+        updatedTags = [...currentActiveTags, cf.name];
+      }
 
-  const totalSelectedCount = noseFlavorTags.length + tasteFlavorTags.length;
-  const isSearchActive = searchQuery.trim().length > 0;
+      if (activeSensoryMode === 'nose') {
+        onNoseTagsChange?.(updatedTags);
+      } else {
+        onTasteTagsChange?.(updatedTags);
+      }
+    },
+    [currentActiveTags, activeSensoryMode, onNoseTagsChange, onTasteTagsChange]
+  );
+
+  const q = searchQuery.trim().toLowerCase();
+
+  // Build unified category lists (identical to AromaCatalogView, but in Select-Mode)
+  const filteredCategories = useMemo(() => {
+    return effectiveTaxonomy
+      .filter((cat) => selectedCategoryId === 'all' || cat.id === selectedCategoryId)
+      .map((cat) => {
+        const catColor = cat.color ?? RADAR_DIMENSION_COLORS[cat.radarDimension] ?? '#C59B27';
+        const rows: SelectableAromaRow[] = [];
+        const catSubcategories = customSubcategories.filter((s) => s.categoryId === cat.id);
+        const validSubcategoryIds = new Set(catSubcategories.map((s) => s.id));
+
+        // 1. User-created aromas in this category
+        customFlavors.forEach((cf) => {
+          if (!isCustomFlavorInCategory(cf, cat.id)) return;
+          if (
+            q &&
+            !cf.name.toLowerCase().includes(q) &&
+            !cf.id.toLowerCase().includes(q) &&
+            !cf.description?.toLowerCase().includes(q)
+          ) {
+            return;
+          }
+
+          const isSelectedInCurrent = currentActiveTags.some(
+            (t) =>
+              t.trim().toLowerCase() === cf.name.toLowerCase() ||
+              t.trim().toLowerCase() === cf.id.toLowerCase()
+          );
+          const isSelectedInOther =
+            !isSelectedInCurrent &&
+            otherActiveTags.some(
+              (t) =>
+                t.trim().toLowerCase() === cf.name.toLowerCase() ||
+                t.trim().toLowerCase() === cf.id.toLowerCase()
+            );
+
+          rows.push({
+            id: cf.id,
+            name: cf.name,
+            description: cf.description,
+            subcategoryId:
+              cf.subcategoryId && validSubcategoryIds.has(cf.subcategoryId)
+                ? cf.subcategoryId
+                : undefined,
+            emoji: cf.emoji || cat.emoji,
+            color: cf.color || catColor,
+            isSelectedInCurrent,
+            isSelectedInOther,
+            onToggle: () => handleCustomFlavorToggle(cf),
+          });
+        });
+
+        // 2. Taxonomy aromas in this category
+        cat.subcategories.forEach((sub) => {
+          sub.descriptors.forEach((desc) => {
+            if (q) {
+              const matchesSearch =
+                desc.name.EN.toLowerCase().includes(q) ||
+                desc.name.DE.toLowerCase().includes(q) ||
+                desc.id.toLowerCase().includes(q) ||
+                (desc.description && desc.description.toLowerCase().includes(q)) ||
+                (desc.aliases || []).some((a) => a.toLowerCase().includes(q));
+              if (!matchesSearch) return;
+            }
+
+            const label = desc.name[language] ?? desc.name.EN;
+            const isSelectedInCurrent = isTagSelected(desc, currentActiveTags);
+            const isSelectedInOther = !isSelectedInCurrent && isTagSelected(desc, otherActiveTags);
+
+            rows.push({
+              id: desc.id,
+              name: label,
+              description: desc.description,
+              subcategoryId:
+                desc.subcategoryId && validSubcategoryIds.has(desc.subcategoryId)
+                  ? desc.subcategoryId
+                  : undefined,
+              emoji: desc.emoji || cat.emoji,
+              color: desc.color || catColor,
+              isSelectedInCurrent,
+              isSelectedInOther,
+              onToggle: () => handleDescriptorToggle(desc),
+            });
+          });
+        });
+
+        const selectedInCatCount = rows.filter((r) => r.isSelectedInCurrent).length;
+
+        return {
+          ...cat,
+          rows,
+          catSubcategories,
+          totalItems: rows.length,
+          selectedInCatCount,
+        };
+      })
+      .filter((cat) => cat.totalItems > 0 || (selectedCategoryId === cat.id && !q));
+  }, [
+    effectiveTaxonomy,
+    selectedCategoryId,
+    customFlavors,
+    customSubcategories,
+    q,
+    language,
+    currentActiveTags,
+    otherActiveTags,
+    handleCustomFlavorToggle,
+    handleDescriptorToggle,
+  ]);
 
   if (!isOpen || typeof window === 'undefined') return null;
+
+  const totalSelectedCount = noseFlavorTags.length + tasteFlavorTags.length;
+
+  const renderSelectableRow = (row: SelectableAromaRow) => (
+    <button
+      key={row.id}
+      type="button"
+      onClick={row.onToggle}
+      aria-pressed={row.isSelectedInCurrent}
+      className={cn(
+        'w-full flex items-center justify-between gap-3 px-4 py-2.5 border-b border-[var(--parchment-border)]/50 md:odd:border-r text-left transition-all cursor-pointer select-none',
+        row.isSelectedInCurrent
+          ? activeSensoryMode === 'nose'
+            ? 'bg-[var(--sensory-nose)]/15 hover:bg-[var(--sensory-nose)]/25'
+            : 'bg-[var(--sensory-taste)]/15 hover:bg-[var(--sensory-taste)]/25'
+          : 'hover:bg-[var(--pub-bg-panel)]'
+      )}
+    >
+      {/* Left: Emoji + Name + Color Dot + Optional Description */}
+      <div className="flex items-center gap-3 min-w-0 flex-1">
+        <span className="text-lg leading-none select-none shrink-0 w-6 text-center">
+          {row.emoji}
+        </span>
+
+        <div className="min-w-0 flex-1 flex flex-col">
+          <div className="flex items-center gap-2 min-w-0">
+            <span
+              className={cn(
+                'font-body text-sm truncate',
+                row.isSelectedInCurrent
+                  ? 'font-bold text-[var(--foreground)]'
+                  : 'font-semibold text-[var(--sepia-text)]'
+              )}
+            >
+              {row.name}
+            </span>
+            <span
+              className="w-2 h-2 rounded-full shrink-0"
+              style={{ backgroundColor: row.color }}
+            />
+          </div>
+          {row.description && (
+            <span className="font-body text-xs text-[var(--sepia-muted)] italic truncate mt-0.5">
+              {row.description}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Right: Selection Status in THIS Whisky Note (In Nase / In Geschmack) */}
+      <div className="flex items-center gap-1.5 shrink-0">
+        {row.isSelectedInOther && (
+          <span
+            className={cn(
+              'px-2 py-0.5 rounded-full text-[11px] font-body font-semibold border pointer-events-none',
+              activeSensoryMode === 'nose'
+                ? 'bg-[var(--sensory-taste)]/15 border-[var(--sensory-taste)]/40 text-[var(--sensory-taste)]'
+                : 'bg-[var(--sensory-nose)]/15 border-[var(--sensory-nose)]/40 text-[var(--sensory-nose)]'
+            )}
+          >
+            {activeSensoryMode === 'nose' ? t('inTaste') : t('inNose')}
+          </span>
+        )}
+
+        {row.isSelectedInCurrent ? (
+          <span
+            className={cn(
+              'px-2.5 py-1 rounded-full text-white text-xs font-body font-bold flex items-center gap-1 shadow-2xs',
+              activeSensoryMode === 'nose'
+                ? 'bg-[var(--sensory-nose)]'
+                : 'bg-[var(--sensory-taste)]'
+            )}
+          >
+            <Check className="w-3.5 h-3.5" />
+            <span className="hidden xs:inline">
+              {activeSensoryMode === 'nose' ? t('inNose') : t('inTaste')}
+            </span>
+          </span>
+        ) : (
+          <span className="w-6 h-6 rounded-full border border-[var(--parchment-border)] bg-[var(--pub-bg-panel)] flex items-center justify-center text-transparent">
+            <Check className="w-3.5 h-3.5" />
+          </span>
+        )}
+      </div>
+    </button>
+  );
 
   return createPortal(
     <div
@@ -172,52 +349,51 @@ export function SensoryCompassDrawer({
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-7xl h-[96dvh] sm:h-[90vh] bg-[var(--parchment-bg)] border border-[var(--parchment-border)] rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+        className="relative w-full max-w-6xl h-[96dvh] sm:h-[90vh] bg-[var(--pub-bg)] border border-[var(--parchment-border)] rounded-2xl shadow-2xl overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Drawer Header with distinct Sensory Mode Switcher and well-separated Close button */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 sm:px-7 py-3 sm:py-3.5 bg-[var(--wood-dark)] text-white border-b border-black/10 shadow-sm shrink-0 gap-2.5 sm:gap-3">
-          {/* Top row on mobile / Left & Right split on desktop */}
-          <div className="flex items-center justify-between w-full sm:w-auto">
-            {/* Branding & Title */}
-            <div className="flex items-center gap-2.5 min-w-0 pr-2">
-              <BookOpen className="w-6 h-6 text-amber-200 shrink-0" />
-              <h3 className="font-display font-bold text-base sm:text-xl tracking-wide text-white drop-shadow-xs truncate">
-                {t('sensoryDrawerTitle')}
-              </h3>
-            </div>
-
-            {/* Right on mobile: Distinct Close (X) Button with 44px hit area */}
-            <div className="sm:hidden shrink-0">
-              <button
-                type="button"
-                onClick={onClose}
-                className="w-10 h-10 rounded-xl text-white/80 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 transition-all cursor-pointer shadow-xs flex items-center justify-center active:scale-95"
-                aria-label={t('close')}
-                title={t('close')}
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+        {/* ── 1. Modal Top Header ── */}
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 bg-[var(--wood-dark)] text-white border-b border-black/10 shadow-sm shrink-0 gap-3">
+          <div className="flex items-center gap-2.5 min-w-0 pr-2">
+            <AromaIcon className="w-6 h-6 text-amber-200 shrink-0" />
+            <h3 className="font-display font-bold text-base sm:text-xl tracking-wide text-white drop-shadow-xs truncate">
+              {t('sensoryDrawerTitle')}
+            </h3>
           </div>
 
-          {/* Center: High-Contrast Sensory Mode Switcher (Nase / Geschmack) */}
-          <div className="flex items-center justify-center p-1 rounded-xl bg-black/35 border border-white/20 shadow-inner w-full sm:w-auto shrink-0">
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-2 rounded-xl text-white/80 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 transition-all cursor-pointer shadow-xs active:scale-95 shrink-0"
+            aria-label={t('close')}
+            title={t('close')}
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* ── 1b. Full-Width 2-Tab Bar Below Header (Nase | Geschmack) ── */}
+        <div className="px-3 sm:px-6 py-2.5 bg-[var(--parchment-bg-alt)]/60 border-b border-[var(--parchment-border)]/60 flex items-center shrink-0">
+          <div className="grid grid-cols-2 gap-2 w-full p-1 rounded-xl bg-black/5 border border-[var(--parchment-border)]/40">
             <button
               type="button"
               onClick={() => onSensoryModeChange('nose')}
               className={cn(
-                'flex-1 sm:flex-none justify-center px-3.5 sm:px-5 py-2 sm:py-2 text-xs sm:text-sm font-body font-black rounded-lg transition-all cursor-pointer flex items-center gap-2 min-h-[40px]',
+                'flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs sm:text-sm font-display font-bold transition-all cursor-pointer truncate',
                 activeSensoryMode === 'nose'
-                  ? 'bg-[var(--sensory-nose)] text-white shadow-md scale-[1.02]'
-                  : 'text-white/70 hover:text-white hover:bg-white/10'
+                  ? 'bg-[var(--sensory-nose)] text-white shadow-xs'
+                  : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-[var(--pub-bg-panel)]'
               )}
             >
               <span>{language === 'DE' ? 'Nase' : 'Nose'}</span>
-              <span className={cn(
-                "px-2 py-0.2 rounded-full text-[11px] font-mono font-extrabold",
-                activeSensoryMode === 'nose' ? "bg-white/30 text-white" : "bg-black/30 text-white/80"
-              )}>
+              <span
+                className={cn(
+                  'px-2 py-0.5 rounded-full text-[11px] font-mono font-extrabold',
+                  activeSensoryMode === 'nose'
+                    ? 'bg-white/25 text-white'
+                    : 'bg-black/15 text-[var(--foreground)]'
+                )}
+              >
                 {noseFlavorTags.length}
               </span>
             </button>
@@ -226,76 +402,69 @@ export function SensoryCompassDrawer({
               type="button"
               onClick={() => onSensoryModeChange('taste')}
               className={cn(
-                'flex-1 sm:flex-none justify-center px-3.5 sm:px-5 py-2 sm:py-2 text-xs sm:text-sm font-body font-black rounded-lg transition-all cursor-pointer flex items-center gap-2 min-h-[40px]',
+                'flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs sm:text-sm font-display font-bold transition-all cursor-pointer truncate',
                 activeSensoryMode === 'taste'
-                  ? 'bg-[var(--sensory-taste)] text-white shadow-md scale-[1.02]'
-                  : 'text-white/70 hover:text-white hover:bg-white/10'
+                  ? 'bg-[var(--sensory-taste)] text-white shadow-xs'
+                  : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-[var(--pub-bg-panel)]'
               )}
             >
               <span>{language === 'DE' ? 'Geschmack' : 'Taste'}</span>
-              <span className={cn(
-                "px-2 py-0.2 rounded-full text-[11px] font-mono font-extrabold",
-                activeSensoryMode === 'taste' ? "bg-white/30 text-white" : "bg-black/30 text-white/80"
-              )}>
+              <span
+                className={cn(
+                  'px-2 py-0.5 rounded-full text-[11px] font-mono font-extrabold',
+                  activeSensoryMode === 'taste'
+                    ? 'bg-white/25 text-white'
+                    : 'bg-black/15 text-[var(--foreground)]'
+                )}
+              >
                 {tasteFlavorTags.length}
               </span>
             </button>
           </div>
-
-          {/* Right on Desktop: Close (X) Button */}
-          <div className="hidden sm:block shrink-0">
-            <button
-              type="button"
-              onClick={onClose}
-              className="p-2 rounded-xl text-white/80 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 transition-all cursor-pointer shadow-xs active:scale-95"
-              aria-label={t('close')}
-              title={t('close')}
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
         </div>
 
-        {/* Live Search Bar Styled with Forest Green Border and Tasting Card Parchment Background */}
-        <div className="px-4 sm:px-7 py-3 bg-[var(--parchment-bg-alt)]/60 border-b border-[var(--parchment-border)]/60 flex items-center gap-3 shrink-0">
-          <div className="relative flex items-center bg-[var(--parchment-bg)] hover:bg-[var(--parchment-bg)] focus-within:bg-[var(--parchment-bg)] border-[1.5px] border-[var(--forest-green)]/45 focus-within:border-[var(--forest-green)] rounded-full px-4 h-11 transition-all duration-200 shadow-xs focus-within:shadow-[0_2px_14px_rgba(46,148,93,0.20)] flex-1">
-            <Search size={17} className="text-[var(--forest-green)] mr-3 flex-shrink-0" />
+        {/* ── 2. Top Search & Category Quick-Filter Bar (Identical to AromaCatalogView) ── */}
+        <div className="px-3 sm:px-6 pt-3 pb-1 bg-[var(--pub-bg)] shrink-0">
+          {/* Search Input */}
+          <div className="relative w-full">
+            <Search className="w-4 h-4 text-[var(--sepia-muted)] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={
-                language === 'DE'
-                  ? 'Aromen durchsuchen (z.B. Banane, Vanille, Honig, Karamell, Malz, Rauch, Eiche)...'
-                  : 'Search aromas (e.g. Banana, Vanilla, Honey, Caramel, Malt, Smoke, Oak)...'
-              }
-              className="bg-transparent border-none text-xs sm:text-sm text-[var(--foreground)] placeholder:text-[var(--placeholder-text)] focus:outline-none focus:ring-0 focus-within:ring-0 w-full pr-8 font-body"
+              placeholder={t('searchAromaCatalogPlaceholder')}
+              className="w-full h-10 pl-9 pr-8 rounded-lg border border-[var(--parchment-border)] bg-[var(--pub-bg-panel)] text-xs sm:text-sm font-body text-[var(--sepia-text)] placeholder:text-[var(--placeholder-text)] focus:outline-none focus:border-[var(--wood-selection)] transition-colors shadow-2xs"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="p-1 rounded-full text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-black/10 transition-colors cursor-pointer"
                 title={t('clearSearch')}
                 aria-label={t('clearSearch')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-black/10 text-[var(--sepia-muted)] cursor-pointer"
               >
-                <X size={15} />
+                <X className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
-          {isSearchActive && (
-            <span className="text-xs font-body font-bold text-[var(--forest-green)] shrink-0 hidden sm:inline-block">
-              {searchResults.length + matchingCustomFlavors.length} {language === 'DE' ? 'Treffer' : 'results'}
-            </span>
-          )}
-        </div>
 
-        {/* Mobile-Only Horizontal Category Scroll Bar (< lg, only visible when not searching) */}
-        {!isSearchActive && (
-          <div className="flex lg:hidden items-center gap-1.5 px-4 py-2.5 bg-[var(--pub-bg-alt)]/60 border-b border-[var(--parchment-border)] overflow-x-auto shrink-0 no-scrollbar">
-            {SPIRIT_FLAVOR_TAXONOMY.map((cat) => {
-              const isCatActive = activeCategoryId === cat.id;
-              const catName = cat.name[language] ?? cat.name.EN;
+          {/* Enlarged Category Quick-Filter Buttons (Default: 'all' shows all categories) */}
+          <div className="flex items-center gap-2 pt-2.5 pb-1.5 flex-nowrap overflow-x-auto no-scrollbar snap-x snap-mandatory md:flex-wrap md:overflow-visible">
+            <button
+              type="button"
+              onClick={() => setSelectedCategoryId('all')}
+              className={cn(
+                'min-h-[42px] px-4 py-2 rounded-full text-xs sm:text-sm font-body font-semibold border transition-all cursor-pointer whitespace-nowrap flex items-center justify-center shrink-0 snap-start active:scale-95',
+                selectedCategoryId === 'all'
+                  ? 'bg-[var(--wood-selection)] text-white border-[var(--wood-selection)] shadow-xs'
+                  : 'bg-[var(--pub-bg-panel)] text-[var(--foreground)] border-[var(--parchment-border)] hover:bg-[var(--pub-bg-alt)] hover:border-[var(--wood-selection)]'
+              )}
+            >
+              {t('allCategoriesFilter')}
+            </button>
+            {effectiveTaxonomy.map((cat) => {
+              const isSelected = selectedCategoryId === cat.id;
+              const catTitle = cat.name[language] ?? cat.name.EN;
               const activeInCatCount = cat.subcategories
                 .flatMap((s) => s.descriptors)
                 .filter((d) => isTagSelected(d, currentActiveTags)).length;
@@ -314,474 +483,135 @@ export function SensoryCompassDrawer({
                 <button
                   key={cat.id}
                   type="button"
-                  onClick={() => setActiveCategoryId(cat.id)}
+                  onClick={() => setSelectedCategoryId(isSelected ? 'all' : cat.id)}
                   className={cn(
-                    'px-3 py-1.5 rounded-full border text-xs font-body font-bold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer select-none',
-                    isCatActive
-                      ? 'bg-[var(--wood-selection)] border-[var(--wood-selection)] text-white shadow-xs scale-[1.02]'
-                      : 'border-[var(--parchment-border)] bg-white/40 text-[var(--sepia-text)] hover:bg-white/70'
+                    'min-h-[42px] px-4 py-2 rounded-full text-xs sm:text-sm font-body font-semibold border transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 shrink-0 snap-start active:scale-95',
+                    isSelected
+                      ? 'bg-[var(--wood-selection)] text-white border-[var(--wood-selection)] shadow-xs'
+                      : 'bg-[var(--pub-bg-panel)] text-[var(--foreground)] border-[var(--parchment-border)] hover:bg-[var(--pub-bg-alt)] hover:border-[var(--wood-selection)]'
                   )}
                 >
-                  <span>{cat.emoji}</span>
-                  <span>{catName}</span>
+                  <span className="text-lg leading-none">{cat.emoji}</span>
+                  <span>{catTitle}</span>
                   {totalCatActive > 0 && (
-                    <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-white/25 text-white font-extrabold">
+                    <span
+                      className={cn(
+                        'px-2 py-0.5 rounded-full text-[11px] font-mono font-extrabold',
+                        isSelected
+                          ? 'bg-white/25 text-white'
+                          : 'bg-[var(--wood-selection)] text-white'
+                      )}
+                    >
                       {totalCatActive}
                     </span>
                   )}
                 </button>
               );
             })}
-
-            {/* Custom Aromas Tab (Mobile) */}
-            <button
-              type="button"
-              onClick={() => setActiveCategoryId('custom_aromas_tab')}
-              className={cn(
-                'px-3 py-1.5 rounded-full border text-xs font-body font-bold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer select-none',
-                activeCategoryId === 'custom_aromas_tab'
-                  ? 'bg-[var(--wood-selection)] border-[var(--wood-selection)] text-white shadow-xs scale-[1.02]'
-                  : 'border-[var(--brass-accent)]/50 bg-[var(--brass-accent)]/10 text-[var(--foreground)] hover:bg-[var(--brass-accent)]/20'
-              )}
-            >
-              <span>✨</span>
-              <span>{t('customFlavorsCategory')}</span>
-              {customFlavors.length > 0 && (
-                <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-[var(--wood-selection)] text-white font-extrabold">
-                  {customFlavors.length}
-                </span>
-              )}
-            </button>
           </div>
-        )}
 
-        {/* Main Body */}
-        <div className="flex-1 flex overflow-hidden">
-          {isSearchActive ? (
-            /* Live Search Results View */
-            <div className="flex-1 p-5 sm:p-7 overflow-y-auto flex flex-col gap-6">
-              <div className="flex items-center justify-between border-b border-[var(--parchment-border)]/60 pb-2">
-                <div className="flex items-center gap-2">
-                  <Search className="w-5 h-5 text-[var(--brass-accent)]" />
-                  <h4 className="text-base sm:text-lg font-display font-bold text-[var(--foreground)]">
-                    {language === 'DE' ? 'Suchergebnisse für' : 'Search Results for'} &ldquo;{searchQuery}&rdquo;
-                  </h4>
-                </div>
-                <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-full bg-[var(--wood-selection)] text-white shadow-xs">
-                  {searchResults.length + matchingCustomFlavors.length} {language === 'DE' ? 'Aromen' : 'flavors'}
-                </span>
-              </div>
+          <div className="divider-clover-glow mt-1 mb-1" />
+        </div>
 
-              {searchResults.length === 0 && matchingCustomFlavors.length === 0 ? (
-                <div className="p-12 text-center flex flex-col items-center justify-center gap-3 border border-dashed border-[var(--parchment-border)] rounded-2xl bg-[var(--sepia-text)]/5">
-                  <BookOpen className="w-10 h-10 text-[var(--sepia-muted)] opacity-50" />
-                  <p className="text-sm sm:text-base text-[var(--sepia-muted)] font-body max-w-md">
-                    {language === 'DE'
-                      ? `Keine passenden Aromen für "${searchQuery}" gefunden.`
-                      : `No matching flavors found for "${searchQuery}".`}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={onRequestCustomFlavor}
-                    className="mt-2 px-4 py-2 rounded-xl bg-[var(--wood-selection)] text-white text-xs sm:text-sm font-display font-bold uppercase tracking-wider cursor-pointer shadow-sm hover:scale-[1.02] transition-transform"
+        {/* ── 3. Main Scrollable Catalog Body (Select-Mode: All Categories & Subcategory Boxes) ── */}
+        <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-3 flex flex-col gap-5">
+          {filteredCategories.length === 0 ? (
+            <div className="p-12 text-center flex flex-col items-center justify-center gap-3 border border-dashed border-[var(--parchment-border)] rounded-2xl bg-[var(--parchment-bg)]">
+              <AromaIcon className="w-10 h-10 text-[var(--sepia-muted)] opacity-50" />
+              <p className="text-sm sm:text-base text-[var(--sepia-muted)] font-body max-w-md">
+                {language === 'DE'
+                  ? `Keine passenden Aromen für "${searchQuery}" gefunden.`
+                  : `No matching flavors found for "${searchQuery}".`}
+              </p>
+            </div>
+          ) : (
+            filteredCategories.map((cat) => {
+              const catTitle = cat.name[language] ?? cat.name.EN;
+              const catColor = cat.color ?? RADAR_DIMENSION_COLORS[cat.radarDimension] ?? '#C59B27';
+              const hasSubcategories = cat.catSubcategories.length > 0;
+              const uncategorizedRows = cat.rows.filter((r) => !r.subcategoryId);
+
+              return (
+                <section
+                  key={cat.id}
+                  className="rounded-2xl border border-[var(--parchment-border)] bg-[var(--parchment-bg)] shadow-xs overflow-hidden shrink-0"
+                >
+                  {/* Minimalist Category Header Bar (No total count badge) */}
+                  <div
+                    className="px-4 sm:px-5 py-2.5 sm:py-3 border-b border-[var(--wood-dark)]/80 bg-[var(--wood-dark)] flex items-center justify-between gap-3"
+                    style={{ borderLeftWidth: '5px', borderLeftColor: catColor }}
                   >
-                    + {t('createCustomFlavor')} &ldquo;{searchQuery}&rdquo;
-                  </button>
-                </div>
-              ) : (
-                <div className="flex flex-col gap-6">
-                  {/* Matching Standard Taxonomy Descriptors */}
-                  {searchResults.length > 0 && (
-                    <div className="flex flex-wrap gap-2.5">
-                      {searchResults.map(({ descriptor: desc, categoryName, categoryEmoji }) => {
-                        const tagName = desc.name[language] ?? desc.name.EN;
-                        const isSelectedInCurrent = isTagSelected(desc, currentActiveTags);
-                        const isSelectedInOther = !isSelectedInCurrent && isTagSelected(desc, otherActiveTags);
-                        const dotColor = desc.color ?? RADAR_DIMENSION_COLORS[desc.radarDimension] ?? '#C59B27';
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <span className="text-lg sm:text-xl leading-none shrink-0">{cat.emoji}</span>
+                      <h4 className="font-display font-bold text-sm sm:text-base text-[var(--fab-text)] tracking-wide truncate">
+                        {catTitle}
+                      </h4>
+                    </div>
+
+                    {cat.selectedInCatCount > 0 && (
+                      <span className="px-2.5 py-1 rounded-full bg-white/20 border border-white/30 text-white text-xs font-body font-bold flex items-center gap-1 shrink-0">
+                        <Check className="w-3.5 h-3.5" />
+                        <span>
+                          {cat.selectedInCatCount}{' '}
+                          {language === 'DE' ? 'ausgewählt' : 'selected'}
+                        </span>
+                      </span>
+                    )}
+                  </div>
+
+                  {!hasSubcategories ? (
+                    /* Flat 2-Column Selectable Aroma Rows */
+                    <div className="divide-y divide-[var(--parchment-border)]/60 grid grid-cols-1 md:grid-cols-2 md:divide-y-0">
+                      {cat.rows.map((row) => renderSelectableRow(row))}
+                    </div>
+                  ) : (
+                    /* Full-Width Stacked Subcategory Folders in Select-Mode ("Allgemein" on top, zero vertical gaps) */
+                    <div className="flex flex-col gap-3 p-3 sm:p-4">
+                      {uncategorizedRows.length > 0 && (
+                        <div className="w-full rounded-xl border border-[var(--parchment-border)] bg-[var(--pub-bg-panel)]/45 overflow-hidden">
+                          <div className="px-4 py-2 bg-[var(--pub-bg-alt)]/75 border-b border-[var(--parchment-border)] flex items-center gap-2">
+                            <span className="text-base leading-none shrink-0">{cat.emoji}</span>
+                            <span className="font-display font-bold text-xs sm:text-sm text-[var(--foreground)]">
+                              {language === 'DE' ? 'Allgemein' : 'General'}
+                            </span>
+                          </div>
+                          <div className="divide-y divide-[var(--parchment-border)]/50 grid grid-cols-1 md:grid-cols-2 md:divide-y-0">
+                            {uncategorizedRows.map((row) => renderSelectableRow(row))}
+                          </div>
+                        </div>
+                      )}
+
+                      {cat.catSubcategories.map((sub) => {
+                        const subRows = cat.rows.filter((r) => r.subcategoryId === sub.id);
+                        if (subRows.length === 0) return null;
 
                         return (
-                          <button
-                            key={desc.id}
-                            type="button"
-                            onClick={() => handleDescriptorToggle(desc)}
-                            className={cn(
-                              'px-3.5 py-2 rounded-full border text-xs sm:text-sm font-bold font-body transition-all duration-150 flex items-center gap-2 cursor-pointer select-none min-h-[38px] shadow-xs',
-                              isSelectedInCurrent
-                                ? activeSensoryMode === 'nose'
-                                  ? 'bg-[var(--sensory-nose)] border-[var(--sensory-nose)] text-white shadow-sm scale-[1.02]'
-                                  : 'bg-[var(--sensory-taste)] border-[var(--sensory-taste)] text-white shadow-sm scale-[1.02]'
-                                : isSelectedInOther
-                                ? activeSensoryMode === 'nose'
-                                  ? 'bg-[var(--sensory-taste)]/15 border-[var(--sensory-taste)]/60 text-[var(--sensory-taste)] font-semibold'
-                                  : 'bg-[var(--sensory-nose)]/15 border-[var(--sensory-nose)]/60 text-[var(--sensory-nose)] font-semibold'
-                                : 'bg-white/80 dark:bg-black/30 border-[var(--parchment-border)] text-[var(--foreground)] hover:bg-white hover:border-[var(--wood-selection)] hover:scale-[1.01]'
-                            )}
+                          <div
+                            key={sub.id}
+                            className="w-full rounded-xl border border-[var(--parchment-border)] bg-[var(--pub-bg-panel)]/45 overflow-hidden"
                           >
-                            <span
-                              className="w-2.5 h-2.5 rounded-full shrink-0 border border-black/20"
-                              style={{ backgroundColor: dotColor }}
-                            />
-                            <span>{tagName}</span>
-                            <span className="text-[11px] opacity-65 font-normal">
-                              ({categoryEmoji} {categoryName})
-                            </span>
-                            {isSelectedInCurrent && <Check size={14} className="ml-0.5 text-white" />}
-                          </button>
+                            <div className="px-4 py-2 bg-[var(--pub-bg-alt)]/75 border-b border-[var(--parchment-border)] flex items-center gap-2">
+                              <span className="text-base leading-none shrink-0">{sub.emoji || '📁'}</span>
+                              <span className="font-display font-bold text-xs sm:text-sm text-[var(--foreground)] truncate">
+                                {sub.name}
+                              </span>
+                            </div>
+                            <div className="divide-y divide-[var(--parchment-border)]/50 grid grid-cols-1 md:grid-cols-2 md:divide-y-0">
+                              {subRows.map((row) => renderSelectableRow(row))}
+                            </div>
+                          </div>
                         );
                       })}
                     </div>
                   )}
-
-                  {/* Matching Custom Aromas */}
-                  {matchingCustomFlavors.length > 0 && (
-                    <div className="flex flex-col gap-3 pt-4 border-t border-[var(--parchment-border)]/50">
-                      <span className="text-xs font-display font-bold uppercase tracking-wider text-[var(--sepia-muted)]">
-                        {t('customFlavorsCategory')}
-                      </span>
-                      <div className="flex flex-wrap gap-2.5">
-                        {matchingCustomFlavors.map((cf) => {
-                          const isSelected = currentActiveTags.some(
-                            (t) =>
-                              t.trim().toLowerCase() === cf.name.toLowerCase() ||
-                              t.trim().toLowerCase() === cf.id.toLowerCase()
-                          );
-                          const chipColor = cf.color ?? getFlavorColor(cf.name);
-
-                          return (
-                            <button
-                              key={cf.id}
-                              type="button"
-                              onClick={() => handleCustomFlavorToggle(cf)}
-                              className={cn(
-                                'px-3.5 py-2 rounded-full border text-xs sm:text-sm font-body font-bold transition-all duration-150 flex items-center gap-2 cursor-pointer select-none min-h-[38px] shadow-xs',
-                                isSelected
-                                  ? 'border-transparent text-white shadow-sm scale-[1.02]'
-                                  : 'border-[var(--parchment-border)] bg-white/80 dark:bg-black/30 text-[var(--foreground)] hover:border-[var(--wood-selection)] hover:bg-white'
-                              )}
-                              style={{
-                                backgroundColor: isSelected ? chipColor : undefined,
-                              }}
-                            >
-                              <span>{cf.emoji || '✨'}</span>
-                              <span>{cf.name}</span>
-                              {isSelected && <Check size={14} className="ml-0.5 text-white" />}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          ) : (
-            /* Standard Categorized View */
-            <>
-              {/* Desktop Left Category Sidebar (>= lg screens) */}
-              <div className="hidden lg:flex flex-col w-64 bg-[var(--parchment-bg-alt)]/70 border-r border-[var(--parchment-border)] p-3 overflow-y-auto gap-1 shrink-0">
-                <span className="text-[11px] font-display uppercase tracking-wider font-bold text-[var(--sepia-muted)] px-3 py-1.5">
-                  {language === 'DE' ? 'Aromen-Kategorien' : 'Aroma Categories'}
-                </span>
-
-                {SPIRIT_FLAVOR_TAXONOMY.map((cat) => {
-                  const isCatActive = activeCategoryId === cat.id;
-                  const catName = cat.name[language] ?? cat.name.EN;
-                  const activeInCatCount = cat.subcategories
-                    .flatMap((s) => s.descriptors)
-                    .filter((d) => isTagSelected(d, currentActiveTags)).length;
-                  const activeCustomInCatCount = customFlavors
-                    .filter((cf) => isCustomFlavorInCategory(cf, cat.id))
-                    .filter((cf) =>
-                      currentActiveTags.some(
-                        (t) =>
-                          t.trim().toLowerCase() === cf.name.toLowerCase() ||
-                          t.trim().toLowerCase() === cf.id.toLowerCase()
-                      )
-                    ).length;
-                  const totalCatActive = activeInCatCount + activeCustomInCatCount;
-
-                  return (
-                    <button
-                      key={cat.id}
-                      type="button"
-                      onClick={() => setActiveCategoryId(cat.id)}
-                      className={cn(
-                        'px-3.5 py-2.5 rounded-xl border text-sm font-body font-bold transition-all flex items-center justify-between gap-2 cursor-pointer select-none text-left',
-                        isCatActive
-                          ? 'bg-[var(--wood-selection)] border-[var(--wood-selection)] text-white shadow-sm'
-                          : 'border-transparent hover:bg-white/60 text-[var(--foreground)]'
-                      )}
-                    >
-                      <div className="flex items-center gap-2.5 truncate">
-                        <span className="text-base">{cat.emoji}</span>
-                        <span className="truncate">{catName}</span>
-                      </div>
-                      {totalCatActive > 0 && (
-                        <span
-                          className={cn(
-                            'px-2 py-0.5 rounded-full text-xs font-mono font-bold',
-                            isCatActive ? 'bg-white/25 text-white' : 'bg-[var(--wood-selection)] text-white'
-                          )}
-                        >
-                          {totalCatActive}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
-
-                {/* Custom Aromas Sidebar Item */}
-                <button
-                  type="button"
-                  onClick={() => setActiveCategoryId('custom_aromas_tab')}
-                  className={cn(
-                    'mt-2 px-3.5 py-2.5 rounded-xl border text-sm font-body font-bold transition-all flex items-center justify-between gap-2 cursor-pointer select-none text-left',
-                    activeCategoryId === 'custom_aromas_tab'
-                      ? 'bg-[var(--wood-selection)] border-[var(--wood-selection)] text-white shadow-sm'
-                      : 'border-[var(--brass-accent)]/40 bg-[var(--brass-accent)]/10 text-[var(--foreground)] hover:bg-[var(--brass-accent)]/20'
-                  )}
-                >
-                  <div className="flex items-center gap-2.5 truncate">
-                    <span>✨</span>
-                    <span className="truncate">{t('customFlavorsCategory')}</span>
-                  </div>
-                  {customFlavors.length > 0 && (
-                    <span
-                      className={cn(
-                        'px-2 py-0.5 rounded-full text-xs font-mono font-bold',
-                        activeCategoryId === 'custom_aromas_tab'
-                          ? 'bg-white/25 text-white'
-                          : 'bg-[var(--wood-selection)] text-white'
-                      )}
-                    >
-                      {customFlavors.length}
-                    </span>
-                  )}
-                </button>
-              </div>
-
-              {/* Right Area: Spacious Multi-Column Descriptor Cards */}
-              <div className="flex-1 p-5 sm:p-7 overflow-y-auto flex flex-col gap-6">
-                {activeCategoryId === 'custom_aromas_tab' ? (
-                  /* Custom Aromas Tab Content */
-                  <div className="flex flex-col gap-4">
-                    <div className="flex items-center justify-between border-b border-[var(--parchment-border)]/60 pb-3">
-                      <div className="flex flex-col gap-0.5">
-                        <h4 className="text-base sm:text-lg font-display font-bold text-[var(--foreground)]">
-                          {t('customFlavorsCategory')} ({customFlavors.length})
-                        </h4>
-                        <p className="text-xs sm:text-sm text-[var(--sepia-muted)] font-body">
-                          {language === 'DE'
-                            ? 'Individuell erstellte Aromen für dein persönliches Journal.'
-                            : 'Custom aromas crafted for your personal journal.'}
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={onRequestCustomFlavor}
-                        className="px-3.5 py-2 rounded-lg bg-[var(--wood-selection)] text-white text-xs sm:text-sm font-body font-bold flex items-center gap-1.5 cursor-pointer shadow-sm hover:scale-[1.02] transition-transform"
-                      >
-                        <Plus size={15} />
-                        <span>{t('createCustomFlavor')}</span>
-                      </button>
-                    </div>
-
-                    {customFlavors.length > 0 ? (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                        {customFlavors.map((cf) => {
-                          const isSelected = currentActiveTags.some(
-                            (t) =>
-                              t.trim().toLowerCase() === cf.name.toLowerCase() ||
-                              t.trim().toLowerCase() === cf.id.toLowerCase()
-                          );
-                          const chipColor = cf.color ?? getFlavorColor(cf.name);
-
-                          return (
-                            <div
-                              key={cf.id}
-                              className={cn(
-                                'flex items-center justify-between rounded-xl border text-sm font-body font-bold transition-all duration-150 select-none min-h-[44px] px-3.5 shadow-2xs overflow-hidden',
-                                isSelected
-                                  ? 'text-[var(--foreground)] shadow-xs scale-[1.01]'
-                                  : 'border-[var(--parchment-border)] bg-white/50 dark:bg-black/20 text-[var(--foreground)] hover:border-[var(--wood-selection)] hover:bg-white/80'
-                              )}
-                              style={{
-                                backgroundColor: isSelected ? `${chipColor}20` : undefined,
-                                borderColor: isSelected ? chipColor : undefined,
-                              }}
-                            >
-                              <button
-                                type="button"
-                                onClick={() => handleCustomFlavorToggle(cf)}
-                                className="flex items-center gap-2 cursor-pointer flex-1 py-2 text-left truncate"
-                              >
-                                <span className="text-base shrink-0">{cf.emoji || '✨'}</span>
-                                <span className="truncate">{cf.name}</span>
-                              </button>
-                              <div className="flex items-center gap-1 shrink-0">
-                                {isSelected && <Check size={16} className="text-[var(--wood-selection)] mr-1" />}
-                                <button
-                                  type="button"
-                                  onClick={(e) => onDeleteCustomFlavor(e, cf.id)}
-                                  className="w-8 h-8 rounded-full flex items-center justify-center text-sm opacity-70 hover:opacity-100 hover:text-red-500 hover:bg-black/5 active:scale-95 cursor-pointer transition-all"
-                                  title={t('customFlavorDeleted')}
-                                  aria-label={t('customFlavorDeleted')}
-                                >
-                                  ×
-                                </button>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <div className="p-12 text-center flex flex-col items-center justify-center gap-3 border border-dashed border-[var(--parchment-border)] rounded-2xl bg-[var(--sepia-text)]/5">
-                        <Sparkles className="w-8 h-8 text-[var(--brass-accent)]" />
-                        <p className="text-sm sm:text-base text-[var(--sepia-muted)] font-body max-w-md">
-                          {language === 'DE'
-                            ? 'Noch keine eigenen Aromen vorhanden. Erstelle individuelle Aromen für dein Journal!'
-                            : 'No custom aromas yet. Create individual flavor descriptors for your journal!'}
-                        </p>
-                        <button
-                          type="button"
-                          onClick={onRequestCustomFlavor}
-                          className="mt-2 px-4 py-2 rounded-xl bg-[var(--wood-selection)] text-white text-xs sm:text-sm font-display font-bold uppercase tracking-wider cursor-pointer shadow-sm hover:scale-[1.02] transition-transform"
-                        >
-                          + {t('createCustomFlavor')}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  /* Standard SWRI Taxonomy Category Descriptors */
-                  (() => {
-                    const category = SPIRIT_FLAVOR_TAXONOMY.find((c) => c.id === activeCategoryId);
-                    if (!category) return null;
-
-                    const customFlavorsInThisCat = customFlavors.filter((cf) => isCustomFlavorInCategory(cf, category.id));
-
-                    return (
-                      <div className="flex flex-col gap-6">
-                        <div className="flex items-center gap-2.5 border-b border-[var(--parchment-border)]/60 pb-2">
-                          <span className="text-2xl">{category.emoji}</span>
-                          <h4 className="text-lg sm:text-xl font-display font-bold text-[var(--foreground)]">
-                            {category.name[language] ?? category.name.EN}
-                          </h4>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                          {/* Standard Taxonomy Subcategories */}
-                          {category.subcategories.map((sub) => {
-                            const subName = sub.name[language] ?? sub.name.EN;
-
-                            return (
-                              <div
-                                key={sub.id}
-                                className="flex flex-col gap-3 p-4 rounded-xl bg-[var(--parchment-bg-alt)]/50 border border-[var(--parchment-border)]/60"
-                              >
-                                <span className="text-xs sm:text-sm font-display font-bold uppercase tracking-wider text-[var(--sepia-muted)] border-b border-[var(--parchment-border)]/40 pb-1">
-                                  {subName}
-                                </span>
-
-                                <div className="flex flex-wrap gap-2">
-                                  {sub.descriptors.map((desc) => {
-                                    const tagName = desc.name[language] ?? desc.name.EN;
-                                    const isSelectedInCurrent = isTagSelected(desc, currentActiveTags);
-                                    const isSelectedInOther = !isSelectedInCurrent && isTagSelected(desc, otherActiveTags);
-                                    const dotColor = desc.color ?? RADAR_DIMENSION_COLORS[desc.radarDimension] ?? '#C59B27';
-
-                                    return (
-                                      <button
-                                        key={desc.id}
-                                        type="button"
-                                        onClick={() => handleDescriptorToggle(desc)}
-                                        className={cn(
-                                          'px-3.5 py-1.5 rounded-full border text-xs sm:text-sm font-bold font-body transition-all duration-150 flex items-center gap-1.5 cursor-pointer select-none min-h-[34px]',
-                                          isSelectedInCurrent
-                                            ? activeSensoryMode === 'nose'
-                                              ? 'bg-[var(--sensory-nose)] border-[var(--sensory-nose)] text-white shadow-xs'
-                                              : 'bg-[var(--sensory-taste)] border-[var(--sensory-taste)] text-white shadow-xs'
-                                            : isSelectedInOther
-                                            ? activeSensoryMode === 'nose'
-                                              ? 'bg-[var(--sensory-taste)]/15 border-[var(--sensory-taste)]/60 text-[var(--sensory-taste)] font-semibold'
-                                              : 'bg-[var(--sensory-nose)]/15 border-[var(--sensory-nose)]/60 text-[var(--sensory-nose)] font-semibold'
-                                            : 'bg-white/70 dark:bg-black/20 border-[var(--parchment-border)] text-[var(--foreground)] hover:bg-white hover:border-[var(--wood-selection)]'
-                                        )}
-                                      >
-                                        <span
-                                          className="w-2.5 h-2.5 rounded-full shrink-0 border border-black/20"
-                                          style={{ backgroundColor: dotColor }}
-                                        />
-                                        <span>{tagName}</span>
-                                        {isSelectedInCurrent && <Check size={14} className="ml-0.5 text-white" />}
-                                      </button>
-                                    );
-                                  })}
-                                </div>
-                              </div>
-                            );
-                          })}
-
-                          {/* Custom Aromas in this Category (Seamless Uniform Grid Card) */}
-                          {customFlavorsInThisCat.length > 0 && (
-                            <div className="flex flex-col gap-3 p-4 rounded-xl bg-[var(--parchment-bg-alt)]/50 border border-[var(--parchment-border)]/60">
-                              <span className="text-xs sm:text-sm font-display font-bold uppercase tracking-wider text-[var(--sepia-muted)] border-b border-[var(--parchment-border)]/40 pb-1 flex items-center gap-1.5">
-                                <span>✨</span>
-                                <span>{t('customFlavorsCategory')}</span>
-                              </span>
-
-                              <div className="flex flex-wrap gap-2">
-                                {customFlavorsInThisCat.map((cf) => {
-                                  const isSelected = currentActiveTags.some(
-                                    (t) =>
-                                      t.trim().toLowerCase() === cf.name.toLowerCase() ||
-                                      t.trim().toLowerCase() === cf.id.toLowerCase()
-                                  );
-                                  const isSelectedInOther = !isSelected && otherActiveTags.some(
-                                    (t) =>
-                                      t.trim().toLowerCase() === cf.name.toLowerCase() ||
-                                      t.trim().toLowerCase() === cf.id.toLowerCase()
-                                  );
-
-                                  return (
-                                    <button
-                                      key={cf.id}
-                                      type="button"
-                                      onClick={() => handleCustomFlavorToggle(cf)}
-                                      className={cn(
-                                        'px-3.5 py-1.5 rounded-full border text-xs sm:text-sm font-bold font-body transition-all duration-150 flex items-center gap-1.5 cursor-pointer select-none min-h-[34px]',
-                                        isSelected
-                                          ? activeSensoryMode === 'nose'
-                                            ? 'bg-[var(--sensory-nose)] border-[var(--sensory-nose)] text-white shadow-xs'
-                                            : 'bg-[var(--sensory-taste)] border-[var(--sensory-taste)] text-white shadow-xs'
-                                          : isSelectedInOther
-                                          ? activeSensoryMode === 'nose'
-                                            ? 'bg-[var(--sensory-taste)]/15 border-[var(--sensory-taste)]/60 text-[var(--sensory-taste)] font-semibold'
-                                            : 'bg-[var(--sensory-nose)]/15 border-[var(--sensory-nose)]/60 text-[var(--sensory-nose)] font-semibold'
-                                          : 'bg-white/70 dark:bg-black/20 border-[var(--parchment-border)] text-[var(--foreground)] hover:bg-white hover:border-[var(--wood-selection)]'
-                                      )}
-                                    >
-                                      <span>{cf.emoji || '✨'}</span>
-                                      <span>{cf.name}</span>
-                                      {isSelected && <Check size={14} className="ml-0.5 text-white" />}
-                                    </button>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })()
-                )}
-              </div>
-            </>
+                </section>
+              );
+            })
           )}
         </div>
 
-        {/* Drawer Sticky Bottom Bar */}
-        <div className="flex items-center justify-between px-5 sm:px-7 py-3.5 bg-[var(--pub-bg-alt)]/90 border-t border-[var(--parchment-border)] shrink-0">
+        {/* ── 4. Sticky Bottom Summary & Done Bar ── */}
+        <div className="flex items-center justify-between px-5 sm:px-6 py-3 bg-[var(--pub-bg-alt)]/90 border-t border-[var(--parchment-border)] shrink-0">
           <div className="flex items-center gap-2.5">
             <span className="text-xs sm:text-sm font-display font-bold text-[var(--sepia-text)]">
               {t('activeFlavorsSummary')}:
@@ -791,24 +621,14 @@ export function SensoryCompassDrawer({
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={onRequestCustomFlavor}
-              className="px-3.5 py-2 rounded-lg border border-[var(--parchment-border)] text-xs sm:text-sm font-display uppercase tracking-wider font-semibold text-[var(--sepia-text)] hover:bg-black/5 transition-colors cursor-pointer hidden sm:flex items-center gap-1.5"
-            >
-              <Plus size={14} />
-              <span>{t('createCustomFlavor')}</span>
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-5 py-2 rounded-lg bg-[var(--wood-selection)] text-white text-xs sm:text-sm font-display uppercase tracking-wider font-bold shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer flex items-center gap-1.5"
-            >
-              <Check size={15} />
-              <span>{t('done')}</span>
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-5 py-2 rounded-lg bg-[var(--wood-selection)] text-white text-xs sm:text-sm font-display font-bold shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer flex items-center gap-1.5"
+          >
+            <Check size={15} />
+            <span>{t('done')}</span>
+          </button>
         </div>
       </div>
     </div>,

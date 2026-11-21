@@ -26,7 +26,13 @@ import {
   SPIRIT_FINISH_CHARACTERS,
   SPIRIT_BAR_ROLES,
 } from '@/types/spirit.types';
-import { inferCategoryFromTagName } from '@/data/spirit-flavor-taxonomy';
+import {
+  inferCategoryFromTagName,
+  findFlavorDescriptor,
+  getAllFlavorDescriptors,
+  getEffectiveFlavorTaxonomy,
+  resolveSmartCatalogAroma,
+} from '@/data/spirit-flavor-taxonomy';
 
 export const GEMINI_MODEL_CANDIDATES = [
   process.env.NEXT_PUBLIC_GEMINI_MODEL,
@@ -368,10 +374,24 @@ function buildSystemPrompt(language: 'DE' | 'EN' = 'DE', includeTastingNotes = t
   "confidence": 0.95
 }`;
 
+  const activeCategoriesList = getEffectiveFlavorTaxonomy()
+    .map((c) => `${c.emoji} ${isGerman ? c.name.DE || c.name.EN : c.name.EN || c.name.DE} (${c.radarDimension})`)
+    .join(', ');
+
+  const catalogNames = Array.from(
+    new Set(
+      getAllFlavorDescriptors()
+        .map((d) => (isGerman ? d.name.DE || d.name.EN : d.name.EN || d.name.DE))
+        .filter(Boolean)
+    )
+  ).join(', ');
+
   return `You are the master blender and spirit archivist for Aqua Vitaeum, a fine spirits journal.
 Your task is to analyze a spirit (from a photo of the bottle/label, or from a name/barcode text) and extract factual specifications and official distillery tasting notes.
 
 ${langInstruction}
+
+- "AROMA CATALOG MATCHING DIRECTIVE": The user's Aroma Catalog currently has these active main categories: [${activeCategoriesList}] and these canonical aromas: [${catalogNames}]. When generating "suggestedNoseTags" and "suggestedTasteTags", ALWAYS check if a detected flavor is a plural, adjective variant, or synonym of an existing catalog aroma (e.g., if you detect "Dunkle Rosinen" or "Süße Rosinen" and "Rosine" is in the catalog, output "Rosine"; if you detect "Grüne Äpfel" and "Grüner Apfel" is in the catalog, output "Grüner Apfel"; if you detect "Kräftiger Torfrauch" and "Torfrauch" is in the catalog, output "Torfrauch"). Only output a new aroma name if the flavor genuinely does not exist in the catalog yet.
 
 Rules for field mapping:
 - "ANTI-HALLUCINATION & BARCODE RULE": If the user query is a numerical barcode (EAN/UPC) or an unknown bottling that you cannot identify with high factual certainty, DO NOT GUESS, GUESSWORK, OR HALLUCINATE A RANDOM DISTILLERY (e.g. do not invent Lagavulin, Ardbeg, Macallan). Return {"notFound": true, "name": "NOT_FOUND"}.
@@ -515,22 +535,69 @@ function sanitizeAnalysisResult(raw: Record<string, unknown>): SpiritAnalysisRes
     ? raw.barRole.filter((b): b is SpiritBarRole => typeof b === 'string' && b.trim().length > 0)
     : undefined;
 
-  const suggestedNoseTags = Array.isArray(raw.suggestedNoseTags)
+  const rawNoseTags = Array.isArray(raw.suggestedNoseTags)
     ? raw.suggestedNoseTags.filter((t): t is string => typeof t === 'string' && t.trim().length > 0)
     : [];
 
-  const suggestedTasteTags = Array.isArray(raw.suggestedTasteTags)
+  const rawTasteTags = Array.isArray(raw.suggestedTasteTags)
     ? raw.suggestedTasteTags.filter((t): t is string => typeof t === 'string' && t.trim().length > 0)
     : [];
 
-  const sanitizeIntensities = (obj: unknown): Record<string, number> => {
+  // Smart-match each AI-suggested tag against the existing Aroma Catalog
+  const resolveTagName = (rawTag: string): string => {
+    const trimmed = rawTag.trim();
+    // If the tag already matches a catalog descriptor directly (exact name or recognized alias), preserve it as-is
+    if (findFlavorDescriptor(trimmed)) {
+      return trimmed;
+    }
+    const res = resolveSmartCatalogAroma(trimmed);
+    if (!res.isNew && res.matchedDescriptor) {
+      const d = res.matchedDescriptor;
+      const lower = trimmed.toLowerCase();
+      // Preserve English if the input was closer to the English name/alias, else German
+      const isEnglishInput =
+        lower === d.name.EN.toLowerCase() ||
+        lower.includes(d.name.EN.toLowerCase()) ||
+        d.name.EN.toLowerCase().includes(lower.replace(/s$/, ''));
+      return isEnglishInput ? d.name.EN : d.name.DE || d.name.EN;
+    }
+    return trimmed;
+  };
+
+  const noseAliasToCanonical = new Map<string, string>();
+  const suggestedNoseTags = Array.from(
+    new Set(
+      rawNoseTags.map((t) => {
+        const canonical = resolveTagName(t);
+        noseAliasToCanonical.set(t.trim(), canonical);
+        return canonical;
+      })
+    )
+  );
+
+  const tasteAliasToCanonical = new Map<string, string>();
+  const suggestedTasteTags = Array.from(
+    new Set(
+      rawTasteTags.map((t) => {
+        const canonical = resolveTagName(t);
+        tasteAliasToCanonical.set(t.trim(), canonical);
+        return canonical;
+      })
+    )
+  );
+
+  const sanitizeIntensities = (
+    obj: unknown,
+    aliasMap: Map<string, string>
+  ): Record<string, number> => {
     if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return {};
     const result: Record<string, number> = {};
     for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
       if (typeof k === 'string' && k.trim().length > 0) {
         const num = typeof v === 'number' ? v : typeof v === 'string' ? parseFloat(v) : NaN;
         if (!isNaN(num)) {
-          result[k.trim()] = Math.max(1, Math.min(10, Math.round(num)));
+          const canonicalKey = aliasMap.get(k.trim()) || resolveTagName(k.trim());
+          result[canonicalKey] = Math.max(1, Math.min(10, Math.round(num)));
         }
       }
     }
@@ -553,29 +620,39 @@ function sanitizeAnalysisResult(raw: Record<string, unknown>): SpiritAnalysisRes
     return Object.keys(profile).length > 0 ? profile : undefined;
   };
 
-  const noseTagIntensities = sanitizeIntensities(raw.noseTagIntensities);
-  const tasteTagIntensities = sanitizeIntensities(raw.tasteTagIntensities);
+  const noseTagIntensities = sanitizeIntensities(raw.noseTagIntensities, noseAliasToCanonical);
+  const tasteTagIntensities = sanitizeIntensities(raw.tasteTagIntensities, tasteAliasToCanonical);
   const noseProfile = sanitizeFlavorProfile(raw.noseProfile);
   const tasteProfile = sanitizeFlavorProfile(raw.tasteProfile);
 
   const sanitizeTagDimensions = (
     obj: unknown,
-    tags: string[]
+    tags: string[],
+    aliasMap: Map<string, string>
   ): Record<string, keyof FlavorProfile> | undefined => {
     const result: Record<string, keyof FlavorProfile> = {};
     const rawObj = obj && typeof obj === 'object' && !Array.isArray(obj) ? (obj as Record<string, unknown>) : {};
+    const normalizedRawObj: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(rawObj)) {
+      normalizedRawObj[aliasMap.get(k.trim()) || resolveTagName(k.trim())] = v;
+    }
     const VALID_DIMENSIONS = new Set<keyof FlavorProfile>([
       'fruity', 'floral', 'spicy', 'cereal', 'peaty', 'sulphury', 'feinty', 'woody', 'winey', 'nutty', 'chocolate'
     ]);
 
     for (const tag of tags) {
-      const rawDim = rawObj[tag];
+      const rawDim = normalizedRawObj[tag];
       if (typeof rawDim === 'string' && VALID_DIMENSIONS.has(rawDim.toLowerCase().trim() as keyof FlavorProfile)) {
         result[tag] = rawDim.toLowerCase().trim() as keyof FlavorProfile;
       } else {
-        const inferredCat = inferCategoryFromTagName(tag);
-        if (inferredCat) {
-          result[tag] = inferredCat.radarDimension;
+        const res = resolveSmartCatalogAroma(tag);
+        if (!res.isNew && res.matchedDescriptor) {
+          result[tag] = res.matchedDescriptor.radarDimension;
+        } else {
+          const inferredCat = inferCategoryFromTagName(tag);
+          if (inferredCat) {
+            result[tag] = inferredCat.radarDimension;
+          }
         }
       }
     }
@@ -583,8 +660,16 @@ function sanitizeAnalysisResult(raw: Record<string, unknown>): SpiritAnalysisRes
     return Object.keys(result).length > 0 ? result : undefined;
   };
 
-  const suggestedNoseTagDimensions = sanitizeTagDimensions(raw.suggestedNoseTagDimensions, suggestedNoseTags);
-  const suggestedTasteTagDimensions = sanitizeTagDimensions(raw.suggestedTasteTagDimensions, suggestedTasteTags);
+  const suggestedNoseTagDimensions = sanitizeTagDimensions(
+    raw.suggestedNoseTagDimensions,
+    suggestedNoseTags,
+    noseAliasToCanonical
+  );
+  const suggestedTasteTagDimensions = sanitizeTagDimensions(
+    raw.suggestedTasteTagDimensions,
+    suggestedTasteTags,
+    tasteAliasToCanonical
+  );
 
   let finishNotes: string | undefined = undefined;
   if (typeof raw.finishNotes === 'string' && raw.finishNotes.trim().length > 0) {
@@ -628,7 +713,76 @@ function sanitizeAnalysisResult(raw: Record<string, unknown>): SpiritAnalysisRes
   };
 }
 
-// ─── Multi-Model Resilient Request Dispatcher ────────────────────────────────
+// ─── Multi-Model Resilient Request Dispatcher & Localized Error Mapper ──────
+
+export function formatLocalizedAiError(
+  rawMsg: string,
+  status: number | undefined,
+  language: 'DE' | 'EN' = 'DE'
+): string {
+  const msg = (rawMsg || '').trim();
+
+  // 1. High Demand / Overloaded / 503 Unavailable
+  if (
+    status === 503 ||
+    status === 502 ||
+    status === 504 ||
+    /high demand|overloaded|service unavailable|temporarily unavailable|spikes in demand|try again later|backend error/i.test(
+      msg
+    )
+  ) {
+    return language === 'DE'
+      ? 'Der KI-Dienst ist momentan stark ausgelastet. Bitte versuche es in wenigen Sekunden erneut.'
+      : 'The AI service is currently experiencing high demand. Please try again in a few seconds.';
+  }
+
+  // 2. Rate Limit / Quota / 429 Resource Exhausted
+  if (
+    status === 429 ||
+    /quota|rate limit|resource_exhausted|too many requests|kontingent/i.test(msg)
+  ) {
+    return language === 'DE'
+      ? 'API-Kontingent erreicht (Rate Limit). Bitte warte kurz oder versuche es später erneut.'
+      : 'API rate limit reached. Please wait a moment or try again later.';
+  }
+
+  // 3. Invalid API Key / 400 / 401 / 403 Permission Denied
+  if (
+    status === 400 ||
+    status === 401 ||
+    status === 403 ||
+    /api_key_invalid|api key not valid|invalid api key|permission_denied|unauthenticated|ungültiger google gemini api-key/i.test(
+      msg
+    )
+  ) {
+    return language === 'DE'
+      ? 'Ungültiger Google Gemini API-Key. Bitte prüfe deinen Schlüssel in den Profil-Einstellungen.'
+      : 'Invalid Google Gemini API Key. Please check your key in the Profile settings.';
+  }
+
+  // 4. Network / Offline / Fetch errors
+  if (/failed to fetch|networkerror|network offline|load failed|fetch failed|err_internet_disconnected/i.test(msg)) {
+    return language === 'DE'
+      ? 'Keine Verbindung zum KI-Dienst möglich. Bitte prüfe deine Internetverbindung und versuche es erneut.'
+      : 'Could not connect to the AI service (Network offline). Please check your internet connection and try again.';
+  }
+
+  // 5. Model not found / unsupported
+  if (status === 404 || /not found|no longer available|is not supported/i.test(msg)) {
+    return language === 'DE'
+      ? 'Das KI-Modell ist vorübergehend nicht erreichbar. Bitte versuche es in Kürze erneut.'
+      : 'The AI model is temporarily unavailable. Please try again shortly.';
+  }
+
+  // Fallback: strip duplicate prefixes and return clean localized message
+  const cleanMsg = msg
+    .replace(/^(Analyse fehlgeschlagen:\s*|KI-Analyse fehlgeschlagen:\s*|Analysis failed:\s*|AI analysis failed:\s*)+/i, '')
+    .trim();
+
+  return language === 'DE'
+    ? `Die KI-Analyse konnte momentan nicht abgeschlossen werden${cleanMsg ? ` (${cleanMsg})` : '.'}`
+    : `The AI analysis could not be completed at this moment${cleanMsg ? ` (${cleanMsg})` : '.'}`;
+}
 
 async function executeGeminiContentRequest(
   apiKey: string,
@@ -636,6 +790,7 @@ async function executeGeminiContentRequest(
   language: 'DE' | 'EN' = 'DE'
 ): Promise<string> {
   let lastError = '';
+  let lastStatus: number | undefined = undefined;
 
   for (const model of GEMINI_MODEL_CANDIDATES) {
     try {
@@ -650,41 +805,32 @@ async function executeGeminiContentRequest(
       });
 
       if (response.status === 429) {
-        throw new Error(
-          language === 'DE'
-            ? 'API-Kontingent erreicht (Rate Limit). Bitte warte kurz oder versuche es später erneut.'
-            : 'API rate limit reached. Please wait a moment or try again later.'
-        );
+        throw new Error(formatLocalizedAiError('Rate Limit', 429, language));
       }
 
-      if (response.status === 400 || response.status === 403) {
+      if (response.status === 400 || response.status === 401 || response.status === 403) {
         const errorData = await response.json().catch(() => ({}));
         const errMsg = errorData?.error?.message || `HTTP ${response.status}`;
-        throw new Error(
-          language === 'DE'
-            ? `Ungültiger Google Gemini API-Key (${errMsg})`
-            : `Invalid Google Gemini API Key (${errMsg})`
-        );
+        throw new Error(formatLocalizedAiError(errMsg, response.status, language));
       }
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         const errMsg = errorData?.error?.message || `HTTP ${response.status}`;
         lastError = errMsg;
-        // If model version is not available on this API tier, seamlessly try next model
+        lastStatus = response.status;
+
+        // If model version is not available OR currently overloaded (503 / high demand), seamlessly try next candidate model
         if (
-          errMsg.includes('not found') ||
-          errMsg.includes('no longer available') ||
-          errMsg.includes('is not supported') ||
-          response.status === 404
+          response.status === 404 ||
+          response.status === 503 ||
+          response.status === 502 ||
+          response.status === 504 ||
+          /not found|no longer available|is not supported|high demand|overloaded|unavailable/i.test(errMsg)
         ) {
           continue;
         }
-        throw new Error(
-          language === 'DE'
-            ? `KI-Analyse fehlgeschlagen: ${errMsg}`
-            : `AI analysis failed: ${errMsg}`
-        );
+        throw new Error(formatLocalizedAiError(errMsg, response.status, language));
       }
 
       const data = await response.json();
@@ -693,25 +839,29 @@ async function executeGeminiContentRequest(
         return rawText;
       }
     } catch (err: unknown) {
-      if (err instanceof Error && err.message.includes('Tageskontingent')) {
-        throw err;
-      }
+      const errMsg = err instanceof Error ? err.message : String(err);
       if (
-        err instanceof Error &&
-        (err.message.includes('not found') ||
-          err.message.includes('no longer available') ||
-          err.message.includes('is not supported'))
+        /not found|no longer available|is not supported/i.test(errMsg)
       ) {
         continue;
       }
-      throw err;
+      if (
+        /stark ausgelastet|experiencing high demand|Kontingent|rate limit|Ungültiger Google Gemini API-Key|Invalid Google Gemini API Key|Keine Verbindung|Could not connect/i.test(
+          errMsg
+        )
+      ) {
+        throw err;
+      }
+      throw new Error(formatLocalizedAiError(errMsg, lastStatus, language));
     }
   }
 
   throw new Error(
-    language === 'DE'
-      ? `KI-Analyse fehlgeschlagen: ${lastError || 'Kein passendes Gemini-Modell gefunden.'}`
-      : `AI analysis failed: ${lastError || 'No matching Gemini model found.'}`
+    formatLocalizedAiError(
+      lastError || (language === 'DE' ? 'Kein passendes Gemini-Modell erreichbar.' : 'No matching Gemini model reachable.'),
+      lastStatus,
+      language
+    )
   );
 }
 
@@ -736,8 +886,8 @@ export async function analyzeSpiritFromText(
   if (!apiKey) {
     throw new Error(
       language === 'DE'
-        ? 'Kein KI-Schlüssel hinterlegt. Bitte trage deinen Google Gemini API-Key in die Datei .env.local ein.'
-        : 'No AI key configured. Please add your Google Gemini API key to your .env.local file.'
+        ? 'Kein KI-Schlüssel hinterlegt. Bitte trage deinen Google Gemini API-Key im Profil unter „Cask & Spirit Assistent“ ein.'
+        : 'No AI key configured. Please enter your Google Gemini API key in Profile under "Cask & Spirit Assistant".'
     );
   }
 
@@ -805,8 +955,8 @@ export async function analyzeSpiritFromImage(
   if (!apiKey) {
     throw new Error(
       language === 'DE'
-        ? 'Kein KI-Schlüssel hinterlegt. Bitte trage deinen Google Gemini API-Key in die Datei .env.local ein.'
-        : 'No AI key configured. Please add your Google Gemini API key to your .env.local file.'
+        ? 'Kein KI-Schlüssel hinterlegt. Bitte trage deinen Google Gemini API-Key im Profil unter „Cask & Spirit Assistent“ ein.'
+        : 'No AI key configured. Please enter your Google Gemini API key in Profile under "Cask & Spirit Assistant".'
     );
   }
 

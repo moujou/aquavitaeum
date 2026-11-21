@@ -41,7 +41,7 @@ npm run build
 | `npm run start` | Serves compiled Next.js application | Production server environment preview |
 | `npm run lint` | Executes ESLint checks | Code style, React hooks rules, and syntax validation |
 | `npm run type-check` | Runs TypeScript compiler (`tsc --noEmit`) | Strict mode type verification across entire codebase |
-| `npm run test` | Executes Vitest test suite once | Runs all 403 unit tests across 64 test files (100% pass rate) |
+| `npm run test` | Executes Vitest test suite once | Runs all 424 unit tests across 66 test files (100% pass rate) |
 | `npm run test:watch` | Runs Vitest in interactive watch mode | Real-time test-driven development (TDD) |
 | `npm run test:coverage` | Generates Vitest coverage reports via v8 | Comprehensive code coverage auditing (>65% coverage) |
 
@@ -193,7 +193,7 @@ Aqua Vitaeum enforces a mandatory **7-Agent Verification Protocol** (`AGENTS.md`
 | :--- | :--- | :--- |
 | **1. Software Expert** | Clean code & DRY | Strict TypeScript (`npm run type-check`), 0 unused variables. |
 | **2. Software Architect** | Module boundaries | Layer flow (`data` ➔ `lib` ➔ `types` ➔ `hooks` ➔ `components` ➔ `app`). |
-| **3. Quality Expert** | `npm run type-check`, `npm run lint`, `npm run test` | 0 errors, 0 warnings, 100% test pass rate (416+ tests across 65 suites). |
+| **3. Quality Expert** | `npm run type-check`, `npm run lint`, `npm run test` | 0 errors, 0 warnings, 100% test pass rate (424+ tests across 66 suites). |
 | **4. UX/UI Expert** | Design consistency | WCAG AAA contrast, CSS custom properties, zero layout shift. |
 | **5. Security & Privacy Expert** | Security audit | 0 secrets in repo, BYOK masking, least privilege OAuth, zero tracking. |
 | **6. Documentation Agent** | `docs/` synchronization | Keep `DOCUMENTATION.md` & `DESIGN_SYSTEM.md` up-to-date. |

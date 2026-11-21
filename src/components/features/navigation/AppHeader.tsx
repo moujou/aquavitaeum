@@ -1,23 +1,28 @@
 'use client';
 
 import React from 'react';
-import { User } from 'lucide-react';
+import { User, BookOpen, Book } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
 import { SpiritType } from '@/types/spirit.types';
 import { JournalWithStats } from '@/hooks/useJournals';
+import { JournalShelfLayout } from '@/hooks/useLayoutPreference';
 import GlobalSearch from '@/components/features/search/GlobalSearch';
+import { AromaIcon } from '@/components/ui/AromaIcon';
 
 interface AppHeaderProps {
   basePath: string;
   journals: JournalWithStats[];
-  activeView: 'loading' | 'welcome' | 'overview' | 'journal-landing' | 'journal-detail' | 'profile';
-  setActiveView: (view: 'loading' | 'welcome' | 'overview' | 'journal-landing' | 'journal-detail' | 'profile') => void;
+  journalLayout?: JournalShelfLayout;
+  activeView: 'loading' | 'welcome' | 'overview' | 'journal-landing' | 'journal-detail' | 'aroma-catalog' | 'profile';
+  setActiveView: (view: 'loading' | 'welcome' | 'overview' | 'journal-landing' | 'journal-detail' | 'aroma-catalog' | 'profile') => void;
   setActiveJournalId: (id: string | null) => void;
   selectSpirit: (id: string) => void;
   isBottomBarVisible: boolean;
   onEnterProfile: () => void;
   onLeaveProfile: () => void;
+  onEnterAromaCatalog?: () => void;
+  onGoToOverview?: () => void;
   globalSearchQuery: string;
   setGlobalSearchQuery: (q: string) => void;
   globalTypeFilter: SpiritType | 'All';
@@ -29,6 +34,7 @@ interface AppHeaderProps {
 export default function AppHeader({
   basePath,
   journals,
+  journalLayout = 'manuscript',
   activeView,
   setActiveView,
   setActiveJournalId,
@@ -36,6 +42,8 @@ export default function AppHeader({
   isBottomBarVisible,
   onEnterProfile,
   onLeaveProfile,
+  onEnterAromaCatalog,
+  onGoToOverview,
   globalSearchQuery,
   setGlobalSearchQuery,
   globalTypeFilter,
@@ -44,37 +52,50 @@ export default function AppHeader({
   onNavigateToSpirit,
 }: AppHeaderProps) {
   const { t, language } = useLanguage();
+  const JournalIcon = journalLayout === 'bookshelf' ? Book : BookOpen;
 
   return (
     <header
       id="app-header"
       className={cn(
-        "flex-shrink-0 h-16 max-lg:h-[calc(4rem+env(safe-area-inset-top,0px))] max-lg:pt-[env(safe-area-inset-top,0px)] w-full border-b border-[var(--parchment-border)] bg-[var(--nav-bg)] z-30 shadow-xs transition-transform duration-250 ease-out",
-        "max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:right-0",
-        (!isBottomBarVisible && activeView !== 'profile')
-          ? "max-lg:-translate-y-full max-lg:pointer-events-none"
-          : "translate-y-0"
+        'flex-shrink-0 h-16 max-lg:h-[calc(4rem+env(safe-area-inset-top,0px))] max-lg:pt-[env(safe-area-inset-top,0px)] w-full border-b border-[var(--parchment-border)] bg-[var(--nav-bg)] z-30 shadow-xs transition-transform duration-250 ease-out',
+        'max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:right-0',
+        !isBottomBarVisible && activeView !== 'profile'
+          ? 'max-lg:-translate-y-full max-lg:pointer-events-none'
+          : 'translate-y-0'
       )}
     >
       <div className="w-full max-w-6xl mx-auto h-full flex items-center justify-between px-3 sm:px-6">
         {/* ── Desktop Layout Header ─────────────────────────────────── */}
-        <div className="hidden lg:flex items-center gap-3.5 w-60 shrink-0 select-none">
+        <button
+          type="button"
+          onClick={() => {
+            if (onGoToOverview) {
+              onGoToOverview();
+            } else {
+              setActiveJournalId(null);
+              setActiveView('overview');
+            }
+          }}
+          className="hidden lg:flex items-center gap-3.5 w-60 shrink-0 select-none cursor-pointer text-left group"
+          title={t('journalsTitle')}
+        >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={`${basePath}/favicon.svg`}
             alt="Aqua Vitaeum Logo"
-            className="w-11 h-11 sm:w-12 sm:h-12 select-none pointer-events-none drop-shadow-xs"
+            className="w-11 h-11 sm:w-12 sm:h-12 select-none pointer-events-none drop-shadow-xs transition-transform group-hover:scale-105"
             width={48}
             height={48}
           />
           <h1 className="font-display text-lg sm:text-xl font-bold text-[var(--foreground)] tracking-wide leading-none">
             {t('appTitle')}
           </h1>
-        </div>
+        </button>
 
         <div className="hidden lg:flex flex-1 justify-center max-w-lg xl:max-w-xl mx-4">
           {isSelectMode ? (
-            <div className="flex items-center justify-center h-10 px-5 rounded-full bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] text-xs font-display uppercase tracking-widest text-[var(--wood-selection)] font-bold shadow-xs select-none animate-fade-in">
+            <div className="flex items-center justify-center h-10 px-5 rounded-full bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] text-xs font-display tracking-wide text-[var(--wood-selection)] font-bold shadow-xs select-none animate-fade-in">
               <span className="w-2 h-2 rounded-full bg-[var(--wood-selection)] animate-pulse mr-2" />
               {language === 'DE' ? 'Auswahlmodus aktiv' : 'Selection Mode Active'}
             </div>
@@ -93,8 +114,49 @@ export default function AppHeader({
           )}
         </div>
 
-        <div className="hidden lg:flex items-center justify-end w-60 shrink-0 gap-3">
+        {/* Desktop Right Navigation Action Buttons (Journals, Aroma Catalog, Profile) */}
+        <div className="hidden lg:flex items-center justify-end w-60 shrink-0 gap-2.5">
           <button
+            type="button"
+            onClick={() => {
+              if (onGoToOverview) {
+                onGoToOverview();
+              } else {
+                setActiveJournalId(null);
+                setActiveView('overview');
+              }
+            }}
+            className={cn(
+              'flex h-11 w-11 items-center justify-center rounded-full bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] text-[var(--fab-text)] border border-[var(--fab-border)] shadow-xs transition-all duration-150 cursor-pointer select-none active:scale-95',
+              activeView === 'overview' && 'ring-2 ring-[var(--nav-active)] ring-offset-2 ring-offset-[var(--nav-bg)]'
+            )}
+            title={t('journalsTitle')}
+            aria-label={t('journalsTitle')}
+          >
+            <JournalIcon size={20} strokeWidth={2} />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              if (onEnterAromaCatalog) {
+                onEnterAromaCatalog();
+              } else {
+                setActiveView('aroma-catalog');
+              }
+            }}
+            className={cn(
+              'flex h-11 w-11 items-center justify-center rounded-full bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] text-[var(--fab-text)] border border-[var(--fab-border)] shadow-xs transition-all duration-150 cursor-pointer select-none active:scale-95',
+              activeView === 'aroma-catalog' && 'ring-2 ring-[var(--nav-active)] ring-offset-2 ring-offset-[var(--nav-bg)]'
+            )}
+            title={t('aromaCatalogTitle')}
+            aria-label={t('aromaCatalogTitle')}
+          >
+            <AromaIcon size={21} strokeWidth={2} />
+          </button>
+
+          <button
+            type="button"
             onClick={() => {
               if (activeView === 'profile') {
                 onLeaveProfile();
@@ -103,12 +165,13 @@ export default function AppHeader({
               }
             }}
             className={cn(
-              "flex h-11 w-11 items-center justify-center rounded-full bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] text-[var(--fab-text)] border border-[var(--fab-border)] shadow-xs transition-all duration-150 cursor-pointer select-none active:scale-95",
-              activeView === 'profile' && "ring-2 ring-[var(--nav-active)] ring-offset-2 ring-offset-[var(--nav-bg)]"
+              'flex h-11 w-11 items-center justify-center rounded-full bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] text-[var(--fab-text)] border border-[var(--fab-border)] shadow-xs transition-all duration-150 cursor-pointer select-none active:scale-95',
+              activeView === 'profile' && 'ring-2 ring-[var(--nav-active)] ring-offset-2 ring-offset-[var(--nav-bg)]'
             )}
             title={t('profileTab')}
+            aria-label={t('profileTab')}
           >
-            <User size={22} strokeWidth={2} />
+            <User size={21} strokeWidth={2} />
           </button>
         </div>
 
@@ -137,7 +200,7 @@ export default function AppHeader({
           {/* Center Search Bar or Selection Indicator */}
           <div className="flex-1 flex justify-center min-w-0">
             {isSelectMode ? (
-              <div className="flex items-center justify-center h-8 px-4 rounded-full bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] text-[11px] font-display uppercase tracking-wider text-[var(--wood-selection)] font-bold shadow-xs select-none animate-fade-in">
+              <div className="flex items-center justify-center h-8 px-4 rounded-full bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] text-[11px] font-display tracking-wide text-[var(--wood-selection)] font-bold shadow-xs select-none animate-fade-in">
                 <span className="w-1.5 h-1.5 rounded-full bg-[var(--wood-selection)] animate-pulse mr-2" />
                 {language === 'DE' ? 'Auswahlmodus' : 'Select Mode'}
               </div>

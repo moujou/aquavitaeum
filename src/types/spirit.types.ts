@@ -177,7 +177,26 @@ export interface CustomFlavorDescriptor {
   name: string;
   emoji?: string;
   radarDimension: keyof FlavorProfile;
+  categoryId?: string;
   color?: string;
+  description?: string;
+  subcategoryId?: string;
+}
+
+export interface CustomFlavorSubcategory {
+  id: string;
+  name: string;
+  categoryId: string;
+  emoji?: string;
+}
+
+export interface CustomFlavorCategory {
+  id: string;
+  name: string;
+  emoji: string;
+  color: string;
+  radarDimension?: keyof FlavorProfile;
+  deleted?: boolean;
 }
 
 // ─── Flavor Profile ────────────────────────────────────────────────────────────

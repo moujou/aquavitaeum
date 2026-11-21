@@ -299,9 +299,21 @@ graph TD
    - **Bücherregal (`overview`)**: Startseite / Root der App. Eine native Zurück-Geste auf dieser Ebene schließt/minimiert die App wie vom Betriebssystem vorgesehen.
    - **Journal-Übersicht (`journal-landing`)**: Eine Zurück-Geste kehrt zum Bücherregal zurück.
    - **Flaschen-Detailkarte (`journal-detail`)**: Eine Zurück-Geste kehrt zur Flaschenübersicht des aktuellen Notizbuchs zurück.
+   - **Aromakatalog (`aromas`)**: Eigenständige Hauptansicht im 3-Tab-Navigationssystem (`Notizbücher | Aromakatalog | Profil`).
    - **Profil (`profile`)**: Eine Zurück-Geste kehrt zur zuvor geöffneten Ansicht zurück.
 3. **Synchronisierte Steuerelemente**:
    - Sowohl die native Betriebssystem-Wischgeste als auch die In-App Zurück-Buttons (Desktop FABs und `MobileBottomNav` Tabs) nutzen dieselbe `navigateBack()` Methode und halten den History-Stack absolut konsistent.
+
+### 5.19 Standalone Aroma Catalog & Atomic 1-Word Taxonomy (`AromaCatalogView` & `spirit-flavor-taxonomy.ts`)
+1. **Strict Separation of Concerns (Search & Pick vs. Manage)**:
+   - **In der Verkostungsnotiz (`FlavorTagSelector`, `SensoryCompassDrawer`, `SpotlightFlavorSearch`)**: Reine Auswahl- und Suchoberfläche (*Pure Search & Pick*) ohne ablenkende Erstellungs- oder Lösch-Buttons.
+   - **Im eigenständigen Aromakatalog (`AromaCatalogView`)**: Zentrale Verwaltung aller Aromen über die Hauptnavigation (`Aromakatalog` mit maßgeschneidertem `AromaIcon`).
+2. **Atomare 1-Wort-Basis-Aromen**:
+   - Alle Standard-Aromen der 9 Kategorien sind auf prägnante, eigenständige 1-Wort-Begriffe reduziert (`Torf`/`Peat`, `Rauch`/`Smoke`, `Zitrone`/`Lemon`, `Apfel`/`Apple`, `Salz`/`Salt`, `Eiche`/`Oak`, `Honig`/`Honey`, `Malz`/`Malz`, etc.).
+   - Zusammengesetzte Begriffe (`Peat Smoke`, `Green Apple`, `Lemon Peel`, `Sea Salt`) bleiben in `aliases[]` hinterlegt, sodass bestehende Verkostungsnotizen und die Volltextsuche zu 100 % abwärtskompatibel bleiben.
+3. **Einheitliche Bearbeitung & Optionale Katalog-Beschreibung**:
+   - Alle Aromen im Katalog (Standard- und Nutzer-Aromen) erscheinen in einer ruhigen, einheitlichen Zeilenstruktur mit freistehendem Emoji (`text-lg`), Namen (`text-sm`), Kategorie-Pille sowie Stift- und Papierkorb-Aktionen.
+   - Jedes Aroma unterstützt ein optionales Feld `description?: string` (*Beschreibung / Notiz*), das exklusiv im Aromakatalog unterhalb des Namens angezeigt wird, während Verkostungskarten und Aromen-Chips kompakt bleiben.
 
 ---
 

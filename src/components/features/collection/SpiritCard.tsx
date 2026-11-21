@@ -8,7 +8,7 @@ import { WhiskyLogo } from '@/components/ui/WhiskyLogo';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
 import { getActiveFlavorCategories } from '@/data/spirit-flavor-taxonomy';
-import { translateCharacteristic } from '@/lib/i18n/translations';
+import { translateCharacteristic, translateColour } from '@/lib/i18n/translations';
 import { formatSpiritCardSpecs, scoreToStars } from '@/lib/spirit-utils';
 import { SommelierScoreMedallion } from '@/components/ui/SommelierScoreMedallion';
 import { RatingStars } from '@/components/ui/RatingStars';
@@ -39,7 +39,7 @@ export function SpiritCard({
   onTouchCancel,
   onTouchMove,
 }: SpiritCardProps) {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const colourHex = SPIRIT_COLOUR_HEX[spirit.colour as SpiritColour] ?? '#FFD700';
 
   // Extract high-level active flavor categories for circular icon badges
@@ -57,6 +57,16 @@ export function SpiritCard({
     () => scoreToStars(spirit.rating100 || 1),
     [spirit.rating100]
   );
+
+  // Extract a representative tasting note quote snippet (max 120 chars so cards stay compact)
+  const tastingQuote = React.useMemo(() => {
+    const raw = (spirit.finishNotes || '').trim();
+    if (!raw) return null;
+    if (raw.length <= 120) return raw;
+    const sliced = raw.slice(0, 120).trimEnd();
+    const lastSpace = sliced.lastIndexOf(' ');
+    return `${lastSpace > 80 ? sliced.slice(0, lastSpace) : sliced}…`;
+  }, [spirit.finishNotes]);
 
   return (
     <button
@@ -84,17 +94,17 @@ export function SpiritCard({
       {/* 1. Signature Clover Green Top Header Banner */}
       <div className="w-full bg-[var(--wood-dark)] px-3 sm:px-3.5 py-2 sm:py-2.5 border-b border-[var(--wood-dark)]/80 flex flex-col justify-center min-h-[44px] sm:min-h-[48px] z-10 shrink-0 text-left">
         <h3 className="font-display text-sm sm:text-base font-bold text-[var(--fab-text)] group-hover:text-[var(--brass-light)] transition-colors leading-snug line-clamp-2 break-words tracking-wide">
-          {spirit.name || spirit.distillery || spirit.bottler}
+          {spirit.name || spirit.distillery || spirit.bottler || 'Untitled Spirit Note'}
         </h3>
       </div>
 
-      {/* 2. Generous Bottle Showcase Frame (Edge-to-edge crisp canvas, aspect-[16/10] on mobile, aspect-[3/4] on tablet/desktop) */}
-      <div className="relative w-full aspect-[16/10] sm:aspect-[3/4] bg-[var(--pub-bg-alt)]/60 border-b border-[var(--parchment-border)]/50 overflow-hidden flex items-center justify-center p-0">
+      {/* 2. Generous Bottle Showcase Frame (Edge-to-edge crisp canvas, aspect-square on mobile for portrait bottles without excessive card height, aspect-[3/4] on tablet/desktop) */}
+      <div className="relative w-full aspect-square sm:aspect-[3/4] bg-[var(--pub-bg-alt)]/60 border-b border-[var(--parchment-border)]/50 overflow-hidden flex items-center justify-center p-0">
         {spirit.thumbnailImage ? (
           <img
             src={spirit.thumbnailImage}
             alt={spirit.name}
-            className="w-full h-full object-cover p-0 m-0 transition-transform duration-500 ease-out group-hover:scale-105 pointer-events-none"
+            className="w-full h-full object-cover object-center p-0 m-0 transition-transform duration-500 ease-out group-hover:scale-105 pointer-events-none"
             draggable={false}
           />
         ) : (
@@ -127,19 +137,34 @@ export function SpiritCard({
         )}
       </div>
 
-      {/* 3. Signature Liquid Color Shimmer Ribbon (Seamlessly attached to photo) */}
+      {/* 3. Signature Liquid Wave Ribbon (Transparent background so only the moving liquid wave is visible) */}
       <div
-        className="w-full h-1.5 sm:h-2 shrink-0 relative overflow-hidden pointer-events-none border-b border-[var(--parchment-border)]/50"
-        style={{ backgroundColor: colourHex }}
+        className="w-full h-[11px] sm:h-[13px] shrink-0 relative overflow-hidden pointer-events-none bg-transparent border-b border-[var(--parchment-border)] animate-fluid-flow"
+        title={`${t('colour')}: ${translateColour(spirit.colour, language)}`}
       >
-        <div
-          className="absolute inset-0 animate-fluid-flow"
-          style={{
-            backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.08) 30%, rgba(0,0,0,0.2) 70%, rgba(255,255,255,0.35) 100%)',
-            backgroundSize: '200% 100%',
-          }}
-        />
-        <div className="absolute inset-0 shadow-[inset_0_1px_2px_rgba(0,0,0,0.6)] pointer-events-none" />
+        {/* Back Undulating Wave Layer */}
+        <svg
+          viewBox="0 0 200 12"
+          preserveAspectRatio="none"
+          className="absolute inset-y-0 left-0 w-[200%] h-full animate-liquid-wave-x-rev opacity-55"
+        >
+          <path
+            d="M 0 4.5 Q 25 1, 50 4.5 T 100 4.5 T 150 4.5 T 200 4.5 V 12 H 0 Z"
+            fill={colourHex}
+          />
+        </svg>
+
+        {/* Front Undulating Wave Layer */}
+        <svg
+          viewBox="0 0 200 12"
+          preserveAspectRatio="none"
+          className="absolute inset-y-0 left-0 w-[200%] h-full animate-liquid-wave-x"
+        >
+          <path
+            d="M 0 5.5 Q 25 2, 50 5.5 T 100 5.5 T 150 5.5 T 200 5.5 V 12 H 0 Z"
+            fill={colourHex}
+          />
+        </svg>
       </div>
 
       {/* 4. Editorial Card Body: Specs & Aromas (Full Width) */}
@@ -149,24 +174,26 @@ export function SpiritCard({
           {spirit.spiritType}
         </div>
 
-        {/* Row 2: Destillerie • Abfüller • Herkunft */}
-        <div className="text-[12.5px] sm:text-[13.5px] font-body text-[var(--sepia-text)] font-bold leading-tight flex items-center gap-1.5 min-w-0 flex-wrap">
-          {spirit.distillery && <span className="break-words">{spirit.distillery}</span>}
-          {spirit.bottler && spirit.bottler.toLowerCase() !== spirit.distillery?.toLowerCase() && (
-            <>
-              {spirit.distillery && <span className="text-[var(--sepia-muted)]/50 select-none">·</span>}
-              <span className="font-semibold text-[var(--sepia-text)] break-words">{spirit.bottler}</span>
-            </>
-          )}
-          {spirit.region && (
-            <>
-              {(spirit.distillery || (spirit.bottler && spirit.bottler.toLowerCase() !== spirit.distillery?.toLowerCase())) && (
-                <span className="text-[var(--sepia-muted)]/50 select-none">·</span>
-              )}
-              <span className="font-semibold text-[var(--sepia-text)] break-words">{spirit.region}</span>
-            </>
-          )}
-        </div>
+        {/* Row 2: Destillerie • Abfüller • Herkunft (Only rendered if at least one is present) */}
+        {(spirit.distillery || spirit.bottler || spirit.region) && (
+          <div className="text-[12.5px] sm:text-[13.5px] font-body text-[var(--sepia-text)] font-bold leading-tight flex items-center gap-1.5 min-w-0 flex-wrap">
+            {spirit.distillery && <span className="break-words">{spirit.distillery}</span>}
+            {spirit.bottler && spirit.bottler.toLowerCase() !== spirit.distillery?.toLowerCase() && (
+              <>
+                {spirit.distillery && <span className="text-[var(--sepia-muted)]/50 select-none">·</span>}
+                <span className="font-semibold text-[var(--sepia-text)] break-words">{spirit.bottler}</span>
+              </>
+            )}
+            {spirit.region && (
+              <>
+                {(spirit.distillery || (spirit.bottler && spirit.bottler.toLowerCase() !== spirit.distillery?.toLowerCase())) && (
+                  <span className="text-[var(--sepia-muted)]/50 select-none">·</span>
+                )}
+                <span className="font-semibold text-[var(--sepia-text)] break-words">{spirit.region}</span>
+              </>
+            )}
+          </div>
+        )}
 
         {/* Row 3: Years · vol · bottle size (Continuous Text) */}
         {specsRow4.length > 0 && (
@@ -222,11 +249,11 @@ export function SpiritCard({
         )}
       </div>
 
-      {/* 5. Tasting Notes Quote Snippet (Conditional) */}
-      {spirit.finishNotes && (
+      {/* 5. Tasting Notes Quote Snippet (Conditional, capped at 120 chars) */}
+      {tastingQuote && (
         <div className="w-full px-3.5 sm:px-4 pb-3 z-10">
-          <p className="text-[12.5px] sm:text-sm text-[var(--sepia-text)]/90 italic font-body leading-relaxed bg-[var(--pub-bg-alt)]/40 border border-[var(--parchment-border)]/50 rounded-lg px-3 py-2">
-            „{spirit.finishNotes}“
+          <p className="text-[12.5px] sm:text-sm text-[var(--sepia-text)]/90 italic font-body leading-relaxed bg-[var(--pub-bg-alt)]/40 border border-[var(--parchment-border)]/50 rounded-lg px-3 py-2 break-words">
+            „{tastingQuote}“
           </p>
         </div>
       )}

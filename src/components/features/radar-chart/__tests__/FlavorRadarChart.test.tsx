@@ -83,7 +83,7 @@ describe('FlavorRadarChart & DynamicProfileSliders Component Unit Tests', () => 
 
     expect(screen.getByText('Nose Intensity (2)')).toBeDefined();
     expect(screen.getByText('Fruity, Tropical & Citrus')).toBeDefined();
-    expect(screen.getByText('Green Apple')).toBeDefined();
+    expect(screen.getByText('Apple')).toBeDefined();
     expect(screen.getByText('Pear')).toBeDefined();
 
     const appleSlider = screen.getByLabelText('Nose Intensity Green Apple') as HTMLInputElement;
@@ -144,7 +144,7 @@ describe('FlavorRadarChart & DynamicProfileSliders Component Unit Tests', () => 
     expect(screen.getByTitle('Peat & Smoke')).toBeDefined();
     const peatBtnInRadar = screen.getByTitle('Peat & Smoke');
     fireEvent.click(peatBtnInRadar);
-    expect(screen.getByText('Peat Smoke')).toBeDefined();
+    expect(screen.getByText('Peat')).toBeDefined();
 
     // Toggle sensory filters
     const noseFilterBtn = screen.getByText('Nose');
@@ -194,13 +194,13 @@ describe('FlavorRadarChart & DynamicProfileSliders Component Unit Tests', () => 
 
     // Inspector should show category name and both notes with intensities
     expect(screen.getAllByText('Peat & Smoke').length).toBeGreaterThan(0);
-    expect(screen.getByText('Peat Smoke')).toBeDefined();
+    expect(screen.getByText('Peat')).toBeDefined();
     expect(screen.getByText('Campfire')).toBeDefined();
 
-    // 2. Click a specific note (Peat Smoke)
-    const peatSmokeBtn = screen.getByText('Peat Smoke');
+    // 2. Click a specific note (Peat)
+    const peatSmokeBtn = screen.getByText('Peat');
     fireEvent.click(peatSmokeBtn);
-    expect(onSelectTag).toHaveBeenCalledWith('Peat Smoke');
+    expect(onSelectTag).toHaveBeenCalledWith('Peat');
 
     // Breadcrumb header and active pills should show active note and score
     expect(screen.getAllByText(/\/10/).length).toBeGreaterThan(0);

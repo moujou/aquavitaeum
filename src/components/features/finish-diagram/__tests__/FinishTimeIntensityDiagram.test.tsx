@@ -42,8 +42,8 @@ describe('FinishTimeIntensityDiagram Component', () => {
 
     // Verify Lingering Notes Chips
     expect(screen.getByText(/Dominante Noten im Nachklang|Dominant Lingering Notes/i)).toBeDefined();
-    expect(screen.getByText(/Peat Smoke/i)).toBeDefined();
-    expect(screen.getByText(/Vanilla/i)).toBeDefined();
+    expect(screen.getByText(/Peat|Torf/i)).toBeDefined();
+    expect(screen.getByText(/Vanilla|Vanille/i)).toBeDefined();
 
     // Verify Finish Character & Warmth chips
     const dryChip = screen.getByRole('button', { name: /Dry|Trocken/i });
@@ -68,7 +68,7 @@ describe('FinishTimeIntensityDiagram Component', () => {
       </LanguageProvider>
     );
 
-    const peatChip = screen.getByRole('button', { name: /Peat Smoke/i });
+    const peatChip = screen.getByRole('button', { name: /Peat|Torf/i });
     fireEvent.click(peatChip);
     expect(handleChangeCurves).toHaveBeenCalledWith(
       expect.objectContaining({

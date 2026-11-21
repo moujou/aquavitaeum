@@ -86,11 +86,7 @@ export function SpiritScanModal({
       setAnalysisResult(result);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
-      setError(
-        language === 'DE'
-          ? `Analyse fehlgeschlagen: ${msg}`
-          : `Analysis failed: ${msg}`
-      );
+      setError(msg);
     } finally {
       setIsLoading(false);
     }
@@ -157,11 +153,7 @@ export function SpiritScanModal({
       setAnalysisResult(result);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
-      setError(
-        language === 'DE'
-          ? `Analyse fehlgeschlagen: ${msg}`
-          : `Analysis failed: ${msg}`
-      );
+      setError(msg);
     } finally {
       setIsLoading(false);
     }
@@ -181,11 +173,7 @@ export function SpiritScanModal({
       setAnalysisResult(result);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
-      setError(
-        language === 'DE'
-          ? `Analyse fehlgeschlagen: ${msg}`
-          : `Analysis failed: ${msg}`
-      );
+      setError(msg);
     } finally {
       setIsLoading(false);
     }

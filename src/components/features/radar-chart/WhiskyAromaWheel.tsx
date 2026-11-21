@@ -5,6 +5,7 @@ import { PieChart } from 'lucide-react';
 import { CustomFlavorDescriptor } from '@/types/spirit.types';
 import {
   SPIRIT_FLAVOR_TAXONOMY,
+  getEffectiveFlavorTaxonomy,
   FlavorCategory,
   FlavorSubcategory,
   FlavorDescriptor,
@@ -137,6 +138,37 @@ export const CATEGORY_WHEEL_COLORS: Record<
   cereal:              { base: '#D97706', light: '#FBBF24', dark: '#92400E', stroke: '#78350F', glow: 'rgba(217, 119, 6, 0.4)' },
 };
 
+export function getCategoryWheelColorConfig(cat: FlavorCategory): {
+  base: string;
+  light: string;
+  dark: string;
+  stroke: string;
+  glow: string;
+} {
+  const defaultColorForCat = SPIRIT_FLAVOR_TAXONOMY.find((c) => c.id === cat.id)
+    ? RADAR_DIMENSION_COLORS[cat.radarDimension]
+    : undefined;
+  const preset = CATEGORY_WHEEL_COLORS[cat.id] || CATEGORY_WHEEL_COLORS[cat.radarDimension];
+  if (cat.color && (!defaultColorForCat || cat.color.toLowerCase() !== defaultColorForCat.toLowerCase())) {
+    return {
+      base: cat.color,
+      light: cat.color,
+      dark: cat.color,
+      stroke: cat.color,
+      glow: `${cat.color}66`,
+    };
+  }
+  return (
+    preset || {
+      base: cat.color || '#D97706',
+      light: cat.color || '#FBBF24',
+      dark: cat.color || '#92400E',
+      stroke: cat.color || '#78350F',
+      glow: 'rgba(217, 119, 6, 0.4)',
+    }
+  );
+}
+
 export interface ActiveCategoryData {
   category: FlavorCategory;
   activeDescriptors: {
@@ -161,8 +193,9 @@ export function computeActiveCategoriesData(
 ): ActiveCategoryData[] {
   const customList = customFlavors ?? getStoredCustomFlavors();
   const normalizedActiveTags = Array.from(new Set(activeTags.map((t) => t.trim()).filter(Boolean)));
+  const effectiveTaxonomy = getEffectiveFlavorTaxonomy();
 
-  return SPIRIT_FLAVOR_TAXONOMY.map((cat) => {
+  return effectiveTaxonomy.map((cat) => {
     const activeDescriptorsInCat: {
       descriptor: FlavorDescriptor;
       subcategory: FlavorSubcategory;
@@ -322,17 +355,30 @@ export interface SommelierCategoryLegendProps {
   className?: string;
 }
 
+export function isTouchOrMobileViewport(): boolean {
+  if (typeof window === 'undefined') return false;
+  if (window.innerWidth < 768) return true;
+  if (typeof window.matchMedia === 'function' && window.matchMedia('(hover: none), (pointer: coarse)').matches) {
+    return true;
+  }
+  return false;
+}
+
 export function SommelierCategoryLegendAndInspector({
   activeCategoriesData,
   activeNode,
   pinnedNode,
   language,
   togglePin,
-  setHoveredNode,
+  setHoveredNode: rawSetHoveredNode,
   clearSelection,
   onSelectTag,
   className,
 }: SommelierCategoryLegendProps) {
+  const setHoveredNode = (node: HoveredAromaNode | null) => {
+    if (node !== null && isTouchOrMobileViewport()) return;
+    rawSetHoveredNode(node);
+  };
   if (activeCategoriesData.length === 0) return null;
 
   return (
@@ -343,7 +389,7 @@ export function SommelierCategoryLegendAndInspector({
         onClick={(e) => e.stopPropagation()}
       >
         {activeCategoriesData.map(({ category: cat, activeDescriptors }) => {
-          const colorConfig = CATEGORY_WHEEL_COLORS[cat.id] || { base: '#D97706' };
+          const colorConfig = getCategoryWheelColorConfig(cat);
           const activeInCatCount = activeDescriptors.length;
           const isSelected = activeNode?.categoryId === cat.id;
           const maxScore = activeDescriptors.reduce((m, d) => Math.max(m, d.intensity), 0);
@@ -456,7 +502,7 @@ export function SommelierCategoryLegendAndInspector({
                               subcategoryName: d.subcategory.name[language],
                               tagName: descName,
                               score: d.intensity,
-                              color: CATEGORY_WHEEL_COLORS[catData.category.id]?.base || '#D97706',
+                              color: getCategoryWheelColorConfig(catData.category).base,
                             },
                             e
                           );
@@ -523,7 +569,11 @@ export function WhiskyAromaWheel({
 
   const pinnedNode = externalPinnedNode !== undefined ? externalPinnedNode : internalPinnedNode;
   const hoveredNode = externalHoveredNode !== undefined ? externalHoveredNode : internalHoveredNode;
-  const setHoveredNode = externalHoverNode || setInternalHoveredNode;
+  const rawSetHoveredNode = externalHoverNode || setInternalHoveredNode;
+  const setHoveredNode = (node: HoveredAromaNode | null) => {
+    if (node !== null && isTouchOrMobileViewport()) return;
+    rawSetHoveredNode(node);
+  };
 
   const activeNode = hoveredNode || pinnedNode;
 
@@ -641,13 +691,7 @@ export function WhiskyAromaWheel({
       const { category: cat, activeDescriptors: activeDescriptorsInCat, subcategories: subcats } = catData;
       const catStartAngle = catIdx * categoryAngleSpan;
       const catEndAngle = catStartAngle + categoryAngleSpan;
-      const catColorConfig = CATEGORY_WHEEL_COLORS[cat.id] || {
-        base: '#D97706',
-        light: '#FBBF24',
-        dark: '#92400E',
-        stroke: '#78350F',
-        glow: 'rgba(217, 119, 6, 0.4)',
-      };
+      const catColorConfig = getCategoryWheelColorConfig(cat);
 
       const maxIntensityInCat = activeDescriptorsInCat.reduce((m, d) => Math.max(m, d.intensity), 0);
 
@@ -732,13 +776,12 @@ export function WhiskyAromaWheel({
   return (
     <div
       className={cn('relative flex flex-col items-center select-none w-full gap-3', className)}
-      onClick={clearSelection}
     >
-      {/* ─── Grand Sunburst SVG Visualizer ─── */}
-      <div className="relative w-full max-w-[440px] sm:max-w-[500px] lg:max-w-[540px] aspect-square flex items-center justify-center">
+      {/* ─── Grand Sunburst SVG Visualizer (Purely Visual, Controlled via Legend Below) ─── */}
+      <div className="relative w-full max-w-[440px] sm:max-w-[500px] lg:max-w-[540px] aspect-square flex items-center justify-center pointer-events-none select-none">
         <svg
           viewBox="0 0 440 440"
-          className="w-full h-full drop-shadow-[0_6px_20px_rgba(43,30,20,0.14)] transition-all duration-300"
+          className="w-full h-full drop-shadow-[0_6px_20px_rgba(43,30,20,0.14)] transition-all duration-300 outline-none"
         >
           <defs>
             {/* Center Medallion Radial Gradient */}

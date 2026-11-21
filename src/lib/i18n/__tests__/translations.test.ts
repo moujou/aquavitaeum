@@ -92,8 +92,8 @@ describe('i18n Translation Dictionary', () => {
     expect(t('customFlavorsCategory', 'DE')).toBe('Eigene Aromen');
     expect(t('defaultCategoryColor', 'DE')).toBe('Kategorie-Farbe');
     expect(t('customColor', 'DE')).toBe('Eigene Farbe');
-    expect(t('sensoryDrawerTitle', 'DE')).toBe('Aromen-Katalog');
-    expect(t('openSensoryDrawer', 'DE')).toBe('Katalog');
+    expect(t('sensoryDrawerTitle', 'DE')).toBe('Aromen');
+    expect(t('openSensoryDrawer', 'DE')).toBe('Aromen');
   });
 
   it('translates radar dimensions accurately', () => {

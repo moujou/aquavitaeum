@@ -8,7 +8,7 @@ import { WhiskyLogo } from '@/components/ui/WhiskyLogo';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
 import { getActiveFlavorCategories } from '@/data/spirit-flavor-taxonomy';
-import { translateCharacteristic } from '@/lib/i18n/translations';
+import { translateCharacteristic, translateColour } from '@/lib/i18n/translations';
 import { formatSpiritCardSpecs, scoreToStars } from '@/lib/spirit-utils';
 import { SommelierScoreMedallion } from '@/components/ui/SommelierScoreMedallion';
 import { RatingStars } from '@/components/ui/RatingStars';
@@ -34,7 +34,7 @@ export function NoteListItem({
   onTouchMove,
   onTouchEnd,
 }: NoteListItemProps) {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const colourHex = SPIRIT_COLOUR_HEX[spirit.colour as SpiritColour] ?? '#FFD700';
 
   const activeCategories = React.useMemo(
@@ -52,8 +52,15 @@ export function NoteListItem({
     [spirit.rating100]
   );
 
-  // Extract a representative tasting note quote snippet
-  const tastingQuote = spirit.finishNotes || null;
+  // Extract a representative tasting note quote snippet (max 120 chars so cards stay compact)
+  const tastingQuote = React.useMemo(() => {
+    const raw = (spirit.finishNotes || '').trim();
+    if (!raw) return null;
+    if (raw.length <= 120) return raw;
+    const sliced = raw.slice(0, 120).trimEnd();
+    const lastSpace = sliced.lastIndexOf(' ');
+    return `${lastSpace > 80 ? sliced.slice(0, lastSpace) : sliced}…`;
+  }, [spirit.finishNotes]);
 
   return (
     <button
@@ -75,11 +82,11 @@ export function NoteListItem({
           : 'hover:border-[var(--forest-green)] hover:shadow-[0_12px_28px_-3px_rgba(35,115,71,0.20),0_4px_12px_rgba(35,20,8,0.08)] hover:-translate-y-0.5'
       )}
     >
-      {/* ── 1. Signature Clover Green Top Header Banner ── */}
-      <div className="w-full bg-[var(--wood-dark)] px-3 sm:px-4 py-2 sm:py-2.5 border-b border-[var(--wood-dark)]/80 flex items-center justify-between gap-3 min-h-[44px] sm:min-h-[48px] z-10 shrink-0 text-left">
+      {/* ── 1. Signature Clover Green Top Header Banner (With Right-Aligned Score Medallion) ── */}
+      <div className="w-full bg-[var(--wood-dark)] px-3 sm:px-4 py-1.5 sm:py-2 border-b border-[var(--wood-dark)]/80 flex items-center justify-between gap-3 min-h-[44px] sm:min-h-[48px] z-10 shrink-0 text-left">
         <div className="min-w-0 flex-1">
           <h3 className="font-display text-sm sm:text-base font-bold text-[var(--fab-text)] group-hover:text-[var(--brass-light)] transition-colors leading-snug line-clamp-2 break-words tracking-wide">
-            {spirit.name || spirit.distillery || spirit.bottler}
+            {spirit.name || spirit.distillery || spirit.bottler || 'Untitled Spirit Note'}
           </h3>
         </div>
         {spirit.rating100 ? (
@@ -89,10 +96,10 @@ export function NoteListItem({
         ) : null}
       </div>
 
-      {/* ── 2. Showcase Section: Prominent Bottle Image (Left) + Structured Continuous Rows (Right) ── */}
+      {/* ── 2. Showcase Section: Prominent Bottle Image (Left) + Vertical Liquid Wave Seam + Structured Continuous Rows (Right) ── */}
       <div className="w-full flex flex-row items-stretch border-b border-[var(--parchment-divider)]">
         {/* Flush Bottle Showcase Frame (Left, Proportional ~35% Width matching Journal Open Book, 100% Flush) */}
-        <div className="w-[35%] sm:w-[36%] lg:w-[35%] max-w-[240px] shrink-0 bg-[var(--pub-bg-alt)]/35 border-r border-[var(--parchment-border)] relative flex items-center justify-center p-0 m-0 overflow-hidden min-h-[120px] sm:min-h-[155px] md:min-h-[175px]">
+        <div className="w-[35%] sm:w-[36%] lg:w-[35%] max-w-[240px] shrink-0 bg-[var(--pub-bg-alt)]/35 relative flex items-center justify-center p-0 m-0 overflow-hidden min-h-[120px] sm:min-h-[155px] md:min-h-[175px]">
           {spirit.thumbnailImage ? (
             <img
               src={spirit.thumbnailImage}
@@ -105,21 +112,6 @@ export function NoteListItem({
               <WhiskyLogo size={36} className="text-[var(--forest-green)] sm:size-[52px]" />
             </div>
           )}
-
-          {/* Liquid Color Shimmer Ribbon along right paper seam */}
-          <div
-            className="absolute top-0 right-0 bottom-0 w-1.5 overflow-hidden shrink-0 pointer-events-none z-20"
-            style={{ backgroundColor: colourHex }}
-          >
-            <div
-              className="absolute inset-0 animate-fluid-flow"
-              style={{
-                backgroundImage:
-                  'linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 30%, rgba(0,0,0,0.2) 70%, rgba(255,255,255,0.4) 100%)',
-                backgroundSize: '100% 200%',
-              }}
-            />
-          </div>
 
           {/* Select Mode Checkbox (Top-Left) */}
           {isSelectMode && (
@@ -138,31 +130,65 @@ export function NoteListItem({
           )}
         </div>
 
+        {/* Vertical Liquid Wave Ribbon along right edge of bottle image (Transparent background so only the moving liquid wave is visible) */}
+        <div
+          className="w-[11px] sm:w-[13px] shrink-0 relative overflow-hidden pointer-events-none bg-transparent border-r border-[var(--parchment-border)] animate-fluid-flow"
+          title={`${t('colour')}: ${translateColour(spirit.colour, language)}`}
+        >
+          {/* Back Vertical Undulating Wave Layer */}
+          <svg
+            viewBox="0 0 12 200"
+            preserveAspectRatio="none"
+            className="absolute inset-x-0 top-0 w-full h-[200%] animate-liquid-wave-y-rev opacity-55"
+          >
+            <path
+              d="M 7.5 0 Q 11 25, 7.5 50 T 7.5 100 T 7.5 150 T 7.5 200 H 0 V 0 Z"
+              fill={colourHex}
+            />
+          </svg>
+
+          {/* Front Vertical Undulating Wave Layer */}
+          <svg
+            viewBox="0 0 12 200"
+            preserveAspectRatio="none"
+            className="absolute inset-x-0 top-0 w-full h-[200%] animate-liquid-wave-y"
+          >
+            <path
+              d="M 6.5 0 Q 10 25, 6.5 50 T 6.5 100 T 6.5 150 T 6.5 200 H 0 V 0 Z"
+              fill={colourHex}
+            />
+          </svg>
+        </div>
+
         {/* Editorial Metadata Block (All Specs, Flavor Badges & Tasting Quote) */}
         <div className="flex-1 min-w-0 p-2.5 sm:p-3.5 md:p-4 flex flex-col justify-start gap-1 sm:gap-1.5 z-10">
           {/* Row 1: Typ des Whiskys */}
-          <div className="font-display text-[11px] sm:text-xs md:text-sm uppercase tracking-wider text-[var(--sepia-text)] font-bold leading-tight line-clamp-2 break-words">
-            {spirit.spiritType}
-          </div>
+          {spirit.spiritType && (
+            <div className="font-display text-[11px] sm:text-xs md:text-sm uppercase tracking-wider text-[var(--sepia-text)] font-bold leading-tight line-clamp-2 break-words">
+              {spirit.spiritType}
+            </div>
+          )}
 
-          {/* Row 2: Destillerie • Abfüller • Herkunft */}
-          <div className="text-[12.5px] sm:text-sm md:text-base font-body text-[var(--sepia-text)] font-bold leading-tight flex items-center gap-1.5 min-w-0 flex-wrap">
-            {spirit.distillery && <span className="break-words">{spirit.distillery}</span>}
-            {spirit.bottler && spirit.bottler.toLowerCase() !== spirit.distillery?.toLowerCase() && (
-              <>
-                {spirit.distillery && <span className="text-[var(--sepia-muted)]/50 select-none">·</span>}
-                <span className="font-semibold text-[var(--sepia-text)] break-words">{spirit.bottler}</span>
-              </>
-            )}
-            {spirit.region && (
-              <>
-                {(spirit.distillery || (spirit.bottler && spirit.bottler.toLowerCase() !== spirit.distillery?.toLowerCase())) && (
-                  <span className="text-[var(--sepia-muted)]/50 select-none">·</span>
-                )}
-                <span className="font-semibold text-[var(--sepia-text)] break-words">{spirit.region}</span>
-              </>
-            )}
-          </div>
+          {/* Row 2: Destillerie • Abfüller • Herkunft (Only rendered if at least one is present) */}
+          {(spirit.distillery || spirit.bottler || spirit.region) && (
+            <div className="text-[12.5px] sm:text-sm md:text-base font-body text-[var(--sepia-text)] font-bold leading-tight flex items-center gap-1.5 min-w-0 flex-wrap">
+              {spirit.distillery && <span className="break-words">{spirit.distillery}</span>}
+              {spirit.bottler && spirit.bottler.toLowerCase() !== spirit.distillery?.toLowerCase() && (
+                <>
+                  {spirit.distillery && <span className="text-[var(--sepia-muted)]/50 select-none">·</span>}
+                  <span className="font-semibold text-[var(--sepia-text)] break-words">{spirit.bottler}</span>
+                </>
+              )}
+              {spirit.region && (
+                <>
+                  {(spirit.distillery || (spirit.bottler && spirit.bottler.toLowerCase() !== spirit.distillery?.toLowerCase())) && (
+                    <span className="text-[var(--sepia-muted)]/50 select-none">·</span>
+                  )}
+                  <span className="font-semibold text-[var(--sepia-text)] break-words">{spirit.region}</span>
+                </>
+              )}
+            </div>
+          )}
 
           {/* Row 3: Years · vol · bottle size (Continuous Text) */}
           {specsRow4.length > 0 && (

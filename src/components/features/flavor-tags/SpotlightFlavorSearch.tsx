@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Plus, Check, Sparkles } from 'lucide-react';
+import { Search, Check } from 'lucide-react';
 import {
   getAllFlavorDescriptors,
   RADAR_DIMENSION_COLORS,
@@ -16,7 +16,6 @@ interface SpotlightFlavorSearchProps {
   otherSensoryTags?: string[];
   activeSensoryMode: 'nose' | 'taste';
   onToggleTag: (tagName: string) => void;
-  onRequestCustomFlavor: (initialName: string) => void;
   placeholder?: string;
   className?: string;
 }
@@ -26,7 +25,6 @@ export function SpotlightFlavorSearch({
   otherSensoryTags = [],
   activeSensoryMode,
   onToggleTag,
-  onRequestCustomFlavor,
   placeholder,
   className,
 }: SpotlightFlavorSearchProps) {
@@ -41,21 +39,24 @@ export function SpotlightFlavorSearch({
 
   // Filter matching descriptors based on query
   const trimmedQuery = query.trim().toLowerCase();
-  const matchingDescriptors = trimmedQuery.length === 0
-    ? []
-    : allDescriptors.filter((desc) => {
-        const descId = desc.id.toLowerCase();
-        const descEN = desc.name.EN.toLowerCase();
-        const descDE = desc.name.DE.toLowerCase();
-        const aliases = (desc.aliases || []).map((a) => a.toLowerCase());
+  const matchingDescriptors =
+    trimmedQuery.length === 0
+      ? []
+      : allDescriptors
+          .filter((desc) => {
+            const descId = desc.id.toLowerCase();
+            const descEN = desc.name.EN.toLowerCase();
+            const descDE = desc.name.DE.toLowerCase();
+            const aliases = (desc.aliases || []).map((a) => a.toLowerCase());
 
-        return (
-          descId.includes(trimmedQuery) ||
-          descEN.includes(trimmedQuery) ||
-          descDE.includes(trimmedQuery) ||
-          aliases.some((a) => a.includes(trimmedQuery))
-        );
-      }).slice(0, 8); // Top 8 most relevant suggestions
+            return (
+              descId.includes(trimmedQuery) ||
+              descEN.includes(trimmedQuery) ||
+              descDE.includes(trimmedQuery) ||
+              aliases.some((a) => a.includes(trimmedQuery))
+            );
+          })
+          .slice(0, 8); // Top 8 most relevant suggestions
 
   // Handle click outside to close dropdown
   useEffect(() => {
@@ -75,10 +76,7 @@ export function SpotlightFlavorSearch({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!isOpen || matchingDescriptors.length === 0) {
-      if (e.key === 'Enter' && trimmedQuery.length > 0) {
-        e.preventDefault();
-        onRequestCustomFlavor(query.trim());
-        setQuery('');
+      if (e.key === 'Escape') {
         setIsOpen(false);
       }
       return;
@@ -86,21 +84,16 @@ export function SpotlightFlavorSearch({
 
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setHighlightedIndex((prev) => (prev + 1) % (matchingDescriptors.length + 1));
+      setHighlightedIndex((prev) => (prev + 1) % matchingDescriptors.length);
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      setHighlightedIndex((prev) => (prev - 1 + matchingDescriptors.length + 1) % (matchingDescriptors.length + 1));
+      setHighlightedIndex((prev) => (prev - 1 + matchingDescriptors.length) % matchingDescriptors.length);
     } else if (e.key === 'Enter') {
       e.preventDefault();
       if (highlightedIndex < matchingDescriptors.length) {
         const selected = matchingDescriptors[highlightedIndex];
         const tagName = selected.name[language] ?? selected.name.EN;
         onToggleTag(tagName);
-        setQuery('');
-        setIsOpen(false);
-      } else {
-        // Highlighted on "Create Custom Flavor"
-        onRequestCustomFlavor(query.trim());
         setQuery('');
         setIsOpen(false);
       }
@@ -111,7 +104,7 @@ export function SpotlightFlavorSearch({
 
   return (
     <div className={cn('relative w-full', className)}>
-      {/* Search Input Bar */}
+      {/* Search Input Bar (Pure Search & Pick) */}
       <div className="relative w-full flex items-center">
         <Search
           size={16}
@@ -129,30 +122,8 @@ export function SpotlightFlavorSearch({
           onFocus={() => setIsOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder || t('spotlightSearchPlaceholder')}
-          className="w-full bg-[var(--parchment-bg-alt)]/70 border border-[var(--parchment-border)] rounded-md pl-9 pr-24 py-2 text-xs sm:text-sm font-body text-[var(--foreground)] placeholder:text-[var(--placeholder-text)] focus:outline-none focus:border-[var(--wood-selection)] focus:ring-1 focus:ring-[var(--wood-selection)]/30 transition-all shadow-inner"
+          className="w-full bg-[var(--parchment-bg-alt)]/70 border border-[var(--parchment-border)] rounded-md pl-9 pr-3.5 py-2 text-xs sm:text-sm font-body text-[var(--foreground)] placeholder:text-[var(--placeholder-text)] focus:outline-none focus:border-[var(--wood-selection)] focus:ring-1 focus:ring-[var(--wood-selection)]/30 transition-all shadow-inner"
         />
-
-        {/* Inline Quick Action Badge */}
-        <div className="absolute right-2 flex items-center gap-1">
-          {query.trim().length > 0 ? (
-            <button
-              type="button"
-              onClick={() => {
-                onRequestCustomFlavor(query.trim());
-                setQuery('');
-                setIsOpen(false);
-              }}
-              className="px-2 py-1 rounded bg-[var(--wood-selection)] text-white text-[11px] font-display font-bold uppercase tracking-wider hover:scale-105 transition-transform flex items-center gap-1 shadow-xs cursor-pointer"
-            >
-              <Plus size={12} />
-              <span>{language === 'DE' ? 'Neu' : 'New'}</span>
-            </button>
-          ) : (
-            <span className="text-[11px] font-display uppercase tracking-wider text-[var(--sepia-muted)]/70 px-2 py-0.5 rounded bg-black/5 select-none hidden sm:inline-block">
-              {activeSensoryMode === 'nose' ? t('inNose') : t('inTaste')}
-            </span>
-          )}
-        </div>
       </div>
 
       {/* Floating Spotlight Autocomplete Dropdown */}
@@ -218,27 +189,6 @@ export function SpotlightFlavorSearch({
               {t('noAromasFound')}
             </div>
           )}
-
-          {/* 1-Tap Create Custom Flavor Action inside dropdown */}
-          <button
-            type="button"
-            onClick={() => {
-              onRequestCustomFlavor(query.trim());
-              setQuery('');
-              setIsOpen(false);
-            }}
-            onMouseEnter={() => setHighlightedIndex(matchingDescriptors.length)}
-            className={cn(
-              'w-full px-3.5 py-2.5 flex items-center justify-between text-left text-xs sm:text-sm font-body font-bold text-[var(--wood-selection)] transition-colors cursor-pointer bg-[var(--pub-bg-alt)]/40',
-              highlightedIndex === matchingDescriptors.length ? 'bg-[var(--pub-bg-alt)] ring-1 ring-inset ring-[var(--wood-selection)]/30' : 'hover:bg-black/5'
-            )}
-          >
-            <div className="flex items-center gap-2">
-              <Sparkles size={14} className="text-[var(--wood-selection)]" />
-              <span>{t('customFlavorSearchShortcut').replace('{query}', query.trim())}</span>
-            </div>
-            <Plus size={14} />
-          </button>
         </div>
       )}
     </div>

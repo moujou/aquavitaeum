@@ -118,7 +118,7 @@
   --wood-light:      #1F7546;   /* Ausgewogener Klee-Grün Hover & Trim */
   --wood-dark:       #185E37;   /* Einheitliches, sattes Klee-Grün für Topper & Header */
   --wood-selection:  #185E37;   /* Einheitliches Klee-Grün für aktive Toggles, Pills & Tabs */
-  --nav-active:      #185E37;   /* 100% identisches Klee-Grün für die Navigation */
+  --nav-active:      #2E945D;   /* Leuchtendes Irisch-Klee-Grün für aktive Bottom-Nav Icons & Top-Indikator */
   --nav-inactive:    #8D9BA6;   /* Moonlit slate for inactive tabs */
 
   /* ── Sensory Profiling Radar Palette ─────────────────────────────────── */
@@ -340,8 +340,17 @@ body {
   outline-offset: 2px;
 }
 
+.recharts-wrapper,
+.recharts-wrapper *,
+.recharts-surface,
+svg:focus {
+  outline: none !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  *, ::before, ::after {
+  *:not(.animate-liquid-wave-x):not(.animate-liquid-wave-x-rev):not(.animate-liquid-wave-y):not(.animate-liquid-wave-y-rev):not(.animate-fluid-flow),
+  ::before,
+  ::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -371,16 +380,54 @@ body {
   transform-origin: center;
 }
 
-/* ─── SpiritCard Accent Column Shimmer ──────────────────────────────────────── */
-/* Moved OUT of SpiritCard's <button> to fix React 19 <style>-in-<button> crash */
+/* ─── SpiritCard & NoteListItem GPU-Accelerated Liquid Wave Animations ─────── */
 @keyframes fluid-flow {
-  0%   { background-position-y: 0%; }
-  100% { background-position-y: 200%; }
+  0%   { background-position: 0% 0%; }
+  100% { background-position: 200% 200%; }
 }
 
 .animate-fluid-flow {
-  background-size: 100% 200%;
-  animation: fluid-flow 5s linear infinite;
+  animation: fluid-flow 4s linear infinite;
+}
+
+@keyframes liquid-wave-x {
+  0%   { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+@keyframes liquid-wave-x-rev {
+  0%   { transform: translate3d(-50%, 0, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+@keyframes liquid-wave-y {
+  0%   { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(0, -50%, 0); }
+}
+
+@keyframes liquid-wave-y-rev {
+  0%   { transform: translate3d(0, -50%, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+.animate-liquid-wave-x {
+  animation: liquid-wave-x 4.2s linear infinite;
+  will-change: transform;
+}
+
+.animate-liquid-wave-x-rev {
+  animation: liquid-wave-x-rev 6s linear infinite;
+  will-change: transform;
+}
+
+.animate-liquid-wave-y {
+  animation: liquid-wave-y 4.2s linear infinite;
+  will-change: transform;
+}
+
+.animate-liquid-wave-y-rev {
+  animation: liquid-wave-y-rev 6s linear infinite;
+  will-change: transform;
 }
 
 /* ─── iOS Safari Long-Press Callout Prevention ───────────────────────────── */

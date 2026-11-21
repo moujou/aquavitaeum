@@ -4,27 +4,31 @@ import { Plus, BookOpen, Book, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
 import { OverviewLayout, JournalShelfLayout } from '@/hooks/useLayoutPreference';
+import { AromaIcon } from '@/components/ui/AromaIcon';
+
+export type ActiveAppView = 'welcome' | 'overview' | 'journal-landing' | 'journal-detail' | 'aroma-catalog' | 'profile';
 
 interface MobileBottomNavProps {
-  activeView: 'welcome' | 'overview' | 'journal-landing' | 'journal-detail' | 'profile';
+  activeView: ActiveAppView;
   activeJournalId: string | null;
   layout?: OverviewLayout;
   journalLayout?: JournalShelfLayout;
   isBottomBarVisible: boolean;
   isMobileDrawerOpen: boolean;
-  setActiveView: (view: 'welcome' | 'overview' | 'journal-landing' | 'journal-detail' | 'profile') => void;
+  setActiveView: (view: ActiveAppView) => void;
   setActiveJournalId: (id: string | null) => void;
   setIsMobileDrawerOpen: (open: boolean) => void;
   setIsCreateJournalModalOpen: (open: boolean) => void;
+  setIsCreateAromaModalOpen?: (open: boolean) => void;
   handleNewNote: () => void;
   onEnterProfile: () => void;
   onLeaveProfile: () => void;
+  onEnterAromaCatalog?: () => void;
   onGoToOverview?: () => void;
 }
 
 export default function MobileBottomNav({
   activeView,
-  activeJournalId,
   journalLayout = 'manuscript',
   isBottomBarVisible,
   isMobileDrawerOpen,
@@ -32,122 +36,155 @@ export default function MobileBottomNav({
   setActiveJournalId,
   setIsMobileDrawerOpen,
   setIsCreateJournalModalOpen,
+  setIsCreateAromaModalOpen,
   handleNewNote,
   onEnterProfile,
   onLeaveProfile,
+  onEnterAromaCatalog,
   onGoToOverview,
 }: MobileBottomNavProps) {
   const { t } = useLanguage();
 
   const isOverviewActive = activeView === 'overview';
+  const isAromaCatalogActive = activeView === 'aroma-catalog';
   const isProfileActive = activeView === 'profile';
 
   const JournalIcon = journalLayout === 'bookshelf' ? Book : BookOpen;
   const leftTabTitle = t('journalsTitle');
+  const aromaTabTitle = t('aromaCatalogTitle');
+
+  const isBarShown = isBottomBarVisible || isMobileDrawerOpen || activeView === 'profile';
+  const isFabVisible = isBottomBarVisible && activeView !== 'profile';
 
   return (
-    <nav
-      className={cn(
-        "fixed bottom-0 left-0 right-0 h-[calc(4rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] z-50 bg-[var(--nav-bg)] border-t border-[var(--parchment-border)] shadow-xs flex items-center justify-around px-4 lg:hidden transition-transform duration-250 ease-out",
-        (isBottomBarVisible || isMobileDrawerOpen || activeView === 'profile')
-          ? "translate-y-0"
-          : "translate-y-full pointer-events-none"
-      )}
-    >
-      {/* Left: Journals Overview Navigation Tab (Direct jump to Journals Overview) */}
+    <>
+      {/* Context-Smart Floating Action Button (Bottom-Right on Mobile, hides on downward scroll & in Profile) */}
       <button
         type="button"
         onClick={() => {
-          if (onGoToOverview) {
-            onGoToOverview();
+          if (activeView === 'journal-detail') {
+            handleNewNote();
+            if (setIsMobileDrawerOpen) setIsMobileDrawerOpen(false);
+          } else if (activeView === 'journal-landing') {
+            handleNewNote();
+            setActiveView('journal-detail');
+            if (setIsMobileDrawerOpen) setIsMobileDrawerOpen(false);
+          } else if (activeView === 'aroma-catalog') {
+            setIsCreateAromaModalOpen?.(true);
+            if (setIsMobileDrawerOpen) setIsMobileDrawerOpen(false);
           } else {
-            setActiveJournalId(null);
-            setActiveView('overview');
+            setIsCreateJournalModalOpen(true);
           }
-          if (setIsMobileDrawerOpen) setIsMobileDrawerOpen(false);
         }}
         className={cn(
-          "flex flex-col items-center justify-center w-[68px] h-12 transition-all cursor-pointer relative group rounded-xl my-auto",
-          isOverviewActive
-            ? "bg-[var(--forest-green)]/15 border border-[var(--forest-green)]/35 text-[var(--nav-active)] shadow-[0_2px_12px_rgba(46,148,93,0.22)]"
-            : "text-[var(--nav-inactive)] hover:text-[var(--forest-green)] hover:bg-[var(--forest-green)]/10 active:scale-95"
+          'fixed right-4 bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] z-50 lg:hidden w-13 h-13 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] shadow-[0_8px_24px_-2px_rgba(0,0,0,0.35),0_4px_10px_-2px_rgba(24,94,55,0.28)] flex items-center justify-center cursor-pointer hover:bg-[var(--fab-bg-hover)] active:scale-90 transition-all duration-250 ease-out',
+          isFabVisible
+            ? 'translate-y-0 opacity-100 scale-100'
+            : 'translate-y-16 opacity-0 scale-75 pointer-events-none'
         )}
-        title={leftTabTitle}
-        aria-label={leftTabTitle}
+        title={activeView === 'aroma-catalog' ? t('addAromaBtn') : t('addJournalOrNote')}
+        aria-label={t('addJournalOrNote')}
       >
-        <JournalIcon
-          size={23}
-          strokeWidth={isOverviewActive ? 2.2 : 1.75}
-          className="transition-transform group-hover:scale-110 duration-200"
-        />
-        {/* Active High-Contrast Indicator */}
-        {isOverviewActive && (
-          <div className="absolute bottom-1 w-5 h-0.5 rounded-full bg-[var(--nav-active)] shadow-[0_0_8px_rgba(46,148,93,0.5)]" />
-        )}
+        <Plus size={25} strokeWidth={2.5} />
       </button>
 
-      {/* Center: Flush In-Line Action Button (48px Ergonomic Trigger with 16px safety spacing) */}
-      <div className="w-16 h-full flex items-center justify-center shrink-0">
+      {/* Bottom 3-Tab Navigation Bar */}
+      <nav
+        className={cn(
+          'fixed bottom-0 left-0 right-0 h-[calc(4rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] z-50 bg-[var(--nav-bg)] border-t border-[var(--parchment-border)] shadow-xs flex items-center justify-around px-4 lg:hidden transition-transform duration-250 ease-out',
+          isBarShown ? 'translate-y-0' : 'translate-y-full pointer-events-none'
+        )}
+      >
+        {/* 1. Left: Journals Overview Tab */}
         <button
           type="button"
           onClick={() => {
-            if (activeView === 'journal-detail') {
-              handleNewNote();
-              if (setIsMobileDrawerOpen) setIsMobileDrawerOpen(false);
-            } else if (activeView === 'journal-landing') {
-              handleNewNote();
-              setActiveView('journal-detail');
-              if (setIsMobileDrawerOpen) setIsMobileDrawerOpen(false);
-            } else if (activeView === 'overview') {
-              setIsCreateJournalModalOpen(true);
-            } else if (activeView === 'profile') {
-              if (activeJournalId) {
-                setActiveView('journal-detail');
-                handleNewNote();
-                if (setIsMobileDrawerOpen) setIsMobileDrawerOpen(false);
-              } else {
-                setActiveView('overview');
-                setIsCreateJournalModalOpen(true);
-              }
+            if (onGoToOverview) {
+              onGoToOverview();
+            } else {
+              setActiveJournalId(null);
+              setActiveView('overview');
             }
+            if (setIsMobileDrawerOpen) setIsMobileDrawerOpen(false);
           }}
-          className="w-12 h-12 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] border border-[var(--fab-border)] shadow-md flex items-center justify-center cursor-pointer hover:bg-[var(--fab-bg-hover)] active:scale-90 transition-all duration-150"
-          title={t('addJournalOrNote')}
-          aria-label={t('addJournalOrNote')}
+          className={cn(
+            'flex flex-col items-center justify-center flex-1 max-w-[96px] h-16 transition-colors cursor-pointer relative group',
+            isOverviewActive
+              ? 'text-[var(--nav-active)]'
+              : 'text-[var(--nav-inactive)] hover:text-[var(--foreground)] active:scale-95'
+          )}
+          title={leftTabTitle}
+          aria-label={leftTabTitle}
         >
-          <Plus size={24} strokeWidth={2.5} />
+          {isOverviewActive && (
+            <div className="absolute top-0 inset-x-4 h-[3px] rounded-b-full bg-[var(--nav-active)]" />
+          )}
+          <JournalIcon
+            size={24}
+            strokeWidth={isOverviewActive ? 2.4 : 1.75}
+            className="transition-transform group-hover:scale-105 duration-200"
+          />
         </button>
-      </div>
 
-      {/* Right: Profile Tab */}
-      <button
-        type="button"
-        onClick={() => {
-          if (activeView === 'profile') {
-            onLeaveProfile();
-          } else {
-            onEnterProfile();
-          }
-          if (setIsMobileDrawerOpen) setIsMobileDrawerOpen(false);
-        }}
-        className={cn(
-          "flex flex-col items-center justify-center w-[68px] h-12 transition-all cursor-pointer relative group rounded-xl my-auto",
-          isProfileActive
-            ? "bg-[var(--forest-green)]/15 border border-[var(--forest-green)]/35 text-[var(--nav-active)] shadow-[0_2px_12px_rgba(46,148,93,0.22)]"
-            : "text-[var(--nav-inactive)] hover:text-[var(--forest-green)] hover:bg-[var(--forest-green)]/10 active:scale-95"
-        )}
-        title={t('profileTab')}
-      >
-        <User
-          size={23}
-          strokeWidth={isProfileActive ? 2.2 : 1.75}
-          className="transition-transform group-hover:scale-110 duration-200"
-        />
-        {/* Active High-Contrast Indicator */}
-        {isProfileActive && (
-          <div className="absolute bottom-1 w-5 h-0.5 rounded-full bg-[var(--nav-active)] shadow-[0_0_8px_rgba(46,148,93,0.5)]" />
-        )}
-      </button>
-    </nav>
+        {/* 2. Center: Aroma Catalog Tab (Steaming Aroma Bowl Icon) */}
+        <button
+          type="button"
+          onClick={() => {
+            if (onEnterAromaCatalog) {
+              onEnterAromaCatalog();
+            } else {
+              setActiveView('aroma-catalog');
+            }
+            if (setIsMobileDrawerOpen) setIsMobileDrawerOpen(false);
+          }}
+          className={cn(
+            'flex flex-col items-center justify-center flex-1 max-w-[96px] h-16 transition-colors cursor-pointer relative group',
+            isAromaCatalogActive
+              ? 'text-[var(--nav-active)]'
+              : 'text-[var(--nav-inactive)] hover:text-[var(--foreground)] active:scale-95'
+          )}
+          title={aromaTabTitle}
+          aria-label={aromaTabTitle}
+        >
+          {isAromaCatalogActive && (
+            <div className="absolute top-0 inset-x-4 h-[3px] rounded-b-full bg-[var(--nav-active)]" />
+          )}
+          <AromaIcon
+            size={24}
+            strokeWidth={isAromaCatalogActive ? 2.4 : 1.75}
+            className="transition-transform group-hover:scale-105 duration-200"
+          />
+        </button>
+
+        {/* 3. Right: Profile Tab */}
+        <button
+          type="button"
+          onClick={() => {
+            if (activeView === 'profile') {
+              onLeaveProfile();
+            } else {
+              onEnterProfile();
+            }
+            if (setIsMobileDrawerOpen) setIsMobileDrawerOpen(false);
+          }}
+          className={cn(
+            'flex flex-col items-center justify-center flex-1 max-w-[96px] h-16 transition-colors cursor-pointer relative group',
+            isProfileActive
+              ? 'text-[var(--nav-active)]'
+              : 'text-[var(--nav-inactive)] hover:text-[var(--foreground)] active:scale-95'
+          )}
+          title={t('profileTab')}
+        >
+          {isProfileActive && (
+            <div className="absolute top-0 inset-x-4 h-[3px] rounded-b-full bg-[var(--nav-active)]" />
+          )}
+          <User
+            size={24}
+            strokeWidth={isProfileActive ? 2.4 : 1.75}
+            className="transition-transform group-hover:scale-105 duration-200"
+          />
+        </button>
+      </nav>
+    </>
   );
 }

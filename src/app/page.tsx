@@ -10,6 +10,7 @@ import { WelcomePage } from '@/components/features/welcome/WelcomePage';
 import { JournalsOverview } from '@/components/features/journals/JournalsOverview';
 import { JournalLandingPage } from '@/components/features/journals/landing';
 import { ProfileView } from '@/components/features/profile/ProfileView';
+import { AromaCatalogView } from '@/components/features/aroma-catalog/AromaCatalogView';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { useLanguage } from '@/context/LanguageContext';
 import { cn } from '@/lib/utils';
@@ -23,21 +24,26 @@ import { NoteEmptyState } from '@/components/features/journals/landing/NoteEmpty
 export default function Home() {
   const { t, language } = useLanguage();
   const basePath = process.env.NODE_ENV === 'production' ? '/aquavitaeum' : '';
-  
-  // Navigation View State: loading | welcome (onboarding) | overview (bookshelf) | journal-landing (note list) | journal-detail (tasting ledger) | profile
-  const [activeView, setActiveView] = useState<'loading' | 'welcome' | 'overview' | 'journal-landing' | 'journal-detail' | 'profile'>('loading');
+
+  // Navigation View State: loading | welcome (onboarding) | overview (bookshelf) | journal-landing (note list) | journal-detail (tasting ledger) | aroma-catalog | profile
+  const [activeView, setActiveView] = useState<
+    'loading' | 'welcome' | 'overview' | 'journal-landing' | 'journal-detail' | 'aroma-catalog' | 'profile'
+  >('loading');
   const [activeJournalId, setActiveJournalId] = useState<string | null>(null);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [isBottomBarVisible, setIsBottomBarVisible] = useState(true);
   const lastScrollTop = useRef(0);
   const [isCreateJournalModalOpen, setIsCreateJournalModalOpen] = useState(false);
+  const [isCreateAromaModalOpen, setIsCreateAromaModalOpen] = useState(false);
   const [globalSearchQuery, setGlobalSearchQuery] = useState('');
   const [globalTypeFilter, setGlobalTypeFilter] = useState<SpiritType | 'All'>('All');
   const [isSelectModeActive, setIsSelectModeActive] = useState(false);
   const { layout, setLayout, journalLayout, setJournalLayout } = useLayoutPreference();
   // Tracks which view the user was on before opening Profile, so toggling
-  // Profile off correctly returns to journal-landing vs journal-detail vs overview.
-  const [viewBeforeProfile, setViewBeforeProfile] = useState<'overview' | 'journal-landing' | 'journal-detail'>('overview');
+  // Profile off correctly returns to journal-landing vs journal-detail vs aroma-catalog vs overview.
+  const [viewBeforeProfile, setViewBeforeProfile] = useState<
+    'overview' | 'journal-landing' | 'journal-detail' | 'aroma-catalog'
+  >('overview');
 
   // Load journals hook
   const {
@@ -68,41 +74,47 @@ export default function Home() {
     navigateBack,
     initRootHistory,
   } = useHistoryNavigation({
-    onPopState: useCallback((state) => {
-      // Close active modals, search results, or selection states when navigating back
-      setIsCreateJournalModalOpen(false);
-      setIsMobileDrawerOpen(false);
-      setIsSelectModeActive(false);
+    onPopState: useCallback(
+      (state) => {
+        // Close active modals, search results, or selection states when navigating back
+        setIsCreateJournalModalOpen(false);
+        setIsCreateAromaModalOpen(false);
+        setIsMobileDrawerOpen(false);
+        setIsSelectModeActive(false);
 
-      if (state.view === 'profile') {
-        setActiveView('profile');
-      } else if (state.view === 'journal-detail') {
-        if (state.journalId) setActiveJournalId(state.journalId);
-        if (state.spiritId) selectSpirit(state.spiritId);
-        setActiveView('journal-detail');
-      } else if (state.view === 'journal-landing') {
-        if (state.journalId) setActiveJournalId(state.journalId);
-        setActiveView('journal-landing');
-      } else if (state.view === 'overview') {
-        setActiveJournalId(null);
-        setActiveView('overview');
-      } else if (state.view === 'welcome') {
-        const isCompleted = typeof window !== 'undefined' && (
-          localStorage.getItem('aqua-vitaeum-welcome-completed') === 'true' ||
-          sessionStorage.getItem('aqua-vitaeum-session-started') === 'true'
-        );
-        if (!isCompleted) {
-          setActiveView('welcome');
-        } else {
+        if (state.view === 'profile') {
+          setActiveView('profile');
+        } else if (state.view === 'aroma-catalog') {
+          setActiveView('aroma-catalog');
+        } else if (state.view === 'journal-detail') {
+          if (state.journalId) setActiveJournalId(state.journalId);
+          if (state.spiritId) selectSpirit(state.spiritId);
+          setActiveView('journal-detail');
+        } else if (state.view === 'journal-landing') {
+          if (state.journalId) setActiveJournalId(state.journalId);
+          setActiveView('journal-landing');
+        } else if (state.view === 'overview') {
           setActiveJournalId(null);
           setActiveView('overview');
+        } else if (state.view === 'welcome') {
+          const isCompleted =
+            typeof window !== 'undefined' &&
+            (localStorage.getItem('aqua-vitaeum-welcome-completed') === 'true' ||
+              sessionStorage.getItem('aqua-vitaeum-session-started') === 'true');
+          if (!isCompleted) {
+            setActiveView('welcome');
+          } else {
+            setActiveJournalId(null);
+            setActiveView('overview');
+          }
         }
-      }
-    }, [selectSpirit]),
+      },
+      [selectSpirit]
+    ),
     fallbackBack: useCallback(() => {
       if (activeView === 'journal-detail') {
         setActiveView('journal-landing');
-      } else if (activeView === 'journal-landing') {
+      } else if (activeView === 'journal-landing' || activeView === 'aroma-catalog') {
         setActiveJournalId(null);
         setActiveView('overview');
       } else if (activeView === 'profile') {
@@ -117,6 +129,7 @@ export default function Home() {
     'journal-landing-scroll',
     'tasting-card-scroll',
     'tasting-card-section',
+    'aroma-catalog-scroll',
   ];
 
   // Mobile smart scroll: hides the bottom nav & header on downward scroll and reveals on scroll up.
@@ -130,9 +143,10 @@ export default function Home() {
       const target = e.target as HTMLElement;
       if (!target) return;
 
-      const scroller = (target.id && SCROLL_TRACKED_IDS.includes(target.id))
-        ? target
-        : (target.closest?.('[id$="-scroll"]') as HTMLElement | null);
+      const scroller =
+        target.id && SCROLL_TRACKED_IDS.includes(target.id)
+          ? target
+          : (target.closest?.('[id$="-scroll"]') as HTMLElement | null);
 
       if (!scroller || typeof scroller.scrollTop === 'undefined') return;
 
@@ -160,7 +174,7 @@ export default function Home() {
     return () => {
       window.removeEventListener('scroll', handleScroll, { capture: true });
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Reset scroll state on view transition & refresh journals stats on entering overview
@@ -173,8 +187,6 @@ export default function Home() {
       refreshJournals();
     }
   }, [activeView, refreshJournals]);
-
-
 
   // Automatically refresh journals stats when the active spirits list changes (saved or deleted notes)
   useEffect(() => {
@@ -216,6 +228,7 @@ export default function Home() {
           | 'overview'
           | 'journal-landing'
           | 'journal-detail'
+          | 'aroma-catalog'
           | 'profile'
           | null;
         const savedJournalId = sessionStorage.getItem('aqua-vitaeum-active-journal-id');
@@ -225,9 +238,11 @@ export default function Home() {
           setActiveJournalId(savedJournalId);
         }
 
-        const initialView = (savedView && ['overview', 'journal-landing', 'journal-detail', 'profile'].includes(savedView))
-          ? savedView
-          : 'overview';
+        const initialView =
+          savedView &&
+          ['overview', 'journal-landing', 'journal-detail', 'aroma-catalog', 'profile'].includes(savedView)
+            ? savedView
+            : 'overview';
         setActiveView(initialView);
         initRootHistory(initialView, savedJournalId);
       } else {
@@ -274,10 +289,12 @@ export default function Home() {
   // Profile navigation wired to native history stack
   const handleEnterProfile = useCallback(() => {
     if (activeView !== 'profile') {
-      setViewBeforeProfile(activeView as 'overview' | 'journal-landing' | 'journal-detail');
+      setViewBeforeProfile(
+        activeView as 'overview' | 'journal-landing' | 'journal-detail' | 'aroma-catalog'
+      );
       setActiveView('profile');
       pushView('profile', {
-        fromView: activeView as 'overview' | 'journal-landing' | 'journal-detail',
+        fromView: activeView as 'overview' | 'journal-landing' | 'journal-detail' | 'aroma-catalog',
         journalId: activeJournalId,
       });
     }
@@ -288,17 +305,30 @@ export default function Home() {
     navigateBack();
   }, [viewBeforeProfile, navigateBack]);
 
+  const handleEnterAromaCatalog = useCallback(() => {
+    if (activeView !== 'aroma-catalog') {
+      setActiveView('aroma-catalog');
+      pushView('aroma-catalog', {
+        fromView: activeView as 'overview' | 'journal-landing' | 'journal-detail' | 'aroma-catalog',
+        journalId: activeJournalId,
+      });
+    }
+  }, [activeView, activeJournalId, pushView]);
+
   const handleGoToOverview = useCallback(() => {
     setActiveJournalId(null);
     setActiveView('overview');
     pushView('overview', { journalId: null });
   }, [pushView]);
 
-  const handleSelectJournal = useCallback((id: string) => {
-    setActiveJournalId(id);
-    setActiveView('journal-landing');
-    pushView('journal-landing', { journalId: id });
-  }, [pushView]);
+  const handleSelectJournal = useCallback(
+    (id: string) => {
+      setActiveJournalId(id);
+      setActiveView('journal-landing');
+      pushView('journal-landing', { journalId: id });
+    },
+    [pushView]
+  );
 
   const handleBackToLanding = useCallback(() => {
     if (activeJournalId) {
@@ -309,11 +339,14 @@ export default function Home() {
     }
   }, [activeJournalId, handleGoToOverview, pushView]);
 
-  const handleSelectSpirit = useCallback((spiritId: string) => {
-    selectSpirit(spiritId);
-    setActiveView('journal-detail');
-    pushView('journal-detail', { journalId: activeJournalId, spiritId });
-  }, [selectSpirit, activeJournalId, pushView]);
+  const handleSelectSpirit = useCallback(
+    (spiritId: string) => {
+      selectSpirit(spiritId);
+      setActiveView('journal-detail');
+      pushView('journal-detail', { journalId: activeJournalId, spiritId });
+    },
+    [selectSpirit, activeJournalId, pushView]
+  );
 
   // Handle welcome onboarding completion
   const handleWelcomeComplete = async (firstJournalName: string, description?: string) => {
@@ -338,13 +371,16 @@ export default function Home() {
     }
   };
 
-  const handleNavigateToSpirit = useCallback((spiritId: string, journalId: string) => {
-    setActiveJournalId(journalId);
-    selectSpirit(spiritId);
-    setActiveView('journal-detail');
-    setGlobalSearchQuery('');
-    pushView('journal-detail', { journalId, spiritId });
-  }, [selectSpirit, pushView]);
+  const handleNavigateToSpirit = useCallback(
+    (spiritId: string, journalId: string) => {
+      setActiveJournalId(journalId);
+      selectSpirit(spiritId);
+      setActiveView('journal-detail');
+      setGlobalSearchQuery('');
+      pushView('journal-detail', { journalId, spiritId });
+    },
+    [selectSpirit, pushView]
+  );
 
   // Render a minimal centered loader spinner on initial server/client mount to prevent layout flickers
   if (activeView === 'loading') {
@@ -356,9 +392,9 @@ export default function Home() {
     return (
       <>
         <title>Aqua Vitaeum · Welcome</title>
-        <WelcomePage 
+        <WelcomePage
           hasJournals={journals.length > 0}
-          onComplete={handleWelcomeComplete} 
+          onComplete={handleWelcomeComplete}
           onEnter={() => {
             if (typeof window !== 'undefined') {
               localStorage.setItem('aqua-vitaeum-welcome-completed', 'true');
@@ -375,9 +411,11 @@ export default function Home() {
   return (
     <>
       <title>
-        {activeJournal
-          ? `Aqua Vitaeum · ${activeJournal.name}`
-          : 'Aqua Vitaeum · Fine Spirits Tasting Notes'}
+        {activeView === 'aroma-catalog'
+          ? `Aqua Vitaeum · ${t('aromaCatalogTitle')}`
+          : activeJournal
+            ? `Aqua Vitaeum · ${activeJournal.name}`
+            : 'Aqua Vitaeum · Fine Spirits Tasting Notes'}
       </title>
 
       <main
@@ -391,6 +429,7 @@ export default function Home() {
         <AppHeader
           basePath={basePath}
           journals={journals}
+          journalLayout={journalLayout}
           activeView={activeView}
           setActiveView={setActiveView}
           setActiveJournalId={setActiveJournalId}
@@ -398,6 +437,8 @@ export default function Home() {
           isBottomBarVisible={isBottomBarVisible}
           onEnterProfile={handleEnterProfile}
           onLeaveProfile={handleLeaveProfile}
+          onEnterAromaCatalog={handleEnterAromaCatalog}
+          onGoToOverview={handleGoToOverview}
           globalSearchQuery={globalSearchQuery}
           setGlobalSearchQuery={setGlobalSearchQuery}
           globalTypeFilter={globalTypeFilter}
@@ -407,18 +448,35 @@ export default function Home() {
         />
 
         {/* ── Main Layout View switcher ──────────────────────────────────── */}
-        {activeView === 'profile' ? (
-          <div className="flex-1 overflow-y-auto bg-[var(--pub-bg)] max-lg:pt-[calc(4.5rem+env(safe-area-inset-top,0px))] lg:pt-0 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:pb-0 flex items-center justify-center">
-            <ProfileView
-              layout={layout}
-              onLayoutChange={setLayout}
-              journalLayout={journalLayout}
-              onJournalLayoutChange={setJournalLayout}
-            />
-          </div>
-        ) : activeView === 'overview' ? (
-          <div className="flex-1 h-full relative overflow-hidden flex flex-col">
-            <div id="journal-overview-scroll" className="flex-1 overflow-y-auto bg-[var(--pub-bg)] max-lg:pt-[calc(4.5rem+env(safe-area-inset-top,0px))] lg:pt-0 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:pb-0">
+        <div className="flex-1 h-full relative overflow-hidden flex flex-col">
+          {activeView === 'profile' ? (
+            <div className="flex-1 overflow-y-auto bg-[var(--pub-bg)] max-lg:pt-[calc(4.5rem+env(safe-area-inset-top,0px))] lg:pt-0 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:pb-0 flex items-center justify-center">
+              <ProfileView
+                layout={layout}
+                onLayoutChange={setLayout}
+                journalLayout={journalLayout}
+                onJournalLayoutChange={setJournalLayout}
+              />
+            </div>
+          ) : activeView === 'aroma-catalog' ? (
+            <div
+              id="aroma-catalog-scroll"
+              className="flex-1 overflow-y-auto bg-[var(--pub-bg)] max-lg:pt-[calc(4.5rem+env(safe-area-inset-top,0px))] lg:pt-0 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:pb-0"
+            >
+              <AromaCatalogView
+                journals={journals}
+                isCreateOpen={isCreateAromaModalOpen}
+                onOpenCreate={() => setIsCreateAromaModalOpen(true)}
+                onCloseCreate={() => setIsCreateAromaModalOpen(false)}
+                onNavigateToSpirit={handleNavigateToSpirit}
+                onSelectModeChange={setIsSelectModeActive}
+              />
+            </div>
+          ) : activeView === 'overview' ? (
+            <div
+              id="journal-overview-scroll"
+              className="flex-1 overflow-y-auto bg-[var(--pub-bg)] max-lg:pt-[calc(4.5rem+env(safe-area-inset-top,0px))] lg:pt-0 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:pb-0"
+            >
               {isLoadingJournals ? (
                 <AppLoader />
               ) : (
@@ -436,27 +494,11 @@ export default function Home() {
                 />
               )}
             </div>
-
-            {/* Content-Aligned Desktop Action Layer (Overview) */}
-            <div className="hidden lg:block absolute inset-0 pointer-events-none z-30">
-              <div className="w-full max-w-6xl mx-auto h-full relative px-4 sm:px-6">
-                <button
-                  type="button"
-                  onClick={() => setIsCreateJournalModalOpen(true)}
-                  className="pointer-events-auto absolute bottom-10 right-4 xl:-right-10 2xl:-right-16 w-16 h-16 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] border border-[var(--brass-accent)]/50 shadow-[0_12px_32px_rgba(0,0,0,0.35)] flex items-center justify-center cursor-pointer hover:scale-108 active:scale-95 transition-all hover:bg-[var(--fab-bg-hover)]"
-                  title={t('createJournalBtn')}
-                >
-                  <Plus size={28} strokeWidth={2.5} />
-                </button>
-              </div>
-            </div>
-          </div>
-        ) : activeView === 'journal-landing' ? (
-          /* ── Journal Landing Page (Note Overview) ─────────────────── */
-          isLoadingJournals || !activeJournal ? (
-            <AppLoader />
-          ) : (
-            <div className="flex flex-1 overflow-hidden relative flex-col">
+          ) : activeView === 'journal-landing' ? (
+            /* ── Journal Landing Page (Note Overview) ─────────────────── */
+            isLoadingJournals || !activeJournal ? (
+              <AppLoader />
+            ) : (
               <div
                 id="journal-landing-scroll"
                 className="flex-1 overflow-y-auto bg-[var(--pub-bg)] max-lg:pt-[calc(4.5rem+env(safe-area-inset-top,0px))] lg:pt-0 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:pb-0"
@@ -489,95 +531,99 @@ export default function Home() {
                   onDeleteSpirit={handleDelete}
                 />
               </div>
-              {/* Content-Aligned Desktop Action Layer (Journal Landing) */}
+            )
+          ) : (
+            /* activeView === 'journal-detail' */
+            <div
+              id="tasting-card-scroll"
+              className="flex-1 overflow-y-auto bg-[var(--pub-bg)] max-lg:pt-[calc(4.5rem+env(safe-area-inset-top,0px))] lg:pt-0 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:pb-0"
+            >
+              {isLoadingSpirits && spirits.length === 0 ? (
+                <AppLoader />
+              ) : spirits.length === 0 ? (
+                <NoteEmptyState onNewNote={handleNewNote} />
+              ) : (
+                <div className="flex-1 w-full max-w-6xl mx-auto px-3 sm:px-6 pt-4 sm:pt-8 pb-8">
+                  <ErrorBoundary>
+                    <TastingCard
+                      key={activeSpirit.id}
+                      initialSpirit={activeSpirit}
+                      onSave={handleSave}
+                      onDelete={handleDelete}
+                    />
+                  </ErrorBoundary>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Unified Content-Aligned Desktop Action Layer (Persistent across views without remount flicker) */}
+          {activeView !== 'profile' && (() => {
+            const LayoutFabIcon = layout === 'grid' ? LayoutGrid : AlignJustify;
+            const JournalFabIcon = journalLayout === 'bookshelf' ? Book : BookOpen;
+
+            return (
               <div className="hidden lg:block absolute inset-0 pointer-events-none z-30">
                 <div className="w-full max-w-6xl mx-auto h-full relative px-4 sm:px-6">
-                  {/* Back to Journals (Library / BookOpen) FAB */}
+                  {/* Left Context Back Button (Journal Landing & Detail) */}
+                  {(activeView === 'journal-landing' || activeView === 'journal-detail') && (
+                    <button
+                      key="desktop-fab-back"
+                      type="button"
+                      onClick={activeView === 'journal-detail' ? handleBackToLanding : handleGoToOverview}
+                      className="pointer-events-auto absolute bottom-10 left-4 xl:-left-10 2xl:-left-16 w-16 h-16 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] shadow-[0_12px_32px_-4px_rgba(0,0,0,0.38),0_4px_12px_-2px_rgba(24,94,55,0.28)] flex items-center justify-center cursor-pointer hover:scale-108 active:scale-95 transition-[transform,background-color,box-shadow] duration-200 hover:bg-[var(--fab-bg-hover)]"
+                      title={
+                        activeView === 'journal-detail'
+                          ? 'Back to Journal Overview'
+                          : language === 'DE'
+                            ? 'Zurück zur Journal-Übersicht'
+                            : 'Back to Journals'
+                      }
+                    >
+                      {activeView === 'journal-detail' ? (
+                        <LayoutFabIcon size={26} strokeWidth={2} />
+                      ) : (
+                        <JournalFabIcon size={26} strokeWidth={2} />
+                      )}
+                    </button>
+                  )}
+
+                  {/* Right Primary Creation FAB (+) — Always same DOM element */}
                   <button
-                    type="button"
-                    onClick={handleGoToOverview}
-                    className="pointer-events-auto absolute bottom-10 left-4 xl:-left-10 2xl:-left-16 w-16 h-16 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] border border-[var(--brass-accent)]/50 shadow-[0_12px_32px_rgba(0,0,0,0.35)] flex items-center justify-center cursor-pointer hover:scale-108 active:scale-95 transition-all hover:bg-[var(--fab-bg-hover)]"
-                    title={language === 'DE' ? 'Zurück zur Journal-Übersicht' : 'Back to Journals'}
-                  >
-                    {journalLayout === 'bookshelf' ? (
-                      <Book size={26} strokeWidth={2} />
-                    ) : (
-                      <BookOpen size={26} strokeWidth={2} />
-                    )}
-                  </button>
-                  {/* New Note FAB */}
-                  <button
+                    key="desktop-fab-plus"
                     type="button"
                     onClick={() => {
-                      handleNewNote().then(() => {
-                        startTransition(() => setActiveView('journal-detail'));
-                      });
+                      if (activeView === 'aroma-catalog') {
+                        setIsCreateAromaModalOpen(true);
+                      } else if (activeView === 'overview') {
+                        setIsCreateJournalModalOpen(true);
+                      } else if (activeView === 'journal-landing') {
+                        handleNewNote().then(() => {
+                          startTransition(() => {
+                            setActiveView('journal-detail');
+                            pushView('journal-detail', { journalId: activeJournalId });
+                          });
+                        });
+                      } else {
+                        handleNewNote();
+                      }
                     }}
-                    className="pointer-events-auto absolute bottom-10 right-4 xl:-right-10 2xl:-right-16 w-16 h-16 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] border border-[var(--brass-accent)]/50 shadow-[0_12px_32px_rgba(0,0,0,0.35)] flex items-center justify-center cursor-pointer hover:scale-108 active:scale-95 transition-all hover:bg-[var(--fab-bg-hover)]"
-                    title="New Note"
+                    className="pointer-events-auto absolute bottom-10 right-4 xl:-right-10 2xl:-right-16 w-16 h-16 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] shadow-[0_12px_32px_-4px_rgba(0,0,0,0.38),0_4px_12px_-2px_rgba(24,94,55,0.28)] flex items-center justify-center cursor-pointer hover:scale-108 active:scale-95 transition-[transform,background-color,box-shadow] duration-200 hover:bg-[var(--fab-bg-hover)]"
+                    title={
+                      activeView === 'aroma-catalog'
+                        ? t('addAromaBtn')
+                        : activeView === 'overview'
+                          ? t('createJournalBtn')
+                          : 'New Note'
+                    }
                   >
                     <Plus size={28} strokeWidth={2.5} />
                   </button>
                 </div>
               </div>
-            </div>
-          )
-        ) : (
-          /* activeView === 'journal-detail' */
-          <div className="flex flex-1 overflow-hidden relative flex-col">
-            {/* Main Wrapper: Holds scrollable card and floating buttons */}
-            <div className="flex-1 h-full relative overflow-hidden flex flex-col">
-              <div
-                id="tasting-card-scroll"
-                className="flex-1 overflow-y-auto bg-[var(--pub-bg)] max-lg:pt-[calc(4.5rem+env(safe-area-inset-top,0px))] lg:pt-0 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:pb-0"
-              >
-                {isLoadingSpirits && spirits.length === 0 ? (
-                  <AppLoader />
-                ) : spirits.length === 0 ? (
-                  <NoteEmptyState onNewNote={handleNewNote} />
-                ) : (
-                  <div className="flex-1 w-full max-w-6xl mx-auto px-3 sm:px-6 pt-4 sm:pt-8 pb-8">
-                    <ErrorBoundary>
-                      <TastingCard
-                        key={activeSpirit.id}
-                        initialSpirit={activeSpirit}
-                        onSave={handleSave}
-                        onDelete={handleDelete}
-                      />
-                    </ErrorBoundary>
-                  </div>
-                )}
-              </div>
-
-              {/* Content-Aligned Desktop Action Layer (Detail) */}
-              {(() => {
-                const LayoutFabIcon = layout === 'grid' ? LayoutGrid : AlignJustify;
-                return (
-                  <div className="hidden lg:block absolute inset-0 pointer-events-none z-30">
-                    <div className="w-full max-w-6xl mx-auto h-full relative px-4 sm:px-6">
-                      <button
-                        type="button"
-                        onClick={handleBackToLanding}
-                        className="pointer-events-auto absolute bottom-10 left-4 xl:-left-10 2xl:-left-16 w-16 h-16 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] border border-[var(--brass-accent)]/50 shadow-[0_12px_32px_rgba(0,0,0,0.35)] flex items-center justify-center cursor-pointer hover:scale-108 active:scale-95 transition-all hover:bg-[var(--fab-bg-hover)]"
-                        title="Back to Journal Overview"
-                      >
-                        <LayoutFabIcon size={26} strokeWidth={2} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleNewNote}
-                        className="pointer-events-auto absolute bottom-10 right-4 xl:-right-10 2xl:-right-16 w-16 h-16 rounded-full bg-[var(--fab-bg)] text-[var(--fab-text)] border border-[var(--brass-accent)]/50 shadow-[0_12px_32px_rgba(0,0,0,0.35)] flex items-center justify-center cursor-pointer hover:scale-108 active:scale-95 transition-all hover:bg-[var(--fab-bg-hover)]"
-                        title="New Note"
-                      >
-                        <Plus size={28} strokeWidth={2.5} />
-                      </button>
-                    </div>
-                  </div>
-                );
-              })()}
-            </div>
-          </div>
-        )}
+            );
+          })()}
+        </div>
 
         {/* Global Mobile Bottom Navigation Bar (lg:hidden) */}
         <MobileBottomNav
@@ -590,9 +636,11 @@ export default function Home() {
           setActiveJournalId={setActiveJournalId}
           setIsMobileDrawerOpen={setIsMobileDrawerOpen}
           setIsCreateJournalModalOpen={setIsCreateJournalModalOpen}
+          setIsCreateAromaModalOpen={setIsCreateAromaModalOpen}
           handleNewNote={handleNewNote}
           onEnterProfile={handleEnterProfile}
           onLeaveProfile={handleLeaveProfile}
+          onEnterAromaCatalog={handleEnterAromaCatalog}
           onGoToOverview={handleGoToOverview}
         />
       </main>

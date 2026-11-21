@@ -292,36 +292,40 @@ export function SommelierScoreMedallion({
         </text>
 
         {/* ================= INNENBEREICH / BEWERTUNG ================= */}
-        <text
-          x="250"
-          y="135"
-          fontFamily="'Playfair Display', Georgia, serif"
-          fontWeight="bold"
-          fontSize="13"
-          letterSpacing="1.5"
-          textAnchor="middle"
-          fill="currentColor"
-          opacity="0.85"
-        >
-          {language === 'DE' ? 'Offizielle Bewertung' : 'Official Rating'}
-        </text>
-        <text
-          x="250"
-          y="164"
-          fontFamily="'Playfair Display', Georgia, serif"
-          fontWeight="900"
-          fontSize="24"
-          letterSpacing="2.5"
-          textAnchor="middle"
-          fill="currentColor"
-        >
-          {language === 'DE' ? tier.badgeDe : tier.badgeEn}
-        </text>
+        {size !== 'xs' && size !== 'sm' && (
+          <>
+            <text
+              x="250"
+              y="135"
+              fontFamily="'Playfair Display', Georgia, serif"
+              fontWeight="bold"
+              fontSize="13"
+              letterSpacing="1.5"
+              textAnchor="middle"
+              fill="currentColor"
+              opacity="0.85"
+            >
+              {language === 'DE' ? 'Offizielle Bewertung' : 'Official Rating'}
+            </text>
+            <text
+              x="250"
+              y="164"
+              fontFamily="'Playfair Display', Georgia, serif"
+              fontWeight="900"
+              fontSize="24"
+              letterSpacing="2.5"
+              textAnchor="middle"
+              fill="currentColor"
+            >
+              {language === 'DE' ? tier.badgeDe : tier.badgeEn}
+            </text>
 
-        <line x1="140" y1="178" x2="360" y2="178" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3,3" opacity="0.75" />
+            <line x1="140" y1="178" x2="360" y2="178" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3,3" opacity="0.75" />
+          </>
+        )}
 
-        {/* 5 Sterne Bewertung (Präzise 5% Feintuning) */}
-        <g transform="translate(250, 214)">
+        {/* 5 Sterne Bewertung */}
+        <g transform={size === 'xs' || size === 'sm' ? 'translate(250, 148)' : 'translate(250, 214)'}>
           {/* Stern 1 */}
           <g transform="translate(-92, 0) scale(2.5)">
             <polygon
@@ -379,13 +383,13 @@ export function SommelierScoreMedallion({
           </g>
         </g>
 
-        {/* Zentrum: Maximized Hero Score Numeral */}
+        {/* Zentrum: Maximized Hero Score Numeral (Enlarged & Centered in xs/sm list view badges) */}
         <text
           x="250"
-          y="346"
+          y={size === 'xs' || size === 'sm' ? '332' : '346'}
           fontFamily="'Playfair Display', Georgia, serif"
           fontWeight="900"
-          fontSize="136"
+          fontSize={size === 'xs' || size === 'sm' ? '205' : '136'}
           letterSpacing="-1"
           textAnchor="middle"
           fill="currentColor"

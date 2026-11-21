@@ -153,7 +153,7 @@ export function FinishTimeIntensityDiagram({
                   'px-2.5 sm:px-3 py-2 rounded-xl border text-left transition-all duration-150 flex items-center justify-between gap-1 cursor-pointer select-none min-h-[38px] active:scale-95 shadow-2xs',
                   isSelected
                     ? 'bg-[var(--wood-selection)] border-[var(--wood-selection)] text-white shadow-xs'
-                    : 'border-[var(--parchment-border)] bg-[var(--parchment-bg-alt)]/60 text-[var(--foreground)] hover:bg-[var(--parchment-bg-alt)] hover:border-[var(--brass-accent)]'
+                    : 'border-[var(--parchment-border)] bg-[var(--parchment-bg-alt)]/60 text-[var(--foreground)] hover:bg-[var(--parchment-bg-alt)] hover:border-[var(--wood-selection)]'
                 )}
                 aria-pressed={isSelected}
               >
@@ -205,7 +205,7 @@ export function FinishTimeIntensityDiagram({
                     'px-3 py-1.5 rounded-full border text-xs sm:text-sm font-body font-semibold transition-all duration-150 flex items-center gap-1.5 cursor-pointer select-none min-h-[32px]',
                     isProminent
                       ? 'text-[var(--foreground)] shadow-2xs scale-[1.02]'
-                      : 'border-[var(--parchment-border)] bg-[var(--parchment-bg)] text-[var(--sepia-muted)] hover:border-[var(--brass-accent)]'
+                      : 'border-[var(--parchment-border)] bg-[var(--parchment-bg)] text-[var(--sepia-muted)] hover:border-[var(--wood-selection)]'
                   )}
                   aria-pressed={isProminent}
                 >
@@ -259,7 +259,7 @@ export function FinishTimeIntensityDiagram({
                   'px-3 py-1.5 rounded-full border text-xs sm:text-sm font-medium font-body transition-all duration-150 flex items-center gap-1.5 cursor-pointer select-none min-h-[32px]',
                   isSelected
                     ? 'bg-[var(--wood-selection)] border-[var(--wood-selection)] text-white shadow-xs font-semibold'
-                    : 'border-[var(--parchment-border)] bg-[var(--parchment-bg-alt)]/60 text-[var(--foreground)] hover:bg-[var(--parchment-bg-alt)] hover:border-[var(--brass-accent)]'
+                    : 'border-[var(--parchment-border)] bg-[var(--parchment-bg-alt)]/60 text-[var(--foreground)] hover:bg-[var(--parchment-bg-alt)] hover:border-[var(--wood-selection)]'
                 )}
                 aria-pressed={isSelected}
               >

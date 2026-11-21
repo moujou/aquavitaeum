@@ -11,7 +11,7 @@ import { JournalCoverPicker } from './JournalCoverPicker';
 import { JournalColorPicker } from './JournalColorPicker';
 import { useMultiSelect } from '@/hooks/useMultiSelect';
 import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
-import { exportJournalsToFile, importJournalFile } from '@/lib/google-drive-sync';
+import { exportJournalsToFile, importJournalFile, formatSyncOrImportError } from '@/lib/google-drive-sync';
 import { JournalShelfLayout } from '@/hooks/useLayoutPreference';
 import { JournalBookshelfView } from './bookshelf/JournalBookshelfView';
 import { cn } from '@/lib/utils';
@@ -118,17 +118,19 @@ export function JournalsOverview({
       const result = await importJournalFile(file);
       setImportStatus({
         type: 'success',
-        message: `${result.journalCount} Journal(e) & ${result.spiritCount} Notiz(en) importiert!`,
+        message:
+          language === 'DE'
+            ? `${result.journalCount} Journal(e) & ${result.spiritCount} Notiz(en) erfolgreich importiert!`
+            : `Successfully imported ${result.journalCount} journal(s) & ${result.spiritCount} note(s)!`,
       });
       setTimeout(() => {
         setImportStatus(null);
         window.location.reload();
       }, 1500);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : t('journalImportError');
       setImportStatus({
         type: 'error',
-        message,
+        message: formatSyncOrImportError(err, language),
       });
       setTimeout(() => setImportStatus(null), 4000);
     } finally {

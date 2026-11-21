@@ -2,14 +2,14 @@
 
 import { useEffect, useCallback, useRef } from 'react';
 
-export type NavigationView = 'welcome' | 'overview' | 'journal-landing' | 'journal-detail' | 'profile';
+export type NavigationView = 'welcome' | 'overview' | 'journal-landing' | 'journal-detail' | 'aroma-catalog' | 'profile';
 
 export interface HistoryStatePayload {
   aquaVitaeum: true;
   view: NavigationView;
   journalId?: string | null;
   spiritId?: string | null;
-  fromView?: 'overview' | 'journal-landing' | 'journal-detail';
+  fromView?: 'overview' | 'journal-landing' | 'journal-detail' | 'aroma-catalog';
 }
 
 export interface UseHistoryNavigationProps {
@@ -23,7 +23,7 @@ export interface UseHistoryNavigationReturn {
     options?: {
       journalId?: string | null;
       spiritId?: string | null;
-      fromView?: 'overview' | 'journal-landing' | 'journal-detail';
+      fromView?: 'overview' | 'journal-landing' | 'journal-detail' | 'aroma-catalog';
     }
   ) => void;
   replaceView: (
@@ -31,7 +31,7 @@ export interface UseHistoryNavigationReturn {
     options?: {
       journalId?: string | null;
       spiritId?: string | null;
-      fromView?: 'overview' | 'journal-landing' | 'journal-detail';
+      fromView?: 'overview' | 'journal-landing' | 'journal-detail' | 'aroma-catalog';
     }
   ) => void;
   navigateBack: () => void;
@@ -46,7 +46,7 @@ export interface UseHistoryNavigationReturn {
  * and iOS Safari edge-swipe) to natively navigate up the breadcrumb hierarchy:
  *
  *   Journal Detail ➔ Journal Landing ➔ Journal Overview (Root) ➔ Exit App
- *   Profile ➔ Prior View (Overview/Landing/Detail)
+ *   Aroma Catalog / Profile ➔ Prior View (Overview/Landing/Detail)
  *
  * Eliminates custom touch-listener hacks in favor of the OS-native popstate standard.
  */
@@ -111,7 +111,7 @@ export function useHistoryNavigation({
       options?: {
         journalId?: string | null;
         spiritId?: string | null;
-        fromView?: 'overview' | 'journal-landing' | 'journal-detail';
+        fromView?: 'overview' | 'journal-landing' | 'journal-detail' | 'aroma-catalog';
       }
     ) => {
       if (typeof window === 'undefined') return;
@@ -135,7 +135,7 @@ export function useHistoryNavigation({
       options?: {
         journalId?: string | null;
         spiritId?: string | null;
-        fromView?: 'overview' | 'journal-landing' | 'journal-detail';
+        fromView?: 'overview' | 'journal-landing' | 'journal-detail' | 'aroma-catalog';
       }
     ) => {
       if (typeof window === 'undefined') return;
@@ -194,6 +194,9 @@ export function useHistoryNavigation({
         window.history.replaceState({ aquaVitaeum: true, view: 'overview' }, '');
         window.history.pushState({ aquaVitaeum: true, view: 'journal-landing', journalId }, '');
         window.history.pushState({ aquaVitaeum: true, view: 'journal-detail', journalId, spiritId }, '');
+      } else if (view === 'aroma-catalog') {
+        window.history.replaceState({ aquaVitaeum: true, view: 'overview' }, '');
+        window.history.pushState({ aquaVitaeum: true, view: 'aroma-catalog', journalId }, '');
       } else if (view === 'profile') {
         window.history.replaceState({ aquaVitaeum: true, view: 'overview' }, '');
         window.history.pushState({ aquaVitaeum: true, view: 'profile', journalId }, '');

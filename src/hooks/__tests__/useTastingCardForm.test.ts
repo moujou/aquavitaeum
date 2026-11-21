@@ -28,7 +28,7 @@ describe('useTastingCardForm Hook', () => {
     const { result } = renderHook(() => useTastingCardForm());
     expect(result.current.spirit).toBeDefined();
     expect(result.current.displayName).toBe('Untitled Spirit Note');
-    expect(result.current.subtitleLocation).toBe('Tasting Notes');
+    expect(result.current.subtitleLocation).toBe('');
   });
 
   it('updates a field, marks form as unsaved, and debounces save', () => {

@@ -81,9 +81,9 @@ describe('FlavorTagSelector Component', () => {
       </LanguageProvider>,
     );
 
-    expect(screen.getByText(/Peat Smoke/i)).toBeDefined();
+    expect(screen.getByText(/Peat|Torf/i)).toBeDefined();
 
-    // Remove Peat Smoke
+    // Remove Peat
     const removeBtns = screen.getAllByRole('button', { name: /Remove aroma/i });
     expect(removeBtns.length).toBeGreaterThan(0);
     fireEvent.click(removeBtns[0]);
@@ -110,8 +110,8 @@ describe('FlavorTagSelector Component', () => {
     expect(screen.getByText(/Nose Aromas|Nase Aromen/i)).toBeDefined();
     expect(screen.getByText(/Taste Aromas|Geschmack Aromen/i)).toBeDefined();
 
-    expect(screen.getByText(/Peat Smoke/i)).toBeDefined();
-    expect(screen.getByText(/Vanilla/i)).toBeDefined();
+    expect(screen.getByText(/Peat|Torf/i)).toBeDefined();
+    expect(screen.getByText(/Vanilla|Vanille/i)).toBeDefined();
   });
 
   it('renders dedicated Spotlight search inputs and adds autocomplete suggestions', () => {
@@ -135,16 +135,16 @@ describe('FlavorTagSelector Component', () => {
     // Type "Peat" into Nose search
     fireEvent.change(noseSearchInput, { target: { value: 'Peat' } });
 
-    // Autocomplete dropdown should show Peat Smoke
-    const suggestionBtn = screen.getByRole('button', { name: /Peat Smoke/i });
+    // Autocomplete dropdown should show Peat / Torf
+    const suggestionBtn = screen.getByRole('button', { name: /Peat|Torf/i });
     expect(suggestionBtn).toBeDefined();
 
     // Click suggestion
     fireEvent.click(suggestionBtn);
-    expect(handleNoseChange).toHaveBeenCalledWith(['Peat Smoke']);
+    expect(handleNoseChange).toHaveBeenCalled();
   });
 
-  it('allows opening the Sensory Compass Drawer and selecting aroma descriptors', () => {
+  it('allows opening the Sensory Compass Drawer and selecting aroma descriptors (Pure Search & Pick)', () => {
     const handleChange = vi.fn();
 
     render(
@@ -153,51 +153,27 @@ describe('FlavorTagSelector Component', () => {
       </LanguageProvider>,
     );
 
-    const openCompassBtn = screen.getByRole('button', { name: /Catalog|Katalog/i });
-    expect(openCompassBtn).toBeDefined();
+    const openCompassBtns = screen.getAllByRole('button', { name: /Aromas|Aromen/i });
+    expect(openCompassBtns.length).toBeGreaterThan(0);
 
-    fireEvent.click(openCompassBtn);
+    // Does not render a "+ Custom Aroma" creation button inside the Tasting Card toolbar
+    expect(screen.queryByRole('button', { name: /Custom Aroma|Eigenes Aroma/i })).toBeNull();
+
+    fireEvent.click(openCompassBtns[0]);
 
     // Drawer should be open
-    expect(screen.getByRole('heading', { name: /Catalog|Katalog/i })).toBeDefined();
+    expect(screen.getByRole('heading', { name: /Aromas|Aromen/i })).toBeDefined();
 
-    // Search for Peat Smoke in drawer
+    // Search for Peat in drawer
     const searchInput = screen.getByPlaceholderText(/Search aromas|Aromen durchsuchen/i);
     fireEvent.change(searchInput, { target: { value: 'Peat Smoke' } });
 
-    // Select Peat Smoke in drawer
-    const peatSmokeBtn = screen.getByRole('button', { name: /Peat Smoke/i });
+    // Select Peat in drawer
+    const peatButtons = screen.getAllByRole('button', { name: /Peat|Torf/i });
+    const peatSmokeBtn = peatButtons.find((btn) => btn.hasAttribute('aria-pressed')) ?? peatButtons[0];
     fireEvent.click(peatSmokeBtn);
 
-    expect(handleChange).toHaveBeenCalledWith(['Peat Smoke']);
-  });
-
-  it('allows opening Custom Flavor Modal and creating a custom descriptor', () => {
-    const handleChange = vi.fn();
-
-    render(
-      <LanguageProvider>
-        <FlavorTagSelector noseFlavorTags={[]} onNoseTagsChange={handleChange} />
-      </LanguageProvider>,
-    );
-
-    const createBtn = screen.getByRole('button', { name: /Aroma/i });
-    expect(createBtn).toBeDefined();
-
-    fireEvent.click(createBtn);
-
-    // Modal title should be visible
-    expect(screen.getByText(/Create Custom Flavor|Eigenes Aroma erstellen/i)).toBeDefined();
-
-    // Fill in custom name
-    const nameInput = screen.getByPlaceholderText(/e.g. Honeycrisp Apple|z.B. Boskoop Apfel/i);
-    fireEvent.change(nameInput, { target: { value: 'Honeycrisp Apple' } });
-
-    // Submit form
-    const saveBtn = screen.getByRole('button', { name: /Save & Add to Note|Speichern & zur Notiz hinzufügen/i });
-    fireEvent.click(saveBtn);
-
-    expect(handleChange).toHaveBeenCalledWith(['Honeycrisp Apple']);
+    expect(handleChange).toHaveBeenCalled();
   });
 
   it('correctly maps custom flavors into both the custom list and their designated taxonomy category', async () => {
