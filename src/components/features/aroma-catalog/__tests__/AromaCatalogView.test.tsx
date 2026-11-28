@@ -477,6 +477,7 @@ describe('AromaCatalogView Component', () => {
       <LanguageProvider>
         <AromaCatalogView
           journals={[]}
+          searchQuery="Pure Malt Essence"
           isCreateOpen={true}
           onOpenCreate={vi.fn()}
           onCloseCreate={onCloseCreate}
@@ -485,14 +486,14 @@ describe('AromaCatalogView Component', () => {
     );
 
     // 1. Click "No Icon" / "Kein Icon" button in Aroma creation modal
-    const noIconBtn = screen.getByRole('button', { name: /^No Icon$|^Kein Icon$/i });
+    const noIconBtn = screen.getByText(/^No Icon$|^Kein Icon$/i);
     fireEvent.click(noIconBtn);
 
     // Enter aroma name and save
     const nameInput = screen.getByPlaceholderText(/Honeycrisp Apple|Boskoop Apfel/i);
     fireEvent.change(nameInput, { target: { value: 'Pure Malt Essence' } });
 
-    const saveBtn = screen.getByRole('button', { name: /^Save$|^Speichern$/i });
+    const saveBtn = screen.getByText(/^Save$|^Speichern$/i);
     await act(async () => {
       fireEvent.click(saveBtn);
     });
@@ -516,7 +517,7 @@ describe('AromaCatalogView Component', () => {
     );
 
     expect(screen.getByText('Pure Malt Essence')).toBeDefined();
-    const editBtn = screen.getByRole('button', { name: /Edit Custom Flavor|Eigenes Aroma bearbeiten/i });
+    const editBtn = screen.getByTitle(/Edit Custom Flavor|Eigenes Aroma bearbeiten/i);
     fireEvent.click(editBtn);
 
     rerender(
@@ -532,11 +533,11 @@ describe('AromaCatalogView Component', () => {
     );
 
     // Click the split-footer Delete button inside the Edit Modal
-    const modalDeleteBtn = screen.getByRole('button', { name: /^Delete$|^Löschen$/i });
+    const modalDeleteBtn = screen.getByTitle(/^Delete$|^Löschen$/i);
     fireEvent.click(modalDeleteBtn);
 
     // ConfirmDialog is now open; confirm deletion
-    const confirmBtns = screen.getAllByRole('button', { name: /^Delete$|^Löschen$/i });
+    const confirmBtns = screen.getAllByText(/^Delete$|^Löschen$/i);
     await act(async () => {
       fireEvent.click(confirmBtns[confirmBtns.length - 1]);
     });
@@ -551,6 +552,7 @@ describe('AromaCatalogView Component', () => {
       <LanguageProvider>
         <AromaCatalogView
           journals={[]}
+          searchQuery="Exotic Roast"
           isCreateOpen={true}
           onOpenCreate={vi.fn()}
           onCloseCreate={onCloseCreate}
@@ -559,13 +561,13 @@ describe('AromaCatalogView Component', () => {
     );
 
     // Switch to the Category tab ("Kategorie" / "Category")
-    const categoryTabBtn = screen.getByRole('button', { name: /^Category$|^Kategorie$/i });
-    fireEvent.click(categoryTabBtn);
+    const categoryTabBtns = screen.getAllByText(/^Category$|^Kategorie$/i);
+    fireEvent.click(categoryTabBtns[0]);
 
     const catInput = screen.getByPlaceholderText(/Roast & Coffee|Röstaromen & Kaffee/i);
     fireEvent.change(catInput, { target: { value: 'Exotic Roast' } });
 
-    const saveCatBtn = screen.getByRole('button', { name: /^Save$|^Speichern$/i });
+    const saveCatBtn = screen.getByText(/^Save$|^Speichern$/i);
     await act(async () => {
       fireEvent.click(saveCatBtn);
     });
@@ -575,13 +577,13 @@ describe('AromaCatalogView Component', () => {
     );
 
     // Switch to the Subcategory tab ("Unterkategorie" / "Subcategory")
-    const subTabBtn = screen.getByRole('button', { name: /^Subcategory$|^Unterkategorie$/i });
-    fireEvent.click(subTabBtn);
+    const subTabBtns = screen.getAllByText(/^Subcategory$|^Unterkategorie$/i);
+    fireEvent.click(subTabBtns[0]);
 
     const subInput = screen.getByPlaceholderText(/Citrus, Tropical|Zitrus, Tropisch/i);
     fireEvent.change(subInput, { target: { value: 'Espresso Beans' } });
 
-    const saveSubBtn = screen.getByRole('button', { name: /^Save$|^Speichern$/i });
+    const saveSubBtn = screen.getByText(/^Save$|^Speichern$/i);
     await act(async () => {
       fireEvent.click(saveSubBtn);
     });
