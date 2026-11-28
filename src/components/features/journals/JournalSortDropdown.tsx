@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { ArrowUpDown, ChevronDown, Check, Clock, Layers, Star, ArrowDownAZ, ArrowUpZA } from 'lucide-react';
+import { ChevronDown, Check, Clock, Layers, Star, ArrowDownAZ, ArrowUpZA } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { JournalSortOption } from '@/components/features/journals/JournalsOverview';
 import { useLanguage } from '@/context/LanguageContext';
@@ -80,7 +80,7 @@ export function JournalSortDropdown({ value, onChange, className }: SortDropdown
 
   return (
     <div className={cn('relative inline-block text-left', className)} ref={menuRef}>
-      {/* Trigger Button */}
+      {/* Trigger Button (Written-out Sort Label + Dropdown Chevron, identical to NoteSortDropdown) */}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
@@ -89,15 +89,14 @@ export function JournalSortDropdown({ value, onChange, className }: SortDropdown
         aria-label={t('sortJournals')}
         title={t('sortJournals')}
         className={cn(
-          'h-9 px-2.5 sm:px-3 rounded-lg border border-[var(--forest-green)]/35 bg-[var(--pub-bg-panel)] hover:bg-[var(--forest-green)]/10 text-[var(--forest-green)] hover:border-[var(--forest-green)] flex items-center gap-1.5 text-xs font-display font-semibold transition-all shadow-xs active:scale-95 cursor-pointer min-h-[36px]',
+          'h-9 px-3 rounded-lg border border-[var(--forest-green)]/35 bg-[var(--pub-bg-panel)] hover:bg-[var(--forest-green)]/10 text-[var(--forest-green)] hover:border-[var(--forest-green)] flex items-center gap-1.5 text-xs font-body font-semibold not-italic transition-all shadow-xs active:scale-95 cursor-pointer min-h-[36px]',
           isOpen && 'bg-[var(--forest-green)]/15 border-[var(--forest-green)] text-[var(--forest-green)] ring-2 ring-[var(--forest-green)]/25 shadow-sm'
         )}
       >
-        <ArrowUpDown size={14} className="text-[var(--brass-accent)] shrink-0" />
-        <span className="truncate max-w-[120px] sm:max-w-none text-[var(--foreground)]">{currentOption.label}</span>
+        <span className="truncate max-w-[190px] sm:max-w-none text-[var(--foreground)] not-italic">{currentOption.label}</span>
         <ChevronDown
           size={13}
-          className={cn('text-[var(--sepia-muted)] transition-transform duration-200 shrink-0 ml-0.5', isOpen && 'rotate-180')}
+          className={cn('text-[var(--sepia-muted)] transition-transform duration-200 shrink-0', isOpen && 'rotate-180')}
         />
       </button>
 
@@ -121,7 +120,7 @@ export function JournalSortDropdown({ value, onChange, className }: SortDropdown
                   setIsOpen(false);
                 }}
                 className={cn(
-                  'flex items-center justify-between gap-2.5 w-full px-3 py-2.5 text-xs font-display font-semibold rounded-lg transition-colors text-left cursor-pointer active:scale-[0.99] min-h-[38px]',
+                  'flex items-center justify-between gap-2.5 w-full px-3 py-2.5 text-xs font-body font-semibold not-italic rounded-lg transition-colors text-left cursor-pointer active:scale-[0.99] min-h-[38px]',
                   isSelected
                     ? 'bg-[var(--forest-green)]/15 text-[var(--forest-green)] font-bold'
                     : 'text-[var(--foreground)] hover:bg-[var(--forest-green)]/10 hover:text-[var(--forest-green)]'

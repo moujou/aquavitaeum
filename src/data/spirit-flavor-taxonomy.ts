@@ -514,7 +514,7 @@ export function getStoredCustomFlavors(): CustomFlavorDescriptor[] {
           const cf = item as Partial<CustomFlavorDescriptor>;
           if (typeof cf.id !== 'string' || !cf.id.trim() || cf.id.length > 120) return false;
           if (typeof cf.name !== 'string' || !cf.name.trim() || cf.name.length > 120) return false;
-          if (typeof cf.emoji !== 'string' || !cf.emoji.trim() || cf.emoji.length > 16) return false;
+          if (typeof cf.emoji !== 'string' || cf.emoji.length > 16) return false;
           if (!cf.radarDimension || !VALID_RADAR_DIMENSIONS.has(cf.radarDimension)) return false;
           if (isNameCoveredByStandardTaxonomy(cf.name)) return false;
           return true;
@@ -522,7 +522,7 @@ export function getStoredCustomFlavors(): CustomFlavorDescriptor[] {
         .map((cf) => ({
           id: cf.id.trim(),
           name: cf.name.trim(),
-          emoji: cf.emoji || inferEmojiFromTagName(cf.name),
+          emoji: (cf.emoji ?? '').trim(),
           radarDimension: cf.radarDimension,
           categoryId:
             typeof cf.categoryId === 'string' && cf.categoryId.trim()
@@ -738,7 +738,7 @@ export function getStoredCustomCategories(): CustomFlavorCategory[] {
           if (typeof cat.name !== 'string' || (!isDeleted && !cat.name.trim()) || cat.name.length > 120) {
             return false;
           }
-          if (typeof cat.emoji !== 'string' || (!isDeleted && !cat.emoji.trim()) || cat.emoji.length > 16) {
+          if (typeof cat.emoji !== 'string' || cat.emoji.length > 16) {
             return false;
           }
           if (typeof cat.color !== 'string' || !cat.color.trim() || cat.color.length > 32) {
@@ -1100,7 +1100,7 @@ function getRawUserSubcategories(): CustomFlavorSubcategory[] {
           id: sub.id.trim(),
           name: sub.name.trim(),
           categoryId: sub.categoryId,
-          emoji: typeof sub.emoji === 'string' && sub.emoji.trim().length <= 16 ? sub.emoji.trim() : undefined,
+          emoji: typeof sub.emoji === 'string' && sub.emoji.trim().length <= 16 ? sub.emoji.trim() : '',
         }));
       runtimeCustomSubcategories = cleaned;
       return cleaned;
@@ -1371,7 +1371,7 @@ export function getEffectiveFlavorTaxonomy(): FlavorCategory[] {
       basePass.push({
         ...cat,
         name: catOv ? { EN: catOv.name, DE: catOv.name } : cat.name,
-        emoji: catOv?.emoji || cat.emoji,
+        emoji: catOv !== undefined ? catOv.emoji : cat.emoji,
         color: catOv?.color || cat.color || RADAR_DIMENSION_COLORS[cat.radarDimension],
         subcategories: processedSubcategories,
       });

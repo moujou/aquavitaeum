@@ -17,7 +17,7 @@ import {
   inferCategoryFromTagName,
 } from '@/data/spirit-flavor-taxonomy';
 import { useLanguage } from '@/context/LanguageContext';
-import { X, Check, Pipette, FolderPlus, Compass } from 'lucide-react';
+import { X, Pipette, Trash2 } from 'lucide-react';
 import { AromaIcon } from '@/components/ui/AromaIcon';
 import { cn } from '@/lib/utils';
 
@@ -27,6 +27,9 @@ interface CustomFlavorModalProps {
   onSave: (flavor: CustomFlavorDescriptor) => void;
   onSaveCategory?: (category: CustomFlavorCategory) => void;
   onSaveSubcategory?: (subcategory: CustomFlavorSubcategory) => void;
+  onDeleteFlavor?: () => void;
+  onDeleteCategory?: () => void;
+  onDeleteSubcategory?: () => void;
   customSubcategories?: CustomFlavorSubcategory[];
   initialName?: string;
   initialDimension?: keyof FlavorProfile;
@@ -86,6 +89,9 @@ export function CustomFlavorModal({
   onSave,
   onSaveCategory,
   onSaveSubcategory,
+  onDeleteFlavor,
+  onDeleteCategory,
+  onDeleteSubcategory,
   customSubcategories = [],
   initialName = '',
   initialDimension,
@@ -121,6 +127,9 @@ export function CustomFlavorModal({
       onSave={onSave}
       onSaveCategory={onSaveCategory}
       onSaveSubcategory={onSaveSubcategory}
+      onDeleteFlavor={onDeleteFlavor}
+      onDeleteCategory={onDeleteCategory}
+      onDeleteSubcategory={onDeleteSubcategory}
       customSubcategories={customSubcategories}
       initialName={initialName}
       initialDimension={initialDimension}
@@ -139,6 +148,9 @@ function CustomFlavorDialog({
   onSave,
   onSaveCategory,
   onSaveSubcategory,
+  onDeleteFlavor,
+  onDeleteCategory,
+  onDeleteSubcategory,
   customSubcategories = [],
   initialName = '',
   initialDimension,
@@ -153,6 +165,9 @@ function CustomFlavorDialog({
   onSave: (flavor: CustomFlavorDescriptor) => void;
   onSaveCategory?: (category: CustomFlavorCategory) => void;
   onSaveSubcategory?: (subcategory: CustomFlavorSubcategory) => void;
+  onDeleteFlavor?: () => void;
+  onDeleteCategory?: () => void;
+  onDeleteSubcategory?: () => void;
   customSubcategories?: CustomFlavorSubcategory[];
   initialName?: string;
   initialDimension?: keyof FlavorProfile;
@@ -186,7 +201,9 @@ function CustomFlavorDialog({
   // Aroma State
   const [name, setName] = useState(editingFlavor ? editingFlavor.name : initialName);
   const [description, setDescription] = useState(editingFlavor?.description || '');
-  const [emoji, setEmoji] = useState(editingFlavor?.emoji || defaultCatEmoji);
+  const [emoji, setEmoji] = useState(
+    editingFlavor ? (editingFlavor.emoji ?? '') : defaultCatEmoji
+  );
   const [selectedDimension, setSelectedDimension] = useState<keyof FlavorProfile>(
     defaultCat?.radarDimension ?? defaultDim
   );
@@ -198,7 +215,9 @@ function CustomFlavorDialog({
 
   // Category State
   const [catName, setCatName] = useState<string>(editingCategory ? editingCategory.name : '');
-  const [catEmoji, setCatEmoji] = useState<string>(editingCategory?.emoji || '☕');
+  const [catEmoji, setCatEmoji] = useState<string>(
+    editingCategory ? (editingCategory.emoji ?? '') : '☕'
+  );
   const [catColor, setCatColor] = useState<string>(editingCategory?.color || '#C59B27');
 
   // Subcategory State
@@ -206,7 +225,9 @@ function CustomFlavorDialog({
   const [subCategoryId, setSubCategoryId] = useState<string>(
     editingSubcategory?.categoryId || initialCategoryId || defaultCat.id
   );
-  const [subEmoji, setSubEmoji] = useState<string>(editingSubcategory?.emoji || '📁');
+  const [subEmoji, setSubEmoji] = useState<string>(
+    editingSubcategory ? (editingSubcategory.emoji ?? '') : '📁'
+  );
 
   const activeCategoryForAroma =
     effectiveTaxonomy.find((c) => c.id.toLowerCase() === selectedCategoryId.toLowerCase()) ??
@@ -242,7 +263,7 @@ function CustomFlavorDialog({
     if (mode === 'category' && onSaveCategory) {
       const trimmedCat = catName.trim();
       const trimmedCatEmoji = catEmoji.trim();
-      if (!trimmedCat || !trimmedCatEmoji || isMaxCategoriesReached) return;
+      if (!trimmedCat || isMaxCategoriesReached) return;
       const randomSuffix = crypto.randomUUID().slice(0, 8);
       const id = editingCategory?.id
         ? editingCategory.id
@@ -273,7 +294,7 @@ function CustomFlavorDialog({
         id,
         name: trimmedSub,
         categoryId: subCategoryId,
-        emoji: subEmoji.trim() || '📁',
+        emoji: subEmoji.trim(),
       });
       onClose();
       return;
@@ -289,7 +310,7 @@ function CustomFlavorDialog({
     const customDesc: CustomFlavorDescriptor = {
       id,
       name: trimmed,
-      emoji: emoji.trim() || undefined,
+      emoji: emoji.trim(),
       radarDimension: selectedDimension,
       categoryId: selectedCategoryId,
       color: activeColor,
@@ -311,7 +332,7 @@ function CustomFlavorDialog({
 
   const isSubmitDisabled =
     mode === 'category'
-      ? !catName.trim() || !catEmoji.trim() || isMaxCategoriesReached
+      ? !catName.trim() || isMaxCategoriesReached
       : mode === 'subcategory'
         ? !subName.trim()
         : !name.trim();
@@ -328,13 +349,7 @@ function CustomFlavorDialog({
         {/* Modal Top Header */}
         <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 bg-[var(--wood-dark)] text-white border-b border-black/10 shadow-sm shrink-0 gap-3">
           <div className="flex items-center gap-2.5 min-w-0 pr-2">
-            {mode === 'category' ? (
-              <Compass className="w-6 h-6 text-amber-200 shrink-0" />
-            ) : mode === 'subcategory' ? (
-              <FolderPlus className="w-6 h-6 text-amber-200 shrink-0" />
-            ) : (
-              <AromaIcon className="w-6 h-6 text-amber-200 shrink-0" />
-            )}
+            <AromaIcon className="w-6 h-6 text-amber-200 shrink-0" />
             <h3 className="font-display font-bold text-base sm:text-xl tracking-wide text-white drop-shadow-xs truncate">
               {editingCategory
                 ? language === 'DE'
@@ -373,7 +388,7 @@ function CustomFlavorDialog({
           </button>
         </div>
 
-        {/* Full-Width 3-Tab Bar Below Header (Aroma | Kategorie | Unterkategorie) */}
+        {/* Full-Width 3-Tab Bar Below Header (Aroma | Kategorie | Unterkategorie — Text-Only Standard) */}
         {canSwitchMode && (
           <div className="px-4 sm:px-6 py-2.5 bg-[var(--parchment-bg-alt)]/60 border-b border-[var(--parchment-border)]/60 flex items-center shrink-0">
             <div
@@ -386,13 +401,12 @@ function CustomFlavorDialog({
                 type="button"
                 onClick={() => setMode('aroma')}
                 className={cn(
-                  'flex items-center justify-center gap-2 py-2 px-2.5 sm:px-3 rounded-lg text-xs sm:text-sm font-display font-bold transition-all cursor-pointer truncate',
+                  'flex items-center justify-center py-2 px-2.5 sm:px-3 rounded-lg text-xs sm:text-sm font-display font-bold transition-all cursor-pointer truncate',
                   mode === 'aroma'
                     ? 'bg-[var(--wood-selection)] text-white shadow-xs'
                     : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-[var(--pub-bg-panel)]'
                 )}
               >
-                <AromaIcon size={16} />
                 <span>{language === 'DE' ? 'Aroma' : 'Aroma'}</span>
               </button>
               {onSaveCategory && (
@@ -400,13 +414,12 @@ function CustomFlavorDialog({
                   type="button"
                   onClick={() => setMode('category')}
                   className={cn(
-                    'flex items-center justify-center gap-2 py-2 px-2.5 sm:px-3 rounded-lg text-xs sm:text-sm font-display font-bold transition-all cursor-pointer truncate',
+                    'flex items-center justify-center py-2 px-2.5 sm:px-3 rounded-lg text-xs sm:text-sm font-display font-bold transition-all cursor-pointer truncate',
                     mode === 'category'
                       ? 'bg-[var(--wood-selection)] text-white shadow-xs'
                       : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-[var(--pub-bg-panel)]'
                   )}
                 >
-                  <Compass size={16} />
                   <span>{language === 'DE' ? 'Kategorie' : 'Category'}</span>
                 </button>
               )}
@@ -415,13 +428,12 @@ function CustomFlavorDialog({
                   type="button"
                   onClick={() => setMode('subcategory')}
                   className={cn(
-                    'flex items-center justify-center gap-2 py-2 px-2.5 sm:px-3 rounded-lg text-xs sm:text-sm font-display font-bold transition-all cursor-pointer truncate',
+                    'flex items-center justify-center py-2 px-2.5 sm:px-3 rounded-lg text-xs sm:text-sm font-display font-bold transition-all cursor-pointer truncate',
                     mode === 'subcategory'
                       ? 'bg-[var(--wood-selection)] text-white shadow-xs'
                       : 'text-[var(--sepia-muted)] hover:text-[var(--foreground)] hover:bg-[var(--pub-bg-panel)]'
                   )}
                 >
-                  <FolderPlus size={16} />
                   <span>{language === 'DE' ? 'Unterkategorie' : 'Subcategory'}</span>
                 </button>
               )}
@@ -473,8 +485,7 @@ function CustomFlavorDialog({
                 {/* 1. Category Name */}
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs sm:text-sm font-display font-bold tracking-wide text-[var(--foreground)]">
-                    {language === 'DE' ? 'Name der Hauptkategorie' : 'Main Category Name'}{' '}
-                    <span className="text-red-500">*</span>
+                    Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -495,7 +506,7 @@ function CustomFlavorDialog({
                 {/* 2. Category Color Picker */}
                 <div className="flex flex-col gap-2">
                   <label className="text-xs sm:text-sm font-display font-bold tracking-wide text-[var(--foreground)]">
-                    {language === 'DE' ? 'Kategorie-Farbe (Diagramm & Badges)' : 'Category Color (Charts & Badges)'}
+                    {language === 'DE' ? 'Farbe' : 'Color'}
                   </label>
                   <div className="flex items-center gap-2 flex-wrap p-2.5 bg-black/5 rounded-xl border border-[var(--parchment-border)]/40">
                     {COLOR_SWATCHES.map((swatch) => {
@@ -535,29 +546,39 @@ function CustomFlavorDialog({
                 </div>
               </div>
 
-              {/* Right Column (md:col-span-6): Mandatory Icon Wall & Live Category Header Preview */}
+              {/* Right Column (md:col-span-6): Emoji Icon Wall & Live Category Header Preview */}
               <div className="md:col-span-6 flex flex-col gap-5">
-                {/* 3. Mandatory Emoji Icon Wall (Needed for mobile radar chart tips) */}
+                {/* 3. Emoji Icon Wall with "Kein Icon" Option */}
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between gap-2">
                     <label className="text-xs sm:text-sm font-display font-bold tracking-wide text-[var(--foreground)]">
-                      {language === 'DE' ? 'Kategorie-Icon (Pflicht für Mobil-Diagramm)' : 'Category Icon (Required for Mobile Chart)'}{' '}
-                      <span className="text-red-500">*</span>
+                      Icon
                     </label>
-                    <span className="text-xs text-[var(--sepia-muted)] font-mono font-semibold shrink-0">
-                      {EMOJI_QUICK_PICKS.length} Icons
-                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setCatEmoji('')}
+                      className={cn(
+                        'px-2.5 py-1 rounded-lg border text-xs font-body font-semibold flex items-center justify-center transition-all cursor-pointer',
+                        catEmoji === ''
+                          ? 'bg-[var(--wood-selection)] text-white border-[var(--wood-selection)] shadow-2xs'
+                          : 'bg-[var(--pub-bg-panel)] text-[var(--sepia-text)] border-[var(--parchment-border)] hover:border-[var(--wood-selection)]'
+                      )}
+                    >
+                      <span>{language === 'DE' ? 'Kein Icon' : 'No Icon'}</span>
+                    </button>
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <input
-                      type="text"
-                      value={catEmoji}
-                      onChange={(e) => setCatEmoji(e.target.value)}
-                      maxLength={4}
-                      required
-                      className="w-14 h-12 text-center text-2xl bg-[var(--pub-bg-panel)] border-2 border-[var(--wood-selection)] rounded-xl focus:outline-none shadow-sm shrink-0"
-                    />
+                    <div className="relative shrink-0">
+                      <input
+                        type="text"
+                        value={catEmoji}
+                        onChange={(e) => setCatEmoji(e.target.value)}
+                        maxLength={4}
+                        placeholder="—"
+                        className="w-14 h-12 text-center text-2xl bg-[var(--pub-bg-panel)] border-2 border-[var(--wood-selection)] rounded-xl focus:outline-none shadow-sm shrink-0 placeholder:text-[var(--sepia-muted)]/40 not-italic"
+                      />
+                    </div>
                     <div className="flex flex-wrap gap-1.5 items-center max-h-56 overflow-y-auto p-2 bg-black/5 rounded-xl border border-[var(--parchment-border)]/40 w-full">
                       {EMOJI_QUICK_PICKS.map((em, index) => (
                         <button
@@ -581,7 +602,7 @@ function CustomFlavorDialog({
                 {/* 4. Live Category Header Preview */}
                 <div className="flex flex-col gap-2 pt-2 border-t border-[var(--parchment-divider)]">
                   <span className="text-[11px] font-display tracking-wide text-[var(--sepia-muted)] font-bold text-center">
-                    {language === 'DE' ? 'Kategorie-Vorschau' : 'Category Preview'}
+                    {language === 'DE' ? 'Vorschau' : 'Preview'}
                   </span>
                   <div className="p-4 rounded-xl bg-black/5 border border-dashed border-[var(--parchment-border)]">
                     <div
@@ -589,7 +610,9 @@ function CustomFlavorDialog({
                       style={{ borderLeftWidth: '6px', borderLeftColor: catColor }}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <span className="text-xl leading-none shrink-0">{catEmoji || '☕'}</span>
+                        {catEmoji.trim() && (
+                          <span className="text-xl leading-none shrink-0">{catEmoji}</span>
+                        )}
                         <span className="font-display font-bold text-sm sm:text-base text-[var(--fab-text)] tracking-wide truncate">
                           {catName.trim() || (language === 'DE' ? 'Kategorie-Name' : 'Category Name')}
                         </span>
@@ -605,22 +628,14 @@ function CustomFlavorDialog({
             </div>
           ) : mode === 'subcategory' ? (
             /* ── SUBCATEGORY CREATION / EDIT FORM ─────────────────────────── */
-            <div className="flex flex-col gap-5 max-w-2xl mx-auto w-full">
-              {/* 1. Subcategory Name + Emoji */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs sm:text-sm font-display font-bold tracking-wide text-[var(--foreground)]">
-                  {language === 'DE' ? 'Name der Unterkategorie' : 'Subcategory Name'}{' '}
-                  <span className="text-red-500">*</span>
-                </label>
-                <div className="flex items-center gap-2.5">
-                  <input
-                    type="text"
-                    value={subEmoji}
-                    onChange={(e) => setSubEmoji(e.target.value)}
-                    maxLength={4}
-                    className="w-12 h-11 text-center text-xl bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] rounded-lg focus:outline-none focus:border-[var(--wood-selection)] shrink-0"
-                    title={t('flavorEmojiLabel')}
-                  />
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+              {/* Left Column: Subcategory Name & Parent Category */}
+              <div className="md:col-span-6 flex flex-col gap-5">
+                {/* 1. Subcategory Name */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs sm:text-sm font-display font-bold tracking-wide text-[var(--foreground)]">
+                    Name <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="text"
                     autoFocus
@@ -631,45 +646,111 @@ function CustomFlavorDialog({
                         ? 'z. B. Zitrus, Tropisch, Beeren, Rauchig...'
                         : 'e.g. Citrus, Tropical, Berries, Medicinal...'
                     }
-                    className="flex-1 bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] rounded-lg px-3.5 py-2.5 text-sm sm:text-base font-body text-[var(--foreground)] focus:outline-none focus:border-[var(--wood-selection)] placeholder:text-[var(--placeholder-text)] transition-colors shadow-inner"
+                    className="w-full bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] rounded-lg px-3.5 py-2.5 text-sm sm:text-base font-body text-[var(--foreground)] focus:outline-none focus:border-[var(--wood-selection)] placeholder:text-[var(--placeholder-text)] transition-colors shadow-inner"
                     required
                   />
                 </div>
+
+                {/* 2. Parent Category Selection */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs sm:text-sm font-display font-bold tracking-wide text-[var(--foreground)]">
+                    {language === 'DE' ? 'Kategorie' : 'Category'}
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto p-1.5 bg-black/5 rounded-xl border border-[var(--parchment-border)]/40">
+                    {effectiveTaxonomy.map((cat) => {
+                      const isCatActive = subCategoryId === cat.id;
+                      const catNameLabel = cat.name[language] ?? cat.name.EN;
+                      const catColorVal = cat.color ?? RADAR_DIMENSION_COLORS[cat.radarDimension] ?? '#C59B27';
+
+                      return (
+                        <button
+                          key={cat.id}
+                          type="button"
+                          onClick={() => setSubCategoryId(cat.id)}
+                          className={cn(
+                            'px-3 py-2 rounded-lg border text-xs sm:text-sm font-body font-semibold transition-all flex items-center gap-2 cursor-pointer text-left',
+                            isCatActive
+                              ? 'border-transparent text-white shadow-xs scale-[1.01]'
+                              : 'border-[var(--parchment-border)]/60 bg-[var(--pub-bg-panel)] text-[var(--foreground)] hover:bg-[var(--pub-bg-alt)] hover:border-[var(--wood-selection)]/60'
+                          )}
+                          style={{
+                            backgroundColor: isCatActive ? catColorVal : undefined,
+                          }}
+                        >
+                          {cat.emoji && <span className="text-base shrink-0">{cat.emoji}</span>}
+                          <span className="truncate">{catNameLabel}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
 
-              {/* 2. Parent Category Selection */}
-              <div className="flex flex-col gap-2">
-                <label className="text-xs sm:text-sm font-display font-bold tracking-wide text-[var(--foreground)]">
-                  {language === 'DE'
-                    ? 'In welcher Hauptkategorie soll die Unterkategorie liegen?'
-                    : 'Which main category does this subcategory belong to?'}
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 p-2 bg-black/5 rounded-xl border border-[var(--parchment-border)]/40">
-                  {effectiveTaxonomy.map((cat) => {
-                    const isCatActive = subCategoryId === cat.id;
-                    const catNameLabel = cat.name[language] ?? cat.name.EN;
-                    const catColorVal = cat.color ?? RADAR_DIMENSION_COLORS[cat.radarDimension] ?? '#C59B27';
+              {/* Right Column: Subcategory Emoji Picker with "Kein Icon" & Preview */}
+              <div className="md:col-span-6 flex flex-col gap-5">
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <label className="text-xs sm:text-sm font-display font-bold tracking-wide text-[var(--foreground)]">
+                      Icon
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setSubEmoji('')}
+                      className={cn(
+                        'px-2.5 py-1 rounded-lg border text-xs font-body font-semibold flex items-center justify-center transition-all cursor-pointer',
+                        subEmoji === ''
+                          ? 'bg-[var(--wood-selection)] text-white border-[var(--wood-selection)] shadow-2xs'
+                          : 'bg-[var(--pub-bg-panel)] text-[var(--sepia-text)] border-[var(--parchment-border)] hover:border-[var(--wood-selection)]'
+                      )}
+                    >
+                      <span>{language === 'DE' ? 'Kein Icon' : 'No Icon'}</span>
+                    </button>
+                  </div>
 
-                    return (
-                      <button
-                        key={cat.id}
-                        type="button"
-                        onClick={() => setSubCategoryId(cat.id)}
-                        className={cn(
-                          'px-3 py-2.5 rounded-lg border text-xs sm:text-sm font-body font-semibold transition-all flex items-center gap-2 cursor-pointer text-left',
-                          isCatActive
-                            ? 'border-transparent text-white shadow-xs scale-[1.01]'
-                            : 'border-[var(--parchment-border)]/60 bg-[var(--pub-bg-panel)] text-[var(--foreground)] hover:bg-[var(--pub-bg-alt)] hover:border-[var(--wood-selection)]/60'
-                        )}
-                        style={{
-                          backgroundColor: isCatActive ? catColorVal : undefined,
-                        }}
-                      >
-                        <span className="text-base shrink-0">{cat.emoji}</span>
-                        <span className="truncate">{catNameLabel}</span>
-                      </button>
-                    );
-                  })}
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="text"
+                      value={subEmoji}
+                      onChange={(e) => setSubEmoji(e.target.value)}
+                      maxLength={4}
+                      placeholder="—"
+                      className="w-14 h-12 text-center text-2xl bg-[var(--pub-bg-panel)] border-2 border-[var(--wood-selection)] rounded-xl focus:outline-none shadow-sm shrink-0 placeholder:text-[var(--sepia-muted)]/40 not-italic"
+                    />
+                    <div className="flex flex-wrap gap-1.5 items-center max-h-56 overflow-y-auto p-2 bg-black/5 rounded-xl border border-[var(--parchment-border)]/40 w-full">
+                      {EMOJI_QUICK_PICKS.map((em, index) => (
+                        <button
+                          key={`sub_${em}_${index}`}
+                          type="button"
+                          onClick={() => setSubEmoji(em)}
+                          className={cn(
+                            'w-8 h-8 text-base rounded-lg flex items-center justify-center transition-all cursor-pointer select-none',
+                            subEmoji === em
+                              ? 'bg-[var(--wood-selection)] text-white scale-110 shadow-sm'
+                              : 'hover:bg-black/10 hover:scale-105'
+                          )}
+                        >
+                          {em}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Live Subcategory Preview */}
+                <div className="flex flex-col gap-2 pt-2 border-t border-[var(--parchment-divider)]">
+                  <span className="text-[11px] font-display tracking-wide text-[var(--sepia-muted)] font-bold text-center">
+                    {language === 'DE' ? 'Vorschau' : 'Preview'}
+                  </span>
+                  <div className="p-4 rounded-xl bg-black/5 border border-dashed border-[var(--parchment-border)]">
+                    <div className="px-4 py-2 bg-[var(--pub-bg-alt)]/75 border border-[var(--parchment-border)] rounded-xl flex items-center gap-2">
+                      {subEmoji.trim() && (
+                        <span className="text-base leading-none shrink-0">{subEmoji}</span>
+                      )}
+                      <span className="font-display font-bold text-xs sm:text-sm text-[var(--foreground)] truncate">
+                        {subName.trim() || 'Name'}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -696,14 +777,9 @@ function CustomFlavorDialog({
 
                 {/* 1b. Optional Catalog Description / Sensory Note */}
                 <div className="flex flex-col gap-1.5">
-                  <div className="flex items-center justify-between gap-2">
-                    <label className="text-xs sm:text-sm font-display font-bold tracking-wide text-[var(--foreground)]">
-                      {language === 'DE' ? 'Beschreibung / Notiz (optional)' : 'Description / Note (optional)'}
-                    </label>
-                    <span className="text-[11px] font-body text-[var(--sepia-muted)]">
-                      {language === 'DE' ? 'Nur im Katalog sichtbar' : 'Catalog only'}
-                    </span>
-                  </div>
+                  <label className="text-xs sm:text-sm font-display font-bold tracking-wide text-[var(--foreground)]">
+                    {language === 'DE' ? 'Beschreibung' : 'Description'}
+                  </label>
                   <input
                     type="text"
                     value={description}
@@ -755,7 +831,7 @@ function CustomFlavorDialog({
                 {subcategoriesForCurrentCategory.length > 0 && (
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs sm:text-sm font-display font-bold tracking-wide text-[var(--foreground)]">
-                      {language === 'DE' ? 'Unterkategorie (optional)' : 'Subcategory (optional)'}
+                      {language === 'DE' ? 'Unterkategorie' : 'Subcategory'}
                     </label>
                     <div className="flex flex-wrap gap-2 p-2 bg-black/5 rounded-xl border border-[var(--parchment-border)]/40">
                       <button
@@ -768,7 +844,7 @@ function CustomFlavorDialog({
                             : 'bg-[var(--pub-bg-panel)] border-[var(--parchment-border)] text-[var(--sepia-text)] hover:bg-[var(--pub-bg-alt)] hover:border-[var(--wood-selection)]'
                         )}
                       >
-                        {language === 'DE' ? 'Allgemein (Ohne)' : 'General (None)'}
+                        {language === 'DE' ? 'Allgemein' : 'General'}
                       </button>
                       {subcategoriesForCurrentCategory.map((sub) => {
                         const isSubSelected = selectedSubcategoryId === sub.id;
@@ -851,15 +927,24 @@ function CustomFlavorDialog({
 
               {/* Right Column (md:col-span-6): Emoji Palette & Live Large Preview */}
               <div className="md:col-span-6 flex flex-col gap-5">
-                {/* 4. Emoji Icon Palette (160+ Icons) */}
+                {/* 4. Emoji Icon Palette (160+ Icons + "Kein Icon") */}
                 <div className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-2">
                     <label className="text-xs sm:text-sm font-display font-bold tracking-wide text-[var(--foreground)]">
                       {t('flavorEmojiLabel')}
                     </label>
-                    <span className="text-xs text-[var(--sepia-muted)] font-mono font-semibold">
-                      {EMOJI_QUICK_PICKS.length} Icons
-                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setEmoji('')}
+                      className={cn(
+                        'px-2.5 py-1 rounded-lg border text-xs font-body font-semibold flex items-center justify-center transition-all cursor-pointer',
+                        emoji === ''
+                          ? 'bg-[var(--wood-selection)] text-white border-[var(--wood-selection)] shadow-2xs'
+                          : 'bg-[var(--pub-bg-panel)] text-[var(--sepia-text)] border-[var(--parchment-border)] hover:border-[var(--wood-selection)]'
+                      )}
+                    >
+                      <span>{language === 'DE' ? 'Kein Icon' : 'No Icon'}</span>
+                    </button>
                   </div>
 
                   <div className="flex items-start gap-3">
@@ -868,7 +953,8 @@ function CustomFlavorDialog({
                       value={emoji}
                       onChange={(e) => setEmoji(e.target.value)}
                       maxLength={4}
-                      className="w-14 h-12 text-center text-2xl bg-[var(--pub-bg-panel)] border-2 border-[var(--wood-selection)] rounded-xl focus:outline-none shadow-sm shrink-0"
+                      placeholder="—"
+                      className="w-14 h-12 text-center text-2xl bg-[var(--pub-bg-panel)] border-2 border-[var(--wood-selection)] rounded-xl focus:outline-none shadow-sm shrink-0 placeholder:text-[var(--sepia-muted)]/40 not-italic"
                     />
                     <div className="flex flex-wrap gap-1.5 items-center max-h-56 overflow-y-auto p-2 bg-black/5 rounded-xl border border-[var(--parchment-border)]/40 w-full">
                       {EMOJI_QUICK_PICKS.map((em, index) => (
@@ -893,15 +979,15 @@ function CustomFlavorDialog({
                 {/* 5. Live Centered Large Chip Preview */}
                 <div className="flex flex-col gap-2 pt-2 border-t border-[var(--parchment-divider)]">
                   <span className="text-[11px] font-display tracking-wide text-[var(--sepia-muted)] font-bold text-center">
-                    {language === 'DE' ? 'Vorschau' : 'Live Preview'}
+                    {language === 'DE' ? 'Vorschau' : 'Preview'}
                   </span>
                   <div className="flex items-center justify-center p-5 rounded-xl bg-black/5 border border-dashed border-[var(--parchment-border)]">
                     <div
                       className="px-5 py-2 rounded-full text-white text-sm sm:text-base font-body font-bold flex items-center gap-2.5 shadow-md transition-all scale-105"
                       style={{ backgroundColor: activeColor }}
                     >
-                      <span className="text-lg">{emoji || '🍎'}</span>
-                      <span>{name.trim() || 'Aroma Name'}</span>
+                      {emoji.trim() && <span className="text-lg">{emoji}</span>}
+                      <span>{name.trim() || 'Name'}</span>
                     </div>
                   </div>
                 </div>
@@ -909,38 +995,53 @@ function CustomFlavorDialog({
             </div>
           )}
 
-          {/* Modal Bottom Actions */}
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-[var(--parchment-divider)] shrink-0">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-[var(--parchment-border)] text-xs sm:text-sm font-display tracking-wide font-semibold text-[var(--sepia-text)] hover:bg-black/5 transition-colors cursor-pointer"
-            >
-              {t('cancel')}
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitDisabled}
-              className={cn(
-                'px-6 py-2 rounded-lg bg-[var(--wood-selection)] text-white text-xs sm:text-sm font-display tracking-wide font-bold shadow-md transition-all flex items-center gap-2 cursor-pointer',
-                isSubmitDisabled
-                  ? 'opacity-50 cursor-not-allowed'
-                  : 'hover:scale-[1.02] active:scale-[0.98]'
+          {/* Modal Bottom Actions (Split-Footer Layout: Left [🗑️] in Edit Mode, Right [Abbrechen] [Speichern]) */}
+          <div className="flex items-center justify-between gap-3 pt-3 border-t border-[var(--parchment-divider)] shrink-0">
+            <div>
+              {((mode === 'category' && editingCategory && onDeleteCategory) ||
+                (mode === 'subcategory' && editingSubcategory && onDeleteSubcategory) ||
+                (mode === 'aroma' && editingFlavor && onDeleteFlavor)) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (mode === 'category' && editingCategory && onDeleteCategory) {
+                      onDeleteCategory();
+                    } else if (mode === 'subcategory' && editingSubcategory && onDeleteSubcategory) {
+                      onDeleteSubcategory();
+                    } else if (mode === 'aroma' && editingFlavor && onDeleteFlavor) {
+                      onDeleteFlavor();
+                    }
+                  }}
+                  title={t('deleteAction')}
+                  aria-label={t('deleteAction')}
+                  className="w-10 h-10 rounded-lg border border-red-500/40 bg-red-500/10 hover:bg-red-600 text-red-600 dark:text-red-400 hover:text-white transition-all flex items-center justify-center shadow-2xs active:scale-95 cursor-pointer shrink-0"
+                >
+                  <Trash2 className="w-4 h-4 shrink-0" />
+                </button>
               )}
-            >
-              <Check className="w-4 h-4" />
-              <span>
-                {mode === 'category'
-                  ? language === 'DE'
-                    ? 'Kategorie speichern'
-                    : 'Save Category'
-                  : mode === 'subcategory'
-                    ? language === 'DE'
-                      ? 'Unterkategorie speichern'
-                      : 'Save Subcategory'
-                    : submitLabel || (editingFlavor ? t('saveCustomFlavorBtn') : t('saveAndAddFlavor'))}
-              </span>
-            </button>
+            </div>
+
+            <div className="flex items-center gap-2.5">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 rounded-lg border border-[var(--parchment-border)] text-xs sm:text-sm font-display tracking-wide font-semibold text-[var(--sepia-text)] hover:bg-black/5 transition-colors cursor-pointer"
+              >
+                {t('cancel')}
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitDisabled}
+                className={cn(
+                  'px-6 py-2 rounded-lg bg-[var(--wood-selection)] text-white text-xs sm:text-sm font-display tracking-wide font-bold shadow-md transition-all flex items-center justify-center cursor-pointer',
+                  isSubmitDisabled
+                    ? 'opacity-50 cursor-not-allowed'
+                    : 'hover:scale-[1.02] active:scale-[0.98]'
+                )}
+              >
+                <span>{submitLabel || t('saveAction')}</span>
+              </button>
+            </div>
           </div>
         </form>
       </div>

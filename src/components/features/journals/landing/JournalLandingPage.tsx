@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { Filter } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useLanguage } from '@/context/LanguageContext';
+import { useToast } from '@/context/ToastContext';
 import { JournalWithStats } from '@/hooks/useJournals';
 import { Spirit, NoteSortOption, NoteFilterState } from '@/types/spirit.types';
 import { OverviewLayout } from '@/hooks/useLayoutPreference';
@@ -47,6 +48,7 @@ export function JournalLandingPage({
 }: JournalLandingPageProps) {
   // ── Language ──────────────────────────────────────────────────────────────
   const { t, language } = useLanguage();
+  const { showToast } = useToast();
   const [isScanModalOpen, setIsScanModalOpen] = useState(false);
 
   // ── Sorting state (persisted in localStorage) ─────────────────────────────
@@ -69,20 +71,43 @@ export function JournalLandingPage({
     }
   };
 
-  // ── Filter state (Category & Min Rating only) ────────────────────────────
+  // ── Filter state (Structured Facts: Min Rating, Min Age & Characteristics) ──
   const [filterState, setFilterState] = useState<NoteFilterState>({
-    spiritType: 'All',
     minRating: 0,
+    minAge: 0,
+    characteristics: [],
   });
 
   // Filtered and sorted spirits
   const sortedAndFilteredSpirits = useMemo(() => {
     const filtered = spirits.filter((s) => {
-      if (filterState.spiritType !== 'All' && s.spiritType !== filterState.spiritType) {
-        return false;
-      }
       if (filterState.minRating > 0 && (s.rating100 || 0) < filterState.minRating) {
         return false;
+      }
+      if ((filterState.minAge ?? 0) > 0 && (s.age || 0) < (filterState.minAge ?? 0)) {
+        return false;
+      }
+      if (filterState.characteristics && filterState.characteristics.length > 0) {
+        const sChars = s.characteristics || [];
+        const sRoles = s.barRole || [];
+        const matchesAllSelected = filterState.characteristics.every((chip) => {
+          if (chip === 'Cask Strength') {
+            return s.isCaskStrength === true || sChars.includes('Cask Strength');
+          }
+          if (chip === 'Natural Colour') {
+            return s.addedColour === false || sChars.includes('Natural Colour');
+          }
+          if (chip === 'Non-Chill Filtered') {
+            return s.chillFiltered === false || sChars.includes('Non-Chill Filtered');
+          }
+          if (chip === 'Peated') {
+            return sChars.some(
+              (c) => c === 'Peated' || c === 'Heavily Peated' || c === 'Lightly Peated'
+            );
+          }
+          return sChars.includes(chip) || sRoles.includes(chip);
+        });
+        if (!matchesAllSelected) return false;
       }
       return true;
     });
@@ -141,6 +166,10 @@ export function JournalLandingPage({
       const newId = await onNewNoteFromScan(result, uploadedImage, mode);
       if (newId) {
         onSelectSpirit(newId);
+        showToast(
+          language === 'DE' ? 'Notiz aus KI-Analyse erstellt' : 'Note created from AI analysis',
+          'success'
+        );
       }
     }
   };
@@ -207,7 +236,7 @@ export function JournalLandingPage({
           </p>
           <button
             type="button"
-            onClick={() => setFilterState({ spiritType: 'All', minRating: 0 })}
+            onClick={() => setFilterState({ minRating: 0, minAge: 0, characteristics: [] })}
             className="px-3 py-1.5 rounded-lg border border-[var(--brass-accent)]/40 bg-[var(--brass-accent)]/10 text-[var(--brass-accent)] hover:bg-[var(--brass-accent)]/20 text-xs font-display font-bold transition-all cursor-pointer shadow-xs active:scale-95"
           >
             {t('resetFilters')}
@@ -245,7 +274,22 @@ export function JournalLandingPage({
         confirmLabel={t('confirmDelete')}
         cancelLabel={t('cancel')}
         closeLabel={t('close')}
-        onConfirm={() => handleBulkDelete(onDeleteSpirit)}
+        onConfirm={() => {
+          const count = selectedIds.size;
+          handleBulkDelete(onDeleteSpirit);
+          if (count > 0) {
+            showToast(
+              language === 'DE'
+                ? count === 1
+                  ? 'Notiz gelöscht'
+                  : `${count} Notizen gelöscht`
+                : count === 1
+                  ? 'Note deleted'
+                  : `${count} notes deleted`,
+              'info'
+            );
+          }
+        }}
         onCancel={() => setConfirmBulkDelete(false)}
       />
 

@@ -17,7 +17,7 @@ describe('JournalCoverPicker', () => {
     );
     expect(screen.getByText(/Cover Photo/i)).toBeDefined();
     expect(screen.getByText(/No cover selected/i)).toBeDefined();
-    expect(screen.getByText(/Upload from Device/i)).toBeDefined();
+    expect(screen.getByText(/Choose Photo|Foto wählen/i)).toBeDefined();
   });
 
   it('renders image preview and allows removing it', () => {
@@ -86,7 +86,7 @@ describe('JournalCoverPicker', () => {
     const input = container.querySelector('#journal-cover-file-input') as HTMLInputElement;
     const clickSpy = vi.spyOn(input, 'click');
 
-    const uploadBtn = screen.getByRole('button', { name: /Upload from Device|Vom Gerät hochladen/i });
+    const uploadBtn = screen.getByRole('button', { name: /Choose Photo|Foto wählen/i });
     fireEvent.click(uploadBtn);
 
     expect(clickSpy).toHaveBeenCalled();

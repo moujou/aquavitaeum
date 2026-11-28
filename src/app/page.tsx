@@ -289,6 +289,9 @@ export default function Home() {
   // Profile navigation wired to native history stack
   const handleEnterProfile = useCallback(() => {
     if (activeView !== 'profile') {
+      if (activeView === 'aroma-catalog') {
+        setGlobalSearchQuery('');
+      }
       setViewBeforeProfile(
         activeView as 'overview' | 'journal-landing' | 'journal-detail' | 'aroma-catalog'
       );
@@ -315,11 +318,28 @@ export default function Home() {
     }
   }, [activeView, activeJournalId, pushView]);
 
+  const handleNavigateToAroma = useCallback(
+    (aromaName: string) => {
+      setGlobalSearchQuery(aromaName);
+      if (activeView !== 'aroma-catalog') {
+        setActiveView('aroma-catalog');
+        pushView('aroma-catalog', {
+          fromView: activeView as 'overview' | 'journal-landing' | 'journal-detail' | 'aroma-catalog',
+          journalId: activeJournalId,
+        });
+      }
+    },
+    [activeView, activeJournalId, pushView]
+  );
+
   const handleGoToOverview = useCallback(() => {
+    if (activeView === 'aroma-catalog') {
+      setGlobalSearchQuery('');
+    }
     setActiveJournalId(null);
     setActiveView('overview');
     pushView('overview', { journalId: null });
-  }, [pushView]);
+  }, [activeView, pushView]);
 
   const handleSelectJournal = useCallback(
     (id: string) => {
@@ -445,6 +465,7 @@ export default function Home() {
           setGlobalTypeFilter={setGlobalTypeFilter}
           isSelectMode={isSelectModeActive}
           onNavigateToSpirit={handleNavigateToSpirit}
+          onNavigateToAroma={handleNavigateToAroma}
         />
 
         {/* ── Main Layout View switcher ──────────────────────────────────── */}
@@ -465,6 +486,7 @@ export default function Home() {
             >
               <AromaCatalogView
                 journals={journals}
+                searchQuery={globalSearchQuery}
                 isCreateOpen={isCreateAromaModalOpen}
                 onOpenCreate={() => setIsCreateAromaModalOpen(true)}
                 onCloseCreate={() => setIsCreateAromaModalOpen(false)}

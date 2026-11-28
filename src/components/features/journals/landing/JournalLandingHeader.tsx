@@ -118,6 +118,23 @@ export function JournalLandingHeader({
         <div className="flex items-center gap-2 shrink-0">
           {isSelectMode ? (
             <>
+              {/* Direct Delete / Trash Button (Square w-9 h-9 Icon-Only Standard) */}
+              <button
+                type="button"
+                disabled={!canDelete}
+                onClick={() => canDelete && onConfirmDelete?.()}
+                title={activeLang === 'DE' ? 'Auswahl entfernen' : 'Remove selected'}
+                aria-label={activeLang === 'DE' ? 'Auswahl entfernen' : 'Remove selected'}
+                className={cn(
+                  'w-9 h-9 rounded-lg border transition-all flex items-center justify-center shadow-xs select-none min-h-[36px]',
+                  canDelete
+                    ? 'border-red-500/40 bg-red-500/10 hover:bg-red-600 text-red-600 dark:text-red-400 hover:text-white active:scale-95 cursor-pointer'
+                    : 'border-[var(--parchment-border)] bg-[var(--pub-bg-panel)] text-[var(--sepia-muted)] opacity-40 cursor-not-allowed'
+                )}
+              >
+                <Trash2 className="w-4 h-4 shrink-0" />
+              </button>
+
               {/* Actions Dropdown in Multi-Select Mode */}
               <PageActionsDropdown
                 title={activeLang === 'DE' ? 'Aktionen' : 'Actions'}
@@ -139,15 +156,15 @@ export function JournalLandingHeader({
                   },
                 ]}
               />
-              {/* Done button */}
+              {/* Done button (Square w-9 h-9 Icon-Only Standard matching PageActionsDropdown) */}
               <button
                 type="button"
                 onClick={onExitSelectMode}
                 title={activeLang === 'DE' ? 'Fertig' : 'Done'}
-                className="h-9 px-2.5 sm:px-3 rounded-lg border border-[var(--parchment-border)] bg-[var(--pub-bg-panel)] hover:bg-[var(--pub-bg-alt)] text-[var(--foreground)] transition-all flex items-center gap-1 text-xs font-display font-bold uppercase tracking-wider shadow-xs active:scale-95 cursor-pointer select-none min-h-[36px]"
+                aria-label={activeLang === 'DE' ? 'Fertig' : 'Done'}
+                className="w-9 h-9 rounded-lg border border-[var(--parchment-border)] bg-[var(--pub-bg-panel)] hover:bg-[var(--pub-bg-alt)] text-[var(--foreground)] transition-all flex items-center justify-center shadow-xs active:scale-95 cursor-pointer select-none min-h-[36px]"
               >
-                <X className="w-3.5 h-3.5 shrink-0" />
-                <span className="hidden sm:inline">{activeLang === 'DE' ? 'Fertig' : 'Done'}</span>
+                <X className="w-4 h-4 shrink-0" />
               </button>
             </>
           ) : (

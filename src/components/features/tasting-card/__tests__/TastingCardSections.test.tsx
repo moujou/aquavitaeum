@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { MOCK_SPIRITS } from '@/data/mock-spirits';
 import { LanguageProvider } from '@/context/LanguageContext';
@@ -213,7 +213,47 @@ describe('Modular OO Tasting Card Sections', () => {
       const deleteMenuItem = screen.getByRole('button', { name: /delete|löschen/i });
       fireEvent.click(deleteMenuItem);
 
-      expect(screen.getByRole('button', { name: /Yes, Delete Note|Löschen/i })).toBeDefined();
+      expect(screen.getByRole('button', { name: /^Delete$|^Löschen$/i })).toBeDefined();
+    });
+
+    it('shows subtle corner auto-save indicator on edit and triggers a single "Note saved" toast on unmount', () => {
+      vi.useFakeTimers();
+      const saveFn = vi.fn();
+
+      const { unmount } = render(
+        <LanguageProvider>
+          <TastingCard
+            initialSpirit={sampleSpirit}
+            onSave={saveFn}
+          />
+        </LanguageProvider>
+      );
+
+      const indicator = screen.getByTestId('autosave-status-indicator');
+      expect(indicator.className).toContain('opacity-0');
+
+      // Modify the spirit name
+      const nameInput = screen.getByDisplayValue(sampleSpirit.name);
+      fireEvent.change(nameInput, { target: { value: '10 Year Old Cask Strength Batch 16' } });
+
+      // While debounce is pending, indicator is visible ("Saving...")
+      expect(indicator.className).toContain('opacity-100');
+
+      // Advance 1000ms debounce so save completes -> shows "Saved!"
+      act(() => {
+        vi.advanceTimersByTime(1050);
+      });
+      expect(saveFn).toHaveBeenCalledTimes(1);
+      expect(indicator.className).toContain('opacity-100');
+
+      // Advance 2500ms -> indicator fades back out
+      act(() => {
+        vi.advanceTimersByTime(2500);
+      });
+      expect(indicator.className).toContain('opacity-0');
+
+      unmount();
+      vi.useRealTimers();
     });
   });
 });

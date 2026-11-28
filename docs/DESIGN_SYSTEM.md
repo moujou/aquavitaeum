@@ -312,8 +312,17 @@ graph TD
    - Alle Standard-Aromen der 9 Kategorien sind auf prägnante, eigenständige 1-Wort-Begriffe reduziert (`Torf`/`Peat`, `Rauch`/`Smoke`, `Zitrone`/`Lemon`, `Apfel`/`Apple`, `Salz`/`Salt`, `Eiche`/`Oak`, `Honig`/`Honey`, `Malz`/`Malz`, etc.).
    - Zusammengesetzte Begriffe (`Peat Smoke`, `Green Apple`, `Lemon Peel`, `Sea Salt`) bleiben in `aliases[]` hinterlegt, sodass bestehende Verkostungsnotizen und die Volltextsuche zu 100 % abwärtskompatibel bleiben.
 3. **Einheitliche Bearbeitung & Optionale Katalog-Beschreibung**:
-   - Alle Aromen im Katalog (Standard- und Nutzer-Aromen) erscheinen in einer ruhigen, einheitlichen Zeilenstruktur mit freistehendem Emoji (`text-lg`), Namen (`text-sm`), Kategorie-Pille sowie Stift- und Papierkorb-Aktionen.
-   - Jedes Aroma unterstützt ein optionales Feld `description?: string` (*Beschreibung / Notiz*), das exklusiv im Aromakatalog unterhalb des Namens angezeigt wird, während Verkostungskarten und Aromen-Chips kompakt bleiben.
+   - Alle Aromen im Katalog (Standard- und Nutzer-Aromen) erscheinen in einer ruhigen, einheitlichen Zeilenstruktur mit freistehendem Emoji (`text-lg`, oder bündig ohne Icon bei `Kein Icon`), Namen (`text-sm`), Farb-Badge sowie Stift-Aktion.
+   - Jedes Aroma unterstützt ein optionales Feld `description?: string` (*Beschreibung*), das exklusiv im Aromakatalog unterhalb des Namens angezeigt wird, während Verkostungskarten und Aromen-Chips kompakt bleiben.
+
+### 5.20 3-Zone Mobile-First Button Layout & Concise Copy Standard (No AI Slop)
+1. **3-Zonen-Regel für Icon vs. Text (Google Material 3 & Apple HIG Mobile-First)**:
+   - **Zone 1 — Toolbars, Header & Settings-Aktionsgruppen (`Icon-Only`)**: Wenn 2 oder mehr Werkzeug-Aktionen nebeneinander stehen (`[...]`, `[▽]` Filter, `[✕]` Auswahlmodus beenden, `[🔄][✏️][🗑️]` in den Profil-Einstellungen), sind sie strikt quadratische **Icon-Only**-Buttons (`w-9 h-9` in Toolbars, `w-10 h-10` in Einstellungszeilen) mit `title` und `aria-label`.
+   - **Zone 2 — Modal-Footer, Segmented Tabs & Formular-Aktionen (`Text-Only`)**: Dialog-Footer (`Abbrechen`, `Speichern`, `Erstellen`, `Löschen`, `Übernehmen`, `Fertig`) sowie mehrteilige Modal-Tab-Leisten (`Aroma | Kategorie | Unterkategorie`, `Nase | Geschmack`) sind **Text-Only** ohne dekorative Icons.
+   - **Zone 3 — Sortier-Dropdowns & Hero-CTAs**: Sortier-Dropdowns zeigen das aktive Kriterium ausgeschrieben mit Chevron (`[Zuletzt bearbeitet ▾]` / `[Zuletzt verkostet ▾]`).
+2. **Prägnante UI-Texte & Verbot redundanter Zusätze (Anti-Slop Rule)**:
+   - **Keine Kontext-Wiederholung in Buttons**: Wenn der Kontext durch Modal-Titel oder Tab bereits gesetzt ist, lautet der Button **`Speichern`**, **`Erstellen`**, **`Löschen`** oder **`Übernehmen`** (niemals `Aroma speichern`, `Kategorie speichern`, `Unterkategorie speichern`, `Journal erstellen` im Modal-Footer, `Ja, Notiz löschen` oder `In Notiz übernehmen`).
+   - **Keine Klammer-Zusätze ohne Informationsgewinn**: Redundante Klammern wie `Allgemein (Ohne)`, `Beschreibung (optional)`, `Cover-Foto (optional)`, `Buchfarbe (Einband)` oder `Füllmenge (ml)` sind verboten. Stattdessen werden kurze, präzise 1-Wort-Begriffe verwendet (`Allgemein`, `Beschreibung`, `Cover-Foto`, `Buchfarbe`, `Füllmenge`, `Name`, `Farbe`, `Icon`, `Kategorie`, `Unterkategorie`, `Vorschau`).
 
 ---
 

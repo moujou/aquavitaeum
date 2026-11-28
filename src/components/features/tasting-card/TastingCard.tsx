@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles } from 'lucide-react';
 import { Spirit } from '@/types/spirit.types';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
@@ -9,6 +9,7 @@ import { SpiritPhotoCarousel } from '@/components/features/photos/SpiritPhotoCar
 import { SpiritScanModal } from '@/components/features/scanner/SpiritScanModal';
 import { useTastingCardForm } from '@/hooks/useTastingCardForm';
 import { useLanguage } from '@/context/LanguageContext';
+import { useToast } from '@/context/ToastContext';
 import { useAiAssistantConfig } from '@/hooks/useAiAssistantConfig';
 import { cn } from '@/lib/utils';
 import { TastingHeaderSection } from './sections/TastingHeaderSection';
@@ -26,8 +27,10 @@ interface TastingCardProps {
 
 function TastingCardComponent({ initialSpirit, onSave, onDelete, className }: TastingCardProps) {
   const { language, t } = useLanguage();
+  const { showToast } = useToast();
   const {
     spirit,
+    saved,
     showDeleteModal,
     setShowDeleteModal,
     stars,
@@ -41,13 +44,43 @@ function TastingCardComponent({ initialSpirit, onSave, onDelete, className }: Ta
 
   const { hasAiKey } = useAiAssistantConfig();
   const [isHeaderScanModalOpen, setIsHeaderScanModalOpen] = useState(false);
+  const hasModifiedInSessionRef = useRef(false);
+  const wasDeletedRef = useRef(false);
+  const showToastRef = useRef(showToast);
+  const languageRef = useRef(language);
+
+  useEffect(() => {
+    showToastRef.current = showToast;
+    languageRef.current = language;
+  }, [showToast, language]);
+
+  // Track if the user modified anything during this tasting card session
+  useEffect(() => {
+    if (!saved) {
+      hasModifiedInSessionRef.current = true;
+    }
+  }, [saved]);
+
+  // Show a single reassuring "Notiz gespeichert" toast when navigating away after edits (zero toast spam while editing)
+  useEffect(() => {
+    return () => {
+      if (hasModifiedInSessionRef.current && !wasDeletedRef.current) {
+        showToastRef.current(
+          languageRef.current === 'DE' ? 'Notiz gespeichert' : 'Note saved',
+          'success',
+          2000
+        );
+      }
+    };
+  }, []);
 
   return (
     <div className={cn('parchment rounded-xl overflow-hidden animate-fade-in shadow-md', className)}>
       
-      {/* Section 1: Dynamic Banner Header with Gear Page Actions Dropdown */}
+      {/* Section 1: Dynamic Banner Header with Gear Page Actions Dropdown & Subtle Auto-Save Status */}
       <TastingHeaderSection
         spirit={spirit}
+        saved={saved}
         displayName={displayName}
         subtitleLocation={subtitleLocation}
         onDelete={onDelete ? () => setShowDeleteModal(true) : undefined}
@@ -134,7 +167,14 @@ function TastingCardComponent({ initialSpirit, onSave, onDelete, className }: Ta
         confirmLabel={t('yesDeleteNote')}
         cancelLabel={t('cancel')}
         closeLabel={t('close')}
-        onConfirm={confirmDelete}
+        onConfirm={() => {
+          wasDeletedRef.current = true;
+          confirmDelete();
+          showToast(
+            language === 'DE' ? 'Notiz gelöscht' : 'Note deleted',
+            'info'
+          );
+        }}
         onCancel={() => setShowDeleteModal(false)}
       />
 
@@ -143,7 +183,12 @@ function TastingCardComponent({ initialSpirit, onSave, onDelete, className }: Ta
         isOpen={isHeaderScanModalOpen}
         onClose={() => setIsHeaderScanModalOpen(false)}
         onApply={(result, uploadedImage, mode) => {
+          hasModifiedInSessionRef.current = true;
           applyScanResult(result, uploadedImage, mode);
+          showToast(
+            language === 'DE' ? 'Analyse übernommen' : 'Analysis applied',
+            'success'
+          );
         }}
       />
     </div>

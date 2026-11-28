@@ -140,7 +140,7 @@ describe('JournalsOverview Component', () => {
     const nameInput = screen.getByPlaceholderText(/Islay Malts/i);
     fireEvent.change(nameInput, { target: { value: 'Rum Collection' } });
 
-    const submitBtn = screen.getByRole('button', { name: /Create Journal|Journal anlegen|Create|Anlegen/i });
+    const submitBtn = screen.getByRole('button', { name: /Create Journal|Journal anlegen|Create|Anlegen|Erstellen/i });
     fireEvent.click(submitBtn);
 
     await waitFor(() => {

@@ -25,9 +25,30 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       if (domTheme === 'pub-dark' || domTheme === 'light') {
         return domTheme;
       }
+      if (
+        typeof window.matchMedia === 'function' &&
+        window.matchMedia('(prefers-color-scheme: dark)').matches
+      ) {
+        return 'pub-dark';
+      }
     }
     return 'light';
   });
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleSystemThemeChange = (e: MediaQueryListEvent) => {
+      const cached = window.localStorage.getItem(THEME_STORAGE_KEY);
+      if (cached !== 'pub-dark' && cached !== 'light') {
+        setThemeState(e.matches ? 'pub-dark' : 'light');
+      }
+    };
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', handleSystemThemeChange);
+      return () => mediaQuery.removeEventListener('change', handleSystemThemeChange);
+    }
+  }, []);
 
   useEffect(() => {
     if (typeof document !== 'undefined') {
@@ -45,14 +66,22 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         }
       } else {
         document.documentElement.removeAttribute('data-theme');
-        document.documentElement.style.colorScheme = 'light';
+        document.documentElement.style.colorScheme = 'light dark';
         document.documentElement.style.backgroundColor = targetColor;
         if (document.body) {
           document.body.removeAttribute('data-theme');
-          document.body.style.colorScheme = 'light';
+          document.body.style.colorScheme = 'light dark';
           document.body.style.backgroundColor = targetColor;
         }
       }
+
+      let colorSchemeMeta = document.querySelector('meta[name="color-scheme"]');
+      if (!colorSchemeMeta) {
+        colorSchemeMeta = document.createElement('meta');
+        colorSchemeMeta.setAttribute('name', 'color-scheme');
+        document.head.appendChild(colorSchemeMeta);
+      }
+      colorSchemeMeta.setAttribute('content', isDark ? 'dark' : 'light dark');
 
       const metas = document.querySelectorAll('meta[name="theme-color"]');
       if (metas.length > 0) {

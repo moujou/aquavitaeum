@@ -72,12 +72,12 @@ export function PageActionsDropdown({
         className={cn(
           variant === 'on-dark-banner'
             ? cn(
-                'w-10 h-10 rounded-lg border border-[var(--parchment-border)] bg-[var(--pub-bg-panel)] text-[var(--forest-green)] shadow-xs flex items-center justify-center transition-all cursor-pointer active:scale-95 min-h-[40px]',
+                'w-9 h-9 rounded-lg border border-[var(--parchment-border)] bg-[var(--pub-bg-panel)] text-[var(--forest-green)] shadow-xs flex items-center justify-center transition-all cursor-pointer active:scale-95 min-h-[36px]',
                 'hover:bg-[var(--wood-selection)] hover:border-[var(--brass-light)] hover:text-[var(--brass-light)] hover:shadow-md',
                 isOpen && 'bg-[var(--wood-selection)] border-[var(--brass-light)] text-[var(--brass-light)] ring-2 ring-[var(--brass-light)]/35 shadow-sm'
               )
             : cn(
-                'w-10 h-10 rounded-lg border border-[var(--forest-green)]/35 bg-[var(--pub-bg-panel)] hover:bg-[var(--forest-green)]/10 text-[var(--forest-green)] hover:border-[var(--forest-green)] flex items-center justify-center transition-all shadow-xs active:scale-95 cursor-pointer min-h-[40px]',
+                'w-9 h-9 rounded-lg border border-[var(--forest-green)]/35 bg-[var(--pub-bg-panel)] hover:bg-[var(--forest-green)]/10 text-[var(--forest-green)] hover:border-[var(--forest-green)] flex items-center justify-center transition-all shadow-xs active:scale-95 cursor-pointer min-h-[36px]',
                 isOpen && 'bg-[var(--forest-green)]/15 border-[var(--forest-green)] text-[var(--forest-green)] ring-2 ring-[var(--forest-green)]/25 shadow-sm'
               )
         )}

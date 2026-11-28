@@ -2,6 +2,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useLanguage } from '@/context/LanguageContext';
+import { useToast } from '@/context/ToastContext';
 import { JournalWithStats } from '@/hooks/useJournals';
 import { Trash2, Edit3, Star, X, FileText, Clock, Compass, CheckCircle2, BookOpen, Download, Upload, AlertCircle, CheckSquare } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
@@ -44,6 +45,7 @@ export function JournalsOverview({
   onSelectModeChange,
 }: JournalsOverviewProps) {
   const { t, language } = useLanguage();
+  const { showToast } = useToast();
 
   // Sorting state (persisted in localStorage)
   const [sortBy, setSortBy] = useState<JournalSortOption>(() => {
@@ -166,7 +168,24 @@ export function JournalsOverview({
     [isSelectMode, toggleSelection, onSelectJournal],
   );
 
-  const handleBulkDelete = () => execBulkDelete(async (id) => { await onDeleteJournal(id); });
+  const handleBulkDelete = () => {
+    const count = selectedIds.size;
+    execBulkDelete(async (id) => {
+      await onDeleteJournal(id);
+    });
+    if (count > 0) {
+      showToast(
+        language === 'DE'
+          ? count === 1
+            ? 'Journal gelöscht'
+            : `${count} Journale gelöscht`
+          : count === 1
+            ? 'Journal deleted'
+            : `${count} journals deleted`,
+        'info'
+      );
+    }
+  };
 
   const handleEditFromSelectMode = () => {
     const [id] = selectedIds;
@@ -183,31 +202,49 @@ export function JournalsOverview({
   // ── Standard CRUD handlers ─────────────────────────────────────────────────
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newJournalName.trim()) return;
+    const createdName = newJournalName.trim();
+    if (!createdName) return;
     try {
-      await onCreateJournal(newJournalName, newJournalDescription, newJournalCoverImage, newJournalColor);
+      await onCreateJournal(createdName, newJournalDescription, newJournalCoverImage, newJournalColor);
       setNewJournalName('');
       setNewJournalDescription('');
       setNewJournalCoverImage(undefined);
       setNewJournalColor('green');
       triggerCloseCreate();
+      showToast(
+        language === 'DE' ? 'Journal erstellt' : 'Journal created',
+        'success'
+      );
     } catch (err) {
       console.error(err);
+      showToast(
+        language === 'DE' ? 'Fehler beim Erstellen' : 'Failed to create journal',
+        'error'
+      );
     }
   };
 
   const handleRename = async (e: React.FormEvent, id: string) => {
     e.preventDefault();
-    if (!editName.trim()) return;
+    const savedName = editName.trim();
+    if (!savedName) return;
     try {
-      await onRenameJournal(id, editName, editDescription, editCoverImage, editColor);
+      await onRenameJournal(id, savedName, editDescription, editCoverImage, editColor);
       setEditingId(null);
       setEditName('');
       setEditDescription('');
       setEditCoverImage(undefined);
       setEditColor('green');
+      showToast(
+        language === 'DE' ? 'Journal gespeichert' : 'Journal saved',
+        'success'
+      );
     } catch (err) {
       console.error(err);
+      showToast(
+        language === 'DE' ? 'Fehler beim Speichern' : 'Failed to save journal',
+        'error'
+      );
     }
   };
 
@@ -215,8 +252,16 @@ export function JournalsOverview({
     try {
       await onDeleteJournal(id);
       setConfirmDeleteId(null);
+      showToast(
+        language === 'DE' ? 'Journal gelöscht' : 'Journal deleted',
+        'info'
+      );
     } catch (err) {
       console.error(err);
+      showToast(
+        language === 'DE' ? 'Fehler beim Löschen' : 'Failed to delete journal',
+        'error'
+      );
     }
   };
 
@@ -256,8 +301,25 @@ export function JournalsOverview({
           )}
 
           {isSelectMode ? (
-            /* Select mode action buttons: Actions Dropdown (Bearbeiten, Exportieren, Löschen) + Done button */
+            /* Select mode action buttons: Direct Trash Button + Actions Dropdown + Done button */
             <div className="flex items-center gap-1.5 shrink-0">
+              {/* Direct Delete / Trash Button (Square w-9 h-9 Icon-Only Standard) */}
+              <button
+                type="button"
+                disabled={!canDelete}
+                onClick={() => canDelete && setConfirmBulkDelete(true)}
+                title={language === 'DE' ? 'Auswahl entfernen' : 'Remove selected'}
+                aria-label={language === 'DE' ? 'Auswahl entfernen' : 'Remove selected'}
+                className={cn(
+                  'w-9 h-9 rounded-lg border transition-all flex items-center justify-center shadow-xs select-none min-h-[36px]',
+                  canDelete
+                    ? 'border-red-500/40 bg-red-500/10 hover:bg-red-600 text-red-600 dark:text-red-400 hover:text-white active:scale-95 cursor-pointer'
+                    : 'border-[var(--parchment-border)] bg-[var(--pub-bg-panel)] text-[var(--sepia-muted)] opacity-40 cursor-not-allowed'
+                )}
+              >
+                <Trash2 className="w-4 h-4 shrink-0" />
+              </button>
+
               {/* Multi-Select Actions Dropdown */}
               <PageActionsDropdown
                 title={language === 'DE' ? 'Aktionen' : 'Actions'}
@@ -287,15 +349,15 @@ export function JournalsOverview({
                 ]}
               />
 
-              {/* Done / Cancel */}
+              {/* Done / Cancel (Square w-9 h-9 Icon-Only Standard matching PageActionsDropdown) */}
               <button
                 type="button"
                 onClick={exitSelectMode}
                 title={language === 'DE' ? 'Fertig' : 'Done'}
-                className="h-9 px-2.5 sm:px-3 rounded-lg border border-[var(--parchment-border)] bg-[var(--pub-bg-panel)] hover:bg-[var(--pub-bg-alt)] text-[var(--foreground)] transition-all flex items-center gap-1 text-xs font-display font-bold uppercase tracking-wider shadow-xs active:scale-95 cursor-pointer select-none min-h-[36px]"
+                aria-label={language === 'DE' ? 'Fertig' : 'Done'}
+                className="w-9 h-9 rounded-lg border border-[var(--parchment-border)] bg-[var(--pub-bg-panel)] hover:bg-[var(--pub-bg-alt)] text-[var(--foreground)] transition-all flex items-center justify-center shadow-xs active:scale-95 cursor-pointer select-none min-h-[36px]"
               >
-                <X className="w-3.5 h-3.5 shrink-0" />
-                <span className="hidden sm:inline">{language === 'DE' ? 'Fertig' : 'Done'}</span>
+                <X className="w-4 h-4 shrink-0" />
               </button>
             </div>
           ) : (
@@ -361,9 +423,8 @@ export function JournalsOverview({
           <button
             type="button"
             onClick={triggerOpenCreate}
-            className="min-h-[44px] px-5 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] text-[var(--fab-text)] font-bold text-sm transition-all cursor-pointer shadow-md active:scale-95 flex items-center gap-2"
+            className="min-h-[44px] px-5 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] text-[var(--fab-text)] font-bold text-sm transition-all cursor-pointer shadow-md active:scale-95 flex items-center justify-center"
           >
-            <BookOpen className="w-4 h-4" />
             <span>{t('createJournalBtn')}</span>
           </button>
         </div>
@@ -543,20 +604,35 @@ export function JournalsOverview({
                           onChange={setEditColor}
                         />
                       </div>
-                      <div className="flex justify-end gap-2 mt-1">
-                        <button
-                          type="submit"
-                          className="min-h-[36px] px-3.5 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] text-[var(--fab-text)] text-xs font-bold transition-all active:scale-95 cursor-pointer"
-                        >
-                          {t('saveAction')}
-                        </button>
+                      <div className="flex items-center justify-between gap-2 mt-1">
                         <button
                           type="button"
-                          onClick={() => setEditingId(null)}
-                          className="min-h-[36px] p-2 rounded-lg bg-[var(--pub-bg-alt)] hover:bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] text-[var(--sepia-muted)] hover:text-[var(--foreground)] cursor-pointer"
+                          onClick={() => {
+                            setEditingId(null);
+                            setConfirmDeleteId(journal.id);
+                          }}
+                          title={t('deleteAction')}
+                          aria-label={t('deleteAction')}
+                          className="w-9 h-9 rounded-lg border border-red-500/40 bg-red-500/10 hover:bg-red-600 text-red-600 dark:text-red-400 hover:text-white transition-all flex items-center justify-center shadow-2xs active:scale-95 cursor-pointer shrink-0"
                         >
-                          <X className="w-3.5 h-3.5" />
+                          <Trash2 className="w-4 h-4 shrink-0" />
                         </button>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setEditingId(null)}
+                            className="min-h-[36px] px-3 rounded-lg bg-[var(--pub-bg-alt)] hover:bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] text-[var(--sepia-muted)] hover:text-[var(--foreground)] text-xs font-semibold transition-colors cursor-pointer"
+                          >
+                            {t('cancel')}
+                          </button>
+                          <button
+                            type="submit"
+                            className="min-h-[36px] px-3.5 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] text-[var(--fab-text)] text-xs font-bold transition-all active:scale-95 cursor-pointer"
+                          >
+                            {t('saveAction')}
+                          </button>
+                        </div>
                       </div>
                     </form>
                   ) : (
@@ -696,7 +772,7 @@ export function JournalsOverview({
             ? <>{t('deleteJournalConfirm')}</>
             : <>{deletableSelected.length} {t('deleteBulkJournalsConfirm')}</>
         }
-        confirmLabel={language === 'DE' ? 'Löschen bestätigen' : 'Confirm Delete'}
+        confirmLabel={t('deleteAction')}
         cancelLabel={t('cancel')}
         closeLabel={t('close')}
         onConfirm={handleBulkDelete}
@@ -801,7 +877,7 @@ export function JournalsOverview({
                     type="submit"
                     className="min-h-[44px] px-5 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] text-[var(--fab-text)] font-bold text-sm transition-all cursor-pointer shadow-md active:scale-95"
                   >
-                    {t('createJournalBtn')}
+                    {language === 'DE' ? 'Erstellen' : 'Create'}
                   </button>
                 </div>
               </form>
@@ -880,20 +956,36 @@ export function JournalsOverview({
                   selectedColor={editColor}
                   onChange={setEditColor}
                 />
-                <div className="flex justify-end gap-2.5 pt-2">
+                <div className="flex items-center justify-between gap-2.5 pt-2">
                   <button
                     type="button"
-                    onClick={() => setEditingId(null)}
-                    className="min-h-[44px] px-4 rounded-lg bg-[var(--pub-bg-alt)] hover:bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] text-[var(--sepia-muted)] hover:text-[var(--foreground)] text-sm font-semibold transition-colors cursor-pointer"
+                    onClick={() => {
+                      const targetId = editingId;
+                      setEditingId(null);
+                      setConfirmDeleteId(targetId);
+                    }}
+                    title={t('deleteAction')}
+                    aria-label={t('deleteAction')}
+                    className="w-11 h-11 rounded-lg border border-red-500/40 bg-red-500/10 hover:bg-red-600 text-red-600 dark:text-red-400 hover:text-white transition-all flex items-center justify-center shadow-2xs active:scale-95 cursor-pointer shrink-0"
                   >
-                    {t('cancel')}
+                    <Trash2 className="w-4 h-4 shrink-0" />
                   </button>
-                  <button
-                    type="submit"
-                    className="min-h-[44px] px-5 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] text-[var(--fab-text)] font-bold text-sm transition-all cursor-pointer shadow-md active:scale-95"
-                  >
-                    {t('saveAction')}
-                  </button>
+
+                  <div className="flex items-center gap-2.5">
+                    <button
+                      type="button"
+                      onClick={() => setEditingId(null)}
+                      className="min-h-[44px] px-4 rounded-lg bg-[var(--pub-bg-alt)] hover:bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] text-[var(--sepia-muted)] hover:text-[var(--foreground)] text-sm font-semibold transition-colors cursor-pointer"
+                    >
+                      {t('cancel')}
+                    </button>
+                    <button
+                      type="submit"
+                      className="min-h-[44px] px-5 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] text-[var(--fab-text)] font-bold text-sm transition-all cursor-pointer shadow-md active:scale-95"
+                    >
+                      {t('saveAction')}
+                    </button>
+                  </div>
                 </div>
               </form>
             </div>
@@ -907,7 +999,7 @@ export function JournalsOverview({
         title={t('warningTitle')}
         subtitle={t('deleteModalSubtitle')}
         message={<>{t('deleteJournalConfirm')}</>}
-        confirmLabel={language === 'DE' ? 'Journal löschen' : 'Delete Journal'}
+        confirmLabel={t('deleteAction')}
         cancelLabel={t('cancel')}
         closeLabel={t('close')}
         onConfirm={() => confirmDeleteId && handleDelete(confirmDeleteId)}

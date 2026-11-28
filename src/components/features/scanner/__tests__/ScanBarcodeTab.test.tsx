@@ -17,7 +17,7 @@ describe('ScanBarcodeTab', () => {
       />
     );
 
-    expect(screen.getByText('EAN / UPC Barcode-Nummer')).toBeDefined();
+    expect(screen.getByText('Barcode')).toBeDefined();
     const input = screen.getByRole('textbox');
     fireEvent.change(input, { target: { value: '5010abc493' } });
     expect(onBarcodeChange).toHaveBeenCalledWith('5010493');
@@ -37,7 +37,7 @@ describe('ScanBarcodeTab', () => {
     );
 
     expect(screen.getByText('Kamera')).toBeDefined();
-    expect(screen.getByText('Foto hochladen')).toBeDefined();
+    expect(screen.getByText('Hochladen')).toBeDefined();
 
     const cameraInput = document.getElementById('scan-barcode-camera') as HTMLInputElement;
     const file = new File(['fake barcode'], 'barcode.jpg', { type: 'image/jpeg' });

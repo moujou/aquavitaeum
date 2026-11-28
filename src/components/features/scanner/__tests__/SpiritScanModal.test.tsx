@@ -76,7 +76,7 @@ describe('SpiritScanModal Integration', () => {
       fireEvent.click(fullModeBtn);
     }
 
-    const applyBtn = screen.getByText(/In Notiz übernehmen|Apply to Note/);
+    const applyBtn = screen.getByRole('button', { name: /^Übernehmen$|^Apply$/i });
     fireEvent.click(applyBtn);
 
     expect(onApply).toHaveBeenCalledWith(mockResult, undefined, expect.any(String));

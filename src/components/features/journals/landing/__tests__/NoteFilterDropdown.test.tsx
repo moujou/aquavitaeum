@@ -6,8 +6,9 @@ import { LanguageProvider } from '@/context/LanguageContext';
 import { NoteFilterState } from '@/types/spirit.types';
 
 const defaultFilterState: NoteFilterState = {
-  spiritType: 'All',
   minRating: 0,
+  minAge: 0,
+  characteristics: [],
 };
 
 describe('NoteFilterDropdown Component', () => {
@@ -29,16 +30,16 @@ describe('NoteFilterDropdown Component', () => {
     render(
       <LanguageProvider>
         <NoteFilterDropdown
-          filterState={{ spiritType: 'Single Malt Scotch', minRating: 85 }}
+          filterState={{ minRating: 85, minAge: 12, characteristics: ['Cask Strength'] }}
           onChange={vi.fn()}
         />
       </LanguageProvider>
     );
 
-    expect(screen.getByText('2')).toBeDefined();
+    expect(screen.getByText('3')).toBeDefined();
   });
 
-  it('opens panel and allows changing spirit category and min rating', () => {
+  it('opens panel and allows changing min rating, min age, and characteristics chips', () => {
     const handleChange = vi.fn();
     render(
       <LanguageProvider>
@@ -56,8 +57,27 @@ describe('NoteFilterDropdown Component', () => {
     const chip85 = screen.getByRole('button', { name: '85+' });
     fireEvent.click(chip85);
     expect(handleChange).toHaveBeenCalledWith({
-      spiritType: 'All',
       minRating: 85,
+      minAge: 0,
+      characteristics: [],
+    });
+
+    // Change min age chip (12+)
+    const chip12 = screen.getByRole('button', { name: '12+' });
+    fireEvent.click(chip12);
+    expect(handleChange).toHaveBeenCalledWith({
+      minRating: 0,
+      minAge: 12,
+      characteristics: [],
+    });
+
+    // Toggle a characteristic chip (Cask Strength / Fassstärke)
+    const caskStrengthChip = screen.getByRole('button', { name: /Cask Strength|Fassstärke/i });
+    fireEvent.click(caskStrengthChip);
+    expect(handleChange).toHaveBeenCalledWith({
+      minRating: 0,
+      minAge: 0,
+      characteristics: ['Cask Strength'],
     });
   });
 
@@ -66,7 +86,7 @@ describe('NoteFilterDropdown Component', () => {
     render(
       <LanguageProvider>
         <NoteFilterDropdown
-          filterState={{ spiritType: 'Bourbon', minRating: 90 }}
+          filterState={{ minRating: 90, minAge: 18, characteristics: ['Single Cask'] }}
           onChange={handleChange}
         />
       </LanguageProvider>
@@ -75,12 +95,13 @@ describe('NoteFilterDropdown Component', () => {
     const trigger = screen.getByRole('button', { name: /Filter/i });
     fireEvent.click(trigger);
 
-    const resetBtn = screen.getByRole('button', { name: /Reset Filters|Filter zurücksetzen/i });
+    const resetBtn = screen.getByRole('button', { name: /Reset|Zurücksetzen/i });
     fireEvent.click(resetBtn);
 
     expect(handleChange).toHaveBeenCalledWith({
-      spiritType: 'All',
       minRating: 0,
+      minAge: 0,
+      characteristics: [],
     });
   });
 });

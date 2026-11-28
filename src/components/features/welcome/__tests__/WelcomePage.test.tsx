@@ -51,7 +51,7 @@ describe('WelcomePage Onboarding & Launch Screen', () => {
     fireEvent.change(descInput, { target: { value: 'Islay and Speyside malts' } });
 
     // Submit form
-    const submitButton = screen.getByRole('button', { name: /Create Journal/i });
+    const submitButton = screen.getByRole('button', { name: /Save|Speichern|Create Journal/i });
     
     // Wrap state updates in act
     await act(async () => {
@@ -74,7 +74,7 @@ describe('WelcomePage Onboarding & Launch Screen', () => {
     );
 
     // Verify open button is visible
-    const button = screen.getByRole('button', { name: /Start Offline & Local/i });
+    const button = screen.getByRole('button', { name: /Start Locally|Lokal starten|Start Offline & Local/i });
     expect(button).toBeDefined();
 
     // Click button to enter

@@ -189,7 +189,7 @@ export function SensoryCompassDrawer({
               cf.subcategoryId && validSubcategoryIds.has(cf.subcategoryId)
                 ? cf.subcategoryId
                 : undefined,
-            emoji: cf.emoji || cat.emoji,
+            emoji: cf.emoji !== undefined ? cf.emoji : cat.emoji,
             color: cf.color || catColor,
             isSelectedInCurrent,
             isSelectedInOther,
@@ -222,7 +222,7 @@ export function SensoryCompassDrawer({
                 desc.subcategoryId && validSubcategoryIds.has(desc.subcategoryId)
                   ? desc.subcategoryId
                   : undefined,
-              emoji: desc.emoji || cat.emoji,
+              emoji: desc.emoji !== undefined ? desc.emoji : cat.emoji,
               color: desc.color || catColor,
               isSelectedInCurrent,
               isSelectedInOther,
@@ -276,9 +276,11 @@ export function SensoryCompassDrawer({
     >
       {/* Left: Emoji + Name + Color Dot + Optional Description */}
       <div className="flex items-center gap-3 min-w-0 flex-1">
-        <span className="text-lg leading-none select-none shrink-0 w-6 text-center">
-          {row.emoji}
-        </span>
+        {row.emoji && (
+          <span className="text-lg leading-none select-none shrink-0 w-6 text-center">
+            {row.emoji}
+          </span>
+        )}
 
         <div className="min-w-0 flex-1 flex flex-col">
           <div className="flex items-center gap-2 min-w-0">
@@ -591,7 +593,9 @@ export function SensoryCompassDrawer({
                             className="w-full rounded-xl border border-[var(--parchment-border)] bg-[var(--pub-bg-panel)]/45 overflow-hidden"
                           >
                             <div className="px-4 py-2 bg-[var(--pub-bg-alt)]/75 border-b border-[var(--parchment-border)] flex items-center gap-2">
-                              <span className="text-base leading-none shrink-0">{sub.emoji || '📁'}</span>
+                              {sub.emoji && (
+                                <span className="text-base leading-none shrink-0">{sub.emoji}</span>
+                              )}
                               <span className="font-display font-bold text-xs sm:text-sm text-[var(--foreground)] truncate">
                                 {sub.name}
                               </span>
@@ -624,9 +628,8 @@ export function SensoryCompassDrawer({
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2 rounded-lg bg-[var(--wood-selection)] text-white text-xs sm:text-sm font-display font-bold shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer flex items-center gap-1.5"
+            className="px-5 py-2 rounded-lg bg-[var(--wood-selection)] text-white text-xs sm:text-sm font-display font-bold shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center"
           >
-            <Check size={15} />
             <span>{t('done')}</span>
           </button>
         </div>

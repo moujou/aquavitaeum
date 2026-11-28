@@ -181,15 +181,15 @@ describe('JournalLandingPage and NoteEmptyState with AI Scanner', () => {
     expect(screen.getByText('Uigeadail')).toBeDefined();
     expect(screen.queryByText('Eagle Rare 10')).toBeNull();
 
-    // Filter by spirit type to Rye (which neither has)
-    const select = screen.getByLabelText(/Spirit Type|Spirituosen-Typ/i);
-    fireEvent.change(select, { target: { value: 'Rye Whiskey' } });
+    // Filter by Min Age 18+ (which neither has)
+    const chip18 = screen.getByRole('button', { name: '18+' });
+    fireEvent.click(chip18);
 
     // Should show empty filtered state
     expect(screen.getByText(/No notes match the active filters|Keine Notizen entsprechen den aktiven Filtern/i)).toBeDefined();
 
     // Click reset filters button
-    const resetBtns = screen.getAllByRole('button', { name: /Reset Filters|Filter zurücksetzen/i });
+    const resetBtns = screen.getAllByRole('button', { name: /Reset|Zurücksetzen/i });
     fireEvent.click(resetBtns[0]);
 
     // Both notes should be visible again

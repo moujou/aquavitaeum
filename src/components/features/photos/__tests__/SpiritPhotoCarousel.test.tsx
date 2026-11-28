@@ -17,7 +17,7 @@ describe('SpiritPhotoCarousel Component', () => {
     ).toBeDefined();
     expect(screen.queryByRole('button', { name: /AI Bottle Analysis|KI-Flaschenanalyse/i })).toBeNull();
     expect(screen.getByRole('button', { name: /Camera|Kamera/i })).toBeDefined();
-    expect(screen.getByRole('button', { name: /Upload Photo|Foto hochladen/i })).toBeDefined();
+    expect(screen.getByRole('button', { name: /Upload|Hochladen/i })).toBeDefined();
   });
 
   it('renders populated carousel when images are present with media toolbar controls', () => {

@@ -148,4 +148,49 @@ describe('GlobalSearch Component', () => {
       expect(screen.getByText(/Signatory Vintage/)).toBeDefined();
     });
   });
+
+  it('searches aromas in the dropdown and navigates to the Aroma Catalog filtered to the clicked aroma', async () => {
+    const onNavigateToAroma = vi.fn();
+
+    render(
+      <LanguageProvider>
+        <GlobalSearch
+          journals={[mockJournal]}
+          activeView="overview"
+          setActiveJournalId={vi.fn()}
+          setActiveView={vi.fn()}
+          selectSpirit={vi.fn()}
+          globalSearchQuery="Tabak"
+          setGlobalSearchQuery={vi.fn()}
+          globalTypeFilter="All"
+          setGlobalTypeFilter={vi.fn()}
+          onNavigateToAroma={onNavigateToAroma}
+        />
+      </LanguageProvider>
+    );
+
+    const aromaResult = await screen.findByText(/Tobacco|Tabak/i);
+    fireEvent.click(aromaResult);
+    expect(onNavigateToAroma).toHaveBeenCalledTimes(1);
+  });
+
+  it('hides the floating dropdown when activeView is aroma-catalog so the query filters the page directly', () => {
+    render(
+      <LanguageProvider>
+        <GlobalSearch
+          journals={[mockJournal]}
+          activeView="aroma-catalog"
+          setActiveJournalId={vi.fn()}
+          setActiveView={vi.fn()}
+          selectSpirit={vi.fn()}
+          globalSearchQuery="Tabak"
+          setGlobalSearchQuery={vi.fn()}
+          globalTypeFilter="All"
+          setGlobalTypeFilter={vi.fn()}
+        />
+      </LanguageProvider>
+    );
+
+    expect(screen.queryByText(/Aromas|Aromen/i)).toBeNull();
+  });
 });

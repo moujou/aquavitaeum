@@ -29,6 +29,7 @@ interface AppHeaderProps {
   setGlobalTypeFilter: (t: SpiritType | 'All') => void;
   isSelectMode?: boolean;
   onNavigateToSpirit?: (spiritId: string, journalId: string) => void;
+  onNavigateToAroma?: (aromaName: string) => void;
 }
 
 export default function AppHeader({
@@ -50,6 +51,7 @@ export default function AppHeader({
   setGlobalTypeFilter,
   isSelectMode = false,
   onNavigateToSpirit,
+  onNavigateToAroma,
 }: AppHeaderProps) {
   const { t, language } = useLanguage();
   const JournalIcon = journalLayout === 'bookshelf' ? Book : BookOpen;
@@ -94,7 +96,7 @@ export default function AppHeader({
         </button>
 
         <div className="hidden lg:flex flex-1 justify-center max-w-lg xl:max-w-xl mx-4">
-          {isSelectMode ? (
+          {isSelectMode && activeView !== 'aroma-catalog' ? (
             <div className="flex items-center justify-center h-10 px-5 rounded-full bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] text-xs font-display tracking-wide text-[var(--wood-selection)] font-bold shadow-xs select-none animate-fade-in">
               <span className="w-2 h-2 rounded-full bg-[var(--wood-selection)] animate-pulse mr-2" />
               {language === 'DE' ? 'Auswahlmodus aktiv' : 'Selection Mode Active'}
@@ -102,6 +104,7 @@ export default function AppHeader({
           ) : (
             <GlobalSearch
               journals={journals}
+              activeView={activeView}
               setActiveJournalId={setActiveJournalId}
               setActiveView={setActiveView}
               selectSpirit={selectSpirit}
@@ -110,6 +113,7 @@ export default function AppHeader({
               globalTypeFilter={globalTypeFilter}
               setGlobalTypeFilter={setGlobalTypeFilter}
               onNavigateToSpirit={onNavigateToSpirit}
+              onNavigateToAroma={onNavigateToAroma}
             />
           )}
         </div>
@@ -199,7 +203,7 @@ export default function AppHeader({
 
           {/* Center Search Bar or Selection Indicator */}
           <div className="flex-1 flex justify-center min-w-0">
-            {isSelectMode ? (
+            {isSelectMode && activeView !== 'aroma-catalog' ? (
               <div className="flex items-center justify-center h-8 px-4 rounded-full bg-[var(--pub-bg-alt)] border border-[var(--parchment-border)] text-[11px] font-display tracking-wide text-[var(--wood-selection)] font-bold shadow-xs select-none animate-fade-in">
                 <span className="w-1.5 h-1.5 rounded-full bg-[var(--wood-selection)] animate-pulse mr-2" />
                 {language === 'DE' ? 'Auswahlmodus' : 'Select Mode'}
@@ -207,6 +211,7 @@ export default function AppHeader({
             ) : (
               <GlobalSearch
                 journals={journals}
+                activeView={activeView}
                 setActiveJournalId={setActiveJournalId}
                 setActiveView={setActiveView}
                 selectSpirit={selectSpirit}
@@ -215,6 +220,7 @@ export default function AppHeader({
                 globalTypeFilter={globalTypeFilter}
                 setGlobalTypeFilter={setGlobalTypeFilter}
                 onNavigateToSpirit={onNavigateToSpirit}
+                onNavigateToAroma={onNavigateToAroma}
               />
             )}
           </div>

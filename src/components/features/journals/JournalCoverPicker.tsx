@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useRef, useCallback, useState } from 'react';
-import { Upload, X, Camera, AlertCircle } from 'lucide-react';
+import { X, Camera, AlertCircle } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
 // ─── Image compression (same pipeline as usePhotoUpload) ─────────────────────
@@ -152,9 +152,8 @@ export function JournalCoverPicker({
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="flex items-center gap-2 min-h-[38px] px-3.5 rounded-lg bg-[var(--pub-bg-alt)] hover:bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] text-[var(--sepia-text)] hover:text-[var(--foreground)] text-xs sm:text-sm font-body transition-all active:scale-95 cursor-pointer shadow-2xs"
+          className="flex items-center justify-center min-h-[38px] px-3.5 rounded-lg bg-[var(--pub-bg-alt)] hover:bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] text-[var(--sepia-text)] hover:text-[var(--foreground)] text-xs sm:text-sm font-body font-semibold transition-all active:scale-95 cursor-pointer shadow-2xs"
         >
-          <Upload size={14} />
           <span>{t('uploadFromDevice')}</span>
         </button>
       </div>
