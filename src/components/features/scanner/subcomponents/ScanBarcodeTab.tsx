@@ -80,7 +80,7 @@ export function ScanBarcodeTab({
           htmlFor="spirit-barcode-query"
           className="font-display text-xs sm:text-sm font-bold text-[var(--sepia-text)]"
         >
-          {language === 'DE' ? 'EAN / UPC Barcode-Nummer' : 'EAN / UPC Barcode'}
+          {language === 'DE' ? 'Barcode' : 'Barcode'}
         </label>
 
         {/* 1. Numeric Search Bar */}
@@ -96,8 +96,8 @@ export function ScanBarcodeTab({
             onChange={(e) => onBarcodeChange(e.target.value.replace(/\D/g, ''))}
             placeholder={
               language === 'DE'
-                ? 'z. B. 5010493015401 (EAN-13)...'
-                : 'e.g. 5010493015401 (EAN-13)...'
+                ? 'z. B. 5010493015401...'
+                : 'e.g. 5010493015401...'
             }
             className="w-full bg-transparent text-sm sm:text-base font-mono text-[var(--foreground)] placeholder:text-[var(--placeholder-text)] focus:outline-none tracking-wider min-w-0"
             autoFocus
@@ -168,11 +168,11 @@ export function ScanBarcodeTab({
               'bg-[var(--pub-bg-panel)] text-[var(--sepia-text)] text-xs sm:text-sm font-body font-medium',
               'hover:bg-[var(--pub-bg-alt)] transition-all cursor-pointer shadow-xs active:scale-95'
             )}
-            title={language === 'DE' ? 'Foto hochladen' : 'Upload photo'}
-            aria-label={language === 'DE' ? 'Foto hochladen' : 'Upload photo'}
+            title={language === 'DE' ? 'Hochladen' : 'Upload'}
+            aria-label={language === 'DE' ? 'Hochladen' : 'Upload'}
           >
             <Upload size={16} className="text-[var(--forest-green)]" />
-            <span>{language === 'DE' ? 'Foto hochladen' : 'Upload photo'}</span>
+            <span>{language === 'DE' ? 'Hochladen' : 'Upload'}</span>
           </button>
         </div>
 

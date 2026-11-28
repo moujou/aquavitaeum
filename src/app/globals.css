@@ -6,6 +6,7 @@
 /* ─── Design Tokens ─────────────────────────────────────────────────────────── */
 :root {
   color-scheme: light dark;
+  forced-color-adjust: none;
   background-color: #ECE5D8;
 
   /* ── Canvas & Surfaces (2026 Unified Editorial Atelier) ──────────────── */
@@ -105,6 +106,7 @@
 
 [data-theme="pub-dark"] {
   color-scheme: dark;
+  forced-color-adjust: none;
   background-color: #0D1115;
 
   /* ── Pub Atmosphere & Moonlight Night Canvas ─────────────────────────────── */
@@ -327,6 +329,36 @@ body {
 }
 
 .animate-fade-in { animation: fadeIn 0.15s ease-out forwards; }
+
+@keyframes toastSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toastSlideOut {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+}
+
+.animate-toast-in {
+  animation: toastSlideIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-toast-out {
+  animation: toastSlideOut 0.28s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
 
 /* ─── Selection ──────────────────────────────────────────────────────────────── */
 ::selection {

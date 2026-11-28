@@ -34,16 +34,18 @@ import { JournalWithStats } from '@/hooks/useJournals';
 import { db } from '@/lib/db';
 import { DATA_MUTATED_EVENT, notifyDataMutated } from '@/lib/sync-events';
 import { useLanguage } from '@/context/LanguageContext';
+import { useToast } from '@/context/ToastContext';
 import { CustomFlavorModal } from '@/components/features/flavor-tags/CustomFlavorModal';
 import { isCustomFlavorInCategory } from '@/components/features/flavor-tags/SensoryCompassDrawer';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { PageActionsDropdown } from '@/components/ui/PageActionsDropdown';
 import { useMultiSelect } from '@/hooks/useMultiSelect';
-import { Search, X, Edit3, Trash2, BookOpen, ArrowUpRight, CheckCircle2, CheckSquare } from 'lucide-react';
+import { X, Edit3, Trash2, BookOpen, ArrowUpRight, CheckCircle2, CheckSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AromaCatalogViewProps {
   journals: JournalWithStats[];
+  searchQuery?: string;
   isCreateOpen: boolean;
   onOpenCreate: () => void;
   onCloseCreate: () => void;
@@ -162,6 +164,7 @@ export function purgeDeletedAromasFromSpirit(
 
 export function AromaCatalogView({
   journals,
+  searchQuery = '',
   isCreateOpen,
   onOpenCreate,
   onCloseCreate,
@@ -169,6 +172,7 @@ export function AromaCatalogView({
   onSelectModeChange,
 }: AromaCatalogViewProps) {
   const { language, t } = useLanguage();
+  const { showToast } = useToast();
   const [customFlavors, setCustomFlavors] = useState<CustomFlavorDescriptor[]>(() => getStoredCustomFlavors());
   const [standardOverrides, setStandardOverrides] = useState<Record<string, StandardFlavorOverride>>(() =>
     getStandardFlavorOverrides()
@@ -182,7 +186,6 @@ export function AromaCatalogView({
   const [categoryPendingDelete, setCategoryPendingDelete] = useState<FlavorCategory | null>(null);
   const [subcategoryPendingDelete, setSubcategoryPendingDelete] = useState<CustomFlavorSubcategory | null>(null);
   const [allSpirits, setAllSpirits] = useState<Spirit[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all');
 
   // Unified Create / Edit modal state
@@ -384,6 +387,7 @@ export function AromaCatalogView({
       registerCustomFlavor(saved);
     }
 
+    const wasEditing = Boolean(editingStandardDesc || editingFlavor);
     setEditingFlavor(null);
     setEditingStandardDesc(null);
     setEditingCategory(null);
@@ -393,9 +397,20 @@ export function AromaCatalogView({
     onCloseCreate();
     await loadData();
     notifyDataMutated();
+    showToast(
+      wasEditing
+        ? language === 'DE'
+          ? 'Aroma gespeichert'
+          : 'Aroma saved'
+        : language === 'DE'
+          ? 'Aroma erstellt'
+          : 'Aroma created',
+      'success'
+    );
   };
 
   const handleSaveCategory = async (cat: CustomFlavorCategory) => {
+    const wasEditing = Boolean(editingCategory);
     saveCustomCategory(cat);
     setEditingCategory(null);
     setEditingSubcategory(null);
@@ -404,9 +419,20 @@ export function AromaCatalogView({
     onCloseCreate();
     await loadData();
     notifyDataMutated();
+    showToast(
+      wasEditing
+        ? language === 'DE'
+          ? 'Kategorie gespeichert'
+          : 'Category saved'
+        : language === 'DE'
+          ? 'Kategorie erstellt'
+          : 'Category created',
+      'success'
+    );
   };
 
   const handleSaveSubcategory = async (sub: CustomFlavorSubcategory) => {
+    const wasEditing = Boolean(editingSubcategory);
     saveCustomSubcategory(sub);
     setEditingCategory(null);
     setEditingSubcategory(null);
@@ -415,6 +441,16 @@ export function AromaCatalogView({
     onCloseCreate();
     await loadData();
     notifyDataMutated();
+    showToast(
+      wasEditing
+        ? language === 'DE'
+          ? 'Unterkategorie gespeichert'
+          : 'Subcategory saved'
+        : language === 'DE'
+          ? 'Unterkategorie erstellt'
+          : 'Subcategory created',
+      'success'
+    );
   };
 
   const confirmDeleteSubcategory = () => {
@@ -425,6 +461,10 @@ export function AromaCatalogView({
     setCustomFlavors([...getStoredCustomFlavors()]);
     setStandardOverrides({ ...getStandardFlavorOverrides() });
     notifyDataMutated();
+    showToast(
+      language === 'DE' ? 'Unterkategorie gelöscht' : 'Subcategory deleted',
+      'info'
+    );
   };
 
   // ── Long-Press & Multi-Select Mode (shared hook — identical to Journals & Notes) ──
@@ -567,7 +607,7 @@ export function AromaCatalogView({
           name: cf.name,
           description: cf.description,
           subcategoryId: cf.subcategoryId && validSubcategoryIds.has(cf.subcategoryId) ? cf.subcategoryId : undefined,
-          emoji: cf.emoji || cat.emoji,
+          emoji: cf.emoji !== undefined ? cf.emoji : cat.emoji,
           color: cf.color || catColor,
           radarDimension: cf.radarDimension,
           matches: getCustomFlavorMatches(cf),
@@ -586,7 +626,7 @@ export function AromaCatalogView({
               desc.subcategoryId && validSubcategoryIds.has(desc.subcategoryId)
                 ? desc.subcategoryId
                 : undefined,
-            emoji: desc.emoji || cat.emoji,
+            emoji: desc.emoji !== undefined ? desc.emoji : cat.emoji,
             color: desc.color || catColor,
             radarDimension: desc.radarDimension,
             matches: getDescriptorMatches(desc),
@@ -646,10 +686,21 @@ export function AromaCatalogView({
       }
     }
 
+    const deletedCount = selectedAromaRows.length;
     setConfirmBulkDelete(false);
     exitSelectMode();
     await loadData();
     notifyDataMutated();
+    showToast(
+      language === 'DE'
+        ? deletedCount === 1
+          ? 'Aroma gelöscht'
+          : `${deletedCount} Aromen gelöscht`
+        : deletedCount === 1
+          ? 'Aroma deleted'
+          : `${deletedCount} aromas deleted`,
+      'info'
+    );
   };
 
   const confirmDeleteCategory = async () => {
@@ -690,6 +741,12 @@ export function AromaCatalogView({
     setCategoryPendingDelete(null);
     await loadData();
     notifyDataMutated();
+    if (deleted) {
+      showToast(
+        language === 'DE' ? 'Kategorie gelöscht' : 'Category deleted',
+        'info'
+      );
+    }
   };
 
   // Merge all aromas per category into a single unified list
@@ -701,17 +758,33 @@ export function AromaCatalogView({
         const rows: UnifiedAromaRow[] = [];
         const catSubcategories = customSubcategories.filter((s) => s.categoryId === cat.id);
         const validSubcategoryIds = new Set(catSubcategories.map((s) => s.id));
+        const catMatchesSearch = Boolean(
+          q && (cat.name.DE.toLowerCase().includes(q) || cat.name.EN.toLowerCase().includes(q))
+        );
+        const matchingSubIds = new Set(
+          catSubcategories
+            .filter((s) => Boolean(q && s.name.toLowerCase().includes(q)))
+            .map((s) => s.id)
+        );
 
         // 1. User-created aromas in this category
         customFlavors.forEach((cf) => {
           if (!isCustomFlavorInCategory(cf, cat.id)) return;
-          if (q && !cf.name.toLowerCase().includes(q) && !cf.description?.toLowerCase().includes(q)) return;
+          const resolvedSubId =
+            cf.subcategoryId && validSubcategoryIds.has(cf.subcategoryId)
+              ? cf.subcategoryId
+              : undefined;
+          if (q && !catMatchesSearch && !(resolvedSubId && matchingSubIds.has(resolvedSubId))) {
+            if (!cf.name.toLowerCase().includes(q) && !cf.description?.toLowerCase().includes(q)) {
+              return;
+            }
+          }
           rows.push({
             id: cf.id,
             name: cf.name,
             description: cf.description,
-            subcategoryId: cf.subcategoryId && validSubcategoryIds.has(cf.subcategoryId) ? cf.subcategoryId : undefined,
-            emoji: cf.emoji || cat.emoji,
+            subcategoryId: resolvedSubId,
+            emoji: cf.emoji !== undefined ? cf.emoji : cat.emoji,
             color: cf.color || catColor,
             radarDimension: cf.radarDimension,
             matches: getCustomFlavorMatches(cf),
@@ -722,7 +795,11 @@ export function AromaCatalogView({
         // 2. Taxonomy aromas in this category
         cat.subcategories.forEach((sub) => {
           sub.descriptors.forEach((desc) => {
-            if (q) {
+            const resolvedSubId =
+              desc.subcategoryId && validSubcategoryIds.has(desc.subcategoryId)
+                ? desc.subcategoryId
+                : undefined;
+            if (q && !catMatchesSearch && !(resolvedSubId && matchingSubIds.has(resolvedSubId))) {
               const matchesSearch =
                 desc.name.EN.toLowerCase().includes(q) ||
                 desc.name.DE.toLowerCase().includes(q) ||
@@ -736,11 +813,8 @@ export function AromaCatalogView({
               id: desc.id,
               name: label,
               description: desc.description,
-              subcategoryId:
-                desc.subcategoryId && validSubcategoryIds.has(desc.subcategoryId)
-                  ? desc.subcategoryId
-                  : undefined,
-              emoji: desc.emoji || cat.emoji,
+              subcategoryId: resolvedSubId,
+              emoji: desc.emoji !== undefined ? desc.emoji : cat.emoji,
               color: desc.color || catColor,
               radarDimension: desc.radarDimension,
               matches: getDescriptorMatches(desc),
@@ -753,10 +827,11 @@ export function AromaCatalogView({
           ...cat,
           rows,
           catSubcategories,
+          matchingSubIds,
           totalItems: rows.length,
         };
       })
-      .filter((cat) => cat.totalItems > 0 || cat.catSubcategories.length > 0 || !q);
+      .filter((cat) => (q ? cat.totalItems > 0 || cat.matchingSubIds.size > 0 : true));
   }, [
     effectiveTaxonomy,
     selectedCategoryId,
@@ -832,9 +907,11 @@ export function AromaCatalogView({
         )}
       >
         <div className="flex items-center gap-3 min-w-0 flex-1">
-          <span className="text-lg leading-none select-none shrink-0 w-6 text-center">
-            {row.emoji}
-          </span>
+          {row.emoji && (
+            <span className="text-lg leading-none select-none shrink-0 w-6 text-center">
+              {row.emoji}
+            </span>
+          )}
 
           <div className="min-w-0 flex-1 flex flex-col">
             <div className="flex items-center gap-2.5 min-w-0">
@@ -909,39 +986,70 @@ export function AromaCatalogView({
 
   return (
     <div className="flex-1 w-full max-w-6xl mx-auto px-3 sm:px-6 pt-2 sm:pt-4 pb-20 animate-fade-in">
-      {/* ── 1. Clean Top Search & Category Filter Bar (Unboxed) ─────────── */}
+      {/* ── 1. Clean Top Category Filter & Actions Toolbar (Unboxed) ───── */}
       <div className="pb-1 w-full">
-        {/* Top Row: Search Input (Always visible) + Multi-Select / Gear Actions on Right */}
-        <div className="flex items-center justify-between gap-2 w-full min-h-[36px]">
-          <div className="relative flex-1 min-w-0">
-            <Search className="w-4 h-4 text-[var(--sepia-muted)] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t('searchAromaCatalogPlaceholder')}
-              className="w-full h-9 pl-9 pr-8 rounded-lg border border-[var(--parchment-border)] bg-[var(--pub-bg-panel)] text-xs sm:text-sm font-body text-[var(--sepia-text)] placeholder:text-[var(--placeholder-text)] focus:outline-none focus:border-[var(--wood-selection)] transition-colors shadow-2xs"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                title={t('clearSearch')}
-                aria-label={t('clearSearch')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-black/10 text-[var(--sepia-muted)] cursor-pointer"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
+        <div className="flex items-start justify-between gap-2.5 w-full">
+          {/* Category Quick-Filter Pills (Left) */}
+          <div className="flex-1 min-w-0 flex items-center gap-2 pb-1.5 flex-nowrap overflow-x-auto no-scrollbar snap-x snap-mandatory md:flex-wrap md:overflow-visible">
+            <button
+              type="button"
+              onClick={() => setSelectedCategoryId('all')}
+              className={cn(
+                'min-h-[38px] px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-body font-semibold border transition-all cursor-pointer whitespace-nowrap flex items-center justify-center shrink-0 snap-start active:scale-95',
+                selectedCategoryId === 'all'
+                  ? 'bg-[var(--wood-selection)] text-white border-[var(--wood-selection)] shadow-xs'
+                  : 'bg-[var(--pub-bg-panel)] text-[var(--foreground)] border-[var(--parchment-border)] hover:bg-[var(--pub-bg-alt)] hover:border-[var(--wood-selection)]'
+              )}
+            >
+              {t('allCategoriesFilter')}
+            </button>
+            {effectiveTaxonomy.map((cat) => {
+              const isSelected = selectedCategoryId === cat.id;
+              const catTitle = cat.name[language] ?? cat.name.EN;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setSelectedCategoryId(isSelected ? 'all' : cat.id)}
+                  className={cn(
+                    'min-h-[38px] px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-body font-semibold border transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 shrink-0 snap-start active:scale-95',
+                    isSelected
+                      ? 'bg-[var(--wood-selection)] text-white border-[var(--wood-selection)] shadow-xs'
+                      : 'bg-[var(--pub-bg-panel)] text-[var(--foreground)] border-[var(--parchment-border)] hover:bg-[var(--pub-bg-alt)] hover:border-[var(--wood-selection)]'
+                  )}
+                >
+                  {cat.emoji && <span className="text-base sm:text-lg leading-none">{cat.emoji}</span>}
+                  <span>{catTitle}</span>
+                </button>
+              );
+            })}
           </div>
 
+          {/* Multi-Select / Page Actions (Right) */}
           {isSelectMode ? (
-            <div className="flex items-center gap-1.5 shrink-0">
+            <div className="flex items-center gap-1.5 shrink-0 pt-0.5">
               {selectedIds.size > 0 && (
                 <span className="text-xs font-body text-[var(--brass-accent)] font-semibold tabular-nums shrink-0 bg-[var(--brass-accent)]/10 px-2.5 py-1 rounded-full border border-[var(--brass-accent)]/30">
                   {selectedIds.size} {language === 'DE' ? 'ausgewählt' : 'selected'}
                 </span>
               )}
+
+              {/* Direct Delete / Trash Button (Square w-9 h-9 Icon-Only Standard) */}
+              <button
+                type="button"
+                disabled={!canDeleteSelected}
+                onClick={() => canDeleteSelected && setConfirmBulkDelete(true)}
+                title={language === 'DE' ? 'Auswahl entfernen' : 'Remove selected'}
+                aria-label={language === 'DE' ? 'Auswahl entfernen' : 'Remove selected'}
+                className={cn(
+                  'w-9 h-9 rounded-lg border transition-all flex items-center justify-center shadow-2xs select-none min-h-[36px]',
+                  canDeleteSelected
+                    ? 'border-red-500/40 bg-red-500/10 hover:bg-red-600 text-red-600 dark:text-red-400 hover:text-white active:scale-95 cursor-pointer'
+                    : 'border-[var(--parchment-border)] bg-[var(--pub-bg-panel)] text-[var(--sepia-muted)] opacity-40 cursor-not-allowed'
+                )}
+              >
+                <Trash2 className="w-4 h-4 shrink-0" />
+              </button>
 
               <PageActionsDropdown
                 title={language === 'DE' ? 'Aktionen' : 'Actions'}
@@ -968,14 +1076,14 @@ export function AromaCatalogView({
                 type="button"
                 onClick={exitSelectMode}
                 title={language === 'DE' ? 'Fertig' : 'Done'}
-                className="h-9 px-2.5 sm:px-3 rounded-lg border border-[var(--parchment-border)] bg-[var(--pub-bg-panel)] hover:bg-[var(--pub-bg-alt)] text-[var(--foreground)] transition-all flex items-center gap-1 text-xs font-display font-bold tracking-wide shadow-2xs active:scale-95 cursor-pointer select-none min-h-[36px]"
+                aria-label={language === 'DE' ? 'Fertig' : 'Done'}
+                className="w-9 h-9 rounded-lg border border-[var(--parchment-border)] bg-[var(--pub-bg-panel)] hover:bg-[var(--pub-bg-alt)] text-[var(--foreground)] transition-all flex items-center justify-center shadow-2xs active:scale-95 cursor-pointer select-none min-h-[36px]"
               >
-                <X className="w-3.5 h-3.5 shrink-0" />
-                <span className="hidden sm:inline">{language === 'DE' ? 'Fertig' : 'Done'}</span>
+                <X className="w-4 h-4 shrink-0" />
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-1.5 shrink-0">
+            <div className="flex items-center gap-1.5 shrink-0 pt-0.5">
               <PageActionsDropdown
                 title={language === 'DE' ? 'Aktionen' : 'Actions'}
                 items={[
@@ -991,49 +1099,22 @@ export function AromaCatalogView({
           )}
         </div>
 
-        {/* Category Quick-Filter (Always visible, including in Select Mode) */}
-        <div className="flex items-center gap-2 pt-2.5 pb-1.5 flex-nowrap overflow-x-auto no-scrollbar snap-x snap-mandatory md:flex-wrap md:overflow-visible">
-          <button
-            type="button"
-            onClick={() => setSelectedCategoryId('all')}
-            className={cn(
-              'min-h-[42px] px-4 py-2 rounded-full text-xs sm:text-sm font-body font-semibold border transition-all cursor-pointer whitespace-nowrap flex items-center justify-center shrink-0 snap-start active:scale-95',
-              selectedCategoryId === 'all'
-                ? 'bg-[var(--wood-selection)] text-white border-[var(--wood-selection)] shadow-xs'
-                : 'bg-[var(--pub-bg-panel)] text-[var(--foreground)] border-[var(--parchment-border)] hover:bg-[var(--pub-bg-alt)] hover:border-[var(--wood-selection)]'
-            )}
-          >
-            {t('allCategoriesFilter')}
-          </button>
-          {effectiveTaxonomy.map((cat) => {
-            const isSelected = selectedCategoryId === cat.id;
-            const catTitle = cat.name[language] ?? cat.name.EN;
-            return (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setSelectedCategoryId(isSelected ? 'all' : cat.id)}
-                className={cn(
-                  'min-h-[42px] px-4 py-2 rounded-full text-xs sm:text-sm font-body font-semibold border transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 shrink-0 snap-start active:scale-95',
-                  isSelected
-                    ? 'bg-[var(--wood-selection)] text-white border-[var(--wood-selection)] shadow-xs'
-                    : 'bg-[var(--pub-bg-panel)] text-[var(--foreground)] border-[var(--parchment-border)] hover:bg-[var(--pub-bg-alt)] hover:border-[var(--wood-selection)]'
-                )}
-              >
-                <span className="text-lg leading-none">{cat.emoji}</span>
-                <span>{catTitle}</span>
-              </button>
-            );
-          })}
-        </div>
-
         {/* Specular Clover Green Gradient Divider */}
         <div className="divider-clover-glow mt-1.5 mb-3" />
       </div>
 
       {/* ── 2. Unified Category Lists (With Variant B Subcategory Folders) ── */}
       <div className="flex flex-col gap-5">
-        {filteredCategories.map((cat) => {
+        {filteredCategories.length === 0 ? (
+          <div className="p-10 text-center flex flex-col items-center justify-center gap-2 border border-dashed border-[var(--parchment-border)] rounded-2xl bg-[var(--parchment-bg)]">
+            <p className="text-sm sm:text-base text-[var(--sepia-muted)] font-body max-w-md">
+              {language === 'DE'
+                ? `Keine passenden Aromen für „${searchQuery}“ gefunden.`
+                : `No matching flavors found for "${searchQuery}".`}
+            </p>
+          </div>
+        ) : (
+        filteredCategories.map((cat) => {
           const catTitle = cat.name[language] ?? cat.name.EN;
           const catColor = cat.color ?? RADAR_DIMENSION_COLORS[cat.radarDimension] ?? '#C59B27';
           const hasSubcategories = cat.catSubcategories.length > 0;
@@ -1050,7 +1131,7 @@ export function AromaCatalogView({
                 style={{ borderLeftWidth: '5px', borderLeftColor: catColor }}
               >
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <span className="text-lg sm:text-xl leading-none shrink-0">{cat.emoji}</span>
+                  {cat.emoji && <span className="text-lg sm:text-xl leading-none shrink-0">{cat.emoji}</span>}
                   <h3 className="font-display font-bold text-sm sm:text-base text-[var(--fab-text)] tracking-wide truncate">
                     {catTitle}
                   </h3>
@@ -1099,50 +1180,55 @@ export function AromaCatalogView({
               ) : (
                 /* Full-Width Stacked Subcategory Folders (Top to Bottom, Zero Vertical Gaps) */
                 <div className="flex flex-col gap-3 p-3 sm:p-4">
-                  {/* 1. Always Top: General / Uncategorized Aromas Folder ("Allgemein") */}
-                  <div
-                    onDragOver={(e) => {
-                      if (draggedAroma?.categoryId === cat.id) {
+                  {/* 1. Always Top: General / Uncategorized Aromas Folder ("Allgemein") — Hidden during active search if empty */}
+                  {(!q || uncategorizedRows.length > 0) && (
+                    <div
+                      onDragOver={(e) => {
+                        if (draggedAroma?.categoryId === cat.id) {
+                          e.preventDefault();
+                          setDragOverTarget(`general_${cat.id}`);
+                        }
+                      }}
+                      onDragLeave={() => {
+                        if (dragOverTarget === `general_${cat.id}`) setDragOverTarget(null);
+                      }}
+                      onDrop={(e) => {
                         e.preventDefault();
-                        setDragOverTarget(`general_${cat.id}`);
-                      }
-                    }}
-                    onDragLeave={() => {
-                      if (dragOverTarget === `general_${cat.id}`) setDragOverTarget(null);
-                    }}
-                    onDrop={(e) => {
-                      e.preventDefault();
-                      handleDropIntoSubcategory(cat.id, undefined);
-                    }}
-                    className={cn(
-                      'w-full rounded-xl border bg-[var(--pub-bg-panel)]/45 transition-all',
-                      dragOverTarget === `general_${cat.id}`
-                        ? 'border-[var(--wood-selection)] ring-2 ring-[var(--wood-selection)]/40 bg-[var(--wood-selection)]/10'
-                        : 'border-[var(--parchment-border)]'
-                    )}
-                  >
-                    <div className="px-4 py-2 bg-[var(--pub-bg-alt)]/75 border-b border-[var(--parchment-border)] rounded-t-xl flex items-center gap-2">
-                      <span className="text-base leading-none shrink-0">{cat.emoji}</span>
-                      <span className="font-display font-bold text-xs sm:text-sm text-[var(--foreground)]">
-                        {language === 'DE' ? 'Allgemein' : 'General'}
-                      </span>
+                        handleDropIntoSubcategory(cat.id, undefined);
+                      }}
+                      className={cn(
+                        'w-full rounded-xl border bg-[var(--pub-bg-panel)]/45 transition-all',
+                        dragOverTarget === `general_${cat.id}`
+                          ? 'border-[var(--wood-selection)] ring-2 ring-[var(--wood-selection)]/40 bg-[var(--wood-selection)]/10'
+                          : 'border-[var(--parchment-border)]'
+                      )}
+                    >
+                      <div className="px-4 py-2 bg-[var(--pub-bg-alt)]/75 border-b border-[var(--parchment-border)] rounded-t-xl flex items-center gap-2">
+                        {cat.emoji && <span className="text-base leading-none shrink-0">{cat.emoji}</span>}
+                        <span className="font-display font-bold text-xs sm:text-sm text-[var(--foreground)]">
+                          {language === 'DE' ? 'Allgemein' : 'General'}
+                        </span>
+                      </div>
+                      {uncategorizedRows.length > 0 ? (
+                        <div className="divide-y divide-[var(--parchment-border)]/50 grid grid-cols-1 md:grid-cols-2 md:divide-y-0">
+                          {uncategorizedRows.map((row) => renderAromaRow(row, cat.id))}
+                        </div>
+                      ) : (
+                        <div className="px-4 py-3 text-center text-xs text-[var(--sepia-muted)] italic font-body">
+                          {language === 'DE'
+                            ? 'Ziehe allgemeine Aromen hierher'
+                            : 'Drag general aromas here'}
+                        </div>
+                      )}
                     </div>
-                    {uncategorizedRows.length > 0 ? (
-                      <div className="divide-y divide-[var(--parchment-border)]/50 grid grid-cols-1 md:grid-cols-2 md:divide-y-0">
-                        {uncategorizedRows.map((row) => renderAromaRow(row, cat.id))}
-                      </div>
-                    ) : (
-                      <div className="px-4 py-3 text-center text-xs text-[var(--sepia-muted)] italic font-body">
-                        {language === 'DE'
-                          ? 'Ziehe allgemeine Aromen hierher'
-                          : 'Drag general aromas here'}
-                      </div>
-                    )}
-                  </div>
+                  )}
 
-                  {/* 2. Full-Width Stacked Subcategory Folders */}
+                  {/* 2. Full-Width Stacked Subcategory Folders — Empty folders hidden during active search */}
                   {cat.catSubcategories.map((sub) => {
                     const subRows = cat.rows.filter((r) => r.subcategoryId === sub.id);
+                    if (q && subRows.length === 0 && !cat.matchingSubIds.has(sub.id)) {
+                      return null;
+                    }
                     const isDragTarget = dragOverTarget === sub.id;
 
                     return (
@@ -1171,7 +1257,9 @@ export function AromaCatalogView({
                         {/* Subcategory Folder Header */}
                         <div className="px-4 py-2 bg-[var(--pub-bg-alt)]/75 border-b border-[var(--parchment-border)] rounded-t-xl flex items-center justify-between gap-2">
                           <div className="flex items-center gap-2 min-w-0">
-                            <span className="text-base leading-none shrink-0">{sub.emoji || '📁'}</span>
+                            {sub.emoji && (
+                              <span className="text-base leading-none shrink-0">{sub.emoji}</span>
+                            )}
                             <span className="font-display font-bold text-xs sm:text-sm text-[var(--foreground)] truncate">
                               {sub.name}
                             </span>
@@ -1220,7 +1308,8 @@ export function AromaCatalogView({
               )}
             </section>
           );
-        })}
+        })
+        )}
       </div>
 
       {/* ── 3. Spirit Usage Inspector Dialog ("Spirituosen mit diesem Aroma") ── */}
@@ -1408,15 +1497,7 @@ export function AromaCatalogView({
             </>
           )
         }
-        confirmLabel={
-          selectedAromaRows.length === 1
-            ? language === 'DE'
-              ? 'Aroma löschen'
-              : 'Delete Aroma'
-            : language === 'DE'
-              ? `${selectedAromaRows.length} Aromen löschen`
-              : `Delete ${selectedAromaRows.length} Aromas`
-        }
+        confirmLabel={t('deleteAction')}
         cancelLabel={t('cancel')}
         closeLabel={t('close')}
         onConfirm={confirmDeleteSelectedAromas}
@@ -1453,7 +1534,7 @@ export function AromaCatalogView({
             </>
           )
         }
-        confirmLabel={language === 'DE' ? 'Unterkategorie entfernen' : 'Remove Subcategory'}
+        confirmLabel={t('deleteAction')}
         cancelLabel={t('cancel')}
         closeLabel={t('close')}
         onConfirm={confirmDeleteSubcategory}
@@ -1490,7 +1571,7 @@ export function AromaCatalogView({
             </>
           )
         }
-        confirmLabel={language === 'DE' ? 'Kategorie löschen' : 'Delete Category'}
+        confirmLabel={t('deleteAction')}
         cancelLabel={t('cancel')}
         closeLabel={t('close')}
         onConfirm={confirmDeleteCategory}
@@ -1504,6 +1585,38 @@ export function AromaCatalogView({
         onSave={handleSaveFlavor}
         onSaveCategory={handleSaveCategory}
         onSaveSubcategory={handleSaveSubcategory}
+        onDeleteFlavor={
+          editingFlavor
+            ? () => {
+                const targetId = editingFlavor.id;
+                handleCloseModal();
+                enterSelectMode(targetId);
+                setConfirmBulkDelete(true);
+              }
+            : undefined
+        }
+        onDeleteCategory={
+          editingCategory && effectiveTaxonomy.length > MIN_FLAVOR_CATEGORIES
+            ? () => {
+                const targetCat = effectiveTaxonomy.find(
+                  (c) => c.id.toLowerCase() === editingCategory.id.toLowerCase()
+                );
+                handleCloseModal();
+                if (targetCat) {
+                  setCategoryPendingDelete(targetCat);
+                }
+              }
+            : undefined
+        }
+        onDeleteSubcategory={
+          editingSubcategory
+            ? () => {
+                const targetSub = editingSubcategory;
+                handleCloseModal();
+                setSubcategoryPendingDelete(targetSub);
+              }
+            : undefined
+        }
         customSubcategories={customSubcategories}
         initialDimension={preselectedDimension}
         initialCategoryId={preselectedCategoryId}

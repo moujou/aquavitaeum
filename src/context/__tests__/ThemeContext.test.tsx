@@ -40,6 +40,22 @@ describe('ThemeContext & useTheme', () => {
     expect(result.current.theme).toBe('pub-dark');
   });
 
+  it('initializes with pub-dark when system prefers-color-scheme is dark and localStorage is empty', () => {
+    const origMatchMedia = window.matchMedia;
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+      matches: query === '(prefers-color-scheme: dark)',
+      media: query,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
+
+    const { result } = renderHook(() => useTheme(), { wrapper });
+    expect(result.current.theme).toBe('pub-dark');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('pub-dark');
+
+    window.matchMedia = origMatchMedia;
+  });
+
   it('updates theme, data-theme attribute, and localStorage via setTheme', () => {
     const { result } = renderHook(() => useTheme(), { wrapper });
 

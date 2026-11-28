@@ -4,11 +4,13 @@ import './globals.css';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { LanguageProvider } from '@/context/LanguageContext';
 import { GoogleDriveSyncProvider } from '@/context/GoogleDriveSyncContext';
+import { ToastProvider } from '@/context/ToastContext';
 
 export const viewport: Viewport = {
   viewportFit: 'cover',
   width: 'device-width',
   initialScale: 1,
+  colorScheme: 'light dark',
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#ECE5D8' },
     { media: '(prefers-color-scheme: dark)', color: '#0D1115' },
@@ -46,6 +48,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <head>
+        <meta name="color-scheme" content="light dark" />
+        <meta name="supported-color-schemes" content="light dark" />
         <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ECE5D8" />
         <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0D1115" />
         <meta name="theme-color" content="#ECE5D8" id="av-theme-color" />
@@ -70,7 +74,7 @@ export default function RootLayout({
                   document.documentElement.style.backgroundColor = targetColor;
                 } else {
                   document.documentElement.removeAttribute('data-theme');
-                  document.documentElement.style.colorScheme = 'light';
+                  document.documentElement.style.colorScheme = 'light dark';
                   document.documentElement.style.backgroundColor = targetColor;
                 }
                 if (document.body) {
@@ -80,7 +84,7 @@ export default function RootLayout({
                     document.body.style.backgroundColor = targetColor;
                   } else {
                     document.body.removeAttribute('data-theme');
-                    document.body.style.colorScheme = 'light';
+                    document.body.style.colorScheme = 'light dark';
                     document.body.style.backgroundColor = targetColor;
                   }
                 }
@@ -133,7 +137,9 @@ export default function RootLayout({
         </Script>
         <ThemeProvider>
           <LanguageProvider>
-            <GoogleDriveSyncProvider>{children}</GoogleDriveSyncProvider>
+            <ToastProvider>
+              <GoogleDriveSyncProvider>{children}</GoogleDriveSyncProvider>
+            </ToastProvider>
           </LanguageProvider>
         </ThemeProvider>
       </body>

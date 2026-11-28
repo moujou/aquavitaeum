@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Filter, ChevronDown, RotateCcw } from 'lucide-react';
+import { Filter } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { NoteFilterState, SPIRIT_TYPES } from '@/types/spirit.types';
+import { NoteFilterState } from '@/types/spirit.types';
 import { useLanguage } from '@/context/LanguageContext';
 
 export interface NoteFilterDropdownProps {
@@ -11,6 +11,17 @@ export interface NoteFilterDropdownProps {
   onChange: (nextState: NoteFilterState) => void;
   className?: string;
 }
+
+const FACT_FILTER_CHIPS: { id: string; labelDe: string; labelEn: string }[] = [
+  { id: 'Cask Strength', labelDe: 'Fassstärke', labelEn: 'Cask Strength' },
+  { id: 'Natural Colour', labelDe: 'Ohne Farbstoff', labelEn: 'Natural Colour' },
+  { id: 'Non-Chill Filtered', labelDe: 'Nicht kühlgefiltert', labelEn: 'Non-Chill Filtered' },
+  { id: 'Peated', labelDe: 'Getorft', labelEn: 'Peated' },
+  { id: 'Single Cask', labelDe: 'Einzelfass', labelEn: 'Single Cask' },
+  { id: 'Buy Again', labelDe: 'Wiederkauf', labelEn: 'Buy Again' },
+  { id: 'Daily Sipper', labelDe: 'Tages-Dram', labelEn: 'Daily Sipper' },
+  { id: 'Great Value', labelDe: 'Preis-Hit', labelEn: 'Great Value' },
+];
 
 export function NoteFilterDropdown({
   filterState,
@@ -52,16 +63,31 @@ export function NoteFilterDropdown({
     };
   }, [isOpen]);
 
+  const minAge = filterState.minAge ?? 0;
+  const selectedChars = filterState.characteristics ?? [];
+
   const activeCount =
-    (filterState.spiritType !== 'All' ? 1 : 0) +
-    (filterState.minRating > 0 ? 1 : 0);
+    (filterState.minRating > 0 ? 1 : 0) +
+    (minAge > 0 ? 1 : 0) +
+    selectedChars.length;
 
   const isFiltered = activeCount > 0;
 
   const handleReset = () => {
     onChange({
-      spiritType: 'All',
       minRating: 0,
+      minAge: 0,
+      characteristics: [],
+    });
+  };
+
+  const toggleCharacteristic = (chipId: string) => {
+    const next = selectedChars.includes(chipId)
+      ? selectedChars.filter((c) => c !== chipId)
+      : [...selectedChars, chipId];
+    onChange({
+      ...filterState,
+      characteristics: next,
     });
   };
 
@@ -72,9 +98,16 @@ export function NoteFilterDropdown({
     { label: '90+', value: 90 },
   ];
 
+  const ageOptions = [
+    { label: language === 'DE' ? 'Alle' : 'All', value: 0 },
+    { label: '10+', value: 10 },
+    { label: '12+', value: 12 },
+    { label: '18+', value: 18 },
+  ];
+
   return (
     <div className={cn('relative inline-block text-left', className)} ref={menuRef}>
-      {/* Trigger Button */}
+      {/* Trigger Button (Square w-9 h-9 Icon-Only Standard matching toolbar buttons) */}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
@@ -83,35 +116,29 @@ export function NoteFilterDropdown({
         aria-label={t('filterNotes')}
         title={t('filterNotes')}
         className={cn(
-          'h-9 px-2.5 sm:px-3 rounded-lg border border-[var(--forest-green)]/35 bg-[var(--pub-bg-panel)] hover:bg-[var(--forest-green)]/10 text-[var(--forest-green)] hover:border-[var(--forest-green)] flex items-center gap-1.5 text-xs font-display font-semibold transition-all shadow-xs active:scale-95 cursor-pointer min-h-[36px]',
+          'relative w-9 h-9 rounded-lg border border-[var(--forest-green)]/35 bg-[var(--pub-bg-panel)] hover:bg-[var(--forest-green)]/10 text-[var(--forest-green)] hover:border-[var(--forest-green)] flex items-center justify-center transition-all shadow-xs active:scale-95 cursor-pointer min-h-[36px]',
           isFiltered && 'border-[var(--forest-green)] bg-[var(--forest-green)]/10 text-[var(--forest-green)] font-bold',
           isOpen && 'bg-[var(--forest-green)]/15 border-[var(--forest-green)] ring-2 ring-[var(--forest-green)]/25 shadow-sm'
         )}
       >
-        <Filter size={14} className="text-[var(--brass-accent)] shrink-0" />
-        <span className="text-[var(--foreground)]">
-          {t('filterNotes')}
-          {isFiltered && (
-            <span className="ml-1 px-1.5 py-0.2 rounded-full bg-[var(--forest-green)] text-white text-[10px] font-mono font-bold leading-none inline-block">
-              {activeCount}
-            </span>
-          )}
-        </span>
-        <ChevronDown
-          size={13}
-          className={cn('text-[var(--sepia-muted)] transition-transform duration-200 shrink-0 ml-0.5', isOpen && 'rotate-180')}
-        />
+        <Filter size={16} className="text-[var(--forest-green)] shrink-0" />
+        <span className="sr-only">{t('filterNotes')}</span>
+        {isFiltered && (
+          <span className="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 rounded-full bg-[var(--forest-green)] text-white text-[10px] font-mono font-bold leading-none shadow-2xs">
+            {activeCount}
+          </span>
+        )}
       </button>
 
-      {/* Floating Filter Panel */}
+      {/* Floating Filter Panel (Centered within mobile viewport so it never overflows right edge) */}
       {isOpen && (
         <div
           role="dialog"
           aria-label={t('filterNotes')}
-          className="absolute left-0 sm:left-0 top-full mt-2 w-64 sm:w-72 max-w-[calc(100vw-32px)] bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] shadow-[0_12px_36px_rgba(40,28,15,0.24)] rounded-xl p-3 z-[100] animate-fade-in flex flex-col gap-2.5 select-none text-xs"
+          className="absolute -left-28 sm:left-0 top-full mt-2 w-72 sm:w-80 max-w-[calc(100vw-24px)] bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] shadow-[0_12px_36px_rgba(40,28,15,0.24)] rounded-xl p-3.5 z-[100] animate-fade-in flex flex-col gap-3 select-none text-xs"
         >
           {/* Header & Reset shortcut */}
-          <div className="flex items-center justify-between pb-1 border-b border-[var(--parchment-border)]/50">
+          <div className="flex items-center justify-between pb-1.5 border-b border-[var(--parchment-border)]/50">
             <span className="font-display font-bold text-xs uppercase tracking-wider text-[var(--forest-green)]">
               {t('filterNotes')}
             </span>
@@ -119,35 +146,14 @@ export function NoteFilterDropdown({
               <button
                 type="button"
                 onClick={handleReset}
-                className="text-[11px] text-[var(--brass-accent)] hover:text-[var(--brass-accent)]/80 hover:underline flex items-center gap-1 font-semibold cursor-pointer"
+                className="text-[11px] text-[var(--brass-accent)] hover:text-[var(--brass-accent)]/80 hover:underline font-semibold cursor-pointer"
               >
-                <RotateCcw size={11} />
                 {t('resetFilters')}
               </button>
             )}
           </div>
 
-          {/* 1. Spirit Category Filter */}
-          <div className="flex flex-col gap-1">
-            <label htmlFor="note-filter-spirit-type" className="font-display font-semibold text-[11px] text-[var(--sepia-muted)]">
-              {t('spiritType')}
-            </label>
-            <select
-              id="note-filter-spirit-type"
-              value={filterState.spiritType}
-              onChange={(e) => onChange({ ...filterState, spiritType: e.target.value })}
-              className="w-full h-8 px-2.5 rounded-lg border border-[var(--parchment-border)] bg-[var(--pub-bg)] text-xs text-[var(--foreground)] font-medium focus:outline-none focus:border-[var(--forest-green)] cursor-pointer"
-            >
-              <option value="All">{t('filterAllTypes')}</option>
-              {SPIRIT_TYPES.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* 2. Rating Threshold (Segmented Bar with clean 'Alle' / 'All' label) */}
+          {/* 1. Rating Threshold (Segmented Bar) */}
           <div className="flex flex-col gap-1">
             <span className="font-display font-semibold text-[11px] text-[var(--sepia-muted)]">
               {t('filterRatingMin')}
@@ -168,6 +174,60 @@ export function NoteFilterDropdown({
                     )}
                   >
                     {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 2. Minimum Age (Segmented Bar in Years) */}
+          <div className="flex flex-col gap-1">
+            <span className="font-display font-semibold text-[11px] text-[var(--sepia-muted)]">
+              {language === 'DE' ? 'Mindestalter (Jahre)' : 'Min Age (Years)'}
+            </span>
+            <div className="grid grid-cols-4 p-0.5 bg-[var(--pub-bg)] rounded-lg border border-[var(--parchment-border)]">
+              {ageOptions.map((opt) => {
+                const isSelected = minAge === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => onChange({ ...filterState, minAge: opt.value })}
+                    className={cn(
+                      'py-1 rounded-md text-[11px] font-mono font-semibold transition-all text-center flex items-center justify-center cursor-pointer',
+                      isSelected
+                        ? 'bg-[var(--forest-green)] text-white shadow-xs font-bold'
+                        : 'text-[var(--sepia-text)] hover:bg-[var(--forest-green)]/10 hover:text-[var(--forest-green)]'
+                    )}
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 3. Characteristics & Bar Verdict Chips */}
+          <div className="flex flex-col gap-1.5">
+            <span className="font-display font-semibold text-[11px] text-[var(--sepia-muted)]">
+              {language === 'DE' ? 'Eigenschaften & Fazit' : 'Characteristics & Verdict'}
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {FACT_FILTER_CHIPS.map((chip) => {
+                const isSelected = selectedChars.includes(chip.id);
+                return (
+                  <button
+                    key={chip.id}
+                    type="button"
+                    onClick={() => toggleCharacteristic(chip.id)}
+                    className={cn(
+                      'px-2.5 py-1 rounded-full text-[11px] font-body font-semibold border transition-all cursor-pointer select-none',
+                      isSelected
+                        ? 'bg-[var(--forest-green)] text-white border-[var(--forest-green)] shadow-2xs'
+                        : 'bg-[var(--pub-bg)] text-[var(--sepia-text)] border-[var(--parchment-border)] hover:border-[var(--forest-green)]'
+                    )}
+                  >
+                    {language === 'DE' ? chip.labelDe : chip.labelEn}
                   </button>
                 );
               })}

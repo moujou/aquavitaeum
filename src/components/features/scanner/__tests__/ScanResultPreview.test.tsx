@@ -84,7 +84,7 @@ describe('ScanResultPreview', () => {
       />
     );
 
-    expect(screen.getByText('Vorschau der Tasting-Notizen')).toBeDefined();
+    expect(screen.getByText('Vorschau')).toBeDefined();
     expect(screen.getByText(/Torf und Honig/)).toBeDefined();
     expect(screen.getByText('(9/10)')).toBeDefined();
   });

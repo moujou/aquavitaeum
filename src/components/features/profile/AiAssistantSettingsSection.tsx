@@ -13,7 +13,6 @@ import {
   Trash2,
   Eye,
   EyeOff,
-  Check,
   Info,
 } from 'lucide-react';
 import {
@@ -159,30 +158,30 @@ export function AiAssistantSettingsSection() {
       {/* ── Mode 1: Active Key Display ── */}
       {hasActiveKey && !isEditing ? (
         <div className="mt-4 flex flex-col gap-3 p-3.5 rounded-xl bg-[var(--pub-bg-panel)] border border-[var(--parchment-border)] shadow-xs">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div className="flex items-center justify-between gap-2.5">
             <div className="flex items-center gap-2 min-w-0">
               <Key size={16} className="text-[var(--forest-green)] shrink-0" />
               <div className="min-w-0">
                 <p className="text-xs font-mono text-[var(--sepia-text)] font-semibold truncate tracking-wider">
                   {getMaskedAiApiKey(storedKey || '')}
                 </p>
-                <p className="text-[11px] text-[var(--sepia-muted)]">
+                <p className="text-[11px] text-[var(--sepia-muted)] truncate">
                   {language === 'DE' ? 'Lokal auf diesem Gerät gespeichert' : 'Stored locally on this device'}
                 </p>
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-auto">
+            {/* Action Buttons (Uniform w-10 h-10 Icon-Only Standard matching Google Drive & JSON Backup) */}
+            <div className="flex items-center gap-1.5 shrink-0 select-none">
               <button
                 type="button"
                 onClick={handleLiveTest}
                 disabled={isTesting}
-                className="px-3 py-2 rounded-lg border border-[var(--parchment-border)] bg-[var(--pub-bg-alt)] hover:bg-black/5 text-[var(--sepia-text)] text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 shadow-2xs active:scale-95 min-h-[38px]"
+                className="w-10 h-10 rounded-lg border border-[var(--parchment-border)] bg-[var(--pub-bg-alt)] hover:bg-black/5 text-[var(--sepia-text)] hover:text-[var(--forest-green)] flex items-center justify-center transition-all cursor-pointer disabled:opacity-50 shadow-xs active:scale-95 min-h-[40px]"
                 title={language === 'DE' ? 'Verbindung testen' : 'Test connection'}
+                aria-label={language === 'DE' ? 'Verbindung testen' : 'Test connection'}
               >
-                <RefreshCw size={13} className={cn(isTesting && 'animate-spin text-[var(--forest-green)]')} />
-                <span>{language === 'DE' ? 'Testen' : 'Test'}</span>
+                <RefreshCw size={16} className={cn(isTesting && 'animate-spin text-[var(--forest-green)]')} />
               </button>
 
               <button
@@ -192,21 +191,21 @@ export function AiAssistantSettingsSection() {
                   setIsEditing(true);
                   setTestResult(null);
                 }}
-                className="px-3 py-2 rounded-lg border border-[var(--parchment-border)] bg-[var(--pub-bg-alt)] hover:bg-black/5 text-[var(--sepia-text)] text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-95 min-h-[38px]"
+                className="w-10 h-10 rounded-lg border border-[var(--parchment-border)] bg-[var(--pub-bg-alt)] hover:bg-black/5 text-[var(--sepia-text)] hover:text-[var(--foreground)] flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95 min-h-[40px]"
                 title={language === 'DE' ? 'Key ändern' : 'Edit key'}
+                aria-label={language === 'DE' ? 'Key ändern' : 'Edit key'}
               >
-                <Edit2 size={13} />
-                <span>{language === 'DE' ? 'Ändern' : 'Edit'}</span>
+                <Edit2 size={16} />
               </button>
 
               <button
                 type="button"
                 onClick={handleRemove}
-                className="w-9 h-9 flex items-center justify-center rounded-lg border border-transparent text-[var(--sepia-muted)] hover:text-red-700 hover:bg-red-500/10 hover:border-red-300 text-xs transition-all cursor-pointer min-h-[38px]"
+                className="w-10 h-10 flex items-center justify-center rounded-lg border border-[var(--parchment-border)] bg-[var(--pub-bg-alt)] text-[var(--sepia-muted)] hover:text-red-700 hover:bg-red-500/10 hover:border-red-300 transition-all cursor-pointer shadow-xs active:scale-95 min-h-[40px]"
                 title={language === 'DE' ? 'Key entfernen' : 'Remove key'}
                 aria-label={language === 'DE' ? 'Key entfernen' : 'Remove key'}
               >
-                <Trash2 size={15} />
+                <Trash2 size={16} />
               </button>
             </div>
           </div>
@@ -231,7 +230,7 @@ export function AiAssistantSettingsSection() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 self-start px-3 py-1.5 rounded-lg bg-[var(--forest-green)]/10 hover:bg-[var(--forest-green)]/20 border border-[var(--forest-green)]/30 text-[var(--forest-green)] text-xs font-display font-semibold transition-all cursor-pointer mt-1"
             >
-              <span>{language === 'DE' ? 'Kostenlosen Key bei Google AI Studio erstellen' : 'Get free key at Google AI Studio'}</span>
+              <span>{language === 'DE' ? 'API-Key erstellen' : 'Get API Key'}</span>
               <ExternalLink size={12} />
             </a>
           </div>
@@ -239,7 +238,7 @@ export function AiAssistantSettingsSection() {
           {/* Key Input Field */}
           <div className="flex flex-col gap-1.5">
             <label htmlFor="gemini-api-key-input" className="text-xs font-display font-bold text-[var(--sepia-text)]">
-              {language === 'DE' ? 'Google Gemini API-Key eingeben' : 'Enter Google Gemini API Key'}
+              {language === 'DE' ? 'Gemini API-Key' : 'Gemini API Key'}
             </label>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               <div className="relative flex-1 flex items-center bg-[var(--parchment-bg)] border-[1.5px] border-[var(--forest-green)]/45 focus-within:border-[var(--forest-green)] rounded-xl px-3.5 h-11 transition-all duration-200 shadow-xs">
@@ -265,7 +264,7 @@ export function AiAssistantSettingsSection() {
                 </button>
               </div>
 
-              {/* Submit & Cancel Buttons */}
+              {/* Submit & Cancel Buttons (Text-Only Standard) */}
               <div className="flex items-center gap-2 shrink-0">
                 <button
                   type="submit"
@@ -278,10 +277,7 @@ export function AiAssistantSettingsSection() {
                       <span>{language === 'DE' ? 'Prüfe...' : 'Testing...'}</span>
                     </>
                   ) : (
-                    <>
-                      <Check size={14} className="text-white" />
-                      <span>{language === 'DE' ? 'Speichern & Testen' : 'Save & Test'}</span>
-                    </>
+                    <span>{language === 'DE' ? 'Speichern' : 'Save'}</span>
                   )}
                 </button>
 

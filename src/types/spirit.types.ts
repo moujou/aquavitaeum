@@ -301,7 +301,9 @@ export interface Spirit {
 export type NoteSortOption = 'date_desc' | 'rating_desc' | 'rating_asc' | 'name_asc' | 'name_desc' | 'abv_desc';
 
 export interface NoteFilterState {
-  spiritType: SpiritType | 'All';
   minRating: number;
+  minAge?: number;
+  characteristics?: string[];
+  spiritType?: SpiritType | 'All';
 }
 

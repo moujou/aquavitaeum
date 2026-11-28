@@ -37,7 +37,7 @@ describe('AromaCatalogView Component', () => {
     resetCustomCategories();
   });
 
-  it('renders unboxed search and category filter toolbar and unified single-line aroma rows', () => {
+  it('renders unboxed category filter toolbar and unified single-line aroma rows', () => {
     render(
       <LanguageProvider>
         <AromaCatalogView
@@ -49,7 +49,6 @@ describe('AromaCatalogView Component', () => {
       </LanguageProvider>
     );
 
-    expect(screen.getByPlaceholderText(/Search aromas|Aromen durchsuchen/i)).toBeDefined();
     expect(screen.getAllByText(/Peat & Smoke|Torf & Rauch/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/^Peat$|^Torf$/i).length).toBeGreaterThan(0);
 
@@ -58,11 +57,12 @@ describe('AromaCatalogView Component', () => {
     expect(screen.queryByRole('button', { name: /My Aromas|Eigene Aromen/i })).toBeNull();
   });
 
-  it('filters descriptors by search query', () => {
+  it('filters descriptors by searchQuery prop and hides non-matching category sections and empty subcategory folders', () => {
     render(
       <LanguageProvider>
         <AromaCatalogView
           journals={[]}
+          searchQuery="Beeswax"
           isCreateOpen={false}
           onOpenCreate={vi.fn()}
           onCloseCreate={vi.fn()}
@@ -70,10 +70,10 @@ describe('AromaCatalogView Component', () => {
       </LanguageProvider>
     );
 
-    const searchInput = screen.getByPlaceholderText(/Search aromas|Aromen durchsuchen/i);
-    fireEvent.change(searchInput, { target: { value: 'Beeswax' } });
-
     expect(screen.getByText(/Beeswax|Bienenwachs/i)).toBeDefined();
+    // Non-matching category headings (e.g., Peat & Smoke) and empty sibling subcategory folders (e.g., Savory / Herzhaft) are hidden
+    expect(screen.queryByRole('heading', { name: /Peat & Smoke|Torf & Rauch/i })).toBeNull();
+    expect(screen.queryByText(/^Savory$|^Herzhaft$/i)).toBeNull();
   });
 
   it('hides permanent delete icon in normal mode, keeps a framed edit button, and deletes via Select Mode + ConfirmDialog protection', async () => {
@@ -91,6 +91,7 @@ describe('AromaCatalogView Component', () => {
       <LanguageProvider>
         <AromaCatalogView
           journals={[]}
+          searchQuery="Wild Cherry Reserve"
           isCreateOpen={false}
           onOpenCreate={onOpenCreate}
           onCloseCreate={vi.fn()}
@@ -100,10 +101,6 @@ describe('AromaCatalogView Component', () => {
 
     expect(screen.getByText('Wild Cherry Reserve')).toBeDefined();
     expect(screen.queryByText(/^Custom$|^Eigenes Aroma$/i)).toBeNull();
-
-    // Filter to Wild Cherry Reserve
-    const searchInput = screen.getByPlaceholderText(/Search aromas|Aromen durchsuchen/i);
-    fireEvent.change(searchInput, { target: { value: 'Wild Cherry Reserve' } });
 
     // In normal mode, NO permanent delete button is exposed on the row
     expect(screen.queryByRole('button', { name: /Remove aroma|Aroma entfernen/i })).toBeNull();
@@ -137,7 +134,7 @@ describe('AromaCatalogView Component', () => {
     expect(screen.getAllByText(/Wild Cherry Reserve/i).length).toBeGreaterThan(0);
 
     // Confirm deletion inside ConfirmDialog
-    const confirmBtn = screen.getByRole('button', { name: /^Delete Aroma$|^Aroma löschen$/i });
+    const confirmBtn = screen.getByRole('button', { name: /^Delete$|^Löschen$/i });
     await act(async () => {
       fireEvent.click(confirmBtn);
     });
@@ -157,6 +154,7 @@ describe('AromaCatalogView Component', () => {
       <LanguageProvider>
         <AromaCatalogView
           journals={[]}
+          searchQuery="Islay Peat Smoke"
           isCreateOpen={false}
           onOpenCreate={vi.fn()}
           onCloseCreate={vi.fn()}
@@ -165,10 +163,6 @@ describe('AromaCatalogView Component', () => {
     );
 
     expect(screen.getByText(/Islay Peat Smoke|Islay Torfrauch/i)).toBeDefined();
-
-    // Filter to Islay Peat Smoke
-    const searchInput = screen.getByPlaceholderText(/Search aromas|Aromen durchsuchen/i);
-    fireEvent.change(searchInput, { target: { value: 'Islay Peat Smoke' } });
 
     // Enter Select Mode via Top Actions Dropdown
     const actionsBtn = screen.getByRole('button', { name: /Actions|Aktionen/i });
@@ -184,12 +178,12 @@ describe('AromaCatalogView Component', () => {
     fireEvent.click(screen.getByRole('button', { name: /Actions|Aktionen/i }));
     fireEvent.click(screen.getByText(/Delete \(1\)|Löschen \(1\)/i));
 
-    const confirmBtn = screen.getByRole('button', { name: /^Delete Aroma$|^Aroma löschen$/i });
+    const confirmBtn = screen.getByRole('button', { name: /^Delete$|^Löschen$/i });
     await act(async () => {
       fireEvent.click(confirmBtn);
     });
 
-    expect(screen.queryByText(/Islay Peat Smoke|Islay Torfrauch/i)).toBeNull();
+    expect(screen.queryByText(/^Islay Peat Smoke$|^Islay Torfrauch$/i)).toBeNull();
   });
 
   it('warns when deleting an aroma used in tasting notes and cascades cleanup of tags, intensities, and finish curves', async () => {
@@ -237,6 +231,7 @@ describe('AromaCatalogView Component', () => {
       <LanguageProvider>
         <AromaCatalogView
           journals={[]}
+          searchQuery="Black Cherry Cask"
           isCreateOpen={false}
           onOpenCreate={vi.fn()}
           onCloseCreate={vi.fn()}
@@ -247,9 +242,6 @@ describe('AromaCatalogView Component', () => {
     await waitFor(() => {
       expect(screen.getByText('Black Cherry Cask')).toBeDefined();
     });
-
-    const searchInput = screen.getByPlaceholderText(/Search aromas|Aromen durchsuchen/i);
-    fireEvent.change(searchInput, { target: { value: 'Black Cherry Cask' } });
 
     // Usage badge 1× is shown
     expect(screen.getByText('1×')).toBeDefined();
@@ -266,7 +258,7 @@ describe('AromaCatalogView Component', () => {
     expect(screen.getAllByText(/1 tasting note|1 Tasting-Notiz/i).length).toBeGreaterThan(0);
 
     // Confirm deletion and verify db.spirits.put was called with cleaned spirit
-    const confirmBtn = screen.getByRole('button', { name: /^Delete Aroma$|^Aroma löschen$/i });
+    const confirmBtn = screen.getByRole('button', { name: /^Delete$|^Löschen$/i });
     await act(async () => {
       fireEvent.click(confirmBtn);
     });
@@ -476,5 +468,124 @@ describe('AromaCatalogView Component', () => {
     const remainingId = getEffectiveFlavorTaxonomy()[0].id;
     expect(deleteCustomCategory(remainingId)).toBe(false);
     expect(getEffectiveFlavorTaxonomy()).toHaveLength(MIN_FLAVOR_CATEGORIES);
+  });
+
+  it('supports creating an aroma with "No Icon" (Kein Icon), switching modal tabs, and deleting via the Edit Modal split-footer Trash button', async () => {
+    const onCloseCreate = vi.fn();
+
+    const { rerender } = render(
+      <LanguageProvider>
+        <AromaCatalogView
+          journals={[]}
+          isCreateOpen={true}
+          onOpenCreate={vi.fn()}
+          onCloseCreate={onCloseCreate}
+        />
+      </LanguageProvider>
+    );
+
+    // 1. Click "No Icon" / "Kein Icon" button in Aroma creation modal
+    const noIconBtn = screen.getByRole('button', { name: /^No Icon$|^Kein Icon$/i });
+    fireEvent.click(noIconBtn);
+
+    // Enter aroma name and save
+    const nameInput = screen.getByPlaceholderText(/Honeycrisp Apple|Boskoop Apfel/i);
+    fireEvent.change(nameInput, { target: { value: 'Pure Malt Essence' } });
+
+    const saveBtn = screen.getByRole('button', { name: /^Save$|^Speichern$/i });
+    await act(async () => {
+      fireEvent.click(saveBtn);
+    });
+
+    expect(onCloseCreate).toHaveBeenCalled();
+    const created = getStoredCustomFlavors().find((f) => f.name === 'Pure Malt Essence');
+    expect(created).toBeDefined();
+    expect(created?.emoji).toBe('');
+
+    // 2. Re-render with modal closed and filter to Pure Malt Essence, then open Edit Modal and click left-aligned Trash [🗑️] button
+    rerender(
+      <LanguageProvider>
+        <AromaCatalogView
+          journals={[]}
+          searchQuery="Pure Malt Essence"
+          isCreateOpen={false}
+          onOpenCreate={vi.fn()}
+          onCloseCreate={onCloseCreate}
+        />
+      </LanguageProvider>
+    );
+
+    expect(screen.getByText('Pure Malt Essence')).toBeDefined();
+    const editBtn = screen.getByRole('button', { name: /Edit Custom Flavor|Eigenes Aroma bearbeiten/i });
+    fireEvent.click(editBtn);
+
+    rerender(
+      <LanguageProvider>
+        <AromaCatalogView
+          journals={[]}
+          searchQuery="Pure Malt Essence"
+          isCreateOpen={true}
+          onOpenCreate={vi.fn()}
+          onCloseCreate={onCloseCreate}
+        />
+      </LanguageProvider>
+    );
+
+    // Click the split-footer Delete button inside the Edit Modal
+    const modalDeleteBtn = screen.getByRole('button', { name: /^Delete$|^Löschen$/i });
+    fireEvent.click(modalDeleteBtn);
+
+    // ConfirmDialog is now open; confirm deletion
+    const confirmBtns = screen.getAllByRole('button', { name: /^Delete$|^Löschen$/i });
+    await act(async () => {
+      fireEvent.click(confirmBtns[confirmBtns.length - 1]);
+    });
+
+    expect(getStoredCustomFlavors().find((f) => f.name === 'Pure Malt Essence')).toBeUndefined();
+  });
+
+  it('allows creating and editing categories and subcategories via the 3-Tab CustomFlavorModal UI', async () => {
+    const onCloseCreate = vi.fn();
+
+    render(
+      <LanguageProvider>
+        <AromaCatalogView
+          journals={[]}
+          isCreateOpen={true}
+          onOpenCreate={vi.fn()}
+          onCloseCreate={onCloseCreate}
+        />
+      </LanguageProvider>
+    );
+
+    // Switch to the Category tab ("Kategorie" / "Category")
+    const categoryTabBtn = screen.getByRole('button', { name: /^Category$|^Kategorie$/i });
+    fireEvent.click(categoryTabBtn);
+
+    const catInput = screen.getByPlaceholderText(/Roast & Coffee|Röstaromen & Kaffee/i);
+    fireEvent.change(catInput, { target: { value: 'Exotic Roast' } });
+
+    const saveCatBtn = screen.getByRole('button', { name: /^Save$|^Speichern$/i });
+    await act(async () => {
+      fireEvent.click(saveCatBtn);
+    });
+
+    expect(getEffectiveFlavorTaxonomy().some((c) => c.name.EN === 'Exotic Roast' || c.name.DE === 'Exotic Roast')).toBe(
+      true
+    );
+
+    // Switch to the Subcategory tab ("Unterkategorie" / "Subcategory")
+    const subTabBtn = screen.getByRole('button', { name: /^Subcategory$|^Unterkategorie$/i });
+    fireEvent.click(subTabBtn);
+
+    const subInput = screen.getByPlaceholderText(/Citrus, Tropical|Zitrus, Tropisch/i);
+    fireEvent.change(subInput, { target: { value: 'Espresso Beans' } });
+
+    const saveSubBtn = screen.getByRole('button', { name: /^Save$|^Speichern$/i });
+    await act(async () => {
+      fireEvent.click(saveSubBtn);
+    });
+
+    expect(getStoredCustomSubcategories().some((s) => s.name === 'Espresso Beans')).toBe(true);
   });
 });

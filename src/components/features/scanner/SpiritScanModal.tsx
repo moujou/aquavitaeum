@@ -9,8 +9,6 @@ import {
   Camera,
   Search,
   Barcode,
-  RefreshCw,
-  ChevronRight,
   AlertCircle,
 } from 'lucide-react';
 import { WhiskyLogo } from '@/components/ui/WhiskyLogo';
@@ -249,7 +247,7 @@ export function SpiritScanModal({
                 )}
               >
                 <Camera size={16} className={activeTab === 'photo' ? 'text-amber-200 shrink-0' : 'shrink-0'} />
-                <span className="truncate">{language === 'DE' ? 'Etikett / Foto' : 'Bottle / Photo'}</span>
+                <span className="truncate">{language === 'DE' ? 'Foto' : 'Photo'}</span>
               </button>
               <button
                 type="button"
@@ -262,7 +260,7 @@ export function SpiritScanModal({
                 )}
               >
                 <Search size={16} className={activeTab === 'text' ? 'text-amber-200 shrink-0' : 'shrink-0'} />
-                <span className="truncate">{language === 'DE' ? 'Name eingeben' : 'Search Name'}</span>
+                <span className="truncate">{language === 'DE' ? 'Name' : 'Name'}</span>
               </button>
               <button
                 type="button"
@@ -275,7 +273,7 @@ export function SpiritScanModal({
                 )}
               >
                 <Barcode size={16} className={activeTab === 'barcode' ? 'text-amber-200 shrink-0' : 'shrink-0'} />
-                <span className="truncate">{language === 'DE' ? 'EAN-Barcode' : 'EAN Barcode'}</span>
+                <span className="truncate">{language === 'DE' ? 'Barcode' : 'Barcode'}</span>
               </button>
             </div>
           </div>
@@ -353,26 +351,24 @@ export function SpiritScanModal({
           )}
         </div>
 
-        {/* ── Modal Footer ── */}
-        <div className="flex items-center justify-between p-3.5 sm:px-8 border-t border-[var(--parchment-divider)] bg-[var(--pub-bg-panel)] select-none shrink-0">
+        {/* ── Modal Footer (Clean Text-Only Dialog Footer Standard) ── */}
+        <div className="flex items-center justify-between p-3.5 sm:px-8 border-t border-[var(--parchment-divider)] bg-[var(--pub-bg-panel)] select-none shrink-0 gap-2.5">
           {analysisResult ? (
             <>
               <button
                 type="button"
                 onClick={handleReset}
-                className="min-h-[44px] px-4 py-2.5 rounded-xl border border-[var(--parchment-border)] bg-[var(--pub-bg-alt)] hover:bg-black/5 text-[var(--sepia-text)] font-semibold text-xs sm:text-sm transition-all cursor-pointer flex items-center gap-2 active:scale-95 shadow-xs"
+                className="min-h-[44px] px-4 py-2.5 rounded-xl border border-[var(--parchment-border)] bg-[var(--pub-bg-alt)] hover:bg-black/5 text-[var(--sepia-text)] font-semibold text-xs sm:text-sm transition-all cursor-pointer flex items-center justify-center active:scale-95 shadow-xs"
               >
-                <RefreshCw size={15} />
                 <span>{t('scanAgain')}</span>
               </button>
 
               <button
                 type="button"
                 onClick={handleApply}
-                className="min-h-[44px] px-5 py-2.5 rounded-xl bg-[var(--fab-bg)] text-[var(--fab-text)] hover:bg-[var(--fab-bg-hover)] font-display font-semibold text-xs sm:text-sm tracking-wide transition-all cursor-pointer flex items-center gap-2 shadow-md active:scale-95 border border-[var(--fab-border)]"
+                className="min-h-[44px] px-5 py-2.5 rounded-xl bg-[var(--fab-bg)] text-[var(--fab-text)] hover:bg-[var(--fab-bg-hover)] font-display font-semibold text-xs sm:text-sm tracking-wide transition-all cursor-pointer flex items-center justify-center shadow-md active:scale-95 border border-[var(--fab-border)]"
               >
                 <span>{t('applyToNote')}</span>
-                <ChevronRight size={16} />
               </button>
             </>
           ) : (

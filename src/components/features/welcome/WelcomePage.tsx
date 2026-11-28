@@ -346,7 +346,7 @@ export function WelcomePage({ hasJournals, onComplete, onEnter }: WelcomePagePro
                     type="submit"
                     className="min-h-[44px] px-5 rounded-lg bg-[var(--fab-bg)] hover:bg-[var(--fab-bg-hover)] border border-[var(--fab-border)] text-[var(--fab-text)] font-semibold text-sm transition-all cursor-pointer shadow-md active:scale-[0.98]"
                   >
-                    {t('createJournalBtn')}
+                    {t('saveAction')}
                   </button>
                 </div>
               </form>

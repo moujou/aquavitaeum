@@ -10,7 +10,7 @@ describe('ScanPhotoTab', () => {
       <ScanPhotoTab language="DE" onFileSelect={vi.fn()} onStartCamera={onStartCamera} />
     );
     expect(screen.getByText('Kamera')).toBeDefined();
-    expect(screen.getByText('Foto hochladen')).toBeDefined();
+    expect(screen.getByText('Hochladen')).toBeDefined();
     expect(screen.getByText(/Hinweis zur Etikett-Erkennung:/)).toBeDefined();
 
     fireEvent.click(screen.getByText('Kamera'));
@@ -18,7 +18,7 @@ describe('ScanPhotoTab', () => {
 
     rerender(<ScanPhotoTab language="EN" onFileSelect={vi.fn()} onStartCamera={onStartCamera} />);
     expect(screen.getByText('Camera')).toBeDefined();
-    expect(screen.getByText('Upload photo')).toBeDefined();
+    expect(screen.getByText('Upload')).toBeDefined();
     expect(screen.getByText(/Label Recognition Note:/)).toBeDefined();
   });
 
@@ -43,7 +43,7 @@ describe('ScanPhotoTab', () => {
     expect(fileInput).toBeDefined();
 
     const clickSpy = vi.spyOn(fileInput, 'click');
-    const uploadBtn = screen.getByText('Foto hochladen');
+    const uploadBtn = screen.getByText('Hochladen');
     fireEvent.click(uploadBtn);
 
     expect(clickSpy).toHaveBeenCalled();

@@ -106,7 +106,7 @@ export function getDynamicRadarCategories() {
       labelDe: cat.name.DE,
       shortEn: !wasRenamed && canonical ? canonical.shortEn : formatShortRadarLabel(cat.name.EN),
       shortDe: !wasRenamed && canonical ? canonical.shortDe : formatShortRadarLabel(cat.name.DE),
-      emoji: cat.emoji || canonical?.emoji || '🥃',
+      emoji: cat.emoji !== undefined ? cat.emoji : (canonical?.emoji || ''),
       color: cat.color || canonical?.color || RADAR_DIMENSION_COLORS[cat.radarDimension] || '#C59B27',
     };
   });
@@ -780,18 +780,20 @@ export function FlavorRadarChart({
                           className="pointer-events-none select-none transition-all duration-200"
                         >
 
-                          {/* Mobile: Pure Category Emoji (Borderless & Enlarged) */}
+                          {/* Mobile: Category Emoji or Short Text Fallback if No Icon */}
                           <g className="sm:hidden">
                             <text
                               x={0}
-                              y={4}
-                              textAnchor="middle"
-                              dominantBaseline="central"
-                              fontSize={isSelected ? '24' : isActive ? '20' : '16'}
+                              y={item?.emoji ? 4 : 0}
+                              textAnchor={item?.emoji ? 'middle' : anchor}
+                              dominantBaseline={item?.emoji ? 'central' : baseline}
+                              fontSize={item?.emoji ? (isSelected ? '24' : isActive ? '20' : '16') : '10'}
+                              fontWeight={item?.emoji ? undefined : '700'}
+                              fill={item?.emoji ? undefined : (isSelected ? 'var(--brass-accent)' : isActive ? 'var(--foreground)' : 'var(--sepia-muted)')}
                               opacity={isSelected ? 1 : activeNode ? 0.15 : isActive ? 0.95 : 0.35}
                               className="select-none transition-all duration-200"
                             >
-                              {item?.emoji}
+                              {item?.emoji || displayVal.slice(0, 10)}
                             </text>
                           </g>
 

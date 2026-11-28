@@ -90,7 +90,7 @@ describe('i18n Translation Dictionary', () => {
     expect(t('createCustomFlavor', 'EN')).toBe('Aroma');
     expect(t('createCustomFlavor', 'DE')).toBe('Aroma');
     expect(t('customFlavorsCategory', 'DE')).toBe('Eigene Aromen');
-    expect(t('defaultCategoryColor', 'DE')).toBe('Kategorie-Farbe');
+    expect(t('defaultCategoryColor', 'DE')).toBe('Standard');
     expect(t('customColor', 'DE')).toBe('Eigene Farbe');
     expect(t('sensoryDrawerTitle', 'DE')).toBe('Aromen');
     expect(t('openSensoryDrawer', 'DE')).toBe('Aromen');

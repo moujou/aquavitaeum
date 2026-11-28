@@ -142,18 +142,18 @@ export function ScanPhotoTab({
                 'bg-[var(--pub-bg-panel)] text-[var(--sepia-text)] text-xs sm:text-sm font-body font-medium',
                 'hover:bg-[var(--pub-bg-alt)] transition-all cursor-pointer shadow-xs active:scale-95'
               )}
-              title={language === 'DE' ? 'Foto hochladen' : 'Upload photo'}
-              aria-label={language === 'DE' ? 'Foto hochladen' : 'Upload photo'}
+              title={language === 'DE' ? 'Hochladen' : 'Upload'}
+              aria-label={language === 'DE' ? 'Hochladen' : 'Upload'}
             >
               <Upload size={16} className="text-[var(--sepia-muted)]" />
-              <span>{language === 'DE' ? 'Foto hochladen' : 'Upload photo'}</span>
+              <span>{language === 'DE' ? 'Hochladen' : 'Upload'}</span>
             </button>
           </div>
 
           <span className="text-[11px] font-mono text-[var(--sepia-muted)]">
             {language === 'DE'
-              ? 'Oder Bild hierher ziehen (JPEG, PNG, WebP)'
-              : 'Or drag image here (JPEG, PNG, WebP)'}
+              ? 'Oder Bild hierher ziehen'
+              : 'Or drag image here'}
           </span>
         </div>
       </div>

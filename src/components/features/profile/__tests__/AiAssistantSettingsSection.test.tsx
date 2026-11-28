@@ -23,7 +23,7 @@ describe('AiAssistantSettingsSection', () => {
     renderSection();
     expect(screen.getByText(/Cask & Spirit Assistent|Cask & Spirit Assistant/)).toBeDefined();
     expect(screen.getByPlaceholderText('AIzaSy...')).toBeDefined();
-    expect(screen.getByText(/Schlüssel speichern|Save/i)).toBeDefined();
+    expect(screen.getByText(/Speichern|Save/i)).toBeDefined();
   });
 
   it('saves and tests API key on submission', async () => {
@@ -36,7 +36,7 @@ describe('AiAssistantSettingsSection', () => {
     const input = screen.getByPlaceholderText('AIzaSy...');
     fireEvent.change(input, { target: { value: 'AIzaValidKey12345' } });
 
-    const saveBtn = screen.getByText(/Schlüssel speichern|Save/i);
+    const saveBtn = screen.getByText(/Speichern|Save/i);
     fireEvent.click(saveBtn);
 
     await waitFor(() => {
